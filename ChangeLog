@@ -1,3 +1,7 @@
+Mon Dec 24 18:04:08 2007  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: use better identifier.
+
 Mon Dec 10 06:51:39 2007  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: refactoring: rename rule:
