@@ -1,0 +1,45 @@
+import stdio;
+
+static int g = 8;
+static int c;
+
+int
+main(int argc, char **argv)
+{
+    int i = 1;
+    int j;
+
+    printf("%d", 1 - 0);      // 1
+    printf(";%d", 3 - i);     // 2
+    i = 4;
+    j = 1;
+    printf(";%d", i - j);     // 3
+    printf(";%d", g - i);     // 4
+    i = 13;
+    printf(";%d", i - g);     // 5
+    printf(";%d", f(7));      // 6
+    printf(";%d", f(9) - 1);  // 7
+    i = 1;
+    printf(";%d", f(10) - i); // 8
+    c = 2;
+    printf(";%d", f(12) - c); // 9
+    i = 11;
+    printf(";%d", f(i));      // 10
+    i = 13;
+    j = 1;
+    printf(";%d", f(i) - j);  // 11
+    i = 15;
+    j = 4;
+    printf(";%d", i - f(j));  // 12
+    i = 25;
+    j = 12;
+    printf(";%d", f(i) - f(j));  // 13
+    puts("");
+    return 0;
+}
+
+int
+f(int i)
+{
+    return i - 1;
+}

@@ -1,0 +1,13 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    int i = 1;
+
+    {
+        int i = 2;
+        printf("%d\n", 2);
+    }
+    return 0;
+}

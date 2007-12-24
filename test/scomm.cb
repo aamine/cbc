@@ -1,0 +1,13 @@
+import stdio;
+
+static int static_common_symbol;
+
+int
+main(int argc, char **argv)
+{
+    static_common_symbol = 1;
+    printf("%d", static_common_symbol);
+    static_common_symbol = 2;
+    printf(";%d\n", static_common_symbol);
+    return 0;
+}

@@ -1,0 +1,14 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    static int static_variable;
+
+    static_variable = 1;
+    printf("%d", static_variable);
+    static_variable = 2;
+    printf(";%d", static_variable);
+    puts("");
+    return 0;
+}

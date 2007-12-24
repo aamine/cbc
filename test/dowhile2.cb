@@ -1,0 +1,13 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    do {
+        puts("OK");
+        return 0;
+    }
+    while (1);
+    puts("NG");
+    return 1;
+}

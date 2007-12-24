@@ -1,0 +1,9 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    printf("%d;%d;%d;%d;%d", 7 & 0, 7 & 1, 7 & 2, 7 & 3, 7 & 4);
+    puts("");
+    return 0;
+}

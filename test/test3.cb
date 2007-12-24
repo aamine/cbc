@@ -1,0 +1,7 @@
+// lookahead test (defstruct VS defvar)
+
+struct file {
+    int fd;
+};
+
+struct file f;

@@ -1,0 +1,19 @@
+import stdio;
+
+struct a {
+    int x;
+    int y;
+};
+
+int
+main(int argc, char **argv)
+{
+    struct a a;
+    struct a* ptr;
+
+    ptr = &a;
+    ptr->x = 1;
+    ptr->y = 2;
+    printf("%d;%d\n", ptr->x, ptr->y);
+    return 0;
+}

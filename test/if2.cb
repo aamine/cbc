@@ -1,0 +1,8 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    if (2) { puts("OK"); }
+    return 0;
+}

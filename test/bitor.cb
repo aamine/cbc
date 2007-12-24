@@ -1,0 +1,11 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    printf("%d;%d;%d;%d;%d;%d", 0|0, 0|1, 0|2, 1|2, 2|2, 2|4);
+    printf(";%d", (0 | 2) * 4);
+    printf(";%d", 5 * (0 | 2));
+    puts("");
+    return 0;
+}

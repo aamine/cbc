@@ -1,0 +1,17 @@
+import stdio;
+
+struct point {
+    int x;
+    int y;
+};
+
+int
+main(int argc, char **argv)
+{
+    struct point pnt;
+
+    pnt.x = 11;
+    pnt.y = 22;
+    printf("%d;%d\n", pnt.x, pnt.y);
+    return 0;
+}

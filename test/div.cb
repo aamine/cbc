@@ -1,0 +1,8 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    printf("%d;%d;%d;%d\n", 1 / 1, 2 / 1, 4 / 2, 5 / 2);
+    return 0;
+}

@@ -1,0 +1,11 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    void (*)(char*) f;
+
+    f = puts;
+    f("OK");
+    return 0;
+}

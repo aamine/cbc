@@ -1,0 +1,191 @@
+- generate resolved AST
+        - constant table
+        - types
+        - scope, frame
+- integer literal
+	- 1, 2, 3, ...
+	- octal (010)
+	- hex (0x1f)
+	- 1U, 1L, 1UL
+- character literal
+	- 'c'
+	- standard escape sequence ('\n', ...)
+	- octal escape sequence ('\077')
+- string literal
+	- "string"
+	- standard escape sequence ('\n', ...)
+	- octal escape sequence ("\077")
+- import
+        - single import
+        - recursive import
+        - import function
+        - import type
+- build x86 test environment
+- compile "Hello, World"
+- write unit tests
+- funcall
+        - 0 arg
+        - 1 arg
+        - 2 args
+        - 3
+        - 4 - 10 args
+- variables
+        - param
+                - reference
+                - assign
+        - lvar
+                - assign
+                - reference
+                - initializer
+        - common symbol
+                - assign
+                - reference
+        - global variable
+                - define
+                - reference
+                - assign
+        - private common symbol
+                - assign
+                - reference
+        - private global variable
+                - define
+                - assign
+                - reference
+        - function-static variable
+                - assign
+                - reference
+                - initializer
+- op
+        - +
+        - -
+        - *
+        - /
+        - %
+- bitwise op
+        - ~
+        - &
+        - |
+        - ^
+        - >>
+        - <<
+- unary op
+        - +@
+        - -@
+        - !
+- comparison op
+        - ==
+        - !=
+        - >
+        - >=
+        - <
+        - <=
+- self assignment
+        - +=, -=, *=, ...
+        - ++
+        - --
+- control structure
+        - if
+        - while
+                - flow
+                - break
+                - continue
+        - for
+                - flow
+                - break
+                - continue
+        - do...while
+                - flow
+                - break
+                - continue
+        - switch
+        - goto
+- valued control structure
+        - &&
+        - ||
+        - a ? b : c
+- array
+        - as LHS
+        - as RHS
+        - reject negative length array definition
+- struct
+        - as LHS
+        - as RHS
+        - recursive definition with pointer
+- union
+        - as LHS
+        - as RHS
+        - recursive definition with pointer
+* composite literal {1,2,3...}
+        - parse (initializer)
+        - parse (rhs)
+        * type check
+        * code generation
+- pointer
+        - *ptr
+        - *ptr = val
+        - ptr->memb
+        - ptr->memb = val
+- &expr
+        - as RHS
+        * ?? as LHS
+- function pointer
+        - refer
+        - call ptr(arg)
+* complex LHS
+        - local variable
+        * parameter
+        * global variables / common symbols
+        * static variables
+        * *arr[0] = ...
+        * *st.memb = ...
+        * *ptr++ = ...
+        * *(ptr + N) = ...
+        * *(int*)ptr = ...
+        * their combination
+- bare block ({...})
+- cast
+- semantic check (control)
+        - reject break from out of loop/switch
+        - reject continue from out of loop
+- semantic check (reference)
+        - check all symbols are resolved
+        - check duplicated parameters
+        - check if the calling function exists
+        - warn unused static variables
+        - warn unused local variables
+        - warn unused static functions
+* semantic check (type)
+        - prohibit circular struct/union definition
+        * type check
+        * implicit cast
+        * check duplicated struct/union members
+        * check if struct member is valid
+        * check if union member is valid
+- op for various types
+        - signed char
+        - signed short
+        - signed int
+        - signed long
+        - unsigned char
+        - unsigned short
+        - unsigned int
+        - unsigned long
+- Multibyte input
+* parse command line option
+* --dump-tokens
+* --dump-ast
+* ?? --dump-semantic
+* generate IR
+* --dump-ir
+* control flow graph
+* --dump-cflow
+* semantic check (cflow)
+        * warn unreachable stmt
+        * warn no return
+* data flow graph
+* --dump-dflow
+        * warn uninitialized use of variables
+* semantic check (dflow)
+* register allocation
+* vararg retrieve
+* 64bit long_long support

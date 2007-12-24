@@ -1,0 +1,8 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    printf("マルチバイト文字ですよ〜\n");
+    return 0;
+}

@@ -1,0 +1,23 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    int i = 4;
+    int j;
+
+    printf("%d", i);    // 4
+    --i;
+    printf(";%d", i);   // 3
+    j = --i;
+    printf(";%d", j);   // 2
+    printf(";%d", i);   // 2
+    i--;
+    printf(";%d", i);   // 1
+    j = i--;
+    printf(";%d", j);   // 1
+    printf(";%d", i);   // 0
+    puts("");
+
+    return 0;
+}

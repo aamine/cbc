@@ -1,0 +1,35 @@
+package net.loveruby.cflat.ast;
+import net.loveruby.cflat.asm.Label;
+
+public class LabelNode extends Node {
+    protected String name;
+    protected Node stmt;
+    protected Label label;
+
+    public LabelNode(String name, Node stmt) {
+        super();
+        this.name = name;
+        this.stmt = stmt;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public Node stmt() {
+        return stmt;
+    }
+
+    public void setLabel(Label label) {
+        this.label = label;
+    }
+
+    public Label label() {
+        if (label == null) throw new Error("label is null");
+        return label;
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
+    }
+}

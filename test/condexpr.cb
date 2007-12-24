@@ -1,0 +1,12 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    printf("%s", 1 ? "OK" : "NG");
+    printf(";%s", 0 ? "NG" : "OK");
+    printf(";%s", 0==0 ? "OK" : "NG");
+    printf(";%s", 0==1 ? "NG" : "OK");
+    puts("");
+    return 0;
+}

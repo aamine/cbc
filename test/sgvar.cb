@@ -1,0 +1,12 @@
+import stdio;
+
+static int static_global_variable = 1;
+
+int
+main(int argc, char **argv)
+{
+    printf("%d", static_global_variable);
+    static_global_variable = 2;
+    printf(";%d\n", static_global_variable);
+    return 0;
+}

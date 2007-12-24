@@ -1,0 +1,93 @@
+// various syntaxes
+
+// line comment
+    // line comment-----
+
+    /* block comment */
+/* block
+comment in
+  multiple lines */
+
+import stdio;
+import stdlib;
+import unistd;
+
+char c;
+short s;
+int ii;
+long l;
+long long ll;
+
+unsigned char uc;
+unsigned short us;
+unsigned int ui;
+unsigned long ul;
+unsigned long long ull;
+
+int* p;
+int** pp;
+int*** ppp;
+int**** pppp;
+int***** ppppp;
+
+int[] a;
+int[][] aa;
+int[][][] aaa;
+int[][][][] aaaa;
+int[][][][][] aaaaa;
+
+int*[] pa;
+int[]* ap;
+int**[] ppa;
+int*[]* pap;
+int[]** app;
+int[][]* aap;
+int[]*[] apa;
+int*[][] paa;
+
+struct file {
+    int fd;
+    char *path;
+};
+
+struct ifnode {
+    union node *cond;
+    union node *then_body;
+    union node *else_body;
+};
+
+struct stmt {
+    union node *expr;
+};
+
+union node {
+    struct ifnode ifnode;
+    struct stmt stmt;
+};
+
+typedef int myint;
+
+int
+main(int argc, char[][] argv)
+{
+    ff();
+    return f(1, 2, 3);
+}
+
+void ff(void) { return; }
+
+int
+f(int i, int j, int k)
+{
+    i++;
+    ++i;
+    i--;
+    --i;
+    printf("%d, %d, %p\n", 1, *(int*)j, (void*)h());
+    return g(g(i, j % 18), 3 + 5 * 7);
+}
+
+int g(int i, int j) {
+    ;; return i * h() * *((long*)&j)  ; }
+
+myint h(void) { return 0; }

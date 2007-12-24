@@ -1,0 +1,9 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    printf("%d;%d;%d", ~0, ~1, ~(-1));
+    puts("");
+    return 0;
+}

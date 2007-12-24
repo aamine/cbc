@@ -1,0 +1,15 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    int i;
+
+    for (i = 3; i; i--) {
+        continue;
+        puts("NG");
+    }
+    puts("OK");
+
+    return 0;
+}

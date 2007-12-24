@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="CflatCompiler" default="compile" basedir=".">
+    <target name="init">
+        <property file="build.properties" />
+    </target>
+    <target name="parser" depends="init">
+        <javacc target="${src.jj.file}"
+            javacchome="${javacc.dir}" />
+    </target>
+    <target name="compile" depends="init, parser">
+        <mkdir dir="${build.dir}" />
+        <mkdir dir="${build.classes.dir}" />
+        <javac destdir="${build.classes.dir}" srcdir="${src.dir}"
+               debug="true" source="1.4">
+            <include name="net/**/*.java" />
+        </javac>
+    </target>
+    <target name="clean" depends="init">
+        <delete dir="${build.dir}" />
+        <delete file="${build.parser.dir}/Parser.java" />
+        <delete file="${build.parser.dir}/ParserConstants.java" />
+        <delete file="${build.parser.dir}/ParserTokenManager.java" />
+        <delete file="${build.parser.dir}/ParseException.java" />
+        <delete file="${build.parser.dir}/Token.java" />
+        <delete file="${build.parser.dir}/TokenMgrError.java" />
+        <delete file="${build.parser.dir}/SimpleCharStream.java" />
+    </target>
+</project>

@@ -1,0 +1,9 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    short n = 5000;
+    printf("%ld\n", (long)((long)n * (long)n));
+    return 0;
+}
