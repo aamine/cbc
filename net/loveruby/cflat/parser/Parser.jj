@@ -461,9 +461,8 @@ FixedParams fixedparams():
     Parameter param;
 }
 {
-    param=param()       { params.add(param); }
-    ( LOOKAHEAD(",", {!getToken(2).image.equals("...")})
-      "," param=param() { params.add(param); } )*
+    param=param() { params.add(param); }
+    ( LOOKAHEAD(2) "," param=param() { params.add(param); } )*
         {
             return new FixedParams(params);
         }
@@ -622,9 +621,8 @@ FixedParams fixedparam_typerefs():
     TypeRef ref;
 }
 {
-    ref=typeref()         { refs.add(ref); }
-    ( LOOKAHEAD(",", {!getToken(2).image.equals("...")})
-      "," ref=typeref()   { refs.add(ref); } )*
+    ref=typeref() { refs.add(ref); }
+    ( LOOKAHEAD(2) "," ref=typeref() { refs.add(ref); } )*
         {
             return new FixedParams(refs);
         }
@@ -1073,9 +1071,8 @@ List args():
     Node arg;
 }
 {
-    [ LOOKAHEAD({!getToken(1).image.equals(")")})
-            arg=expr() { args.add(arg); }
-            ("," arg=expr() { args.add(arg); })* ]
+    [ arg=expr() { args.add(arg); }
+      ("," arg=expr() { args.add(arg); })* ]
         {
             return args;
         }

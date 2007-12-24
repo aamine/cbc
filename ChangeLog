@@ -1,3 +1,8 @@
+Tue Dec 25 05:53:19 2007  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj (fixedparams,
+	  fixedparam_typerefs, args): simplify lookahead.
+
 Tue Dec 25 02:09:35 2007  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: expr0 -> expr1, expr1 ->
