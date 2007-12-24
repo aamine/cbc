@@ -68,7 +68,7 @@ public class Parser {
 
     public AST parse() throws SyntaxException {
         try {
-            return program();
+            return compilation_unit();
         }
         catch (TokenMgrError err) {
             handler.error(err.getMessage());
@@ -82,7 +82,7 @@ public class Parser {
 
     public Declarations parseDecls() throws SyntaxException {
         try {
-            return declfile();
+            return declaration_file();
         }
         catch (TokenMgrError ex) {
             handler.error(ex.getMessage());
@@ -280,7 +280,23 @@ MORE: { <"\""> : IN_STRING }
  *  Grammar
  */
 
-Declarations declfile():
+AST compilation_unit():
+{
+    Token t;
+    Declarations impdecls, decls;
+}
+{
+        {
+            t = getToken(1);
+        }
+    impdecls=import_stmts() decls=top_decls() <EOF>
+        {
+            decls.add(impdecls);
+            return new AST(sourceName, decls, t);
+        }
+}
+
+Declarations declaration_file():
 {
     Declarations impdecls, decls = new Declarations();
     UndefinedFunction funcdecl;
@@ -290,7 +306,7 @@ Declarations declfile():
     TypedefNode typedef;
 }
 {
-    impdecls=imports()
+    impdecls=import_stmts()
         {
             decls.add(impdecls);
         }
@@ -307,26 +323,10 @@ Declarations declfile():
         }
 }
 
-AST program():
-{
-    Token t;
-    Declarations externs, decls;
-}
-{
-        {
-            t = getToken(1);
-        }
-    externs=imports() decls=top_decls() <EOF>
-        {
-            decls.add(externs);
-            return new AST(sourceName, decls, t);
-        }
-}
-
-Declarations imports():
+Declarations import_stmts():
 {
     String libid;
-    Declarations libdecls = new Declarations();
+    Declarations impdecls = new Declarations();
 }
 {
     (libid=import_stmt()
@@ -334,7 +334,7 @@ Declarations imports():
             try {
                 Declarations decls = loader.loadLibrary(libid, handler);
                 if (decls != null) {
-                    libdecls.add(decls);
+                    impdecls.add(decls);
                     Iterator types = decls.typedefs().iterator();
                     while (types.hasNext()) {
                         TypedefNode n = (TypedefNode)types.next();
@@ -349,7 +349,7 @@ Declarations imports():
         }
     )*
         {
-            return libdecls;
+            return impdecls;
         }
 }
 
