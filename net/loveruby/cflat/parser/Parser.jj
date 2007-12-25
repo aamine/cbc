@@ -915,7 +915,7 @@ Class opassign_op(): {}
 Node expr10():
 { Node c, t, e; }
 {
-    c=expr9() ["?" t=expr10() ":" e=expr10()
+    c=expr9() ["?" t=expr() ":" e=expr10()
                     { return new CondExprNode(labelPool, c, t, e); }]
         {
             return c;

@@ -1,3 +1,8 @@
+Wed Dec 26 06:12:26 2007  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj (expr10): then expr is
+	  expr().
+
 Wed Dec 26 02:46:32 2007  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: 5-1-1 should be 3, not 5.
