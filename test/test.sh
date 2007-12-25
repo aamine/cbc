@@ -145,4 +145,6 @@ assert_out "1;2;3" ./defvar
 assert_error $CBC defun-semcheck.cb
 assert_error $CBC funcall-semcheck.cb
 
+assert_out "3" ./assoc
+
 test_finished

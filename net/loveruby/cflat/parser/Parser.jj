@@ -925,7 +925,7 @@ Node expr10():
 Node expr9():
 { Node l, r; }
 {
-    l=expr8() ["||" r=expr9() { return new LogicalOrNode(labelPool, l, r); }]
+    l=expr8() ("||" r=expr8() { l = new LogicalOrNode(labelPool, l, r); })*
         {
             return l;
         }
@@ -934,7 +934,7 @@ Node expr9():
 Node expr8():
 { Node l, r; }
 {
-    l=expr7() ["&&" r=expr8() { return new LogicalAndNode(labelPool, l, r); }]
+    l=expr7() ("&&" r=expr7() { l = new LogicalAndNode(labelPool, l, r); })*
         {
             return l;
         }
@@ -943,12 +943,12 @@ Node expr8():
 Node expr7():
 { Node l, r; }
 {
-    l=expr6() [( ">"  r=expr7() { return new GtNode(l, r); }
-               | "<"  r=expr7() { return new LtNode(l, r); }
-               | ">=" r=expr7() { return new GtEqNode(l, r); }
-               | "<=" r=expr7() { return new LtEqNode(l, r); }
-               | "==" r=expr7() { return new EqNode(l, r); }
-               | "!=" r=expr7() { return new NotEqNode(l, r); } )]
+    l=expr6() ( ">"  r=expr6() { l = new GtNode(l, r); }
+              | "<"  r=expr6() { l = new LtNode(l, r); }
+              | ">=" r=expr6() { l = new GtEqNode(l, r); }
+              | "<=" r=expr6() { l = new LtEqNode(l, r); }
+              | "==" r=expr6() { l = new EqNode(l, r); }
+              | "!=" r=expr6() { l = new NotEqNode(l, r); } )*
         {
             return l;
         }
@@ -957,7 +957,7 @@ Node expr7():
 Node expr6():
 { Node l, r; }
 {
-    l=expr5() ["|" r=expr6() { return new BitwiseOrNode(l, r); }]
+    l=expr5() ("|" r=expr5() { l = new BitwiseOrNode(l, r); })*
         {
             return l;
         }
@@ -966,7 +966,7 @@ Node expr6():
 Node expr5():
 { Node l, r; }
 {
-    l=expr4() ["^" r=expr5() { return new BitwiseXorNode(l, r); }]
+    l=expr4() ("^" r=expr4() { l = new BitwiseXorNode(l, r); })*
         {
             return l;
         }
@@ -975,7 +975,7 @@ Node expr5():
 Node expr4():
 { Node l, r; }
 {
-    l=expr3() ["&" r=expr4() { return new BitwiseAndNode(l, r); }]
+    l=expr3() ("&" r=expr3() { l = new BitwiseAndNode(l, r); })*
         {
             return l;
         }
@@ -984,8 +984,9 @@ Node expr4():
 Node expr3():
 { Node l, r; }
 {
-    l=expr2() [( ">>" r=expr3() { return new RShiftNode(l, r); }
-               | "<<" r=expr3() { return new LShiftNode(l, r); } )]
+    l=expr2() ( ">>" r=expr2() { l = new RShiftNode(l, r); }
+              | "<<" r=expr2() { l = new LShiftNode(l, r); }
+              )*
         {
             return l;
         }
@@ -994,8 +995,9 @@ Node expr3():
 Node expr2():
 { Node l, r; }
 {
-    l=expr1() [( "+" r=expr2() { return new PlusNode(l, r); }
-               | "-" r=expr2() { return new MinusNode(l, r); } )]
+    l=expr1() ( "+" r=expr1() { l = new PlusNode(l, r); }
+              | "-" r=expr1() { l = new MinusNode(l, r); }
+              )*
         {
             return l;
         }
@@ -1004,9 +1006,10 @@ Node expr2():
 Node expr1():
 { Node l, r; }
 {
-    l=term() [( "*" r=expr1() { return new MulNode(l, r); }
-              | "/" r=expr1() { return new DivNode(l, r); }
-              | "%" r=expr1() { return new ModNode(l, r); } )]
+    l=term() ( "*" r=term() { l = new MulNode(l, r); }
+             | "/" r=term() { l = new DivNode(l, r); }
+             | "%" r=term() { l = new ModNode(l, r); }
+             )*
         {
             return l;
         }

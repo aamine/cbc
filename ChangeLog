@@ -1,3 +1,13 @@
+Wed Dec 26 02:46:32 2007  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: 5-1-1 should be 3, not 5.
+
+	* test/test.sh: test op association.
+
+	* test/assoc.cb: new test case.
+
+	* test/Makefile: build it.
+
 Tue Dec 25 05:53:19 2007  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj (fixedparams,
