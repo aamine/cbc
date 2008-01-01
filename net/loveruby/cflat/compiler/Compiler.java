@@ -1,6 +1,7 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.parser.*;
 import net.loveruby.cflat.ast.*;
+import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 import java.io.*;
@@ -11,17 +12,20 @@ public class Compiler {
     }
 
     static final private String programId = "cbc";
+    protected TypeTable typeTable;
     protected LibraryLoader loader;
-    protected ErrorHandler handler;
+    protected ErrorHandler errorHandler;
 
     public Compiler() {
+        typeTable = TypeTable.ilp32();
         loader = new LibraryLoader();
-        handler = new ErrorHandler(programId);
+        errorHandler = new ErrorHandler(programId);
     }
 
-    public Compiler(LibraryLoader ld, ErrorHandler h) {
+    public Compiler(TypeTable table, LibraryLoader ld, ErrorHandler h) {
+        typeTable = table;
         loader = ld;
-        handler = h;
+        errorHandler = h;
     }
 
     public void commandMain(String[] args) {
@@ -54,7 +58,7 @@ public class Compiler {
     }
 
     private void errorExit(String msg) {
-        handler.error(msg);
+        errorHandler.error(msg);
         System.exit(1);
     }
 
@@ -73,18 +77,19 @@ public class Compiler {
     }
 
     public void compileFile(String path) throws CompileException {
+        TypeTable typeTable = TypeTable.ilp32();
         AST ast = parseFile(path);
-        JumpResolver.resolve(ast, handler);
-        LocalReferenceResolver.resolve(ast, handler);
-        TypeResolver.resolve(ast);
-        TypeChecker.check(ast, handler);
-        String asm = CodeGenerator.generate(ast);
+        JumpResolver.resolve(ast, errorHandler);
+        LocalReferenceResolver.resolve(ast, errorHandler);
+        TypeResolver.resolve(ast, typeTable, errorHandler);
+        TypeChecker.check(ast, typeTable, errorHandler);
+        String asm = CodeGenerator.generate(ast, typeTable, errorHandler);
         writeFile(asmFileName(path), asm);
         assemble(asmFileName(path));
     }
 
     public AST parseFile(String path) throws CompileException {
-        return Parser.parseFile(new File(path), loader, handler);
+        return Parser.parseFile(new File(path), loader, errorHandler);
     }
 
     public void assemble(String path) throws IPCException {
@@ -97,17 +102,17 @@ public class Compiler {
             Process proc = Runtime.getRuntime().exec(cmd);
             proc.waitFor();
             if (proc.exitValue() != 0) {
-                handler.error("gcc failed (assemble); status " +
+                errorHandler.error("gcc failed (assemble); status " +
                               proc.exitValue());
                 throw new IPCException("compile error");
             }
         }
         catch (InterruptedException ex) {
-            handler.error("gcc interrupted: " + ex.getMessage());
+            errorHandler.error("gcc interrupted: " + ex.getMessage());
             throw new IPCException("compile error");
         }
         catch (IOException ex) {
-            handler.error(ex.getMessage());
+            errorHandler.error(ex.getMessage());
             throw new IPCException("compile error");
         }
     }
@@ -125,11 +130,11 @@ public class Compiler {
             }
         }
         catch (FileNotFoundException ex) {
-            handler.error("file not found: " + path);
+            errorHandler.error("file not found: " + path);
             throw new FileException("file error");
         }
         catch (IOException ex) {
-            handler.error("IO error" + ex.getMessage());
+            errorHandler.error("IO error" + ex.getMessage());
             throw new FileException("file error");
         }
     }

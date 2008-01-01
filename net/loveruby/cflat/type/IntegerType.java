@@ -32,11 +32,10 @@ public class IntegerType extends Type {
     }
 
     public boolean isCompatible(Type other) {
-        return (other.isInteger() && other.size() <= size);
+        return (other.isInteger() && size <= other.size());
     }
 
     public boolean isCastableTo(Type target) {
-        return (target.isInteger() && target.size() >= size)
-            || (target.isPointer() && target.size() >= size);
+        return (target.isInteger() || target.isPointer());
     }
 }

@@ -130,6 +130,10 @@ public class TypeTable {
         table.put(ref, new UserType(ref.name(), real));
     }
 
+    public PointerType pointerTo(Type base) {
+        return new PointerType(pointerSize, base);
+    }
+
     public void semanticCheck() {
         Iterator types = table.values().iterator();
         while (types.hasNext()) {

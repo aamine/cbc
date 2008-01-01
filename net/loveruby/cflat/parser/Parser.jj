@@ -15,24 +15,21 @@ import java.util.*;
 import java.io.*;
 
 public class Parser {
-    static public AST parseFile(File file,
-            LibraryLoader loader, ErrorHandler handler)
-            throws CompileException {
-        return newFileParser(file, loader, handler).parse();
+    static public AST parseFile(File file, LibraryLoader loader,
+            ErrorHandler errorHandler) throws CompileException {
+        return newFileParser(file, loader, errorHandler).parse();
     }
 
-    static public Declarations parseDeclFile(File file,
-            LibraryLoader loader, ErrorHandler handler)
-            throws CompileException {
-        return newFileParser(file, loader, handler).parseDecls();
+    static public Declarations parseDeclFile(File file, LibraryLoader loader,
+            ErrorHandler errorHandler) throws CompileException {
+        return newFileParser(file, loader, errorHandler).parseDecls();
     }
 
-    static public Parser newFileParser(File file,
-            LibraryLoader loader, ErrorHandler handler)
-            throws FileException {
+    static public Parser newFileParser(File file, LibraryLoader loader,
+            ErrorHandler errorHandler) throws FileException {
         try {
             return new Parser(newReader(new FileInputStream(file)),
-                              file.getPath(), loader, handler);
+                              file.getPath(), loader, errorHandler);
         }
         catch (FileNotFoundException ex) {
             throw new FileException(ex.getMessage());
@@ -54,14 +51,14 @@ public class Parser {
     protected LabelPool labelPool;
     protected Set knownTypedefs;
     protected LibraryLoader loader;
-    protected ErrorHandler handler;
+    protected ErrorHandler errorHandler;
 
     public Parser(Reader s, String name,
-            LibraryLoader loader, ErrorHandler handler) {
+            LibraryLoader loader, ErrorHandler errorHandler) {
         this(s);
         this.sourceName = name;
         this.loader = loader;
-        this.handler = handler;
+        this.errorHandler = errorHandler;
         this.labelPool = new LabelPool();
         this.knownTypedefs = new HashSet();
     }
@@ -71,11 +68,11 @@ public class Parser {
             return compilation_unit();
         }
         catch (TokenMgrError err) {
-            handler.error(err.getMessage());
+            errorHandler.error(err.getMessage());
             throw new SyntaxException(err.getMessage());
         }
         catch (ParseException ex) {
-            handler.error(ex.getMessage());
+            errorHandler.error(ex.getMessage());
             throw new SyntaxException(ex.getMessage());
         }
     }
@@ -85,11 +82,11 @@ public class Parser {
             return declaration_file();
         }
         catch (TokenMgrError ex) {
-            handler.error(ex.getMessage());
+            errorHandler.error(ex.getMessage());
             throw new SyntaxException(ex.getMessage());
         }
         catch (ParseException ex) {
-            handler.error(ex.getMessage());
+            errorHandler.error(ex.getMessage());
             throw new SyntaxException(ex.getMessage());
         }
     }
@@ -332,7 +329,7 @@ Declarations import_stmts():
     (libid=import_stmt()
         {
             try {
-                Declarations decls = loader.loadLibrary(libid, handler);
+                Declarations decls = loader.loadLibrary(libid, errorHandler);
                 if (decls != null) {
                     impdecls.add(decls);
                     Iterator types = decls.typedefs().iterator();
@@ -343,7 +340,7 @@ Declarations import_stmts():
                 }
             }
             catch (CompileException ex) {
-                handler.error(ex.getMessage());
+                errorHandler.error(ex.getMessage());
                 throw new ParseException("compile error");
             }
         }

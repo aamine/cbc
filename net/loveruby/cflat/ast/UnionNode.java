@@ -7,6 +7,10 @@ public class UnionNode extends ComplexTypeDefinition {
         super(ref, name, membs);
     }
 
+    public String type() {
+        return "union";
+    }
+
     public TypeRef typeRef() {
         return (UnionTypeRef)super.typeRef();
     }

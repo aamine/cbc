@@ -39,6 +39,12 @@ public class PointerType extends Type {
 
     //public boolean isArray() { return true; }
 
+    public boolean equals(Object other) {
+        if (! (other instanceof PointerType)) return false;
+        PointerType otherptr = (PointerType)other;
+        return this.base.equals(otherptr.base());
+    }
+
     public String textize() {
         return base.textize() + "*";
     }

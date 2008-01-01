@@ -1,3 +1,50 @@
+Tue Jan  1 23:21:22 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: create TypeTable
+	  here.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: accepts
+	  TypeTable and ErrorHandler.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: set type of
+	  AddressNode.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: warn incompatible
+	  cast.
+
+	* net/loveruby/cflat/compiler/ErrorHandler.java: modify message
+	  (error -> warning).
+
+	* net/loveruby/cflat/parser/Parser.jj: rename variable: handler ->
+	  errorHandler.
+
+	* net/loveruby/cflat/ast/AST.java: do not contain TypeTable.
+
+	* net/loveruby/cflat/ast/ComplexTypeDefinition.java: new method
+	  #type.
+
+	* net/loveruby/cflat/ast/StructNode.java: ditto.
+
+	* net/loveruby/cflat/ast/UnionNode.java: ditto.
+
+	* net/loveruby/cflat/ast/AddressNode.java: receive Type from
+	  TypeChcker.
+
+	* net/loveruby/cflat/type/TypeTable.java: new method #pointerTo.
+
+	* net/loveruby/cflat/type/IntegerType.java (isCompatible): check
+	  if self is compatible with other side (be able to cast to other
+	  implicitly).
+
+	* net/loveruby/cflat/type/IntegerType.java (isCastableTo): allow
+	  explicit cast if type of type is same (integer/pointer).
+
+	* net/loveruby/cflat/type/PointerType.java: implement #equals.
+
 Tue Jan  1 21:56:19 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: invoke TypeChecker.

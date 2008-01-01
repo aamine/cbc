@@ -5,22 +5,26 @@ import net.loveruby.cflat.asm.*;
 import java.util.*;
 
 public class CodeGenerator implements ASTVisitor {
-    static public String generate(AST ast) {
-        return new CodeGenerator(new Assembler()).generateAssembly(ast);
+    static public String generate(AST ast, TypeTable typeTable,
+            ErrorHandler errorHandler) {
+        CodeGenerator gen = new CodeGenerator(new Assembler(), errorHandler);
+        return gen.generateAssembly(ast, typeTable);
     }
 
     protected Assembler as;
     protected DefinedFunction currentFunction;
     protected TypeTable typeTable;
+    protected ErrorHandler errorHandler;
 
-    public CodeGenerator(Assembler as) {
+    public CodeGenerator(Assembler as, ErrorHandler errorHandler) {
         this.as = as;
+        this.errorHandler = errorHandler;
     }
 static public void p(String s) { System.err.println(s); }
 
     /** Compiles "ast" and generates assembly code. */
-    public String generateAssembly(AST ast) {
-        typeTable = ast.typeTable();
+    public String generateAssembly(AST ast, TypeTable typeTable) {
+        typeTable = typeTable;
         allocateGlobalVariables(ast.globalVariables());
         allocateCommonSymbols(ast.commonSymbols());
 

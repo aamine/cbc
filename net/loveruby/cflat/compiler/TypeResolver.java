@@ -4,15 +4,20 @@ import net.loveruby.cflat.type.*;
 import java.util.*;
 
 public class TypeResolver extends Visitor implements DefinitionVisitor {
-    static public void resolve(AST ast) {
-        new TypeResolver().resolveProgram(ast);
+    static public void resolve(AST ast, TypeTable typeTable,
+            ErrorHandler errorHandler) {
+        new TypeResolver(typeTable, errorHandler).resolveProgram(ast);
     }
 
     protected TypeTable typeTable;
+    protected ErrorHandler errorHandler;
+
+    public TypeResolver(TypeTable typeTable, ErrorHandler errorHandler) {
+        this.typeTable = typeTable;
+        this.errorHandler = errorHandler;
+    }
 
     public void resolveProgram(AST ast) {
-        typeTable = ast.typeTable();
-        //importLibraries(ast.importLibraryNames());
         defineTypes(ast.types());
         resolveDeclarations(ast.types());
         resolveDeclarations(ast.declarations());
@@ -48,7 +53,7 @@ public class TypeResolver extends Visitor implements DefinitionVisitor {
     public void resolveComplexType(ComplexTypeDefinition def) {
         ComplexType ct = (ComplexType)typeTable.get(def.typeNode().typeRef());
         if (ct == null) {
-            throw new Error("FATAL: cannot intern Struct/Union");
+            throw new Error("cannot intern struct/union: " + def.name());
         }
         Iterator membs = ct.members();
         while (membs.hasNext()) {

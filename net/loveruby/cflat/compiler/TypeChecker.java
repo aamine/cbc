@@ -5,14 +5,16 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 class TypeChecker extends Visitor {
-    static public void check(AST ast, ErrorHandler handler)
-                                        throws SemanticException {
-        new TypeChecker(handler).visit(ast);
+    static public void check(AST ast, TypeTable typeTable,
+            ErrorHandler handler) throws SemanticException {
+        new TypeChecker(typeTable, handler).visit(ast);
     }
 
+    protected TypeTable typeTable;
     protected ErrorHandler handler;
 
-    public TypeChecker(ErrorHandler handler) {
+    public TypeChecker(TypeTable typeTable, ErrorHandler handler) {
+        this.typeTable = typeTable;
         this.handler = handler;
     }
 
@@ -272,6 +274,7 @@ class TypeChecker extends Visitor {
         super.visit(node);
         // FIXME: check types
         // FIXME: check if callable
+        // FIXME: check argument types
     }
 
     public void visit(ArefNode node) {
@@ -297,6 +300,8 @@ class TypeChecker extends Visitor {
 
     public void visit(AddressNode node) {
         super.visit(node);
+        Type t = typeTable.pointerTo(node.expr().type());
+        node.setType(t);
         // FIXME: what is "assignable"??
     }
 
@@ -304,6 +309,11 @@ class TypeChecker extends Visitor {
         resolve(node.expr());
         if (! node.expr().type().isCastableTo(node.type())) {
             incompatibleTypeError(node.expr().type(), node.type());
+        }
+        else if (! node.expr().type().isCompatible(node.type())) {
+            handler.warn("incompatible cast from " +
+                    node.expr().type().textize() +
+                    " to " + node.type().textize());
         }
     }
 

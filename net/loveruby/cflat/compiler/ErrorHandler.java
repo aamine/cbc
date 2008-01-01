@@ -23,7 +23,7 @@ public class ErrorHandler {
     }
 
     public void warn(String msg) {
-        stream.println(programId + ": error: " + msg);
+        stream.println(programId + ": warning: " + msg);
         nWarning++;
     }
 

@@ -7,6 +7,10 @@ public class StructNode extends ComplexTypeDefinition {
         super(ref, name, membs);
     }
 
+    public String type() {
+        return "struct";
+    }
+
     public TypeRef typeRef() {
         return super.typeRef();
     }

@@ -1,6 +1,5 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.parser.Token;
-import net.loveruby.cflat.type.TypeTable;
 import java.util.*;
 
 public class AST extends Node {
@@ -9,7 +8,6 @@ public class AST extends Node {
     protected Token firstToken;
 
     protected ToplevelScope scope;
-    protected TypeTable typeTable;
     protected ConstantTable constantTable;
 
     public AST(String fname, Declarations decls, Token t) {
@@ -18,7 +16,6 @@ public class AST extends Node {
         declarations = decls;
         firstToken = t;
         scope = new ToplevelScope();
-        typeTable = TypeTable.ilp32();  // FIXME: platform dependent
         constantTable = new ConstantTable();
     }
 
@@ -71,10 +68,6 @@ public class AST extends Node {
 
     public ToplevelScope scope() {
         return scope;
-    }
-
-    public TypeTable typeTable() {
-        return typeTable;
     }
 
     public ConstantTable constantTable() {

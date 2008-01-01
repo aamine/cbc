@@ -16,6 +16,8 @@ abstract public class ComplexTypeDefinition extends TypeDefinition {
         return true;
     }
 
+    abstract public String type();
+
     public List members() {
         return members;
     }
