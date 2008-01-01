@@ -394,16 +394,17 @@ class TypeChecker extends Visitor {
     }
 
     protected void incompatibleTypeError(Type l, Type r) {
-        errorHandler.error("incompatible type: " +
-                l.textize() + " and " + r.textize());
+        errorHandler.error("incompatible type: "
+                           + l.textize() + " and " + r.textize());
     }
 
     protected void notIntegerError(Type type) {
-        errorHandler.error("non-integer argument for unary op: " +
-                type.textize());
+        errorHandler.error("non-integer argument for unary op: "
+                           + type.textize());
     }
 
     protected void notPointerError(Type type) {
-        errorHandler.error("non-pointer argument: " + type.textize());
+        errorHandler.error("dereferencing non-pointer expression: "
+                           + type.textize());
     }
 }
