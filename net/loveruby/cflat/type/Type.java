@@ -70,4 +70,8 @@ public abstract class Type {
     public boolean isCallable() {
         return false;
     }
+
+    public boolean isIndexable() {
+        return false;
+    }
 }

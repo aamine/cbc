@@ -114,20 +114,23 @@ assert_ok ./for-continue
 assert_error $CBC break-semcheck.cb
 assert_error $CBC continue-semcheck.cb
 
+assert_error $CBC aref-semcheck.cb
 assert_out "1;5;9" ./array
+
 assert_out "11;22" ./struct
 assert_status 0 ./struct-semcheck
 assert_error $CBC struct-semcheck2.cb
 assert_error $CBC struct-semcheck3.cb
 assert_error $CBC struct-semcheck4.cb
+
 assert_out "1;2;513" ./union   # little endian
 assert_status 0 ./union-semcheck
 assert_error $CBC union-semcheck2.cb
 assert_error $CBC union-semcheck3.cb
 assert_error $CBC union-semcheck4.cb
+
 assert_out "5;5" ./pointer
 assert_out "1;2" ./ptrmemb
-assert_out "OK" ./funcptr
 
 assert_out "2;64;-128;0" ./charops
 assert_out "2;64;128;0" ./ucharops
@@ -142,8 +145,10 @@ assert_out "2" ./block
 assert_out "25000000" ./cast
 assert_out "1;2;3" ./defvar
 
+assert_out "OK" ./funcptr
 assert_error $CBC defun-semcheck.cb
 assert_error $CBC funcall-semcheck.cb
+assert_error $CBC funcall-semcheck2.cb
 
 assert_out "3" ./assoc
 

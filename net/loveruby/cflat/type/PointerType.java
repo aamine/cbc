@@ -50,4 +50,8 @@ public class PointerType extends Type {
     public boolean isCallable() {
         return base.isFunction();
     }
+
+    public boolean isIndexable() {
+        return true;
+    }
 }

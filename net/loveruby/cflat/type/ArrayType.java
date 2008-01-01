@@ -39,6 +39,10 @@ public class ArrayType extends Type {
         return true;
     }
 
+    public boolean isIndexable() {
+        return true;
+    }
+
     public String textize() {
         if (length < 0) {
             return base.textize() + "[]";

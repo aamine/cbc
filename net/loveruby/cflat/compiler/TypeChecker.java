@@ -309,8 +309,14 @@ class TypeChecker extends Visitor {
     }
 
     public void visit(ArefNode node) {
-        super.visit(node);
-        // FIXME: check types
+        resolve(node.expr());
+        if (! node.expr().isIndexable()) {
+            errorHandler.error("is not indexable: " +
+                               node.expr().type().textize());
+            return;
+        }
+        resolve(node.index());
+        mustBeInteger(node.index());
     }
 
     public void visit(MemberNode node) {

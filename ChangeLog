@@ -1,3 +1,22 @@
+Wed Jan  2 00:38:48 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check aref base
+	  expr and index expr.
+
+	* net/loveruby/cflat/ast/Node.java: new method #isIndexable.
+
+	* net/loveruby/cflat/type/Type.java: new method #isIndexable.
+
+	* net/loveruby/cflat/type/ArrayType.java: override it.
+
+	* net/loveruby/cflat/type/PointerType.java: ditto.
+
+	* test/test.sh: test aref and funcall semantic check.
+
+	* test/aref-semcheck.cb: check if 1[0] causes error.
+
+	* test/funcall-semcheck2.cb: check if 1() causes error.
+
 Wed Jan  2 00:22:51 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: check function

@@ -19,4 +19,8 @@ abstract public class Node {
     public boolean isCallable() {
         return type().isCallable();
     }
+
+    public boolean isIndexable() {
+        return type().isIndexable();
+    }
 }
