@@ -397,12 +397,12 @@ List defvars():
     Node init = null;
 }
 {
-    priv=storage() type=type() name=name() ["=" init=rhs_expr()]
+    priv=storage() type=type() name=name() ["=" init=expr()]
         {
             defs.add(new DefinedVariable(priv, type, name, init));
             init = null;
         }
-    ("," name=name() ["=" init=rhs_expr()]
+    ("," name=name() ["=" init=expr()]
         {
             defs.add(new DefinedVariable(priv, type, name, init));
             init = null;
@@ -852,7 +852,7 @@ Node expr():
 }
 {
       LOOKAHEAD(term() "=")
-      l=term() "=" r=rhs_expr()
+      l=term() "=" r=expr()
         {
             return new AssignNode(l, r);
         }
@@ -871,26 +871,6 @@ Node expr():
     | n=expr10()
         {
             return n;
-        }
-}
-
-Node rhs_expr():
-{ Node r; }
-{
-      r=composite_literal() { return r; }
-    | r=expr()              { return r; }
-}
-
-CompositeLiteralNode composite_literal():
-{
-    List membs = new ArrayList();
-    Node n;
-}
-{
-    "{" [n=rhs_expr()          { membs.add(n); }
-            ("," n=rhs_expr()  { membs.add(n); })*] "}"
-        {
-            return new CompositeLiteralNode(membs);
         }
 }
 
