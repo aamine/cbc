@@ -22,7 +22,7 @@ public class TypeResolver extends Visitor implements DefinitionVisitor {
         resolveDeclarations(ast.types());
         resolveDeclarations(ast.declarations());
         resolveDeclarations(ast.entities());
-        typeTable.semanticCheck();
+        typeTable.semanticCheck(errorHandler);
     }
 
     private void defineTypes(Iterator deftypes) {

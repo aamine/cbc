@@ -1,3 +1,17 @@
+Wed Jan  2 03:17:46 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: pass ErrorHandler
+	  to TypeType#semanticCheck.
+
+	* net/loveruby/cflat/type/TypeTable.java (semanticCheck): check
+	  duplicated member.
+
+	* test/test.sh: invoke following test cases.
+
+	* test/struct-semcheck7.cb: test duplicated member on struct.
+
+	* test/union-semcheck7.cb: test duplicated member on union.
+
 Wed Jan  2 03:00:22 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: composite literal removed.

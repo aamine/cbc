@@ -163,7 +163,7 @@
         - implicit cast
         - validate struct/union member (ct.memb)
         - validate struct/union member (ct->memb)
-        * check duplicated struct/union members
+        - check duplicated struct/union members
         * ptr + int; ptr - int
         * check return type
         * check if assignable

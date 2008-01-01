@@ -1,4 +1,5 @@
 package net.loveruby.cflat.type;
+import net.loveruby.cflat.compiler.ErrorHandler;
 import net.loveruby.cflat.ast.TypeNode;
 import net.loveruby.cflat.ast.TypeDefinition;
 import net.loveruby.cflat.ast.Slot;
@@ -134,34 +135,53 @@ public class TypeTable {
         return new PointerType(pointerSize, base);
     }
 
-    public void semanticCheck() {
+    public void semanticCheck(ErrorHandler errorHandler) {
         Iterator types = table.values().iterator();
         while (types.hasNext()) {
             Type t = (Type)types.next();
             if (t instanceof ComplexType) {
-                checkRecursiveDefinition((ComplexType)t);
+                checkDuplicatedMembers((ComplexType)t, errorHandler);
+                checkRecursiveDefinition((ComplexType)t, errorHandler);
             }
         }
     }
 
-    protected void checkRecursiveDefinition(ComplexType t) {
-        checkRecursiveDefinition(t, new HashMap());
+    protected void checkDuplicatedMembers(ComplexType t,
+                                          ErrorHandler errorHandler) {
+        Map seen = new HashMap();
+        Iterator membs = t.members();
+        while (membs.hasNext()) {
+            Slot memb = (Slot)membs.next();
+            if (seen.containsKey(memb.name())) {
+                errorHandler.error(t.textize() + " has duplicated member: "
+                                   + memb.name());
+            }
+            seen.put(memb.name(), memb);
+        }
     }
 
-    protected void checkRecursiveDefinition(ComplexType t, Map lock) {
-        if (lock.containsKey(t)) { // FIXME: use exception
-            throw new Error("recursive type definition: " + t.textize());
+    protected void checkRecursiveDefinition(ComplexType t,
+                                            ErrorHandler errorHandler) {
+        checkRecursiveDefinition(t, new HashMap(), errorHandler);
+    }
+
+    protected void checkRecursiveDefinition(ComplexType t,
+            Map seen, ErrorHandler errorHandler) {
+        if (seen.containsKey(t)) {
+            errorHandler.error("recursive type definition: " + t.textize());
+            return;
         }
         if (t.isRecursiveChecked()) return;
-        lock.put(t, t);
+        seen.put(t, t);
         Iterator membs = t.members();
         while (membs.hasNext()) {
             Slot slot = (Slot)membs.next();
             if (slot.type() instanceof ComplexType) {
-                checkRecursiveDefinition((ComplexType)slot.type(), lock);
+                checkRecursiveDefinition((ComplexType)slot.type(),
+                                         seen, errorHandler);
             }
         }
-        lock.remove(t);
+        seen.remove(t);
         t.recursiveChecked();
     }
 }

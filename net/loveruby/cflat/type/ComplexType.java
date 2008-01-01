@@ -5,7 +5,7 @@ import java.util.*;
 
 abstract public class ComplexType extends Type {
     protected String name;
-    protected List members;
+    protected List members;     // List<Slot>
     protected long size;
     protected boolean isRecursiveChecked;
 
