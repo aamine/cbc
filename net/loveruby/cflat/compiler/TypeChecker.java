@@ -57,7 +57,7 @@ class TypeChecker extends Visitor {
 
     public void visit(SwitchNode node) {
         super.visit(node);
-        mustBeIntegerAlike(node.cond());
+        mustBeScalar(node.cond());
     }
 
     //
@@ -160,88 +160,141 @@ class TypeChecker extends Visitor {
     // Binary Operator Nodes
     //
 
-    // FIXME: ptr + int
     public void visit(PlusNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsSameIntegerOrPointerDiff(node);
     }
 
-    // FIXME: ptr + int
     public void visit(MinusNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsSameIntegerOrPointerDiff(node);
     }
 
     public void visit(MulNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsSameInteger(node);
     }
 
     public void visit(DivNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsSameInteger(node);
     }
 
     public void visit(ModNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsSameInteger(node);
     }
 
     public void visit(BitwiseAndNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsSameInteger(node);
     }
 
     public void visit(BitwiseOrNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsSameInteger(node);
     }
 
     public void visit(BitwiseXorNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsSameInteger(node);
+    }
+
+    public void visit(LShiftNode node) {
+        super.visit(node);
+        expectsSameInteger(node);
+    }
+
+    public void visit(RShiftNode node) {
+        super.visit(node);
+        expectsSameInteger(node);
     }
 
     public void visit(EqNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsComparableScalars(node);
     }
 
     public void visit(NotEqNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsComparableScalars(node);
     }
 
     public void visit(LtNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsComparableScalars(node);
     }
 
     public void visit(LtEqNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsComparableScalars(node);
     }
 
     public void visit(GtNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsComparableScalars(node);
     }
 
     public void visit(GtEqNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsComparableScalars(node);
     }
 
     public void visit(LogicalAndNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsComparableScalars(node);
     }
 
     public void visit(LogicalOrNode node) {
-        expectsSameType(node);
+        super.visit(node);
+        expectsComparableScalars(node);
     }
 
-    protected void expectsSameType(BinaryOpNode node) {
-        resolve(node.left());
-        resolve(node.right());
-        Type r = node.right().type();
-        Type l = node.left().type();
-        if (r.equals(l)) {
-            return;
+    // +, -
+    protected void expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
+        if (node.left().type().isPointer()) {
+            mustBeInteger(node.right());
+            node.setType(node.left().type());
         }
-        else if (r.isCompatible(l)) {   // insert cast on right expr
-            node.setRight(newCastNode(l, node.right()));
-        }
-        else if (l.isCompatible(r)) {   // insert cast on left expr
-            node.setLeft(newCastNode(r, node.left()));
+        else if (node.right().type().isPointer()) {
+            mustBeInteger(node.left());
+            node.setType(node.right().type());
         }
         else {
-            incompatibleTypeError(l, r);
+            expectsSameInteger(node);
+        }
+    }
+
+    // *, /, %, &, |, ^, <<, >>
+    protected void expectsSameInteger(BinaryOpNode node) {
+        mustBeInteger(node.left());
+        mustBeInteger(node.right());
+        insertImplicitCast(node);
+    }
+
+    // ==, !=, <, <=, >, >=, &&, ||
+    protected void expectsComparableScalars(BinaryOpNode node) {
+        mustBeScalar(node.left());
+        mustBeScalar(node.right());
+        insertImplicitCast(node);
+    }
+
+    protected void insertImplicitCast(BinaryOpNode node) {
+        Node r = node.right();
+        Node l = node.left();
+        if (r.type().equals(l.type())) {
+            return;
+        }
+        else if (r.type().isCompatible(l.type())) {
+            // insert cast on right expr
+            node.setRight(newCastNode(l.type(), r));
+        }
+        else if (l.type().isCompatible(r.type())) {
+            // insert cast on left expr
+            node.setLeft(newCastNode(r.type(), l));
+        }
+        else {
+            incompatibleTypeError(l.type(), r.type());
         }
     }
 
@@ -250,24 +303,24 @@ class TypeChecker extends Visitor {
     //
 
     public void visit(PrefixIncNode node) {
-        expectsIntOperand(node);
+        expectsScalarOperand(node);
     }
 
     public void visit(SuffixIncNode node) {
-        expectsIntOperand(node);
+        expectsScalarOperand(node);
     }
 
     public void visit(PrefixDecNode node) {
-        expectsIntOperand(node);
+        expectsScalarOperand(node);
     }
 
     public void visit(SuffixDecNode node) {
-        expectsIntOperand(node);
+        expectsScalarOperand(node);
     }
 
-    protected void expectsIntOperand(UnaryOpNode node) {
+    protected void expectsScalarOperand(UnaryOpNode node) {
         resolve(node.expr());
-        mustBeIntegerAlike(node.expr());
+        mustBeScalar(node.expr());
     }
 
     public void visit(FuncallNode node) {
@@ -387,7 +440,7 @@ class TypeChecker extends Visitor {
         notIntegerError(node.type());
     }
 
-    protected void mustBeIntegerAlike(Node node) {
+    protected void mustBeScalar(Node node) {
         if (node.type().isInteger()) return;
         if (node.type().isPointer()) return;
         notIntegerError(node.type());

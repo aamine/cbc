@@ -3,6 +3,7 @@ import net.loveruby.cflat.type.Type;
 
 abstract public class BinaryOpNode extends Node {
     protected Node left, right;
+    protected Type type;
 
     public BinaryOpNode(Node l, Node r) {
         super();
@@ -11,7 +12,13 @@ abstract public class BinaryOpNode extends Node {
     }
 
     public Type type() {
-        return left.type();
+        return (type != null) ? type : left.type();
+    }
+
+    public void setType(Type type) {
+        if (this.type != null)
+            throw new Error("BinaryOp#setType called twice");
+        this.type = type;
     }
 
     public Node left() {

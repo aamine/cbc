@@ -164,7 +164,7 @@
         - validate struct/union member (ct.memb)
         - validate struct/union member (ct->memb)
         - check duplicated struct/union members
-        * ptr + int; ptr - int
+        - ptr + int; ptr - int
         * check return type
         * check if assignable
 - op for various types
