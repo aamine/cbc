@@ -147,6 +147,7 @@
 - semantic check (control)
         - reject break from out of loop/switch
         - reject continue from out of loop
+        * reject no return
 - semantic check (reference)
         - check all symbols are resolved
         - check duplicated parameters
@@ -158,9 +159,9 @@
         - prohibit circular struct/union definition
         * type check
         * implicit cast
+        * check return type
         * check duplicated struct/union members
-        * check if struct member is valid
-        * check if union member is valid
+        * validate struct/union member
 - op for various types
         - signed char
         - signed short
@@ -171,6 +172,7 @@
         - unsigned int
         - unsigned long
 - Multibyte input
+* print node location in error message
 * parse command line option
 * --dump-tokens
 * --dump-ast

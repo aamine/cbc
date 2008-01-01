@@ -30,6 +30,19 @@ CbC - Cflat Compiler
         $ prefix=$HOME/local ./install.sh
 
 
+    Build
+    -----
+
+        $ ant compile
+
+
+    Test
+    ----
+
+        $ cd test
+        $ make test
+
+
     License
     -------
 

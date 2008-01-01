@@ -7,7 +7,12 @@ public class TypeNode extends Node {
 
     public TypeNode(TypeRef ref) {
         super();
-        typeRef = ref;
+        this.typeRef = ref;
+    }
+
+    public TypeNode(Type type) {
+        super();
+        this.type = type;
     }
 
     public void resolve(TypeTable tbl) {

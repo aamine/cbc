@@ -18,7 +18,15 @@ abstract public class BinaryOpNode extends Node {
         return left;
     }
 
+    public void setLeft(Node left) {
+        this.left = left;
+    }
+
     public Node right() {
         return right;
+    }
+
+    public void setRight(Node right) {
+        this.right = right;
     }
 }

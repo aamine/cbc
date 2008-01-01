@@ -1,3 +1,41 @@
+Tue Jan  1 21:56:19 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: invoke TypeChecker.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check type
+	  (incomplete).
+
+	* net/loveruby/cflat/type/Type.java: new method #isCompatible,
+	  #isCastableTo.
+
+	* net/loveruby/cflat/type/IntegerType.java: override them.
+
+	* net/loveruby/cflat/type/UnsignedCharType.java: change textize
+	  result.
+
+	* net/loveruby/cflat/type/UnsignedLongType.java: ditto.
+
+	* net/loveruby/cflat/type/UnsignedIntType.java: ditto.
+
+	* net/loveruby/cflat/type/UnsignedShortType.java: ditto.
+
+	* net/loveruby/cflat/ast/AbstractAssignNode.java: new method
+	  #setRHS.
+
+	* net/loveruby/cflat/ast/AssignNode.java: is now an
+	  AbstractAssignNode.
+
+	* net/loveruby/cflat/ast/BinaryOpNode.java: new methods #setLeft,
+	  #setRight.
+
+	* net/loveruby/cflat/ast/FuncallNode.java (type): does not rely on
+	  #function (can get type of non-static function).
+
+	* net/loveruby/cflat/ast/CondExprNode.java: new methods
+	  #setThenBody, #setElseBody.
+
+	* net/loveruby/cflat/ast/TypeNode.java: new constructor by Type.
+
 Wed Dec 26 06:12:26 2007  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj (expr10): then expr is

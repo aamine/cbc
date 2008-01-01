@@ -58,4 +58,12 @@ public abstract class Type {
     }
 
     public abstract String textize();
+
+    public boolean isCompatible(Type other) {
+        return false;
+    }
+
+    public boolean isCastableTo(Type target) {
+        return equals(target);
+    }
 }

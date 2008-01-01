@@ -30,4 +30,13 @@ public class IntegerType extends Type {
     public String textize() {
         return name;
     }
+
+    public boolean isCompatible(Type other) {
+        return (other.isInteger() && other.size() <= size);
+    }
+
+    public boolean isCastableTo(Type target) {
+        return (target.isInteger() && target.size() >= size)
+            || (target.isPointer() && target.size() >= size);
+    }
 }

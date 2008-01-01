@@ -20,12 +20,21 @@ public class FuncallNode extends Node {
             (((VariableNode)expr).entity() instanceof Function);
     }
 
+    // This method expects static function
     public Function function() {
         return (Function)((VariableNode)expr).entity();
     }
 
     public Type type() {
-        return function().type();
+        Type t = expr().type();
+        if (! (t instanceof PointerType)) {
+            throw new Error("calling non-function");
+        }
+        Type f = ((PointerType)t).base();
+        if (! (f instanceof FunctionType)) {
+            throw new Error("calling non-function");
+        }
+        return ((FunctionType)f).returnType();
     }
 
     public long numArgs() {

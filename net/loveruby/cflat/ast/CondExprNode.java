@@ -9,4 +9,12 @@ public class CondExprNode extends IfNode {
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
+
+    public void setThenBody(Node node) {
+        thenBody = node;
+    }
+
+    public void setElseBody(Node node) {
+        elseBody = node;
+    }
 }

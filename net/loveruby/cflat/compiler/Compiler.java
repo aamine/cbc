@@ -77,6 +77,7 @@ public class Compiler {
         JumpResolver.resolve(ast, handler);
         LocalReferenceResolver.resolve(ast, handler);
         TypeResolver.resolve(ast);
+        TypeChecker.check(ast, handler);
         String asm = CodeGenerator.generate(ast);
         writeFile(asmFileName(path), asm);
         assemble(asmFileName(path));

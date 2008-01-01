@@ -4,10 +4,10 @@ import net.loveruby.cflat.type.*;
 abstract public class AbstractAssignNode extends Node {
     Node lhs, rhs;
 
-    public AbstractAssignNode(Node l, Node r) {
+    public AbstractAssignNode(Node lhs, Node rhs) {
         super();
-        lhs = l;
-        rhs = r;
+        this.lhs = lhs;
+        this.rhs = rhs;
     }
 
     public Type type() {
@@ -20,5 +20,9 @@ abstract public class AbstractAssignNode extends Node {
 
     public Node rhs() {
         return rhs;
+    }
+
+    public void setRHS(Node node) {
+        this.rhs = node;
     }
 }
