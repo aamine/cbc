@@ -13,6 +13,14 @@ public class VarParams extends Params {
         return params.parameters();
     }
 
+    public int argc() {
+        throw new Error("VarParams#argc");
+    }
+
+    public int minArgc() {
+        return params.minArgc();
+    }
+
     public boolean isVararg() {
         return true;
     }

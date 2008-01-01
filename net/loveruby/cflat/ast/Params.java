@@ -9,6 +9,8 @@ abstract public class Params extends Node {
 
     abstract public Iterator parameters();
     abstract public boolean isVararg();
+    abstract public int argc();
+    abstract public int minArgc();
     abstract public boolean equals(Object other);
     abstract public Params internTypes(TypeTable table);
     abstract public Params typeRefs();

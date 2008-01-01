@@ -13,6 +13,14 @@ public class FixedParams extends Params {
         return parameters.iterator();
     }
 
+    public int argc() {
+        return parameters.size();
+    }
+
+    public int minArgc() {
+        return parameters.size();
+    }
+
     protected List parametersList() {
         return parameters;
     }

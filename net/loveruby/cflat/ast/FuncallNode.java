@@ -4,11 +4,11 @@ import java.util.*;
 
 public class FuncallNode extends Node {
     protected Node expr;
-    protected List args;
+    protected List arguments;
 
-    public FuncallNode(Node expr, List args) {
+    public FuncallNode(Node expr, List arguments) {
         this.expr = expr;
-        this.args = args;
+        this.arguments = arguments;
     }
 
     public Node expr() {
@@ -26,6 +26,10 @@ public class FuncallNode extends Node {
     }
 
     public Type type() {
+        return functionType().returnType();
+    }
+
+    public FunctionType functionType() {
         Type t = expr().type();
         if (! (t instanceof PointerType)) {
             throw new Error("calling non-function");
@@ -34,19 +38,24 @@ public class FuncallNode extends Node {
         if (! (f instanceof FunctionType)) {
             throw new Error("calling non-function");
         }
-        return ((FunctionType)f).returnType();
+        return (FunctionType)f;
     }
 
     public long numArgs() {
-        return args.size();
+        return arguments.size();
     }
 
-    public Iterator args() {
-        return args.iterator();
+    public Iterator arguments() {
+        return arguments.iterator();
+    }
+
+    /** called from TypeChecker */
+    public void replaceArgs(List args) {
+        this.arguments = args;
     }
 
     public ListIterator finalArg() {
-        return args.listIterator(args.size());
+        return arguments.listIterator(arguments.size());
     }
 
     public void accept(ASTVisitor visitor) {

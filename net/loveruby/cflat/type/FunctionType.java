@@ -23,6 +23,23 @@ public class FunctionType extends Type {
         return true;
     }
 
+    public boolean acceptsArgc(long numArgs) {
+        if (paramTypes.isVararg()) {
+            return (numArgs >= paramTypes.minArgc());
+        }
+        else {
+            return (numArgs == paramTypes.argc());
+        }
+    }
+
+    /**
+     * Returns iterator of mandatory parameter types.
+     * This method does NOT include types for varargs.
+     */
+    public Iterator paramTypes() {
+        return paramTypes.parameters();
+    }
+
     public long alignment() {
         throw new Error("FunctionType#alignment called");
     }

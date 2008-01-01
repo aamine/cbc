@@ -66,4 +66,8 @@ public abstract class Type {
     public boolean isCastableTo(Type target) {
         return equals(target);
     }
+
+    public boolean isCallable() {
+        return false;
+    }
 }

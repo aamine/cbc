@@ -11,11 +11,11 @@ class TypeChecker extends Visitor {
     }
 
     protected TypeTable typeTable;
-    protected ErrorHandler handler;
+    protected ErrorHandler errorHandler;
 
-    public TypeChecker(TypeTable typeTable, ErrorHandler handler) {
+    public TypeChecker(TypeTable typeTable, ErrorHandler errorHandler) {
         this.typeTable = typeTable;
-        this.handler = handler;
+        this.errorHandler = errorHandler;
     }
 
     public void visit(AST ast) throws SemanticException {
@@ -24,7 +24,7 @@ class TypeChecker extends Visitor {
             DefinedFunction f = (DefinedFunction)funcs.next();
             resolve(f.body());
         }
-        if (handler.errorOccured()) {
+        if (errorHandler.errorOccured()) {
             throw new SemanticException("compile error");
         }
     }
@@ -118,7 +118,7 @@ class TypeChecker extends Visitor {
         }
         else if (r.isCastableTo(l)) {   // insert cast on RHS
             if (! r.isCompatible(l)) {
-                handler.warn("incompatible cast from " +
+                errorHandler.warn("incompatible cast from " +
                         r.textize() + " to " + l.textize());
             }
             node.setRHS(newCastNode(l, node.rhs()));
@@ -271,10 +271,41 @@ class TypeChecker extends Visitor {
     }
 
     public void visit(FuncallNode node) {
-        super.visit(node);
-        // FIXME: check types
-        // FIXME: check if callable
-        // FIXME: check argument types
+        resolve(node.expr());
+        if (! node.expr().isCallable()) {
+            errorHandler.error("called object is not a function");
+            return;
+        }
+        FunctionType type = node.functionType();
+        if (! type.acceptsArgc(node.numArgs())) {
+            errorHandler.error("wrong number of argments: " + node.numArgs());
+            return;
+        }
+        // Check only mandatory parameters
+        Iterator params = type.paramTypes();
+        Iterator args = node.arguments();
+        List newArgs = new ArrayList();
+        while (params.hasNext()) {
+            Type param = (Type)params.next();
+            Node arg = (Node)args.next();
+            resolve(arg);
+            if (arg.type().equals(param)) {
+                newArgs.add(arg);
+            }
+            else if (arg.type().isCompatible(param)) {
+                newArgs.add(newCastNode(param, arg));
+            }
+            else {
+                incompatibleTypeError(arg.type(), param);
+                newArgs.add(arg);
+            }
+        }
+        while (args.hasNext()) {
+            Node arg = (Node)args.next();
+            resolve(arg);
+            newArgs.add(arg);
+        }
+        node.replaceArgs(newArgs);
     }
 
     public void visit(ArefNode node) {
@@ -311,7 +342,7 @@ class TypeChecker extends Visitor {
             incompatibleTypeError(node.expr().type(), node.type());
         }
         else if (! node.expr().type().isCompatible(node.type())) {
-            handler.warn("incompatible cast from " +
+            errorHandler.warn("incompatible cast from " +
                     node.expr().type().textize() +
                     " to " + node.type().textize());
         }
@@ -337,15 +368,16 @@ class TypeChecker extends Visitor {
     }
 
     protected void incompatibleTypeError(Type l, Type r) {
-        handler.error("incompatible type: " +
+        errorHandler.error("incompatible type: " +
                 l.textize() + " and " + r.textize());
     }
 
     protected void notIntegerError(Type type) {
-        handler.error("non-integer argument for ++/--: " + type.textize());
+        errorHandler.error("non-integer argument for unary op: " +
+                type.textize());
     }
 
     protected void notPointerError(Type type) {
-        handler.error("non-pointer argument: " + type.textize());
+        errorHandler.error("non-pointer argument: " + type.textize());
     }
 }

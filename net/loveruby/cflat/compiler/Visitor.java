@@ -233,7 +233,7 @@ public class Visitor implements ASTVisitor {
 
     public void visit(FuncallNode node) {
         resolve(node.expr());
-        resolveNodeList(node.args());
+        resolveNodeList(node.arguments());
     }
 
     public void visit(VariableNode node) {

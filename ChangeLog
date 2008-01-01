@@ -1,3 +1,31 @@
+Wed Jan  2 00:22:51 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check function
+	  arguments.
+
+	* net/loveruby/cflat/ast/FuncallNode.java: rename method: #args ->
+	  #argument.
+
+	* net/loveruby/cflat/compiler/Visitor.java: ditto.
+
+	* net/loveruby/cflat/ast/Params.java: new method #argc, #minArgc.
+
+	* net/loveruby/cflat/ast/FixedParams.java: ditto.
+
+	* net/loveruby/cflat/ast/VarParams.java: ditto.
+
+	* net/loveruby/cflat/ast/Node.java: new method #isCallable.
+
+	* net/loveruby/cflat/type/FunctionType.java: new method
+	  #acceptsArgc.
+
+	* net/loveruby/cflat/type/FunctionType.java: new method
+	  #paramTypes.
+
+	* net/loveruby/cflat/type/Type.java: new method #isCallable.
+
+	* net/loveruby/cflat/type/PointerType.java: ditto.
+
 Tue Jan  1 23:21:22 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: create TypeTable

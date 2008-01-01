@@ -15,4 +15,8 @@ abstract public class Node {
     public AsmEntity address() {
         throw new Error("Node#address");
     }
+
+    public boolean isCallable() {
+        return type().isCallable();
+    }
 }

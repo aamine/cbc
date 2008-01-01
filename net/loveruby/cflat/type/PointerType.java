@@ -37,8 +37,6 @@ public class PointerType extends Type {
         return true;
     }
 
-    //public boolean isArray() { return true; }
-
     public boolean equals(Object other) {
         if (! (other instanceof PointerType)) return false;
         PointerType otherptr = (PointerType)other;
@@ -47,5 +45,9 @@ public class PointerType extends Type {
 
     public String textize() {
         return base.textize() + "*";
+    }
+
+    public boolean isCallable() {
+        return base.isFunction();
     }
 }
