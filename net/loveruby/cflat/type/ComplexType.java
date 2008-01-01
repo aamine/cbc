@@ -16,6 +16,10 @@ abstract public class ComplexType extends Type {
         isRecursiveChecked = false;
     }
 
+    public boolean isComplexType() {
+        return true;
+    }
+
     public String name() {
         return name;
     }
@@ -29,6 +33,10 @@ abstract public class ComplexType extends Type {
 
     public Iterator members() {
         return members.iterator();
+    }
+
+    public boolean hasMember(String name) {
+        return (get(name) != null);
     }
 
     public Type memberType(String name) {

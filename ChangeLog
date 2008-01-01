@@ -1,3 +1,29 @@
+Wed Jan  2 01:24:05 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check member
+	  validity for s.memb, s->memb, u.memb, u->memb.
+
+	* net/loveruby/cflat/type/Type.java: new method #isComplexType.
+
+	* net/loveruby/cflat/type/ComplexType.java: override it.
+
+	* net/loveruby/cflat/compiler/LocalReferenceResolver.java: should
+	  resolve variable initializer.
+
+	* net/loveruby/cflat/ast/DefinedVariable.java: new method
+	  #hasInitializer.
+
+	* test/test.sh: run tests.
+
+	* test/struct-semcheck5.cb: check if member is valid on s.memb.
+
+	* test/struct-semcheck6.cb: check if member is valid on
+	  sptr->memb.
+
+	* test/union-semcheck5.cb: check if member is valid on u.memb.
+
+	* test/union-semcheck6.cb: check if member is valid on uptr->memb.
+
 Wed Jan  2 00:38:48 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: check aref base

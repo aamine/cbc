@@ -18,8 +18,12 @@ public class DefinedVariable extends Variable {
         return true;
     }
 
-    public boolean isInitialized() {
+    public boolean hasInitializer() {
         return (initializer != null);
+    }
+
+    public boolean isInitialized() {
+        return hasInitializer();
     }
 
     public Node initializer() {

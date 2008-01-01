@@ -320,19 +320,39 @@ class TypeChecker extends Visitor {
     }
 
     public void visit(MemberNode node) {
-        super.visit(node);
-        // FIXME: validate member here?
+        resolve(node.expr());
+        checkMemberRef(node.expr().type(), node.name());
     }
 
     public void visit(PtrMemberNode node) {
-        super.visit(node);
-        // FIXME: validate member here?
+        resolve(node.expr());
+        if (! node.expr().type().isPointer()) {
+            notPointerError(node.type());
+            return;
+        }
+        PointerType pt = (PointerType)node.expr().type();
+        checkMemberRef(pt.base(), node.name());
+    }
+
+    protected void checkMemberRef(Type t, String memb) {
+        if (! t.isComplexType()) {
+            errorHandler.error("is not struct/union: " + t.textize());
+            return;
+        }
+        ComplexType type = (ComplexType)t;
+        if (! type.hasMember(memb)) {
+            errorHandler.error(type.textize() +
+                               " does not have member " + memb);
+            return;
+        }
     }
 
     public void visit(DereferenceNode node) {
         super.visit(node);
-        if (node.type().isPointer()) return;
-        notPointerError(node.type());
+        if (! node.expr().type().isPointer()) {
+            notPointerError(node.type());
+            return;
+        }
     }
 
     public void visit(AddressNode node) {

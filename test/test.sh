@@ -122,12 +122,16 @@ assert_status 0 ./struct-semcheck
 assert_error $CBC struct-semcheck2.cb
 assert_error $CBC struct-semcheck3.cb
 assert_error $CBC struct-semcheck4.cb
+assert_error $CBC struct-semcheck5.cb
+assert_error $CBC struct-semcheck6.cb
 
 assert_out "1;2;513" ./union   # little endian
 assert_status 0 ./union-semcheck
 assert_error $CBC union-semcheck2.cb
 assert_error $CBC union-semcheck3.cb
 assert_error $CBC union-semcheck4.cb
+assert_error $CBC union-semcheck5.cb
+assert_error $CBC union-semcheck6.cb
 
 assert_out "5;5" ./pointer
 assert_out "1;2" ./ptrmemb

@@ -155,13 +155,23 @@
         - warn unused static variables
         - warn unused local variables
         - warn unused static functions
+        - check if aref base expr is indexable (a must be indeable where a[0])
+        - check if funcall base expr is callable (a must be callable where a())
 * semantic check (type)
+        - simple type check (binary ops, unary ops)
+        - a[0]
+        - *ptr
+        - ct.memb
+        - ptr->memb
+        - funcall args
         - prohibit circular struct/union definition
-        * type check
-        * implicit cast
-        * check return type
+        - implicit cast
+        - validate struct/union member (ct.memb)
+        - validate struct/union member (ct->memb)
         * check duplicated struct/union members
-        * validate struct/union member
+        * ptr + int; ptr - int
+        * check return type
+        * check if assignable
 - op for various types
         - signed char
         - signed short
@@ -186,6 +196,7 @@
         * warn no return
 * data flow graph
 * --dump-dflow
+        * warn unused variable
         * warn uninitialized use of variables
 * semantic check (dflow)
 * register allocation

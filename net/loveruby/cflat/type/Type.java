@@ -9,69 +9,24 @@ public abstract class Type {
 
     public abstract long size();
 
-    public boolean isReferable() {
-        return false;
-    }
-
-    public boolean isVoid() {
-        return false;
-    }
-
-    public boolean isInt() {
-        return false;
-    }
-
-    public boolean isInteger() {
-        return false;
-    }
-
-    public boolean isSigned() {
-        throw new Error("#isSigned for non-integer type");
-    }
-
-    public boolean isNumeric() {
-        return false;
-    }
-
-    public boolean isPointer() {
-        return false;
-    }
-
-    public boolean isArray() {
-        return false;
-    }
-
-    public boolean isStruct() {
-        return false;
-    }
-
-    public boolean isUnion() {
-        return false;
-    }
-
-    public boolean isUserType() {
-        return false;
-    }
-
-    public boolean isFunction() {
-        return false;
-    }
+    public boolean isVoid() { return false; }
+    public boolean isInt() { return false; }
+    public boolean isInteger() { return false; }
+    public boolean isSigned()
+            { throw new Error("#isSigned for non-integer type"); }
+    public boolean isNumeric() { return false; }
+    public boolean isPointer() { return false; }
+    public boolean isArray() { return false; }
+    public boolean isStruct() { return false; }
+    public boolean isUnion() { return false; }
+    public boolean isComplexType() { return false; }
+    public boolean isUserType() { return false; }
+    public boolean isFunction() { return false; }
+    public boolean isCompatible(Type other) { return false; }
+    public boolean isCastableTo(Type target) { return equals(target); }
+    public boolean isReferable() { return false; }
+    public boolean isCallable() { return false; }
+    public boolean isIndexable() { return false; }
 
     public abstract String textize();
-
-    public boolean isCompatible(Type other) {
-        return false;
-    }
-
-    public boolean isCastableTo(Type target) {
-        return equals(target);
-    }
-
-    public boolean isCallable() {
-        return false;
-    }
-
-    public boolean isIndexable() {
-        return false;
-    }
 }
