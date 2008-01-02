@@ -419,7 +419,7 @@ DefinedFunction defun():
     TypeRef ref;
     String n;
     Params ps;
-    Node body;
+    BlockNode body;
 }
 {
     priv=storage() ref=typeref() n=name() "(" ps=params() ")" body=block()

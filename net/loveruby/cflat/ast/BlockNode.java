@@ -18,6 +18,11 @@ public class BlockNode extends Node {
         return stmts.iterator();
     }
 
+    public Node tailStmt() {
+        if (stmts.isEmpty()) return null;
+        return stmts.get(stmts.size() - 1);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

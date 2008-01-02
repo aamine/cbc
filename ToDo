@@ -137,10 +137,9 @@
         * their combination
 - bare block ({...})
 - cast
-* semantic check (control)
+- semantic check (control)
         - reject break from out of loop/switch
         - reject continue from out of loop
-        * reject no return
 - semantic check (reference)
         - check all symbols are resolved
         - check duplicated parameters

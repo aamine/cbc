@@ -8,12 +8,12 @@ import java.util.*;
 public class DefinedFunction extends Function {
     protected LabelPool labelPool;
     protected Params params;
-    protected Node body;
+    protected BlockNode body;
     protected Map jumpMap;
     protected Frame frame;
 
     public DefinedFunction(LabelPool pool, boolean priv, TypeNode type,
-                           String name, Params params, Node body) {
+                           String name, Params params, BlockNode body) {
         super(priv, type, name);
         this.labelPool = pool;
         this.params = params;
@@ -25,7 +25,7 @@ public class DefinedFunction extends Function {
         return params.parameters();
     }
 
-    public Node body() {
+    public BlockNode body() {
         return body;
     }
 

@@ -1,3 +1,13 @@
+Wed Jan  2 21:46:44 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: pass BlockNode to
+	  DefinedFunction.
+
+	* net/loveruby/cflat/ast/DefinedFunction.java: #body is a
+	  BlockNode, not Node.
+
+	* net/loveruby/cflat/ast/BlockNode.java: new method #tailStmt.
+
 Wed Jan  2 20:53:36 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* introduce ExprNode class for all expression nodes.
