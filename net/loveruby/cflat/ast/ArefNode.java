@@ -26,6 +26,10 @@ public class ArefNode extends Node implements LHSNode {
         visitor.visit(this);
     }
 
+    public boolean isAssignable() {
+        return true;
+    }
+
     public boolean isConstantAddress() {
         // FIXME
         return false;

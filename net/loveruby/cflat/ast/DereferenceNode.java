@@ -10,10 +10,16 @@ public class DereferenceNode extends UnaryOpNode implements LHSNode {
         visitor.visit(this);
     }
 
+    public boolean isAssignable() {
+        return true;
+    }
+
+    // LHS node requirement
     public boolean isConstantAddress() {
         return false;
     }
 
+    // LHS node requirement
     public AsmEntity address() {
         throw new Error("DereferenceNode#address");
     }

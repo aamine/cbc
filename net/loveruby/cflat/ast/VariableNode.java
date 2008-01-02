@@ -38,6 +38,10 @@ public class VariableNode extends Node implements LHSNode {
         visitor.visit(this);
     }
 
+    public boolean isAssignable() {
+        return true;
+    }
+
     // LHS node requirement
     public boolean isConstantAddress() {
         return true;

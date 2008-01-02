@@ -451,7 +451,9 @@ class TypeChecker extends Visitor {
         super.visit(node);
         Type t = typeTable.pointerTo(node.expr().type());
         node.setType(t);
-        // FIXME: what is "assignable"??
+        if (! node.expr().isAssignable()) {
+            errorHandler.error("invalid LHS expression for &");
+        }
     }
 
     public void visit(CastNode node) {

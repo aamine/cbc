@@ -23,4 +23,8 @@ abstract public class Node {
     public boolean isIndexable() {
         return type().isIndexable();
     }
+
+    public boolean isAssignable() {
+        return false;
+    }
 }

@@ -120,9 +120,7 @@
         - *ptr = val
         - ptr->memb
         - ptr->memb = val
-- &expr
-        - as RHS
-        * ?? as LHS
+        - &expr
 - function pointer
         - refer
         - call ptr(arg)
@@ -166,7 +164,7 @@
         - check duplicated struct/union members
         - ptr + int; ptr - int
         - check return type
-        * check if assignable
+        - check if &expr is assignable
         * use user type instead of struct/union
 - op for various types
         - signed char

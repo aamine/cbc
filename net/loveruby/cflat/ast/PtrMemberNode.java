@@ -28,10 +28,16 @@ public class PtrMemberNode extends Node implements LHSNode {
         return name;
     }
 
+    public boolean isAssignable() {
+        return true;
+    }
+
+    // LHS node requirement
     public boolean isConstantAddress() {
         return false;
     }
 
+    // LHS node requirement
     public AsmEntity address() {
         throw new Error("PtrMemberNode#address");
     }

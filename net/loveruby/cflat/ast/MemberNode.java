@@ -35,10 +35,16 @@ public class MemberNode extends Node implements LHSNode {
         return baseType().memberOffset(name);
     }
 
+    public boolean isAssignable() {
+        return true;
+    }
+
+    // LHS node requirement
     public boolean isConstantAddress() {
         return ((LHSNode)expr).isConstantAddress();
     }
 
+    // LHS node requirement
     public AsmEntity address() {
         return expr.address().add(offset());
     }
