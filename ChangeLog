@@ -1,3 +1,94 @@
+Wed Jan  2 19:18:29 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check return type.
+
+	* net/loveruby/cflat/compiler/JumpResolver.java: set exiting
+	  function to ReturnNode.
+
+	* net/loveruby/cflat/ast/ReturnNode.java: new method #setExpr.
+
+	* net/loveruby/cflat/ast/ReturnNode.java: new method #function.
+
+	* net/loveruby/cflat/ast/ReturnNode.java: new method #setFunction.
+
+	* net/loveruby/cflat/ast/Function.java: new method #isVoid.
+
+	* net/loveruby/cflat/ast/Function.java: new method #returnType.
+
+	* net/loveruby/cflat/ast/Function.java: new method #functionType.
+
+	* net/loveruby/cflat/type/TypeRef.java: new method
+	  #getPointerTypeRef.
+
+	* net/loveruby/cflat/type/TypeRef.java: new method
+	  #getArrayTypeRef.
+
+	* net/loveruby/cflat/type/TypeRef.java: new method
+	  #getStructTypeRef.
+
+	* net/loveruby/cflat/type/TypeRef.java: new method
+	  #getUnionTypeRef.
+
+	* net/loveruby/cflat/type/TypeRef.java: new method
+	  #getFunctionTypeRef.
+
+	* net/loveruby/cflat/type/TypeRef.java: #isFunctionType ->
+	  #isFunction.
+
+	* net/loveruby/cflat/type/FunctionTypeRef.java: ditto.
+
+	* net/loveruby/cflat/type/TypeRef.java: #isVoidTypeRef -> #isVoid.
+
+	* net/loveruby/cflat/type/VoidTypeRef.java: ditto.
+
+	* net/loveruby/cflat/type/TypeRef.java: #isArrayTypeRef ->
+	  #isArray.
+
+	* net/loveruby/cflat/type/ArrayTypeRef.java: ditto.
+
+	* net/loveruby/cflat/type/Type.java: #isNumeric removed.
+
+	* net/loveruby/cflat/type/IntegerType.java: ditto.
+
+	* net/loveruby/cflat/type/Type.java: new method #getComplexType.
+
+	* net/loveruby/cflat/type/Type.java: new method #getStructType.
+
+	* net/loveruby/cflat/type/Type.java: new method #getUnionType.
+
+	* net/loveruby/cflat/type/Type.java: new method #getArrayType.
+
+	* net/loveruby/cflat/type/Type.java: new method #getPointerType.
+
+	* net/loveruby/cflat/type/Type.java: new method #getFunctionType.
+
+	* net/loveruby/cflat/type/UserType.java: override them.
+
+	* net/loveruby/cflat/type/PointerType.java (equals): reduce
+	  instanceof.
+
+	* net/loveruby/cflat/type/TypeTable.java: reduce instanceof/cast.
+
+	* test/test.sh: invoke following tests.
+
+	* test/defun-semcheck2.cb: test returning value from void
+	  function.
+
+	* test/defun-semcheck3.cb: test returning nothing from non-void
+	  function.
+
+	* test/defun-semcheck4.cb: test returning struct.
+
+	* test/defun-semcheck5.cb: test returning union.
+
+	* test/defun-semcheck6.cb: test returning user type, which is
+	  union.
+
+	* test/defun-semcheck7.cb: test returning user type, which is
+	  struct.
+
+	* test/defun-semcheck8.cb: test returning array.
+
 Wed Jan  2 04:03:10 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: allow ptr + int,

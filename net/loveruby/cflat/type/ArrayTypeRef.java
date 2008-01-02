@@ -6,16 +6,17 @@ public class ArrayTypeRef extends TypeRef {
     static final protected long undefined = -1;
 
     public ArrayTypeRef(TypeRef base) {
-        this(base, undefined);
+        this.base = base;
+        this.length = undefined;
     }
 
-    public ArrayTypeRef(TypeRef ref, long len) {
-        if (len < 0) throw new Error("negative array length");
-        base = ref;
-        length = len;
+    public ArrayTypeRef(TypeRef base, long length) {
+        if (length < 0) throw new Error("negative array length");
+        this.base = base;
+        this.length = length;
     }
 
-    public boolean isArrayTypeRef() {
+    public boolean isArray() {
         return true;
     }
 

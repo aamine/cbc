@@ -4,7 +4,7 @@ public class VoidTypeRef extends TypeRef {
     public VoidTypeRef() {
     }
 
-    public boolean isVoidTypeRef() {
+    public boolean isVoid() {
         return true;
     }
 

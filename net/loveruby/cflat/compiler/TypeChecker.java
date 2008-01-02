@@ -22,10 +22,23 @@ class TypeChecker extends Visitor {
         Iterator funcs = ast.functions();
         while (funcs.hasNext()) {
             DefinedFunction f = (DefinedFunction)funcs.next();
+            checkReturnType(f);
             resolve(f.body());
         }
         if (errorHandler.errorOccured()) {
-            throw new SemanticException("compile error");
+            throw new SemanticException("compile failed.");
+        }
+    }
+
+    protected void checkReturnType(Function f) {
+        if (f.returnType().isArray()) {
+            errorHandler.error("returns an array: " + f.name());
+        }
+        else if (f.returnType().isStruct()) {
+            errorHandler.error("returns a struct: " + f.name());
+        }
+        else if (f.returnType().isUnion()) {
+            errorHandler.error("returns a union: " + f.name());
         }
     }
 
@@ -130,7 +143,33 @@ class TypeChecker extends Visitor {
 
     public void visit(ReturnNode node) {
         super.visit(node);
-        // FIXME: check return type
+        if (node.function().isVoid()) {
+            if (node.expr() != null) {
+                errorHandler.error("returning value from void function");
+            }
+        }
+        else {  // non-void function
+            if (node.expr() == null) {
+                errorHandler.error("missing return value");
+                return;
+            }
+            insertImplicitCast(node);
+        }
+    }
+
+    protected void insertImplicitCast(ReturnNode node) {
+        Type exprType = node.expr().type();
+        Type retType = node.function().returnType();
+        if (exprType.equals(retType)) {   // type matches
+            return;
+        }
+        else if (exprType.isCompatible(retType)) {
+            node.setExpr(newCastNode(retType, node.expr()));
+        }
+        else {
+            errorHandler.error("returning incompatible value: "
+                               + exprType.textize());
+        }
     }
 
     //

@@ -55,20 +55,20 @@ public class TypeTable {
     public Type get(TypeRef ref) {
         Type type = (Type)table.get(ref);
         if (type == null) {
-            if (ref instanceof PointerTypeRef) {
-                PointerTypeRef pref = (PointerTypeRef)ref;
+            if (ref.isPointer()) {
+                PointerTypeRef pref = ref.getPointerTypeRef();
                 Type t = new PointerType(pointerSize, get(pref.base()));
                 table.put(pref, t);
                 return t;
             }
-            else if (ref instanceof ArrayTypeRef) {
-                ArrayTypeRef aref = (ArrayTypeRef)ref;
+            else if (ref.isArray()) {
+                ArrayTypeRef aref = ref.getArrayTypeRef();
                 Type t = new ArrayType(get(aref.base()), aref.length());
                 table.put(aref, t);
                 return t;
             }
-            else if (ref instanceof FunctionTypeRef) {
-                FunctionTypeRef fref = (FunctionTypeRef)ref;
+            else if (ref.isFunction()) {
+                FunctionTypeRef fref = ref.getFunctionTypeRef();
                 Type t = new FunctionType(get(fref.returnType()),
                                           fref.params().internTypes(this));
                 table.put(fref, t);
@@ -138,6 +138,9 @@ public class TypeTable {
     public void semanticCheck(ErrorHandler errorHandler) {
         Iterator types = table.values().iterator();
         while (types.hasNext()) {
+            // We should check true ComplexType.
+            // We do not need to check UserType because refered
+            // ComplexType must be kept in this table.
             Type t = (Type)types.next();
             if (t instanceof ComplexType) {
                 checkDuplicatedMembers((ComplexType)t, errorHandler);
@@ -176,8 +179,8 @@ public class TypeTable {
         Iterator membs = t.members();
         while (membs.hasNext()) {
             Slot slot = (Slot)membs.next();
-            if (slot.type() instanceof ComplexType) {
-                checkRecursiveDefinition((ComplexType)slot.type(),
+            if (slot.type().isComplexType()) {
+                checkRecursiveDefinition(slot.type().getComplexType(),
                                          seen, errorHandler);
             }
         }

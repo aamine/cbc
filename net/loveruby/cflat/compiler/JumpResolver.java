@@ -10,13 +10,13 @@ public class JumpResolver extends Visitor {
         new JumpResolver(h).resolveAST(ast);
     }
 
-    protected ErrorHandler handler;
+    protected ErrorHandler errorHandler;
     protected LinkedList breakTargetStack;
     protected LinkedList continueTargetStack;
     protected DefinedFunction currentFunction;
 
     public JumpResolver(ErrorHandler h) {
-        handler = h;
+        errorHandler = h;
     }
 
     public void resolveAST(AST ast) throws SemanticException {
@@ -26,9 +26,9 @@ public class JumpResolver extends Visitor {
         while (funcs.hasNext()) {
             currentFunction = (DefinedFunction)funcs.next();
             resolve(currentFunction.body());
-            currentFunction.checkJumpLinks(handler);
+            currentFunction.checkJumpLinks(errorHandler);
         }
-        if (handler.errorOccured()) {
+        if (errorHandler.errorOccured()) {
             throw new SemanticException("semantic error");
         }
     }
@@ -90,7 +90,7 @@ public class JumpResolver extends Visitor {
             node.setTargetLabel(currentBreakTarget().endLabel());
         }
         catch (SemanticException ex) {
-            handler.error(ex.getMessage());
+            errorHandler.error(ex.getMessage());
         }
     }
 
@@ -99,7 +99,7 @@ public class JumpResolver extends Visitor {
             node.setTargetLabel(currentContinueTarget().continueLabel());
         }
         catch (SemanticException ex) {
-            handler.error(ex.getMessage());
+            errorHandler.error(ex.getMessage());
         }
     }
 
@@ -109,11 +109,15 @@ public class JumpResolver extends Visitor {
             node.setLabel(label);
         }
         catch (SemanticException ex) {
-            handler.error(ex.getMessage());
+            errorHandler.error(ex.getMessage());
         }
     }
 
     public void visit(GotoNode node) {
         node.setTargetLabel(currentFunction.referLabel(node.target()));
+    }
+
+    public void visit(ReturnNode node) {
+        node.setFunction(currentFunction);
     }
 }

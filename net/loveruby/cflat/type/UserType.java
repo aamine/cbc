@@ -31,11 +31,18 @@ public class UserType extends Type {
     public boolean isReferable() { return real().isReferable(); }
     public boolean isInt() { return real().isInt(); }
     public boolean isInteger() { return real().isInteger(); }
-    public boolean isNumeric() { return real().isNumeric(); }
     public boolean isPointer() { return real().isPointer(); }
     public boolean isArray() { return real().isArray(); }
+    public boolean isComplexType() { return real().isComplexType(); }
     public boolean isStruct() { return real().isStruct(); }
     public boolean isUnion() { return real().isUnion(); }
     public boolean isUserType() { return true; }
     public boolean isFunction() { return real().isFunction(); }
+
+    public ComplexType getComplexType() { return real().getComplexType(); }
+    public StructType getStructType() { return real().getStructType(); }
+    public UnionType getUnionType() { return real().getUnionType(); }
+    public ArrayType getArrayType() { return real().getArrayType(); }
+    public PointerType getPointerType() { return real().getPointerType(); }
+    public FunctionType getFunctionType() { return real().getFunctionType(); }
 }

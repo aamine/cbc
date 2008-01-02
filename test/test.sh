@@ -156,6 +156,13 @@ assert_out "1;2;3" ./defvar
 
 assert_out "OK" ./funcptr
 assert_error $CBC defun-semcheck.cb
+assert_error $CBC defun-semcheck2.cb
+assert_error $CBC defun-semcheck3.cb
+assert_error $CBC defun-semcheck4.cb
+assert_error $CBC defun-semcheck5.cb
+assert_error $CBC defun-semcheck6.cb
+assert_error $CBC defun-semcheck7.cb
+assert_error $CBC defun-semcheck8.cb
 assert_error $CBC funcall-semcheck.cb
 assert_error $CBC funcall-semcheck2.cb
 

@@ -29,18 +29,15 @@ public class PointerType extends Type {
         return true;
     }
 
-    public boolean isNumeric() {
-        return true;
-    }
-
     public boolean isPointer() {
         return true;
     }
 
     public boolean equals(Object other) {
-        if (! (other instanceof PointerType)) return false;
-        PointerType otherptr = (PointerType)other;
-        return this.base.equals(otherptr.base());
+        if (! (other instanceof Type)) return false;
+        Type t = (Type)other;
+        if (! t.isPointer()) return false;
+        return this.base.equals(t.getPointerType().base());
     }
 
     public String textize() {

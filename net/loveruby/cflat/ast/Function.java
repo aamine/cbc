@@ -13,4 +13,16 @@ abstract public class Function extends Entity {
     abstract public boolean isDefined();
     abstract public Iterator parameters();
     abstract public AsmEntity address();
+
+    public FunctionType functionType() {
+        return type().getPointerType().base().getFunctionType();
+    }
+
+    public Type returnType() {
+        return functionType().returnType();
+    }
+
+    public boolean isVoid() {
+        return returnType().isVoid();
+    }
 }

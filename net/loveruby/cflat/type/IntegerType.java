@@ -19,10 +19,6 @@ public class IntegerType extends Type {
         return true;
     }
 
-    public boolean isNumeric() {
-        return true;
-    }
-
     public boolean isSigned() {
         return signed;
     }

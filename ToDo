@@ -139,7 +139,7 @@
         * their combination
 - bare block ({...})
 - cast
-- semantic check (control)
+* semantic check (control)
         - reject break from out of loop/switch
         - reject continue from out of loop
         * reject no return
@@ -165,8 +165,9 @@
         - validate struct/union member (ct->memb)
         - check duplicated struct/union members
         - ptr + int; ptr - int
-        * check return type
+        - check return type
         * check if assignable
+        * use user type instead of struct/union
 - op for various types
         - signed char
         - signed short

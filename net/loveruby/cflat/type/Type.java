@@ -14,7 +14,6 @@ public abstract class Type {
     public boolean isInteger() { return false; }
     public boolean isSigned()
             { throw new Error("#isSigned for non-integer type"); }
-    public boolean isNumeric() { return false; }
     public boolean isPointer() { return false; }
     public boolean isArray() { return false; }
     public boolean isStruct() { return false; }
@@ -29,4 +28,11 @@ public abstract class Type {
     public boolean isIndexable() { return false; }
 
     public abstract String textize();
+
+    public PointerType getPointerType() { return (PointerType)this; }
+    public FunctionType getFunctionType() { return (FunctionType)this; }
+    public StructType getStructType() { return (StructType)this; }
+    public UnionType getUnionType() { return (UnionType)this; }
+    public ComplexType getComplexType() { return (ComplexType)this; }
+    public ArrayType getArrayType() { return (ArrayType)this; }
 }
