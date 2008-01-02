@@ -4,7 +4,7 @@ import net.loveruby.cflat.type.*;
 public class AddressNode extends UnaryOpNode {
     protected Type type;
 
-    public AddressNode(Node n) {
+    public AddressNode(ExprNode n) {
         super(n);
     }
 

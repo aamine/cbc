@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class AndAssignNode extends AbstractAssignNode {
-    public AndAssignNode(Node lhs, Node rhs) {
+    public AndAssignNode(ExprNode lhs, ExprNode rhs) {
         super(lhs, rhs);
     }
 

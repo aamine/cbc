@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class DivAssignNode extends AbstractAssignNode {
-    public DivAssignNode(Node lhs, Node rhs) {
+    public DivAssignNode(ExprNode lhs, ExprNode rhs) {
         super(lhs, rhs);
     }
 

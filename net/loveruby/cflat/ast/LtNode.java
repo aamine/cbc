@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class LtNode extends BinaryOpNode {
-    public LtNode(Node left, Node right) {
+    public LtNode(ExprNode left, ExprNode right) {
         super(left, right);
     }
 

@@ -1,13 +1,13 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
-public class CastNode extends Node {
+public class CastNode extends ExprNode {
     protected TypeNode typeNode;
-    protected Node expr;
+    protected ExprNode expr;
 
-    public CastNode(TypeNode t, Node n) {
-        typeNode = t;
-        expr = n;
+    public CastNode(TypeNode t, ExprNode expr) {
+        this.typeNode = t;
+        this.expr = expr;
     }
 
     public void resolve(TypeTable table) {
@@ -22,7 +22,7 @@ public class CastNode extends Node {
         return typeNode;
     }
 
-    public Node expr() {
+    public ExprNode expr() {
         return expr;
     }
 

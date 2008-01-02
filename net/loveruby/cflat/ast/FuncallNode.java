@@ -2,16 +2,16 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import java.util.*;
 
-public class FuncallNode extends Node {
-    protected Node expr;
+public class FuncallNode extends ExprNode {
+    protected ExprNode expr;
     protected List arguments;
 
-    public FuncallNode(Node expr, List arguments) {
+    public FuncallNode(ExprNode expr, List arguments) {
         this.expr = expr;
         this.arguments = arguments;
     }
 
-    public Node expr() {
+    public ExprNode expr() {
         return expr;
     }
 

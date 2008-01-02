@@ -33,9 +33,9 @@ public class Visitor implements ASTVisitor {
 
     public void visit(CondExprNode n) {
         resolve(n.cond());
-        resolve(n.thenBody());
-        if (n.elseBody() != null) {
-            resolve(n.elseBody());
+        resolve(n.thenExpr());
+        if (n.elseExpr() != null) {
+            resolve(n.elseExpr());
         }
     }
 

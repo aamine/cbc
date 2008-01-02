@@ -3,11 +3,11 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
 public class DefinedVariable extends Variable {
-    protected Node initializer;
+    protected ExprNode initializer;
     protected AsmEntity address;
 
     public DefinedVariable(boolean priv, TypeNode type,
-                           String name, Node init) {
+                           String name, ExprNode init) {
         super(priv, type, name);
         initializer = init;
         toplevel = false;
@@ -26,7 +26,7 @@ public class DefinedVariable extends Variable {
         return hasInitializer();
     }
 
-    public Node initializer() {
+    public ExprNode initializer() {
         return initializer;
     }
 

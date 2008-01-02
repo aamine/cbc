@@ -4,18 +4,18 @@ import java.util.*;
 
 public class SwitchNode extends Node implements BreakableStmt {
     protected LabelPool pool;
-    protected Node cond;
+    protected ExprNode cond;
     protected List cases;
     protected Label endLabel;
 
-    public SwitchNode(LabelPool pool, Node cond, List cases) {
+    public SwitchNode(LabelPool pool, ExprNode cond, List cases) {
         super();
         this.pool = pool;
         this.cond = cond;
         this.cases = cases;
     }
 
-    public Node cond() {
+    public ExprNode cond() {
         return cond;
     }
 

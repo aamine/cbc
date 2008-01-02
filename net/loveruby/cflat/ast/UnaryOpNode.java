@@ -1,18 +1,18 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.Type;
 
-abstract public class UnaryOpNode extends Node {
-    protected Node expr;
+abstract public class UnaryOpNode extends ExprNode {
+    protected ExprNode expr;
 
-    public UnaryOpNode(Node n) {
-        expr = n;
+    public UnaryOpNode(ExprNode expr) {
+        this.expr = expr;
     }
 
     public Type type() {
         return expr.type();
     }
 
-    public Node expr() {
+    public ExprNode expr() {
         return expr;
     }
 }

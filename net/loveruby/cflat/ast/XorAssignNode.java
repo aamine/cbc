@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class XorAssignNode extends AbstractAssignNode {
-    public XorAssignNode(Node lhs, Node rhs) {
+    public XorAssignNode(ExprNode lhs, ExprNode rhs) {
         super(lhs, rhs);
     }
 

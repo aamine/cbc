@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
-public class CharacterLiteralNode extends Node {
+public class CharacterLiteralNode extends ExprNode {
     protected TypeNode typeNode;
     protected long value;
 

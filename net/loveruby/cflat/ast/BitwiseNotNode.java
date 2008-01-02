@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class BitwiseNotNode extends UnaryOpNode {
-    public BitwiseNotNode(Node n) {
+    public BitwiseNotNode(ExprNode n) {
         super(n);
     }
 

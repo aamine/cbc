@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class MulAssignNode extends AbstractAssignNode {
-    public MulAssignNode(Node lhs, Node rhs) {
+    public MulAssignNode(ExprNode lhs, ExprNode rhs) {
         super(lhs, rhs);
     }
 

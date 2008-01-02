@@ -1,23 +1,23 @@
 package net.loveruby.cflat.ast;
 
 public class ReturnNode extends Node {
-    Node expr;
+    ExprNode expr;
     Function function;
 
-    public ReturnNode(Node e) {
+    public ReturnNode(ExprNode expr) {
         super();
-        expr = e;
+        this.expr = expr;
     }
 
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
 
-    public Node expr() {
+    public ExprNode expr() {
         return this.expr;
     }
 
-    public void setExpr(Node expr) {
+    public void setExpr(ExprNode expr) {
         this.expr = expr;
     }
 

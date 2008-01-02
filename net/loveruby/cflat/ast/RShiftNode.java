@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class RShiftNode extends BinaryOpNode {
-    public RShiftNode(Node left, Node right) {
+    public RShiftNode(ExprNode left, ExprNode right) {
         super(left, right);
     }
 

@@ -1,14 +1,14 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.Type;
 
-abstract public class BinaryOpNode extends Node {
-    protected Node left, right;
+abstract public class BinaryOpNode extends ExprNode {
+    protected ExprNode left, right;
     protected Type type;
 
-    public BinaryOpNode(Node l, Node r) {
+    public BinaryOpNode(ExprNode left, ExprNode right) {
         super();
-        left = l;
-        right = r;
+        this.left = left;
+        this.right = right;
     }
 
     public Type type() {
@@ -21,19 +21,19 @@ abstract public class BinaryOpNode extends Node {
         this.type = type;
     }
 
-    public Node left() {
+    public ExprNode left() {
         return left;
     }
 
-    public void setLeft(Node left) {
+    public void setLeft(ExprNode left) {
         this.left = left;
     }
 
-    public Node right() {
+    public ExprNode right() {
         return right;
     }
 
-    public void setRight(Node right) {
+    public void setRight(ExprNode right) {
         this.right = right;
     }
 }

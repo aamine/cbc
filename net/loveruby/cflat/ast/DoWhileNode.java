@@ -2,19 +2,20 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.*;
 
 public class DoWhileNode extends LoopNode {
-    protected Node cond, body;
+    protected ExprNode cond;
+    protected Node body;
 
-    public DoWhileNode(LabelPool pool, Node b, Node c) {
+    public DoWhileNode(LabelPool pool, Node body, ExprNode cond) {
         super(pool);
-        body = b;
-        cond = c;
+        this.body = body;
+        this.cond = cond;
     }
 
     public Node body() {
         return body;
     }
 
-    public Node cond() {
+    public ExprNode cond() {
         return cond;
     }
 

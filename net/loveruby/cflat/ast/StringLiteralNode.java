@@ -2,7 +2,7 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
-public class StringLiteralNode extends Node {
+public class StringLiteralNode extends ExprNode {
     protected TypeNode typeNode;
     protected String value;
     protected ConstantEntry entry;

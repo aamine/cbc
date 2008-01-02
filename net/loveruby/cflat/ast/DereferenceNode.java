@@ -2,7 +2,7 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.*;
 
 public class DereferenceNode extends UnaryOpNode implements LHSNode {
-    public DereferenceNode(Node n) {
+    public DereferenceNode(ExprNode n) {
         super(n);
     }
 

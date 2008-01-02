@@ -2,13 +2,13 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
-public class PtrMemberNode extends Node implements LHSNode {
-    public Node expr;
+public class PtrMemberNode extends ExprNode implements LHSNode {
+    public ExprNode expr;
     public String name;
 
-    public PtrMemberNode(Node n, String nm) {
-        expr = n;
-        name = nm;
+    public PtrMemberNode(ExprNode expr, String name) {
+        this.expr = expr;
+        this.name = name;
     }
 
     public Type type() {
@@ -20,7 +20,7 @@ public class PtrMemberNode extends Node implements LHSNode {
         return (ComplexType)ptr.base();
     }
 
-    public Node expr() {
+    public ExprNode expr() {
         return expr;
     }
 

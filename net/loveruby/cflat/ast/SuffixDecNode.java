@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class SuffixDecNode extends UnaryOpNode {
-    public SuffixDecNode(Node n) {
+    public SuffixDecNode(ExprNode n) {
         super(n);
     }
 

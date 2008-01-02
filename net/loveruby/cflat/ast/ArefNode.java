@@ -2,23 +2,23 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
-public class ArefNode extends Node implements LHSNode {
-    protected Node expr, index;
+public class ArefNode extends ExprNode implements LHSNode {
+    protected ExprNode expr, index;
 
-    public ArefNode(Node n, Node idx) {
-        expr = n;
-        index = idx;
+    public ArefNode(ExprNode expr, ExprNode index) {
+        this.expr = expr;
+        this.index = index;
     }
 
     public Type type() {
         return ((ArrayType)expr.type()).base();
     }
 
-    public Node expr() {
+    public ExprNode expr() {
         return expr;
     }
 
-    public Node index() {
+    public ExprNode index() {
         return index;
     }
 

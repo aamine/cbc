@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class MinusNode extends BinaryOpNode {
-    public MinusNode(Node left, Node right) {
+    public MinusNode(ExprNode left, ExprNode right) {
         super(left, right);
     }
 

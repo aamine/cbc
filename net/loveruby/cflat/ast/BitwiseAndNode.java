@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class BitwiseAndNode extends BinaryOpNode {
-    public BitwiseAndNode(Node left, Node right) {
+    public BitwiseAndNode(ExprNode left, ExprNode right) {
         super(left, right);
     }
 

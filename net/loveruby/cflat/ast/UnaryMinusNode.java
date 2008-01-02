@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class UnaryMinusNode extends UnaryOpNode {
-    public UnaryMinusNode(Node n) {
+    public UnaryMinusNode(ExprNode n) {
         super(n);
     }
 

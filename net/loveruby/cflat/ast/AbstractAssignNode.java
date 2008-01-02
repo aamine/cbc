@@ -1,10 +1,10 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
-abstract public class AbstractAssignNode extends Node {
-    Node lhs, rhs;
+abstract public class AbstractAssignNode extends ExprNode {
+    ExprNode lhs, rhs;
 
-    public AbstractAssignNode(Node lhs, Node rhs) {
+    public AbstractAssignNode(ExprNode lhs, ExprNode rhs) {
         super();
         this.lhs = lhs;
         this.rhs = rhs;
@@ -14,15 +14,15 @@ abstract public class AbstractAssignNode extends Node {
         return lhs.type();
     }
 
-    public Node lhs() {
+    public ExprNode lhs() {
         return lhs;
     }
 
-    public Node rhs() {
+    public ExprNode rhs() {
         return rhs;
     }
 
-    public void setRHS(Node node) {
+    public void setRHS(ExprNode node) {
         this.rhs = node;
     }
 }

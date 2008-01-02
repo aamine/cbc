@@ -1,3 +1,7 @@
+Wed Jan  2 20:53:36 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* introduce ExprNode class for all expression nodes.
+
 Wed Jan  2 19:45:01 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: check &expr is

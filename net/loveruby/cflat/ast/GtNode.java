@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class GtNode extends BinaryOpNode {
-    public GtNode(Node left, Node right) {
+    public GtNode(ExprNode left, ExprNode right) {
         super(left, right);
     }
 

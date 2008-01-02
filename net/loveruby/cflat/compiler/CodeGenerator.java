@@ -103,7 +103,7 @@ static public void p(String s) { System.err.println(s); }
     }
 
     /** Generates immediate values for .data section */
-    protected void compileImmediate(Type type, Node n) {
+    protected void compileImmediate(Type type, ExprNode n) {
         // FIXME: support other constants
         IntegerLiteralNode expr = (IntegerLiteralNode)n;
         switch ((int)type.size()) {
@@ -290,7 +290,7 @@ static public void p(String s) { System.err.println(s); }
     public void visit(FuncallNode node) {
         ListIterator it = node.finalArg();
         while (it.hasPrevious()) {
-            Node arg = (Node)it.previous();
+            ExprNode arg = (ExprNode)it.previous();
             compile(arg);
             as.pushq(reg("ax"));
         }
@@ -724,25 +724,25 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(PrefixIncNode node) {
-        Node e = node.expr();
+        ExprNode e = node.expr();
         as.inc(e.type(), e.address());
         loadWords(e.type(), e.address(), "ax");
     }
 
     public void visit(PrefixDecNode node) {
-        Node e = node.expr();
+        ExprNode e = node.expr();
         as.dec(e.type(), e.address());
         loadWords(e.type(), e.address(), "ax");
     }
 
     public void visit(SuffixIncNode node) {
-        Node e = node.expr();
+        ExprNode e = node.expr();
         loadWords(e.type(), e.address(), "ax");
         as.inc(e.type(), e.address());
     }
 
     public void visit(SuffixDecNode node) {
-        Node e = node.expr();
+        ExprNode e = node.expr();
         loadWords(e.type(), e.address(), "ax");
         as.dec(e.type(), e.address());
     }
@@ -773,10 +773,10 @@ static public void p(String s) { System.err.println(s); }
         compile(node.cond());
         testCond(node.cond().type(), "ax");
         as.jz(node.elseLabel());
-        compile(node.thenBody());
+        compile(node.thenExpr());
         as.jmp(node.endLabel());
         as.label(node.elseLabel());
-        compile(node.elseBody());
+        compile(node.elseExpr());
         as.label(node.endLabel());
     }
 

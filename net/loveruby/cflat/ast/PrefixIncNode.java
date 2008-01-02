@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class PrefixIncNode extends UnaryOpNode {
-    public PrefixIncNode(Node n) {
+    public PrefixIncNode(ExprNode n) {
         super(n);
     }
 

@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class ModAssignNode extends AbstractAssignNode {
-    public ModAssignNode(Node lhs, Node rhs) {
+    public ModAssignNode(ExprNode lhs, ExprNode rhs) {
         super(lhs, rhs);
     }
 

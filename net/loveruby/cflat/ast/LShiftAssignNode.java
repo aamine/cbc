@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class LShiftAssignNode extends AbstractAssignNode {
-    public LShiftAssignNode(Node lhs, Node rhs) {
+    public LShiftAssignNode(ExprNode lhs, ExprNode rhs) {
         super(lhs, rhs);
     }
 

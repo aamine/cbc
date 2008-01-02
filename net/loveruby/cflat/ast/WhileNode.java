@@ -2,15 +2,16 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.*;
 
 public class WhileNode extends LoopNode {
-    protected Node cond, body;
+    protected ExprNode cond;
+    protected Node body;
 
-    public WhileNode(LabelPool pool, Node c, Node b) {
+    public WhileNode(LabelPool pool, ExprNode cond, Node body) {
         super(pool);
-        cond = c;
-        body = b;
+        this.cond = cond;
+        this.body = body;
     }
 
-    public Node cond() {
+    public ExprNode cond() {
         return cond;
     }
 

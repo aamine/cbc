@@ -2,11 +2,11 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.AsmEntity;
 
-public class MemberNode extends Node implements LHSNode {
-    protected Node expr;
+public class MemberNode extends ExprNode implements LHSNode {
+    protected ExprNode expr;
     protected String name;
 
-    public MemberNode(Node expr, String name) {
+    public MemberNode(ExprNode expr, String name) {
         this.expr = expr;
         this.name = name;
     }
@@ -19,7 +19,7 @@ public class MemberNode extends Node implements LHSNode {
         return (ComplexType)expr.type();
     }
 
-    public Node expr() {
+    public ExprNode expr() {
         return expr;
     }
 
@@ -46,6 +46,6 @@ public class MemberNode extends Node implements LHSNode {
 
     // LHS node requirement
     public AsmEntity address() {
-        return expr.address().add(offset());
+        return ((LHSNode)expr).address().add(offset());
     }
 }

@@ -394,7 +394,7 @@ List defvars():
     boolean priv;
     TypeNode type;
     String name;
-    Node init = null;
+    ExprNode init = null;
 }
 {
     priv=storage() type=type() name=name() ["=" init=expr()]
@@ -709,7 +709,10 @@ LabelNode labeled_stmt():
 }
 
 IfNode if_stmt():
-{ Node cond, thenBody, elseBody = null; }
+{
+    ExprNode cond;
+    Node thenBody, elseBody = null;
+}
 {
     <IF> "(" cond=expr() ")" thenBody=stmt()
             [LOOKAHEAD(1) <ELSE> elseBody=stmt()]
@@ -719,7 +722,10 @@ IfNode if_stmt():
 }
 
 WhileNode while_stmt():
-{ Node cond, body; }
+{
+    ExprNode cond;
+    Node body;
+}
 {
     <WHILE> "(" cond=expr() ")" body=stmt()
         {
@@ -728,7 +734,10 @@ WhileNode while_stmt():
 }
 
 DoWhileNode dowhile_stmt():
-{ Node cond, body; }
+{
+    ExprNode cond;
+    Node body;
+}
 {
     <DO> body=stmt() <WHILE> "(" cond=expr() ")" ";"
         {
@@ -737,7 +746,10 @@ DoWhileNode dowhile_stmt():
 }
 
 ForNode for_stmt():
-{ Node init = null, cond = null, incr = null, body; }
+{
+    ExprNode init = null, cond = null, incr = null;
+    Node body;
+}
 {
     <FOR> "(" [init=expr()] ";"
               [cond=expr()] ";"
@@ -749,7 +761,7 @@ ForNode for_stmt():
 
 SwitchNode switch_stmt():
 {
-    Node cond;
+    ExprNode cond;
     List bodies;
 }
 {
@@ -787,7 +799,7 @@ CaseNode case_clause():
 List cases():
 {
     List values = new ArrayList();
-    Node n;
+    ExprNode n;
 }
 {
     (<CASE> n=primary() ":" { values.add(n); })+
@@ -839,15 +851,15 @@ ContinueNode continue_stmt(): {}
 }
 
 ReturnNode return_stmt():
-{ Node expr; }
+{ ExprNode expr; }
 {
       LOOKAHEAD(2) <RETURN> ";" { return new ReturnNode(null); }
     | <RETURN> expr=expr() ";"  { return new ReturnNode(expr); }
 }
 
-Node expr():
+ExprNode expr():
 {
-    Node l, r, n;
+    ExprNode l, r, n;
     Class c;
 }
 {
@@ -860,9 +872,9 @@ Node expr():
       l=term() c=opassign_op() r=expr()
         {
             try {
-                Constructor cons =
-                    c.getConstructor(new Class[] {Node.class, Node.class});
-                return (Node)cons.newInstance(new Object[] {l, r});
+                Constructor cons = c.getConstructor(
+                        new Class[] {ExprNode.class, ExprNode.class});
+                return (ExprNode)cons.newInstance(new Object[] {l, r});
             }
             catch (Exception ex) {
                 throw new Error("fatal: " + ex.getMessage());
@@ -889,8 +901,8 @@ Class opassign_op(): {}
     )
 }
 
-Node expr10():
-{ Node c, t, e; }
+ExprNode expr10():
+{ ExprNode c, t, e; }
 {
     c=expr9() ["?" t=expr() ":" e=expr10()
                     { return new CondExprNode(labelPool, c, t, e); }]
@@ -899,8 +911,8 @@ Node expr10():
         }
 }
 
-Node expr9():
-{ Node l, r; }
+ExprNode expr9():
+{ ExprNode l, r; }
 {
     l=expr8() ("||" r=expr8() { l = new LogicalOrNode(labelPool, l, r); })*
         {
@@ -908,8 +920,8 @@ Node expr9():
         }
 }
 
-Node expr8():
-{ Node l, r; }
+ExprNode expr8():
+{ ExprNode l, r; }
 {
     l=expr7() ("&&" r=expr7() { l = new LogicalAndNode(labelPool, l, r); })*
         {
@@ -917,8 +929,8 @@ Node expr8():
         }
 }
 
-Node expr7():
-{ Node l, r; }
+ExprNode expr7():
+{ ExprNode l, r; }
 {
     l=expr6() ( ">"  r=expr6() { l = new GtNode(l, r); }
               | "<"  r=expr6() { l = new LtNode(l, r); }
@@ -931,8 +943,8 @@ Node expr7():
         }
 }
 
-Node expr6():
-{ Node l, r; }
+ExprNode expr6():
+{ ExprNode l, r; }
 {
     l=expr5() ("|" r=expr5() { l = new BitwiseOrNode(l, r); })*
         {
@@ -940,8 +952,8 @@ Node expr6():
         }
 }
 
-Node expr5():
-{ Node l, r; }
+ExprNode expr5():
+{ ExprNode l, r; }
 {
     l=expr4() ("^" r=expr4() { l = new BitwiseXorNode(l, r); })*
         {
@@ -949,8 +961,8 @@ Node expr5():
         }
 }
 
-Node expr4():
-{ Node l, r; }
+ExprNode expr4():
+{ ExprNode l, r; }
 {
     l=expr3() ("&" r=expr3() { l = new BitwiseAndNode(l, r); })*
         {
@@ -958,8 +970,8 @@ Node expr4():
         }
 }
 
-Node expr3():
-{ Node l, r; }
+ExprNode expr3():
+{ ExprNode l, r; }
 {
     l=expr2() ( ">>" r=expr2() { l = new RShiftNode(l, r); }
               | "<<" r=expr2() { l = new LShiftNode(l, r); }
@@ -969,8 +981,8 @@ Node expr3():
         }
 }
 
-Node expr2():
-{ Node l, r; }
+ExprNode expr2():
+{ ExprNode l, r; }
 {
     l=expr1() ( "+" r=expr1() { l = new PlusNode(l, r); }
               | "-" r=expr1() { l = new MinusNode(l, r); }
@@ -980,8 +992,8 @@ Node expr2():
         }
 }
 
-Node expr1():
-{ Node l, r; }
+ExprNode expr1():
+{ ExprNode l, r; }
 {
     l=term() ( "*" r=term() { l = new MulNode(l, r); }
              | "/" r=term() { l = new DivNode(l, r); }
@@ -992,10 +1004,10 @@ Node expr1():
         }
 }
 
-Node term():
+ExprNode term():
 {
     TypeNode t;
-    Node n;
+    ExprNode n;
 }
 {
       LOOKAHEAD("(" type())
@@ -1003,9 +1015,9 @@ Node term():
     | n=unary()                     { return n; }
 }
 
-Node unary():
+ExprNode unary():
 {
-    Node n;
+    ExprNode n;
 }
 {
       "++" n=unary()    { return new PrefixIncNode(n); }
@@ -1019,9 +1031,9 @@ Node unary():
     | n=postfix()       { return n; }
 }
 
-Node postfix():
+ExprNode postfix():
 {
-    Node base, idx;
+    ExprNode base, idx;
     String memb;
     List args;
 }
@@ -1048,7 +1060,7 @@ String name():
 List args():
 {
     List args = new ArrayList();
-    Node arg;
+    ExprNode arg;
 }
 {
     [ arg=expr() { args.add(arg); }
@@ -1058,10 +1070,10 @@ List args():
         }
 }
 
-Node primary():
+ExprNode primary():
 {
     Token t;
-    Node n;
+    ExprNode n;
 }
 {
       t=<INTEGER>

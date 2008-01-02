@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class NotEqNode extends BinaryOpNode {
-    public NotEqNode(Node left, Node right) {
+    public NotEqNode(ExprNode left, ExprNode right) {
         super(left, right);
     }
 

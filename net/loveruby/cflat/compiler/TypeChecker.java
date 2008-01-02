@@ -61,7 +61,7 @@ class TypeChecker extends Visitor {
         checkCondExpr(node.cond());
     }
 
-    protected void checkCondExpr(Node node) {
+    protected void checkCondExpr(ExprNode node) {
         Type t = node.type();
         if (!t.isInteger() && !t.isPointer()) {
             notIntegerError(t);
@@ -179,16 +179,16 @@ class TypeChecker extends Visitor {
     public void visit(CondExprNode node) {
         super.visit(node);
         checkCondExpr(node.cond());
-        Type t = node.thenBody().type();
-        Type e = node.elseBody().type();
+        Type t = node.thenExpr().type();
+        Type e = node.elseExpr().type();
         if (t.equals(e)) {
             return;
         }
         else if (t.isCompatible(e)) {   // insert cast on thenBody
-            node.setThenBody(newCastNode(e, node.thenBody()));
+            node.setThenExpr(newCastNode(e, node.thenExpr()));
         }
         else if (e.isCompatible(t)) {   // insert cast on elseBody
-            node.setElseBody(newCastNode(t, node.elseBody()));
+            node.setElseExpr(newCastNode(t, node.elseExpr()));
         }
         else {
             incompatibleTypeError(e, t);
@@ -319,8 +319,8 @@ class TypeChecker extends Visitor {
     }
 
     protected void insertImplicitCast(BinaryOpNode node) {
-        Node r = node.right();
-        Node l = node.left();
+        ExprNode r = node.right();
+        ExprNode l = node.left();
         if (r.type().equals(l.type())) {
             return;
         }
@@ -379,7 +379,7 @@ class TypeChecker extends Visitor {
         List newArgs = new ArrayList();
         while (params.hasNext()) {
             Type param = (Type)params.next();
-            Node arg = (Node)args.next();
+            ExprNode arg = (ExprNode)args.next();
             resolve(arg);
             if (arg.type().equals(param)) {
                 newArgs.add(arg);
@@ -393,7 +393,7 @@ class TypeChecker extends Visitor {
             }
         }
         while (args.hasNext()) {
-            Node arg = (Node)args.next();
+            ExprNode arg = (ExprNode)args.next();
             resolve(arg);
             newArgs.add(arg);
         }
@@ -472,16 +472,16 @@ class TypeChecker extends Visitor {
     // Utilities
     //
 
-    protected CastNode newCastNode(Type t, Node n) {
+    protected CastNode newCastNode(Type t, ExprNode n) {
         return new CastNode(new TypeNode(t), n);
     }
 
-    protected void mustBeInteger(Node node) {
+    protected void mustBeInteger(ExprNode node) {
         if (node.type().isInteger()) return;
         notIntegerError(node.type());
     }
 
-    protected void mustBeScalar(Node node) {
+    protected void mustBeScalar(ExprNode node) {
         if (node.type().isInteger()) return;
         if (node.type().isPointer()) return;
         notIntegerError(node.type());

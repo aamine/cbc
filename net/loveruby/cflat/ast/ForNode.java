@@ -2,25 +2,27 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.*;
 
 public class ForNode extends LoopNode {
-    protected Node init, cond, incr, body;
+    protected ExprNode init, cond, incr;
+    protected Node body;
 
-    public ForNode(LabelPool pool, Node ini, Node c, Node inc, Node b) {
+    public ForNode(LabelPool pool,
+                   ExprNode init, ExprNode cond, ExprNode incr, Node body) {
         super(pool);
-        init = ini;
-        cond = c;
-        incr = inc;
-        body = b;
+        this.init = init;
+        this.cond = cond;
+        this.incr = incr;
+        this.body = body;
     }
 
-    public Node init() {
+    public ExprNode init() {
         return init;
     }
 
-    public Node cond() {
+    public ExprNode cond() {
         return cond;
     }
 
-    public Node incr() {
+    public ExprNode incr() {
         return incr;
     }
 

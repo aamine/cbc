@@ -2,11 +2,12 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.*;
 
 public class IfNode extends Node {
-    protected Node cond, thenBody, elseBody;
+    protected ExprNode cond;
+    protected Node thenBody, elseBody;
     protected LabelPool pool;
     protected Label elseLabel, endLabel;
 
-    public IfNode(LabelPool lp, Node c, Node t, Node e) {
+    public IfNode(LabelPool lp, ExprNode c, Node t, Node e) {
         super();
         pool = lp;
         cond = c;
@@ -14,7 +15,7 @@ public class IfNode extends Node {
         elseBody = e;
     }
 
-    public Node cond() {
+    public ExprNode cond() {
         return cond;
     }
 

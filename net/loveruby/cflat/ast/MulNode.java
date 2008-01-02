@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 
 public class MulNode extends BinaryOpNode {
-    public MulNode(Node left, Node right) {
+    public MulNode(ExprNode left, ExprNode right) {
         super(left, right);
     }
 
