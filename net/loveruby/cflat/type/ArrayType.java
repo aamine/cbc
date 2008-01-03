@@ -3,10 +3,11 @@ package net.loveruby.cflat.type;
 public class ArrayType extends Type {
     protected Type baseType;
     protected long length;
+    static final protected long undefined = -1;
 
     public ArrayType(Type baseType) {
         this.baseType = baseType;
-        length = -1;
+        length = undefined;
     }
 
     public ArrayType(Type baseType, long length) {
@@ -15,6 +16,8 @@ public class ArrayType extends Type {
     }
 
     public boolean isArray() { return true; }
+    public boolean isAllocated() { return length != undefined; }
+    public boolean isAllocatedArray() { return isAllocated(); }
     public boolean isDereferable() { return true; }
 
     public Type baseType() {

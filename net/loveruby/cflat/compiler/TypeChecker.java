@@ -171,7 +171,15 @@ class TypeChecker extends Visitor {
             errorHandler.error("invalid lhs expression");
             return;
         }
+        if (isInvalidLHSType(node.lhs().type())) {
+            errorHandler.error("invalid lhs type");
+            return;
+        }
         insertImplicitCast(node);
+    }
+
+    protected boolean isInvalidLHSType(Type type) {
+        return type.isStruct() || type.isUnion() || type.isAllocatedArray();
     }
 
     protected void insertImplicitCast(AbstractAssignNode node) {
@@ -453,10 +461,9 @@ class TypeChecker extends Visitor {
 
     /**
      * Return true if the type t is invalid for function argument.
-     * Struct and Union is invalid in Cb.
      */
     protected boolean isInvalidArgType(Type t) {
-        return t.isComplexType();
+        return isInvalidLHSType(t);
     }
 
     /**

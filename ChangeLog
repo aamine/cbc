@@ -1,3 +1,17 @@
+Thu Jan  3 20:51:47 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: reject LHS which
+	  has invalid type (struct, union, allocated array).
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: reject arguments
+	  which has invalid type (struct, union, allocated array).
+
+	* net/loveruby/cflat/type/Type.java: new method #isAllocatedArray.
+
+	* net/loveruby/cflat/type/ArrayType.java: override it.
+
+	* net/loveruby/cflat/type/ArrayType.java: new method #isAllocated.
+
 Thu Jan  3 20:37:53 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/ptrmemb.cb: test ptr->x where ptr is a pointer to union.
