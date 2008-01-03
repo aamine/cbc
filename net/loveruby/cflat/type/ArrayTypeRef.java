@@ -40,4 +40,11 @@ public class ArrayTypeRef extends TypeRef {
     public boolean isLengthUndefined() {
         return (length == undefined);
     }
+
+    public String toString() {
+        return baseType.toString()
+               + "["
+               + (length == undefined ? "" : "" + length)
+               + "]";
+    }
 }

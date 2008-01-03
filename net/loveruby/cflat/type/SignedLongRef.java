@@ -15,4 +15,8 @@ public class SignedLongRef extends TypeRef {
     public int hashCode() {
         return 3;
     }
+
+    public String toString() {
+        return "long";
+    }
 }

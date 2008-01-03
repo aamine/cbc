@@ -15,4 +15,8 @@ public class UnsignedShortRef extends TypeRef {
     public int hashCode() {
         return 5;
     }
+
+    public String toString() {
+        return "unsigned short";
+    }
 }

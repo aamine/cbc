@@ -23,4 +23,8 @@ public class UnionTypeRef extends TypeRef {
     public String name() {
         return name;
     }
+
+    public String toString() {
+        return "union " + name;
+    }
 }

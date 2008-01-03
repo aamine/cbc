@@ -15,4 +15,8 @@ public class SignedIntRef extends TypeRef {
     public int hashCode() {
         return 2;
     }
+
+    public String toString() {
+        return "int";
+    }
 }

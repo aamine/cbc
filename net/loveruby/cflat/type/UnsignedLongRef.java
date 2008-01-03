@@ -15,4 +15,8 @@ public class UnsignedLongRef extends TypeRef {
     public int hashCode() {
         return 7;
     }
+
+    public String toString() {
+        return "unsigned long";
+    }
 }

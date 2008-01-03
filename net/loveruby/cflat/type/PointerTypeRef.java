@@ -23,4 +23,8 @@ public class PointerTypeRef extends TypeRef {
     public int hashCode() {
         return (1 << 11) & baseType.hashCode();
     }
+
+    public String toString() {
+        return baseType.toString() + "*";
+    }
 }

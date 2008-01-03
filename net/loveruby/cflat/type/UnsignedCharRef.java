@@ -15,4 +15,8 @@ public class UnsignedCharRef extends TypeRef {
     public int hashCode() {
         return 4;
     }
+
+    public String toString() {
+        return "unsigned char";
+    }
 }

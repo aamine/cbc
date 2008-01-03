@@ -15,4 +15,8 @@ public class VoidTypeRef extends TypeRef {
     public int hashCode() {
         return -1;
     }
+
+    public String toString() {
+        return "void";
+    }
 }

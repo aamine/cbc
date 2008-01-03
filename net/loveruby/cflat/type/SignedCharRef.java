@@ -15,4 +15,8 @@ public class SignedCharRef extends TypeRef {
     public int hashCode() {
         return 0;
     }
+
+    public String toString() {
+        return "char";
+    }
 }

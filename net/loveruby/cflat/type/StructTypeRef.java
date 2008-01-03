@@ -23,4 +23,8 @@ public class StructTypeRef extends TypeRef {
     public String name() {
         return name;
     }
+
+    public String toString() {
+        return "struct " + name;
+    }
 }

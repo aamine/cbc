@@ -15,4 +15,8 @@ public class UnsignedIntRef extends TypeRef {
     public int hashCode() {
         return 6;
     }
+
+    public String toString() {
+        return "unsigned int";
+    }
 }

@@ -16,7 +16,6 @@ abstract public class Params extends Node {
     abstract public Params typeRefs();
 
     protected void _dump(Dumper d) {
-        // FIXME
-        d.printMember("parameters", "FIXME");
+        d.printNodeList("parameters", parameters());
     }
 }

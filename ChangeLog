@@ -1,3 +1,12 @@
+Fri Jan  4 08:30:55 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/Dumper.java: specialize TypeNode
+	  printing.
+
+	* net/loveruby/cflat/ast/Params.java: show parameter list.
+
+	* net/loveruby/cflat/type/*TypeRef.java: define #toString.
+
 Fri Jan  4 08:01:31 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: implement command

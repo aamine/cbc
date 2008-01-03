@@ -15,4 +15,8 @@ public class SignedShortRef extends TypeRef {
     public int hashCode() {
         return 1;
     }
+
+    public String toString() {
+        return "short";
+    }
 }

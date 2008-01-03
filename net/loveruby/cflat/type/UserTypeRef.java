@@ -23,4 +23,8 @@ public class UserTypeRef extends TypeRef {
     public int hashCode() {
         return (1 << 12) & name.hashCode();
     }
+
+    public String toString() {
+        return name;
+    }
 }
