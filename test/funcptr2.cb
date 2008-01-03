@@ -1,0 +1,13 @@
+import stdio;
+
+void myputs(char* str) { puts(str); }
+
+int
+main(int argc, char **argv)
+{
+    void (*)(char*) f;
+
+    f = myputs;
+    f("OK");
+    return 0;
+}

@@ -13,7 +13,7 @@ CBPROGS = zero one hello hello2 hello3 hello4 integer string \
           dowhile1 dowhile2 dowhile3 dowhile-break dowhile-continue \
           for1 for-break for-continue \
           array struct struct-semcheck union union-semcheck \
-          pointer ptrmemb funcptr \
+          pointer ptrmemb funcptr funcptr2 \
           charops shortops intops longops \
           ucharops ushortops uintops ulongops \
           block cast defvar mbc assoc \

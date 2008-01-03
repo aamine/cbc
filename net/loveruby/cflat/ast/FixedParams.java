@@ -9,6 +9,11 @@ public class FixedParams extends Params {
         parameters = params;
     }
 
+    /**
+     * For DefinedFunction and UndefinedFunction, returns an iterator to
+     * the list of parameters (Parameter).  For FunctionType, returns an
+     * iterator to the list of parameter type (Type).
+     */
     public Iterator parameters() {
         return parameters.iterator();
     }
@@ -21,6 +26,11 @@ public class FixedParams extends Params {
         return parameters.size();
     }
 
+    /**
+     * For DefinedFunction and UndefinedFunction, returns a list of
+     * parameters (Parameter).  For FunctionType, returns a list of
+     * parameter types (Type).
+     */
     protected List parametersList() {
         return parameters;
     }

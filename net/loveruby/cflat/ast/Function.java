@@ -12,7 +12,6 @@ abstract public class Function extends Entity {
     public boolean isInitialized() { return true; }
     abstract public boolean isDefined();
     abstract public Iterator parameters();
-    abstract public AsmEntity address();
 
     public FunctionType functionType() {
         return type().getPointerType().base().getFunctionType();
@@ -24,5 +23,10 @@ abstract public class Function extends Entity {
 
     public boolean isVoid() {
         return returnType().isVoid();
+    }
+
+    public AsmEntity address() {
+        // FIXME: use Immediate
+        return new Label("$" + name());
     }
 }

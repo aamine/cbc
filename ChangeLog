@@ -1,3 +1,29 @@
+Thu Jan  3 18:00:10 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check if parameter
+	  type is valid.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check if argument
+	  type is valid.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check if lhs is
+	  assignable.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: reduce cast.
+
+	* net/loveruby/cflat/ast/Function.java: define #address here.
+
+	* net/loveruby/cflat/ast/DefinedFunction.java: ditto.
+
+	* net/loveruby/cflat/ast/UndefinedFunction.java: ditto.
+
+	* net/loveruby/cflat/ast/BlockNode.java: fix type error by cast.
+
+	* test/test.sh: test funcptr2.
+
+	* test/funcptr2.cb: test a function pointer to local (defined)
+	  function.
+
 Wed Jan  2 21:46:44 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: pass BlockNode to

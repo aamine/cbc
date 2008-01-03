@@ -20,7 +20,7 @@ public class BlockNode extends Node {
 
     public Node tailStmt() {
         if (stmts.isEmpty()) return null;
-        return stmts.get(stmts.size() - 1);
+        return (Node)stmts.get(stmts.size() - 1);
     }
 
     public void accept(ASTVisitor visitor) {

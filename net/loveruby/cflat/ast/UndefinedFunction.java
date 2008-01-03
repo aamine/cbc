@@ -23,16 +23,11 @@ public class UndefinedFunction extends Function {
         return true;
     }
 
-    public AsmEntity address() {
-        // FIXME: use immediate
-        return new Label("$" + name);
+    public void defineIn(ToplevelScope scope) {
+        throw new Error("UndefinedFunction#defineIn");
     }
 
     public void accept(DefinitionVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public void defineIn(ToplevelScope scope) {
-        throw new Error("UndefinedFunction#defineIn");
     }
 }

@@ -23,6 +23,7 @@ class TypeChecker extends Visitor {
         while (funcs.hasNext()) {
             DefinedFunction f = (DefinedFunction)funcs.next();
             checkReturnType(f);
+            checkParamTypes(f);
             resolve(f.body());
         }
         if (errorHandler.errorOccured()) {
@@ -30,7 +31,7 @@ class TypeChecker extends Visitor {
         }
     }
 
-    protected void checkReturnType(Function f) {
+    protected void checkReturnType(DefinedFunction f) {
         if (f.returnType().isArray()) {
             errorHandler.error("returns an array: " + f.name());
         }
@@ -39,6 +40,17 @@ class TypeChecker extends Visitor {
         }
         else if (f.returnType().isUnion()) {
             errorHandler.error("returns a union: " + f.name());
+        }
+    }
+
+    protected void checkParamTypes(DefinedFunction f) {
+        Iterator params = f.parameters();
+        while (params.hasNext()) {
+            Parameter param = (Parameter)params.next();
+            if (isInvalidArgType(param.type())) {
+                errorHandler.error("invalid parameter type: "
+                                   + param.type().textize());
+            }
         }
     }
 
@@ -61,8 +73,8 @@ class TypeChecker extends Visitor {
         checkCondExpr(node.cond());
     }
 
-    protected void checkCondExpr(ExprNode node) {
-        Type t = node.type();
+    protected void checkCondExpr(ExprNode cond) {
+        Type t = cond.type();
         if (!t.isInteger() && !t.isPointer()) {
             notIntegerError(t);
         }
@@ -71,6 +83,37 @@ class TypeChecker extends Visitor {
     public void visit(SwitchNode node) {
         super.visit(node);
         mustBeScalar(node.cond());
+    }
+
+    public void visit(ReturnNode node) {
+        super.visit(node);
+        if (node.function().isVoid()) {
+            if (node.expr() != null) {
+                errorHandler.error("returning value from void function");
+            }
+        }
+        else {  // non-void function
+            if (node.expr() == null) {
+                errorHandler.error("missing return value");
+                return;
+            }
+            insertImplicitCast(node);
+        }
+    }
+
+    protected void insertImplicitCast(ReturnNode node) {
+        Type exprType = node.expr().type();
+        Type retType = node.function().returnType();
+        if (exprType.equals(retType)) {   // type matches
+            return;
+        }
+        else if (exprType.isCompatible(retType)) {
+            node.setExpr(newCastNode(retType, node.expr()));
+        }
+        else {
+            errorHandler.error("returning incompatible value: "
+                               + exprType.textize());
+        }
     }
 
     //
@@ -124,6 +167,14 @@ class TypeChecker extends Visitor {
     protected void checkAssignment(AbstractAssignNode node) {
         resolve(node.lhs());
         resolve(node.rhs());
+        if (! node.lhs().isAssignable()) {
+            errorHandler.error("invalid lhs expression");
+            return;
+        }
+        insertImplicitCast(node);
+    }
+
+    protected void insertImplicitCast(AbstractAssignNode node) {
         Type l = node.lhs().type();
         Type r = node.rhs().type();
         if (l.equals(r)) {
@@ -138,37 +189,6 @@ class TypeChecker extends Visitor {
         }
         else {
             incompatibleTypeError(l, r);
-        }
-    }
-
-    public void visit(ReturnNode node) {
-        super.visit(node);
-        if (node.function().isVoid()) {
-            if (node.expr() != null) {
-                errorHandler.error("returning value from void function");
-            }
-        }
-        else {  // non-void function
-            if (node.expr() == null) {
-                errorHandler.error("missing return value");
-                return;
-            }
-            insertImplicitCast(node);
-        }
-    }
-
-    protected void insertImplicitCast(ReturnNode node) {
-        Type exprType = node.expr().type();
-        Type retType = node.function().returnType();
-        if (exprType.equals(retType)) {   // type matches
-            return;
-        }
-        else if (exprType.isCompatible(retType)) {
-            node.setExpr(newCastNode(retType, node.expr()));
-        }
-        else {
-            errorHandler.error("returning incompatible value: "
-                               + exprType.textize());
         }
     }
 
@@ -289,7 +309,13 @@ class TypeChecker extends Visitor {
         expectsComparableScalars(node);
     }
 
-    // +, -
+    /**
+     * For + and -, only following types of expression are valid:
+     *
+     *   * integer + integer
+     *   * pointer + integer
+     *   * integer + pointer
+     */
     protected void expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
         if (node.left().type().isPointer()) {
             mustBeInteger(node.right());
@@ -357,15 +383,24 @@ class TypeChecker extends Visitor {
         expectsScalarOperand(node);
     }
 
+    /** We can increment/decrement an integer or a pointer. */
     protected void expectsScalarOperand(UnaryOpNode node) {
         resolve(node.expr());
         mustBeScalar(node.expr());
     }
 
+    /**
+     * For EXPR(ARG), checks:
+     *
+     *   * EXPR is callable (a pointer to a function).
+     *   * The number of argument matches function prototype.
+     *   * ARG matches function prototype.
+     *   * ARG is neither a struct nor an union.
+     */
     public void visit(FuncallNode node) {
         resolve(node.expr());
         if (! node.expr().isCallable()) {
-            errorHandler.error("called object is not a function");
+            errorHandler.error("calling object is not a function");
             return;
         }
         FunctionType type = node.functionType();
@@ -373,7 +408,7 @@ class TypeChecker extends Visitor {
             errorHandler.error("wrong number of argments: " + node.numArgs());
             return;
         }
-        // Check only mandatory parameters
+        // Check type of only mandatory parameters.
         Iterator params = type.paramTypes();
         Iterator args = node.arguments();
         List newArgs = new ArrayList();
@@ -381,16 +416,7 @@ class TypeChecker extends Visitor {
             Type param = (Type)params.next();
             ExprNode arg = (ExprNode)args.next();
             resolve(arg);
-            if (arg.type().equals(param)) {
-                newArgs.add(arg);
-            }
-            else if (arg.type().isCompatible(param)) {
-                newArgs.add(newCastNode(param, arg));
-            }
-            else {
-                incompatibleTypeError(arg.type(), param);
-                newArgs.add(arg);
-            }
+            newArgs.add(checkArgType(arg, param));
         }
         while (args.hasNext()) {
             ExprNode arg = (ExprNode)args.next();
@@ -400,6 +426,37 @@ class TypeChecker extends Visitor {
         node.replaceArgs(newArgs);
     }
 
+    /** Checks argument type and insert implicit cast if needed. */
+    protected ExprNode checkArgType(ExprNode arg, Type param) {
+        if (isInvalidArgType(arg.type())) {
+            errorHandler.error("invalid argument type: "
+                               + arg.type().textize());
+            return arg;
+        }
+        if (arg.type().equals(param)) {
+            return arg;
+        }
+        else if (arg.type().isCompatible(param)) {
+            return newCastNode(param, arg);
+        }
+        else {
+            incompatibleTypeError(arg.type(), param);
+            return arg;
+        }
+    }
+
+    /**
+     * Return true if the type t is invalid for function argument.
+     * Struct and Union is invalid in Cb.
+     */
+    protected boolean isInvalidArgType(Type t) {
+        return t.isComplexType();
+    }
+
+    /**
+     * Checks if the type of base expression of EXPR[IDX] is valid.
+     * EXPR must be an array or a pointer.  IDX must be an integer.
+     */
     public void visit(ArefNode node) {
         resolve(node.expr());
         if (! node.expr().isIndexable()) {
@@ -422,7 +479,7 @@ class TypeChecker extends Visitor {
             notPointerError(node.type());
             return;
         }
-        PointerType pt = (PointerType)node.expr().type();
+        PointerType pt = node.expr().type().getPointerType();
         checkMemberRef(pt.base(), node.name());
     }
 
@@ -431,7 +488,7 @@ class TypeChecker extends Visitor {
             errorHandler.error("is not struct/union: " + t.textize());
             return;
         }
-        ComplexType type = (ComplexType)t;
+        ComplexType type = t.getComplexType();
         if (! type.hasMember(memb)) {
             errorHandler.error(type.textize() +
                                " does not have member " + memb);

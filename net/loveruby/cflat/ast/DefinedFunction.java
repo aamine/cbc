@@ -21,6 +21,7 @@ public class DefinedFunction extends Function {
         this.jumpMap = new HashMap();
     }
 
+    /** Returns an iterator to the list of parameter slots (Slot). */
     public Iterator parameters() {
         return params.parameters();
     }
@@ -33,9 +34,11 @@ public class DefinedFunction extends Function {
         frame = f;
     }
 
-    // returns function local variables.
-    // Does NOT include paramters.
-    // Does NOT include static local variables.
+    /**
+     * Returns function local variables.
+     * Does NOT include paramters.
+     * Does NOT include static local variables.
+     */
     public Iterator localVariables() {
         return frame.allVariables();
     }
@@ -107,9 +110,5 @@ public class DefinedFunction extends Function {
 
     public void accept(DefinitionVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public AsmEntity address() {
-        throw new Error("must not happen: Function#address called");
     }
 }

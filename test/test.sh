@@ -155,6 +155,7 @@ assert_out "25000000" ./cast
 assert_out "1;2;3" ./defvar
 
 assert_out "OK" ./funcptr
+assert_out "OK" ./funcptr2
 assert_error $CBC defun-semcheck.cb
 assert_error $CBC defun-semcheck2.cb
 assert_error $CBC defun-semcheck3.cb
