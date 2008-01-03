@@ -72,6 +72,9 @@ public class TypeResolver extends Visitor implements DefinitionVisitor {
 
     public void visit(DefinedVariable var) {
         bindType(var.typeNode());
+        if (var.isInitialized()) {
+            resolve(var.initializer());
+        }
     }
 
     public void visit(UndefinedVariable var) {
@@ -100,11 +103,7 @@ public class TypeResolver extends Visitor implements DefinitionVisitor {
     protected void resolveLocalVariables(DefinedFunction func) {
         Iterator vars = func.localVariables();
         while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
-            bindType(var.typeNode());
-            if (var.isInitialized()) {
-                resolve(var.initializer());
-            }
+            visit((DefinedVariable)vars.next());
         }
     }
 

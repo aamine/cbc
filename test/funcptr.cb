@@ -3,7 +3,7 @@ import stdio;
 int
 main(int argc, char **argv)
 {
-    void (*)(char*) f;
+    int (*)(char*) f;
 
     f = puts;
     f("OK");

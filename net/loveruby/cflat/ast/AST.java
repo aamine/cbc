@@ -46,6 +46,10 @@ public class AST extends Node {
         return scope.commonSymbols().iterator();
     }
 
+    public Iterator variables() {
+        return declarations.defvars().iterator();
+    }
+
     public boolean functionDefined() {
         return !declarations.defuns().isEmpty();
     }

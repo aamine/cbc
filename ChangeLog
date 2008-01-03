@@ -1,3 +1,24 @@
+Fri Jan  4 03:15:28 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: refactoring:
+	  unify gvar/lvar initializer resolver.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check gvar
+	  initializer.
+
+	* net/loveruby/cflat/compiler/LocalReferenceResolver.java: resolve
+	  gvar initializer.
+
+	* net/loveruby/cflat/ast/AST.java: new method #variables.
+
+	* test/initializer.cb: test variable initializer.
+
+	* test/stdio.hb: return type of printf/puts/putc is int.
+
+	* test/usertype.cb: ditto.
+
+	* test/funcptr.cb: ditto.
+
 Fri Jan  4 02:47:18 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Visitor.java: did not visit lvar

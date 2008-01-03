@@ -26,6 +26,7 @@ public class LocalReferenceResolver extends Visitor {
 
         declareToplevelEntities(ast.declarations());
         defineToplevelEntities(ast.entities());
+        resolveGvarInitializers(ast.variables());
         resolveFunctions(ast.functions());
         toplevel.checkReferences(handler);
         if (handler.errorOccured()) {
@@ -42,6 +43,15 @@ public class LocalReferenceResolver extends Visitor {
     protected void defineToplevelEntities(Iterator entities) {
         while (entities.hasNext()) {
             toplevel.define((Entity)entities.next());
+        }
+    }
+
+    protected void resolveGvarInitializers(Iterator vars) {
+        while (vars.hasNext()) {
+            DefinedVariable var = (DefinedVariable)vars.next();
+            if (var.hasInitializer()) {
+                resolve(var.initializer());
+            }
         }
     }
 
@@ -74,7 +84,6 @@ public class LocalReferenceResolver extends Visitor {
 
     public void visit(BlockNode node) {
         pushScope(node.variables());
-        resolveInitializers(node.variables());
         super.visit(node);
         node.setScope(popScope());
     }
@@ -99,15 +108,6 @@ public class LocalReferenceResolver extends Visitor {
 
     protected Scope currentScope() {
         return (Scope)scopeStack.getLast();
-    }
-
-    protected void resolveInitializers(Iterator vars) {
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
-            if (var.hasInitializer()) {
-                resolve(var.initializer());
-            }
-        }
     }
 
     public void visit(StringLiteralNode node) {

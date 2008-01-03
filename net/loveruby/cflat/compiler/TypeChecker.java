@@ -19,6 +19,13 @@ class TypeChecker extends Visitor {
     }
 
     public void visit(AST ast) throws SemanticException {
+        Iterator vars = ast.variables();
+        while (vars.hasNext()) {
+            DefinedVariable var = (DefinedVariable)vars.next();
+            if (var.hasInitializer()) {
+                resolve(var.initializer());
+            }
+        }
         Iterator funcs = ast.functions();
         while (funcs.hasNext()) {
             DefinedFunction f = (DefinedFunction)funcs.next();
