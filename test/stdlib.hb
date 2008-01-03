@@ -1,1 +1,1 @@
-void exit(int status);
+extern void exit(int status);

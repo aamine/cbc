@@ -19,11 +19,16 @@ public class WhileNode extends LoopNode {
         return body;
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
-
     public Label continueLabel() {
         return begLabel();
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("cond", cond);
+        d.printMember("body", body);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

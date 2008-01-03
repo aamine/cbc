@@ -2,6 +2,7 @@ package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.parser.*;
 import net.loveruby.cflat.ast.*;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.utils.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 import java.io.*;
@@ -31,14 +32,22 @@ public class Compiler {
     public void commandMain(String[] args) {
         try {
             if (args.length == 0) errorExit("no argument given");
-            if (args[0].equals("--dump-ast")) {
-                if (args.length != 2)
+            if (args[0].equals("--dump-tokens")) {
+                if (args.length != 2) {
                     errorExit("no file input or too many files");
-                dumpFile(args[1]);
+                }
+                dumpTokensFromFile(args[1]);
+            }
+            else if (args[0].equals("--dump-ast")) {
+                if (args.length != 2) {
+                    errorExit("no file input or too many files");
+                }
+                dumpASTFromFile(args[1]);
             }
             else if (args[0].equals("--check-syntax")) {
-                if (args.length != 2)
+                if (args.length != 2) {
                     errorExit("no file input or too many files");
+                }
                 if (isValidSyntax(args[1])) {
                     System.out.println("Syntax OK");
                     System.exit(0);
@@ -72,8 +81,33 @@ public class Compiler {
         }
     }
 
-    public void dumpFile(String path) throws CompileException {
-        parseFile(path).dump("");
+    public void dumpTokensFromFile(String path) throws CompileException {
+        AST ast = parseFile(path);
+        Token t = ast.firstToken();
+        dumpTokenList(t, System.out);
+    }
+
+    protected void dumpTokenList(Token t, PrintStream s) {
+        while (t != null) {
+            dumpTokenList(t.specialToken, s);
+            dumpToken(t, s);
+            t = t.next;
+        }
+    }
+
+    static final protected int typeLen = 24;
+
+    protected void dumpToken(Token t, PrintStream s) {
+        String type = ParserConstants.tokenImage[t.kind];
+        s.print(type);
+        for (int n = typeLen - type.length(); n > 0; n--) {
+            s.print(" ");
+        }
+        s.println(TextUtils.escapeString(t.image));
+    }
+
+    public void dumpASTFromFile(String path) throws CompileException {
+        parseFile(path).dump();
     }
 
     public void compileFile(String path) throws CompileException {

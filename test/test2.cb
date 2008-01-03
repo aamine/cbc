@@ -83,11 +83,11 @@ f(int i, int j, int k)
     ++i;
     i--;
     --i;
-    printf("%d, %d, %p\n", 1, *(int*)j, (void*)h());
+    printf("%d, %d, %d\n", 1, *(int*)&j, (int)h());
     return g(g(i, j % 18), 3 + 5 * 7);
 }
 
 int g(int i, int j) {
-    ;; return i * h() * *((long*)&j)  ; }
+    ;; return i * h() * *(myint*)&j  ; }
 
 myint h(void) { return 0; }

@@ -177,11 +177,12 @@
         - unsigned int
         - unsigned long
 - Multibyte input
+- parse command line option
+- --dump-tokens
+- --dump-ast
+* parse command line option more precisely
 * print node location in error message
-* parse command line option
-* --dump-tokens
-* --dump-ast
-* ?? --dump-semantic
+* --dump-semantic
 * generate IR
 * --dump-ir
 * control flow graph

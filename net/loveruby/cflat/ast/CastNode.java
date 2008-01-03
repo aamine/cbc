@@ -26,6 +26,11 @@ public class CastNode extends ExprNode {
         return expr;
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("typeNode", typeNode);
+        d.printMember("expr", expr);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

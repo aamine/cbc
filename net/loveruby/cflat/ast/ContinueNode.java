@@ -6,10 +6,6 @@ public class ContinueNode extends Node {
         super();
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
-
     protected Label label;
 
     public void setTargetLabel(Label label) {
@@ -21,5 +17,12 @@ public class ContinueNode extends Node {
             throw new Error("continue target label is null");
         }
         return label;
+    }
+
+    protected void _dump(Dumper d) {
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

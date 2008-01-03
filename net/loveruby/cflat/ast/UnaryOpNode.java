@@ -15,4 +15,8 @@ abstract public class UnaryOpNode extends ExprNode {
     public ExprNode expr() {
         return expr;
     }
+
+    protected void _dump(Dumper d) {
+        d.printMember("expr", expr);
+    }
 }

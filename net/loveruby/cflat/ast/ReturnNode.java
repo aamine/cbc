@@ -9,10 +9,6 @@ public class ReturnNode extends Node {
         this.expr = expr;
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
-
     public ExprNode expr() {
         return this.expr;
     }
@@ -31,5 +27,13 @@ public class ReturnNode extends Node {
         if (this.function == null)
             throw new Error("ReturnNode#function called before setFunction");
         return this.function;
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("expr", expr);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

@@ -33,10 +33,6 @@ public class MemberNode extends ExprNode implements LHSNode {
         return name;
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
-
     public long offset() {
         return baseType().memberOffset(name);
     }
@@ -53,5 +49,14 @@ public class MemberNode extends ExprNode implements LHSNode {
     // LHS node requirement
     public AsmEntity address() {
         return ((LHSNode)expr).address().add(offset());
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("expr", expr);
+        d.printMember("name", name);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

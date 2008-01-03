@@ -14,4 +14,9 @@ abstract public class Params extends Node {
     abstract public boolean equals(Object other);
     abstract public Params internTypes(TypeTable table);
     abstract public Params typeRefs();
+
+    protected void _dump(Dumper d) {
+        // FIXME
+        d.printMember("parameters", "FIXME");
+    }
 }

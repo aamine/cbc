@@ -22,6 +22,11 @@ public class CharacterLiteralNode extends ExprNode {
         return value;
     }
 
+    protected void _dump(Dumper d) {
+        //d.printMember("typeNode", typeNode);
+        d.printMember("value", value);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

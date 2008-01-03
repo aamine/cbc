@@ -27,10 +27,6 @@ public class IfNode extends Node {
         return elseBody;
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
-
     public Label elseLabel() {
         if (elseLabel == null) {
             elseLabel = pool.newLabel();
@@ -43,5 +39,15 @@ public class IfNode extends Node {
             endLabel = pool.newLabel();
         }
         return endLabel;
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("cond", cond);
+        d.printMember("thenBody", thenBody);
+        d.printMember("elseBody", elseBody);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

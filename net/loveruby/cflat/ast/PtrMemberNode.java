@@ -52,6 +52,11 @@ public class PtrMemberNode extends ExprNode implements LHSNode {
         return dereferedType().memberOffset(name);
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("expr", expr);
+        d.printMember("name", name);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

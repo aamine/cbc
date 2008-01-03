@@ -19,10 +19,6 @@ public class DoWhileNode extends LoopNode {
         return cond;
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
-
     protected Label continueLabel;
 
     public Label continueLabel() {
@@ -30,5 +26,14 @@ public class DoWhileNode extends LoopNode {
             continueLabel = pool.newLabel();
         }
         return continueLabel;
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("body", body);
+        d.printMember("cond", cond);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

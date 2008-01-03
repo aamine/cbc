@@ -37,6 +37,11 @@ public class TypeNode extends Node {
         return type;
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("typeref", typeRef);
+        d.printMember("type", type);
+    }
+
     public void accept(ASTVisitor visitor) {
         throw new Error("do not call TypeNode#accept");
     }

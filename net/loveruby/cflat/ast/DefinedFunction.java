@@ -108,6 +108,13 @@ public class DefinedFunction extends Function {
         }
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("name", name);
+        d.printMember("isPrivate", isPrivate);
+        d.printMember("params", params);
+        d.printMember("body", body);
+    }
+
     public void accept(DefinitionVisitor visitor) {
         visitor.visit(this);
     }

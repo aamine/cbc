@@ -36,6 +36,11 @@ public class ArefNode extends ExprNode implements LHSNode {
         throw new Error("ArefNode#address");
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("expr", expr);
+        d.printMember("index", index);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

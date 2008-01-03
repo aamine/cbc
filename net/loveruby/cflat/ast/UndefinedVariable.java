@@ -15,11 +15,17 @@ public class UndefinedVariable extends Variable {
         return name();
     }
 
-    public void accept(DefinitionVisitor visitor) {
-        visitor.visit(this);
-    }
-
     public void defineIn(ToplevelScope s) {
         throw new Error("UndefinedVariable#defineIn called");
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("name", name);
+        d.printMember("isPrivate", isPrivate());
+        d.printMember("typeNode", typeNode);
+    }
+
+    public void accept(DefinitionVisitor visitor) {
+        visitor.visit(this);
     }
 }

@@ -42,6 +42,13 @@ public class DefinedVariable extends Variable {
         }
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("name", name);
+        d.printMember("isPrivate", isPrivate);
+        d.printMember("typeNode", typeNode);
+        d.printMember("initializer", initializer);
+    }
+
     public void accept(DefinitionVisitor visitor) {
         visitor.visit(this);
     }

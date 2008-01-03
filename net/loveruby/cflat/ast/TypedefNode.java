@@ -29,6 +29,11 @@ public class TypedefNode extends TypeDefinition {
         table.defineUserType(new UserTypeRef(name()), typeNode());
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("name", name);
+        d.printMember("typeNode", typeNode);
+    }
+
     public void accept(DefinitionVisitor visitor) {
         visitor.visit(this);
     }

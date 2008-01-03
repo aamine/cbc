@@ -27,6 +27,13 @@ public class UndefinedFunction extends Function {
         throw new Error("UndefinedFunction#defineIn");
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("name", name);
+        d.printMember("isPrivate", isPrivate());
+        d.printMember("typeNode", typeNode);
+        d.printMember("params", params);
+    }
+
     public void accept(DefinitionVisitor visitor) {
         visitor.visit(this);
     }

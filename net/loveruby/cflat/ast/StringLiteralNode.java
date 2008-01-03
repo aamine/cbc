@@ -43,6 +43,11 @@ public class StringLiteralNode extends ExprNode {
             throw new Error("StringLiteralNode#entry not resolved");
     }
 
+    protected void _dump(Dumper d) {
+        //d.printMember("typeNode", typeNode);
+        d.printMember("value", value);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

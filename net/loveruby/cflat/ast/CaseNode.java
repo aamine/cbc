@@ -5,7 +5,7 @@ import java.util.*;
 public class CaseNode extends Node {
     protected LabelPool pool;
     protected Label beginLabel;
-    protected List values;
+    protected List values;      // List<Node>
     protected BlockNode body;
 
     public CaseNode(LabelPool pool, List values, BlockNode body) {
@@ -29,6 +29,11 @@ public class CaseNode extends Node {
             beginLabel = pool.newLabel();
         }
         return beginLabel;
+    }
+
+    protected void _dump(Dumper d) {
+        d.printNodeList("values", values);
+        d.printMember("body", body);
     }
 
     public void accept(ASTVisitor visitor) {

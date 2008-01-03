@@ -30,10 +30,6 @@ public class ForNode extends LoopNode {
         return body;
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
-
     protected Label continueLabel;
 
     public Label continueLabel() {
@@ -41,5 +37,16 @@ public class ForNode extends LoopNode {
             continueLabel = pool.newLabel();
         }
         return continueLabel;
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("init", init);
+        d.printMember("cond", cond);
+        d.printMember("incr", incr);
+        d.printMember("body", body);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

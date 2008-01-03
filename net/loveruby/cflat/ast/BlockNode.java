@@ -23,10 +23,6 @@ public class BlockNode extends Node {
         return (Node)stmts.get(stmts.size() - 1);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
-
     protected Scope scope;
 
     public Scope scope() {
@@ -35,5 +31,14 @@ public class BlockNode extends Node {
 
     public void setScope(Scope s) {
         scope = s;
+    }
+
+    protected void _dump(Dumper d) {
+        d.printNodeList("variables", variables);
+        d.printNodeList("stmts", stmts);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

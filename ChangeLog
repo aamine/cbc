@@ -1,3 +1,27 @@
+Fri Jan  4 08:01:31 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: implement command
+	  line option --dump-ast.
+
+	* net/loveruby/cflat/compiler/Compiler.java: implement command
+	  line option --dump-tokens.
+
+	* net/loveruby/cflat/ast/Dumper.java: new class; AST dumper.
+
+	* net/loveruby/cflat/ast/Dumpable.java: new interface; AST dumper
+	  interface.
+
+	* net/loveruby/cflat/ast/*.java: define #dump, #_dump.
+
+	* net/loveruby/cflat/asm/Assembler.java: fork
+	  utils/TextUtils.java.
+
+	* net/loveruby/cflat/utils/TextUtils.java: new file.
+
+	* test/stdlib.hb: new header file.
+
+	* test/unistd.hb: new header file.
+
 Fri Jan  4 03:23:34 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/struct-semcheck10.cb: test struct which contains void.

@@ -29,6 +29,11 @@ public class LabelNode extends Node {
         return label;
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("name", name);
+        d.printMember("stmt", stmt);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

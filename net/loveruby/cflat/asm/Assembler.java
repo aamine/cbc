@@ -1,5 +1,6 @@
 package net.loveruby.cflat.asm;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.utils.*;
 import java.util.*;
 
 public class Assembler {
@@ -48,7 +49,7 @@ public class Assembler {
     }
 
     public void _file(String name) {
-        line("\t.file\t" + escapeString(name));
+        line("\t.file\t" + TextUtils.escapeString(name));
     }
 
     public void _text() {
@@ -108,37 +109,7 @@ public class Assembler {
     }
 
     public void _string(String str) {
-        line("\t.string\t" + escapeString(str));
-    }
-
-    static final char bell = 007;
-    static final char vtab = 013;
-
-    protected String escapeString(String str) {
-        StringBuffer buf = new StringBuffer();
-        buf.append("\"");
-        for (int n = 0; n < str.length(); n++) {
-            char c = str.charAt(n);
-            if (c == '"') buf.append("\\\"");
-            else if (isPrintable(c)) buf.append(c);
-            else if (c == '\0') buf.append("\\000");
-            else if (c == bell) buf.append("\\007");
-            else if (c == '\b') buf.append("\\b");
-            else if (c == '\t') buf.append("\\t");
-            else if (c == '\n') buf.append("\\n");
-            else if (c == vtab) buf.append("\\v");
-            else if (c == '\f') buf.append("\\f");
-            else if (c == '\r') buf.append("\\r");
-            else {
-                buf.append("\\" + Integer.toOctalString((int)c));
-            }
-        }
-        buf.append("\"");
-        return buf.toString();
-    }
-
-    protected boolean isPrintable(char c) {
-        return (' ' <= c) && (c <= '~');
+        line("\t.string\t" + TextUtils.escapeString(str));
     }
 
     public void label(String label) {

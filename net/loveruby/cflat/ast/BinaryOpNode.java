@@ -36,4 +36,9 @@ abstract public class BinaryOpNode extends ExprNode {
     public void setRight(ExprNode right) {
         this.right = right;
     }
+
+    protected void _dump(Dumper d) {
+        d.printMember("left", left);
+        d.printMember("right", right);
+    }
 }

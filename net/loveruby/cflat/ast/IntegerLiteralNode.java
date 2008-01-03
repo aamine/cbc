@@ -22,6 +22,10 @@ public class IntegerLiteralNode extends ExprNode {
         return value;
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("value", value);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

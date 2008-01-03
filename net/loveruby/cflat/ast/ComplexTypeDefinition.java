@@ -3,7 +3,7 @@ import net.loveruby.cflat.type.*;
 import java.util.*;
 
 abstract public class ComplexTypeDefinition extends TypeDefinition {
-    protected List members;
+    protected List members;     // List<Slot>
     protected TypeNode typeNode;
 
     public ComplexTypeDefinition(TypeRef ref, String name, List membs) {
@@ -28,5 +28,10 @@ abstract public class ComplexTypeDefinition extends TypeDefinition {
 
     public TypeNode typeNode() {
         return typeNode;
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("name", name);
+        d.printNodeList("members", members);
     }
 }

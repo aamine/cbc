@@ -30,6 +30,11 @@ public class SwitchNode extends Node implements BreakableStmt {
         return endLabel;
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("cond", cond);
+        d.printNodeList("cases", cases);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

@@ -54,6 +54,12 @@ public class CondExprNode extends ExprNode {
         return endLabel;
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("cond", cond);
+        d.printMember("thenExpr", thenExpr);
+        d.printMember("elseExpr", elseExpr);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

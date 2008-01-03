@@ -25,4 +25,9 @@ abstract public class AbstractAssignNode extends ExprNode {
     public void setRHS(ExprNode node) {
         this.rhs = node;
     }
+
+    protected void _dump(Dumper d) {
+        d.printMember("lhs", lhs);
+        d.printMember("rhs", rhs);
+    }
 }

@@ -68,6 +68,11 @@ public class FuncallNode extends ExprNode {
         return arguments.listIterator(arguments.size());
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("expr", expr);
+        d.printNodeList("arguments", arguments);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

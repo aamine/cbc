@@ -34,10 +34,6 @@ public class VariableNode extends ExprNode implements LHSNode {
         return entity().typeNode();
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
-    }
-
     public boolean isAssignable() {
         return true;
     }
@@ -50,5 +46,13 @@ public class VariableNode extends ExprNode implements LHSNode {
     // LHS node requirement
     public AsmEntity address() {
         return entity.address();
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("name", name);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

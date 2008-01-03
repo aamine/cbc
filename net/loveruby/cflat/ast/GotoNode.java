@@ -23,6 +23,10 @@ public class GotoNode extends Node {
         return label;
     }
 
+    protected void _dump(Dumper d) {
+        d.printMember("target", target);
+    }
+
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }

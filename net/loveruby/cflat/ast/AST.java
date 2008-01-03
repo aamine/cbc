@@ -23,6 +23,10 @@ public class AST extends Node {
         return fileName;
     }
 
+    public Token firstToken() {
+        return firstToken;
+    }
+
     public Iterator types() {
         List result = new ArrayList();
         result.addAll(declarations.defstructs());
@@ -78,8 +82,9 @@ public class AST extends Node {
         return constantTable;
     }
 
-    public void dump(String prefix) {
-        System.out.println("FIXME: dump AST");
+    protected void _dump(Dumper d) {
+        d.printNodeList("variables", variables());
+        d.printNodeList("functions", functions());
     }
 
     public void accept(ASTVisitor visitor) {
