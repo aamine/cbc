@@ -7,11 +7,11 @@ public class DereferenceNode extends UnaryOpNode implements LHSNode {
         super(n);
     }
 
-    public boolean isAssignable() { return true; }
-
     public Type type() {
         return expr().type().baseType();
     }
+
+    public boolean isAssignable() { return true; }
 
     // LHS node requirement
     public boolean isConstantAddress() { return false; }

@@ -1,5 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class FuncallNode extends ExprNode {
@@ -34,7 +35,12 @@ public class FuncallNode extends ExprNode {
      * by expr.  This method expects expr.type().isCallable() is true.
      */
     public Type type() {
-        return functionType().returnType();
+        try {
+            return functionType().returnType();
+        }
+        catch (ClassCastException err) {
+            throw new SemanticError(err.getMessage());
+        }
     }
 
     /**

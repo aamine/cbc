@@ -35,15 +35,11 @@ test: cbprograms
 cbprograms: $(CBPROGS)
 
 errors:
-	-$(CBC) struct-semcheck2.cb
-	-$(CBC) struct-semcheck3.cb
-	-$(CBC) struct-semcheck4.cb
-	-$(CBC) union-semcheck2.cb
-	-$(CBC) union-semcheck3.cb
-	-$(CBC) union-semcheck4.cb
-	-$(CBC) break-semcheck.cb
-	-$(CBC) continue-semcheck.cb
-	-$(CBC) funcall-semcheck.cb
+	-@for i in `grep assert_error test.sh | awk '{print $$3}'`; do \
+		echo "cbc $$i"; \
+		$(CBC) $$i; \
+		echo $$?; \
+	done
 
 clean:
 	rm -f $(CBPROGS) *.s *.o

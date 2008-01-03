@@ -54,6 +54,19 @@ class TypeChecker extends Visitor {
         }
     }
 
+    public void visit(BlockNode node) {
+        Iterator stmts = node.stmts();
+        while (stmts.hasNext()) {
+            Node n = (Node)stmts.next();
+            try {
+                resolve(n);
+            }
+            catch (SemanticError err) {
+                // ignore semantic errors
+            }
+        }
+    }
+
     //
     // Statement Nodes
     //
@@ -77,6 +90,7 @@ class TypeChecker extends Visitor {
         Type t = cond.type();
         if (!t.isInteger() && !t.isPointer()) {
             notIntegerError(t);
+            return;
         }
     }
 
@@ -510,8 +524,8 @@ class TypeChecker extends Visitor {
 
     public void visit(DereferenceNode node) {
         super.visit(node);
-        if (! node.expr().type().isDereferable()) {
-            undereferableError(node.type());
+        if (! node.expr().isDereferable()) {
+            undereferableError(node.expr().type());
             return;
         }
     }

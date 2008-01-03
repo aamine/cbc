@@ -1,4 +1,5 @@
 package net.loveruby.cflat.type;
+import net.loveruby.cflat.exception.*;
 
 public abstract class Type {
     static final public long sizeUnknown = -1;
@@ -34,7 +35,9 @@ public abstract class Type {
     public boolean isCompatible(Type other) { return false; }
     public boolean isCastableTo(Type target) { return equals(target); }
 
-    public Type baseType() { throw new Error("#baseType called for undereferable type"); }
+    public Type baseType() {
+        throw new SemanticError("#baseType called for undereferable type");
+    }
 
     // Cast methods
     public IntegerType getIntegerType() { return (IntegerType)this; }

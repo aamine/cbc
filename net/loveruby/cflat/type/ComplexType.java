@@ -1,6 +1,7 @@
 package net.loveruby.cflat.type;
 import net.loveruby.cflat.ast.Slot;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 abstract public class ComplexType extends Type {
@@ -61,7 +62,8 @@ abstract public class ComplexType extends Type {
     protected Slot fetch(String name) {
         Slot s = get(name);
         if (s == null) {
-            throw new Error("no such member in " + textize() + ": " + name);
+            throw new SemanticError("no such member in "
+                                    + textize() + ": " + name);
         }
         return s;
     }

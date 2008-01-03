@@ -1,6 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.AsmEntity;
+import net.loveruby.cflat.exception.*;
 
 public class MemberNode extends ExprNode implements LHSNode {
     protected ExprNode expr;
@@ -16,7 +17,12 @@ public class MemberNode extends ExprNode implements LHSNode {
     }
 
     public ComplexType baseType() {
-        return expr.type().getComplexType();
+        try {
+            return expr.type().getComplexType();
+        }
+        catch (ClassCastException err) {
+            throw new SemanticError(err.getMessage());
+        }
     }
 
     public ExprNode expr() {

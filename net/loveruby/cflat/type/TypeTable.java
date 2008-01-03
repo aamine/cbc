@@ -141,56 +141,89 @@ public class TypeTable {
         return new PointerType(pointerSize, baseType);
     }
 
-    public void semanticCheck(ErrorHandler errorHandler) {
+    public void semanticCheck(ErrorHandler h) {
         Iterator types = table.values().iterator();
         while (types.hasNext()) {
-            // We should check true ComplexType.
-            // We do not need to check UserType because refered
-            // ComplexType must be kept in this table.
+            // We can safely use instanceof instead of isXXXX() here,
+            // because the type refered from UserType must be also
+            // kept in this table.
             Type t = (Type)types.next();
             if (t instanceof ComplexType) {
-                checkDuplicatedMembers((ComplexType)t, errorHandler);
-                checkRecursiveDefinition((ComplexType)t, errorHandler);
+                checkVoidMembers((ComplexType)t, h);
+                checkDuplicatedMembers((ComplexType)t, h);
+                checkRecursiveDefinition((ComplexType)t, h);
+            }
+            else if (t instanceof ArrayType) {
+                checkVoidMembers((ArrayType)t, h);
+            }
+            else if (t instanceof UserType) {
+                checkRecursiveDefinition((UserType)t, h);
             }
         }
     }
 
-    protected void checkDuplicatedMembers(ComplexType t,
-                                          ErrorHandler errorHandler) {
+    protected void checkVoidMembers(ArrayType t, ErrorHandler h) {
+        if (t.baseType().isVoid()) {
+            h.error("array cannot contain void");
+        }
+    }
+
+    protected void checkVoidMembers(ComplexType t, ErrorHandler h) {
+        Iterator membs = t.members();
+        while (membs.hasNext()) {
+            Slot memb = (Slot)membs.next();
+            if (memb.type().isVoid()) {
+                h.error("struct/union cannot contain void");
+            }
+        }
+    }
+
+    protected void checkDuplicatedMembers(ComplexType t, ErrorHandler h) {
         Map seen = new HashMap();
         Iterator membs = t.members();
         while (membs.hasNext()) {
             Slot memb = (Slot)membs.next();
             if (seen.containsKey(memb.name())) {
-                errorHandler.error(t.textize() + " has duplicated member: "
-                                   + memb.name());
+                h.error(t.textize() + " has duplicated member: "
+                        + memb.name());
             }
             seen.put(memb.name(), memb);
         }
     }
 
-    protected void checkRecursiveDefinition(ComplexType t,
-                                            ErrorHandler errorHandler) {
-        checkRecursiveDefinition(t, new HashMap(), errorHandler);
+    protected void checkRecursiveDefinition(Type t, ErrorHandler h) {
+        _checkRecursiveDefinition(t, new HashMap(), h);
     }
 
-    protected void checkRecursiveDefinition(ComplexType t,
-            Map seen, ErrorHandler errorHandler) {
-        if (seen.containsKey(t)) {
-            errorHandler.error("recursive type definition: " + t.textize());
+    static final protected Object checking = new Object();
+    static final protected Object checked = new Object();
+
+    protected void _checkRecursiveDefinition(Type t, Map seen,
+                                             ErrorHandler h) {
+        if (seen.get(t) == checking) {
+            h.error("recursive type definition: " + t.textize());
             return;
         }
-        if (t.isRecursiveChecked()) return;
-        seen.put(t, t);
-        Iterator membs = t.members();
-        while (membs.hasNext()) {
-            Slot slot = (Slot)membs.next();
-            if (slot.type().isComplexType()) {
-                checkRecursiveDefinition(slot.type().getComplexType(),
-                                         seen, errorHandler);
+        else if (seen.get(t) == checked) {
+            return;
+        }
+        seen.put(t, checking);
+        if (t instanceof ComplexType) {
+            ComplexType ct = (ComplexType)t;
+            Iterator membs = ct.members();
+            while (membs.hasNext()) {
+                Slot slot = (Slot)membs.next();
+                if (slot.type().isComplexType()) {
+                    _checkRecursiveDefinition(slot.type(), seen, h);
+                }
             }
         }
-        seen.remove(t);
-        t.recursiveChecked();
+        else if (t instanceof UserType) {
+            UserType ut = (UserType)t;
+            if (ut.realType() instanceof UserType) {
+                _checkRecursiveDefinition(ut.realType(), seen, h);
+            }
+        }
+        seen.put(t, checked);
     }
 }

@@ -1,3 +1,38 @@
+Thu Jan  3 23:31:24 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: try semantic check
+	  and catch semantic errors (mainly thrown from *Node#type).
+
+	* net/loveruby/cflat/exception/SemanticError.java: new class.
+
+	* net/loveruby/cflat/type/ComplexType.java: throw SemanticError
+	  when no member found.
+
+	* net/loveruby/cflat/type/Type.java: #baseType throw SemanticError
+	  instead of Error.
+
+	* net/loveruby/cflat/ast/FuncallNode.java: convert
+	  ClassCastException to SemanticError.
+
+	* net/loveruby/cflat/ast/PtrMemberNode.java: ditto.
+
+	* net/loveruby/cflat/ast/MemberNode.java: ditto.
+
+	* net/loveruby/cflat/type/TypeTable.java: check recursive typedef.
+
+	* net/loveruby/cflat/type/TypeTable.java: validate
+	  array/struct/union does not contain void.
+
+	* net/loveruby/cflat/type/UserType.java: #real -> #realType.
+
+	* test/struct-semcheck8.cb: test 1.memb.
+
+	* test/union-semcheck8.cb: test (1+"str").memb.
+
+	* test/Makefile: build them.
+
+	* test/test.sh: run them.
+
 Thu Jan  3 21:36:23 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: check type by

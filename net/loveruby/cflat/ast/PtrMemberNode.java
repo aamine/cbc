@@ -1,6 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.exception.*;
 
 public class PtrMemberNode extends ExprNode implements LHSNode {
     public ExprNode expr;
@@ -16,8 +17,13 @@ public class PtrMemberNode extends ExprNode implements LHSNode {
     }
 
     public ComplexType dereferedType() {
-        PointerType pt = expr.type().getPointerType();
-        return pt.baseType().getComplexType();
+        try {
+            PointerType pt = expr.type().getPointerType();
+            return pt.baseType().getComplexType();
+        }
+        catch (ClassCastException err) {
+            throw new SemanticError(err.getMessage());
+        }
     }
 
     public ExprNode expr() {

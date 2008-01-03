@@ -166,6 +166,7 @@
         - check if &expr is assignable
         - use user type instead of struct/union
         - do not use #equals for type check
+        - check if void is not used with array, struct, union.
 - op for various types
         - signed char
         - signed short
