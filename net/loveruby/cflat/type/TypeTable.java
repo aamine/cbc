@@ -214,7 +214,8 @@ public class TypeTable {
             while (membs.hasNext()) {
                 Slot slot = (Slot)membs.next();
                 if (slot.type().isComplexType()) {
-                    _checkRecursiveDefinition(slot.type(), seen, h);
+                    _checkRecursiveDefinition(slot.type().getComplexType(),
+                                              seen, h);
                 }
             }
         }

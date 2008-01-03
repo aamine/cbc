@@ -1,3 +1,16 @@
+Thu Jan  3 23:37:39 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/type/TypeTable.java: should use
+	  #getComplexType to dereference UserType into real ComplexType.
+
+	* test/union-semcheck9.cb: test recursive struct whose member is
+	  user type.
+
+	* test/struct-semcheck9.cb: test recursive union whose member is
+	  user type.
+
+	* test/test.sh: run them.
+
 Thu Jan  3 23:31:24 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: try semantic check
