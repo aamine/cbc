@@ -95,9 +95,9 @@ static public void p(String s) { System.err.println(s); }
         if (!ent.isPrivate()) {
             as._globl(csymbol(ent.symbol()));
         }
-        as._align(ent.size());
+        as._align(ent.allocSize());
         as._type(csymbol(ent.symbol()), "@object");
-        as._size(csymbol(ent.symbol()), ent.size());
+        as._size(csymbol(ent.symbol()), ent.allocSize());
         as.label(csymbol(ent.symbol()));
         compileImmediate(ent.type(), ent.initializer());
     }
@@ -106,7 +106,7 @@ static public void p(String s) { System.err.println(s); }
     protected void compileImmediate(Type type, ExprNode n) {
         // FIXME: support other constants
         IntegerLiteralNode expr = (IntegerLiteralNode)n;
-        switch ((int)type.size()) {
+        switch ((int)type.allocSize()) {
         case 1: as._byte(expr.value());    break;
         case 2: as._value(expr.value());   break;
         case 4: as._long(expr.value());    break;
@@ -123,7 +123,7 @@ static public void p(String s) { System.err.println(s); }
             if (ent.isPrivate()) {
                 as._local(csymbol(ent.symbol()));
             }
-            as._comm(csymbol(ent.symbol()), ent.size(), ent.alignment());
+            as._comm(csymbol(ent.symbol()), ent.allocSize(), ent.alignment());
         }
     }
 
@@ -251,12 +251,12 @@ static public void p(String s) { System.err.println(s); }
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
             if (stackDirection < 0) {
-                len = align(len + var.size(), stackWordSize);
+                len = align(len + var.allocSize(), stackWordSize);
                 var.setAddress(new CompositeAddress(-len, bp()));
             }
             else {
                 var.setAddress(new CompositeAddress(len, bp()));
-                len = align(len + var.size(), stackWordSize);
+                len = align(len + var.allocSize(), stackWordSize);
             }
         }
         if (len != 0) {
@@ -361,18 +361,32 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(VariableNode node) {
-        loadWords(node.type(), node.address(), "ax");
+        if (node.type().isArray()) {
+            as.leaq(node.address(), reg("ax"));
+        }
+        else {
+            loadWords(node.type(), node.address(), "ax");
+        }
     }
 
     static final String PTRREG = "bx";
 
     public void visit(ArefNode node) {
-        compileLHS(node.expr());
-        as.pushq(reg(PTRREG));
+        if (node.expr().type().isArray()) {
+            compileLHS(node.expr());
+            as.pushq(reg(PTRREG));
+        }
+        else if (node.expr().type().isPointer()) {
+            compile(node.expr());
+            as.pushq(reg("ax"));
+        }
+        else {
+            throw new Error("aref expr is not an array/a pointer");
+        }
         compile(node.index());
         as.movq(reg("ax"), reg("cx"));
-        as.popq(reg(PTRREG));
         as.imulq(imm(node.type().size()), reg("cx"));
+        as.popq(reg(PTRREG));
         as.addq(reg("cx"), reg(PTRREG));
         loadWords(node.type(), addr(PTRREG), "ax");
     }
@@ -398,8 +412,7 @@ static public void p(String s) { System.err.println(s); }
             compile(node.rhs());
             as.pushq(reg("ax"));
             compileLHS(node.lhs());
-            // leave RHS-value on the stack
-            as.movq(addr("sp"), reg("ax"));
+            as.popq(reg("ax"));
             saveWords(node.type(), "ax", addr(PTRREG));
         }
     }
@@ -422,15 +435,21 @@ static public void p(String s) { System.err.println(s); }
             as.leaq(n.address(), reg(PTRREG));
         }
         else if (node instanceof ArefNode) {
-            // FIXME: support non-constant index
             ArefNode n = (ArefNode)node;
-            //as.movq(imm(n.index().value()), reg(PTRREG));  // FIXME
-            as.movq(imm(((IntegerLiteralNode)n.index()).value()), reg(PTRREG));
-            as.imulq(imm(n.type().size()), reg(PTRREG));   // unsigned?
-            as.pushq(reg(PTRREG));
-            compileLHS(n.expr());
+            as.pushq(reg("ax"));
+            compile(n.index());
+            as.imulq(imm(n.type().size()), reg("ax"));   // unsigned?
+            as.pushq(reg("ax"));
+            if (n.expr().type().isPointer()) {
+                compile(n.expr());
+                as.movq(reg("ax"), reg(PTRREG));
+            }
+            else {
+                compileLHS(n.expr());
+            }
             as.popq(reg("cx"));
             as.addq(reg("cx"), reg(PTRREG));
+            as.popq(reg("ax"));
         }
         else if (node instanceof MemberNode) {
             MemberNode n = (MemberNode)node;
@@ -439,14 +458,18 @@ static public void p(String s) { System.err.println(s); }
         }
         else if (node instanceof DereferenceNode) {
             DereferenceNode n = (DereferenceNode)node;
-            compileLHS(n.expr());
-            as.movq(addr(PTRREG), reg(PTRREG));
+            as.pushq(reg("ax"));
+            compile(n.expr());
+            as.movq(reg("ax"), reg(PTRREG));
+            as.popq(reg("ax"));
         }
         else if (node instanceof PtrMemberNode) {
             PtrMemberNode n = (PtrMemberNode)node;
-            compileLHS(n.expr());
-            as.movq(addr(PTRREG), reg(PTRREG));
-            as.addq(imm(n.offset()), reg(PTRREG));
+            as.pushq(reg("ax"));
+            compile(n.expr());
+            as.addq(imm(n.offset()), reg("ax"));
+            as.movq(reg("ax"), reg(PTRREG));
+            as.popq(reg("ax"));
         }
         else if (node instanceof PrefixIncNode) {
             PrefixIncNode n = (PrefixIncNode)node;
@@ -725,26 +748,46 @@ static public void p(String s) { System.err.println(s); }
 
     public void visit(PrefixIncNode node) {
         ExprNode e = node.expr();
-        as.inc(e.type(), e.address());
+        if (e.type().isInteger()) {
+            as.inc(e.type(), e.address());
+        }
+        else {
+            as.addq(imm(e.type().size()), e.address());
+        }
         loadWords(e.type(), e.address(), "ax");
     }
 
     public void visit(PrefixDecNode node) {
         ExprNode e = node.expr();
-        as.dec(e.type(), e.address());
+        if (e.type().isInteger()) {
+            as.dec(e.type(), e.address());
+        }
+        else {
+            as.subq(imm(e.type().size()), e.address());
+        }
         loadWords(e.type(), e.address(), "ax");
     }
 
     public void visit(SuffixIncNode node) {
         ExprNode e = node.expr();
         loadWords(e.type(), e.address(), "ax");
-        as.inc(e.type(), e.address());
+        if (e.type().isInteger()) {
+            as.inc(e.type(), e.address());
+        }
+        else {
+            as.addq(imm(e.type().size()), e.address());
+        }
     }
 
     public void visit(SuffixDecNode node) {
         ExprNode e = node.expr();
         loadWords(e.type(), e.address(), "ax");
-        as.dec(e.type(), e.address());
+        if (e.type().isInteger()) {
+            as.dec(e.type(), e.address());
+        }
+        else {
+            as.subq(imm(e.type().size()), e.address());
+        }
     }
 
     private void testCond(Type t, String regname) {

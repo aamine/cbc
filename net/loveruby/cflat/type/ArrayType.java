@@ -29,6 +29,10 @@ public class ArrayType extends Type {
     }
 
     public long size() {
+        return 4;       // FIXME: get from TypeTable
+    }
+
+    public long allocSize() {
         // platform dependent: take alignment into account
         return baseType.size() * length;
     }

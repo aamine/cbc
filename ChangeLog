@@ -1,3 +1,64 @@
+Fri Jan  4 01:45:30 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (PtrMemberNode):
+	  allow array for base expr.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (AssignNode):
+	  should not leave RHS value on stack (because of feature change).
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (VariableNode):
+	  load address for array, to support ptr = ary.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (ArefNode):
+	  dereference pointer, to support ptr[0].
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (compileLHS/ArefNode): ditto.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (compileLHS/ArefNode): support non-LHS expr.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (compileLHS/ArefNode): support non-constant index.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (compileLHS/DereferenceNode): support non-LHS expr.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (compileLHS/PtrMemberNode): support non-LHS expr.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (PrefixIncNode,
+	  PrefixDecNode, SuffixIncNode, SuffixDecNode): support pointer
+	  inc/dec.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: #size ->
+	  #allocSize.
+
+	* net/loveruby/cflat/type/Type.java: new method #allocSize, to
+	  support ptr = ary.
+
+	* net/loveruby/cflat/type/ArrayType.java: override #size and
+	  #allocSize.
+
+	* net/loveruby/cflat/ast/Entity.java: should define #allocSize,
+	  not #size.
+
+	* net/loveruby/cflat/asm/Register.java: should not handle AMD64
+	  registers.
+
+	* net/loveruby/cflat/asm/Assembler.java: should not handle >4 size
+	  operators.
+
+	* test/pointer-semcheck1.cb: test ptr = ary; ptr[0].
+
+	* test/deref-semcheck4.cb: test 1->memb.
+
+	* test/deref-semcheck5.cb: test ptr->y where y is not a member.
+
+	* test/Makefile: build pointer-semcheck1.
+
+	* test/test.sh: run them.
+
 Thu Jan  3 23:37:39 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/type/TypeTable.java: should use

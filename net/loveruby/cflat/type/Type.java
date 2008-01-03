@@ -8,8 +8,10 @@ public abstract class Type {
         return size();
     }
 
-    abstract public long size();
     abstract public String textize();
+
+    abstract public long size();
+    public long allocSize() { return size(); }
 
     abstract public boolean isSameType(Type other);
 

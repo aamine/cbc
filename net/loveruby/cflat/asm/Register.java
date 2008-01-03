@@ -7,7 +7,6 @@ public class Register extends AsmEntity {
         case 1: return new Register(name);
         case 2: return new Register(name);
         case 4: return new Register("e" + name);
-        case 8: return new Register("r" + name);
         default:
             throw new Error("invalid register size: " + t.size());
         }

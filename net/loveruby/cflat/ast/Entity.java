@@ -32,8 +32,8 @@ abstract public class Entity extends Definition {
         return typeNode.type();
     }
 
-    public long size() {
-        return type().size();
+    public long allocSize() {
+        return type().allocSize();
     }
 
     public long alignment() {

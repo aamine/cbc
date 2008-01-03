@@ -146,6 +146,9 @@ assert_out "1;2;3;4;5;6" ./ptrmemb
 assert_error $CBC deref-semcheck1.cb
 assert_error $CBC deref-semcheck2.cb
 assert_error $CBC deref-semcheck3.cb
+assert_error $CBC deref-semcheck4.cb
+assert_error $CBC deref-semcheck5.cb
+assert_out "1;777;3;4;1;777;3;4" ./pointer-semcheck1
 
 assert_out "2;64;-128;0" ./charops
 assert_out "2;64;128;0" ./ucharops

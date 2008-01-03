@@ -502,8 +502,8 @@ class TypeChecker extends Visitor {
 
     public void visit(PtrMemberNode node) {
         resolve(node.expr());
-        if (! node.expr().type().isPointer()) {
-            undereferableError(node.type());
+        if (! node.expr().isDereferable()) {
+            undereferableError(node.expr().type());
             return;
         }
         checkMemberRef(node.dereferedType(), node.name());

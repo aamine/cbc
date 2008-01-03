@@ -182,7 +182,6 @@ public class Assembler {
         case 1: return op + "b";
         case 2: return op + "w";
         case 4: return op + "l";
-        case 8: return op + "q";
         default:
             throw new Error("unknown type size: " + t.size());
         }
@@ -288,7 +287,7 @@ public class Assembler {
         typedOp(type, "dec", reg);
     }
 
-    public void addq(AsmEntity diff, Register base) {
+    public void addq(AsmEntity diff, AsmEntity base) {
         op("addl", diff, base);
     }
 
@@ -296,7 +295,7 @@ public class Assembler {
         typedOp(type, "add", diff, base);
     }
 
-    public void subq(AsmEntity diff, Register base) {
+    public void subq(AsmEntity diff, AsmEntity base) {
         op("subl", diff, base);
     }
 
