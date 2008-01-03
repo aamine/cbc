@@ -83,7 +83,7 @@ assert_out "0;0;1" ./lt
 assert_out "1;1;0" ./gteq
 assert_out "0;1;1" ./lteq
 
-assert_out "2;2" ./assign
+assert_out "2;2;3;4;5;6;7;8;9;10;11;777" ./assign
 assert_out "3;4;3;12;4;1;1;7;5;1;4" ./opassign
 assert_out "0;1;2;2;3;3;4" ./inc
 assert_out "4;3;2;2;1;1;0" ./dec

@@ -126,12 +126,12 @@
         - call ptr(arg)
 * complex LHS
         - local variable
-        * parameter
-        * global variables / common symbols
-        * static variables
-        * *arr[0] = ...
-        * *st.memb = ...
-        * *ptr++ = ...
+        - parameter
+        - global variables / common symbols
+        - static variables
+        - *arr[0] = ...
+        - *st.memb = ...
+        - *ptr++ = ...
         * *(ptr + N) = ...
         * *(int*)ptr = ...
         * their combination
@@ -149,7 +149,7 @@
         - warn unused static functions
         - check if aref base expr is indexable (a must be indeable where a[0])
         - check if funcall base expr is callable (a must be callable where a())
-* semantic check (type)
+- semantic check (type)
         - simple type check (binary ops, unary ops)
         - a[0]
         - *ptr

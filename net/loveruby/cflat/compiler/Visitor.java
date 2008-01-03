@@ -20,6 +20,13 @@ public class Visitor implements ASTVisitor {
     }
 
     public void visit(BlockNode node) {
+        Iterator vars = node.variables();
+        while (vars.hasNext()) {
+            DefinedVariable var = (DefinedVariable)vars.next();
+            if (var.hasInitializer()) {
+                resolve(var.initializer());
+            }
+        }
         resolveNodeList(node.stmts());
     }
 

@@ -1,11 +1,48 @@
 import stdio;
 
-int main(void) {
+int global_x = 0;
+int common_x;
+
+struct s {
+    int* ptr;
+};
+
+int
+main(int argc, char **argv)
+{
     int x, y;
+    static int static_x = 0;
+    static int scomm_x;
+    int*[1] ptrs;
+    struct s s;
+    int* ptr;
+    int[8] integers;
 
     x = 1;
     y = 1;
     x = y = 2;
-    printf("%d;%d\n", x, y);
+    printf("%d;%d", x, y);
+    argc = 3;
+    printf(";%d", argc);
+    global_x = 4;
+    common_x = 5;
+    printf(";%d;%d", global_x, common_x);
+    static_x = 6;
+    scomm_x = 7;
+    printf(";%d;%d", static_x, scomm_x);
+    *ptrs[0] = 8;
+    printf(";%d", *ptrs[0]);
+    s.ptr = &x;
+    x = 9;
+    printf(";%d", *s.ptr);
+    ptr = &x;
+    *ptr++ = 10;
+    ptr--;
+    printf(";%d", *ptr);
+    integers[0] = integers[1] = integers[2] = integers[3] = 777;
+    ptr = integers;
+    *ptr++ = 11;
+    printf(";%d;%d", integers[0], integers[1]);
+    puts("");
     return 0;
 }

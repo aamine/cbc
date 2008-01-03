@@ -30,6 +30,10 @@ public class DefinedVariable extends Variable {
         return initializer;
     }
 
+    public void setInitializer(ExprNode expr) {
+        this.initializer = expr;
+    }
+
     public void defineIn(ToplevelScope toplevel) {
         if (isPrivate()) {
             toplevel.allocatePrivateVariable(this);

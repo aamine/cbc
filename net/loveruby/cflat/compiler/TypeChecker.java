@@ -55,6 +55,24 @@ class TypeChecker extends Visitor {
     }
 
     public void visit(BlockNode node) {
+        Iterator vars = node.variables();
+        while (vars.hasNext()) {
+            DefinedVariable var = (DefinedVariable)vars.next();
+            if (var.hasInitializer()) {
+                try {
+                    if (isInvalidLHSType(var.type())) {
+                        errorHandler.error("invalid lhs type");
+                        continue;
+                    }
+                    resolve(var.initializer());
+                    var.setInitializer(
+                        checkRHSType(var.initializer(), var.type()));
+                }
+                catch (SemanticError err) {
+                    // ignore semantic errors
+                }
+            }
+        }
         Iterator stmts = node.stmts();
         while (stmts.hasNext()) {
             Node n = (Node)stmts.next();
@@ -189,28 +207,28 @@ class TypeChecker extends Visitor {
             errorHandler.error("invalid lhs type");
             return;
         }
-        insertImplicitCast(node);
+        node.setRHS(checkRHSType(node.rhs(), node.lhs().type()));
     }
 
     protected boolean isInvalidLHSType(Type type) {
-        return type.isStruct() || type.isUnion() || type.isAllocatedArray();
+        return type.isStruct() || type.isUnion() || type.isArray();
     }
 
-    protected void insertImplicitCast(AbstractAssignNode node) {
-        Type l = node.lhs().type();
-        Type r = node.rhs().type();
+    protected ExprNode checkRHSType(ExprNode rhs, Type l) {
+        Type r = rhs.type();
         if (l.isSameType(r)) {
-            return;
+            return rhs;
         }
         else if (r.isCastableTo(l)) {   // insert cast on RHS
             if (! r.isCompatible(l)) {
                 errorHandler.warn("implicit cast from " +
                         r.textize() + " to " + l.textize());
             }
-            node.setRHS(newCastNode(l, node.rhs()));
+            return newCastNode(l, rhs);
         }
         else {
             incompatibleTypeError(l, r);
+            return rhs;
         }
     }
 

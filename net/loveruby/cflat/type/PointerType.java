@@ -29,7 +29,6 @@ public class PointerType extends Type {
     }
 
     public boolean isSameType(Type other) {
-        if (other.isAllocatedArray()) return false;
         if (! other.isDereferable()) return false;
         return baseType.isSameType(other.baseType());
     }

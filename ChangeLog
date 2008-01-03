@@ -1,3 +1,23 @@
+Fri Jan  4 02:47:18 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Visitor.java: did not visit lvar
+	  initializer.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check lvar
+	  initializer.
+
+	* net/loveruby/cflat/ast/DefinedVariable.java: new method
+	  #setInitializer.
+
+	* net/loveruby/cflat/type/PointerType.java (isSameType): all array
+	  is same type (allocated arrays are rejected by LHS check).
+
+	* test/block.cb: was wrong test.
+
+	* test/assign.cb: add tests.
+
+	* test/test.sh: adjust output for assign.cb.
+
 Fri Jan  4 01:45:30 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java (PtrMemberNode):
