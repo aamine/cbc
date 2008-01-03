@@ -17,7 +17,6 @@ CBPROGS = zero one hello hello2 hello3 hello4 integer string \
           charops shortops intops longops \
           ucharops ushortops uintops ulongops \
           block cast defvar mbc assoc \
-          ptrtostruct \
 
 ANT = jant
 

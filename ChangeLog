@@ -1,3 +1,15 @@
+Thu Jan  3 20:37:53 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/ptrmemb.cb: test ptr->x where ptr is a pointer to union.
+
+	* test/ptrmemb.cb: test (*ptr).x where ptr is a pointer to struct.
+
+	* test/ptrmemb.cb: test (*ptr).x where ptr is a pointer to union.
+
+	* test/ptrtostruct.cb: merged to ptrmemb.cb.
+
+	* test/test.sh: remove ptrtostruct.
+
 Thu Jan  3 20:31:54 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/ptrtostruct.cb: test (*ptr).memb access.

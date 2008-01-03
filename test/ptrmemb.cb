@@ -1,6 +1,11 @@
 import stdio;
 
-struct a {
+struct s {
+    int x;
+    int y;
+};
+
+union u {
     int x;
     int y;
 };
@@ -8,12 +13,26 @@ struct a {
 int
 main(int argc, char **argv)
 {
-    struct a a;
-    struct a* ptr;
+    struct s st;
+    struct s* ptr = &st;
+    union u uni;
+    union u* uptr = &uni;
 
-    ptr = &a;
     ptr->x = 1;
     ptr->y = 2;
-    printf("%d;%d\n", ptr->x, ptr->y);
+    printf("%d;%d", ptr->x, ptr->y);
+
+    (*ptr).x = 3;
+    (*ptr).y = 4;
+    printf(";%d;%d", (*ptr).x, (*ptr).y);
+
+    uptr->x = 5;
+    printf(";%d", uptr->y);
+
+    (*uptr).x = 6;
+    printf(";%d", (*uptr).y);
+
+    puts("");
+
     return 0;
 }
