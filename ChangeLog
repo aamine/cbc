@@ -1,3 +1,13 @@
+Fri Jan  4 03:23:34 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/struct-semcheck10.cb: test struct which contains void.
+
+	* test/union-semcheck10.cb: test union which contains void.
+
+	* test/array-semcheck1.cb: test array which contains void.
+
+	* test/test.sh: run them.
+
 Fri Jan  4 03:15:28 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeResolver.java: refactoring:

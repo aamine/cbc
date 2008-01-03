@@ -114,8 +114,9 @@ assert_ok ./for-continue
 assert_error $CBC break-semcheck.cb
 assert_error $CBC continue-semcheck.cb
 
-assert_error $CBC aref-semcheck.cb
 assert_out "1;5;9" ./array
+assert_error $CBC aref-semcheck.cb
+assert_error $CBC array-semcheck1.cb
 
 assert_out "11;22" ./struct
 assert_status 0 ./struct-semcheck
@@ -127,6 +128,7 @@ assert_error $CBC struct-semcheck6.cb
 assert_error $CBC struct-semcheck7.cb
 assert_error $CBC struct-semcheck8.cb
 assert_error $CBC struct-semcheck9.cb
+assert_error $CBC struct-semcheck10.cb
 
 assert_out "1;2;513" ./union   # little endian
 assert_status 0 ./union-semcheck
@@ -138,6 +140,7 @@ assert_error $CBC union-semcheck6.cb
 assert_error $CBC union-semcheck7.cb
 assert_error $CBC union-semcheck8.cb
 assert_error $CBC union-semcheck9.cb
+assert_error $CBC union-semcheck10.cb
 
 assert_out "1;2;1;1;3;4;5;6;OK" ./usertype
 
