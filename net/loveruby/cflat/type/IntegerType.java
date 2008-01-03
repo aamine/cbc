@@ -11,21 +11,8 @@ public class IntegerType extends Type {
         name = nm;
     }
 
-    public long size() {
-        return size;
-    }
-
-    public boolean isInteger() {
-        return true;
-    }
-
-    public boolean isSigned() {
-        return signed;
-    }
-
-    public String textize() {
-        return name;
-    }
+    public boolean isInteger() { return true; }
+    public boolean isSigned() { return signed; }
 
     public boolean isCompatible(Type other) {
         return (other.isInteger() && size <= other.size());
@@ -33,5 +20,18 @@ public class IntegerType extends Type {
 
     public boolean isCastableTo(Type target) {
         return (target.isInteger() || target.isPointer());
+    }
+
+    public boolean isSameType(Type other) {
+        if (! other.isInteger()) return false;
+        return equals(other.getIntegerType());
+    }
+
+    public long size() {
+        return size;
+    }
+
+    public String textize() {
+        return name;
     }
 }

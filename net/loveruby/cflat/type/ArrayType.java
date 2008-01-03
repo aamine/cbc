@@ -33,6 +33,18 @@ public class ArrayType extends Type {
         return baseType.size() * length;
     }
 
+    public boolean equals(Object other) {
+        if (! (other instanceof ArrayType)) return false;
+        ArrayType type = (ArrayType)other;
+        return (baseType.equals(type.baseType) && length == type.length);
+    }
+
+    public boolean isSameType(Type other) {
+        // length is not important
+        if (! other.isDereferable()) return false;
+        return baseType.isSameType(other.baseType());
+    }
+
     public String textize() {
         if (length < 0) {
             return baseType.textize() + "[]";

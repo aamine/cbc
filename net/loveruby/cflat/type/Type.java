@@ -7,8 +7,10 @@ public abstract class Type {
         return size();
     }
 
-    public abstract long size();
-    public abstract String textize();
+    abstract public long size();
+    abstract public String textize();
+
+    abstract public boolean isSameType(Type other);
 
     public boolean isVoid() { return false; }
     public boolean isInt() { return false; }
@@ -35,6 +37,7 @@ public abstract class Type {
     public Type baseType() { throw new Error("#baseType called for undereferable type"); }
 
     // Cast methods
+    public IntegerType getIntegerType() { return (IntegerType)this; }
     public PointerType getPointerType() { return (PointerType)this; }
     public FunctionType getFunctionType() { return (FunctionType)this; }
     public StructType getStructType() { return (StructType)this; }

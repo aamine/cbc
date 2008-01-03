@@ -104,7 +104,7 @@ class TypeChecker extends Visitor {
     protected void insertImplicitCast(ReturnNode node) {
         Type exprType = node.expr().type();
         Type retType = node.function().returnType();
-        if (exprType.equals(retType)) {   // type matches
+        if (exprType.isSameType(retType)) {
             return;
         }
         else if (exprType.isCompatible(retType)) {
@@ -185,7 +185,7 @@ class TypeChecker extends Visitor {
     protected void insertImplicitCast(AbstractAssignNode node) {
         Type l = node.lhs().type();
         Type r = node.rhs().type();
-        if (l.equals(r)) {
+        if (l.isSameType(r)) {
             return;
         }
         else if (r.isCastableTo(l)) {   // insert cast on RHS
@@ -209,7 +209,7 @@ class TypeChecker extends Visitor {
         checkCondExpr(node.cond());
         Type t = node.thenExpr().type();
         Type e = node.elseExpr().type();
-        if (t.equals(e)) {
+        if (t.isSameType(e)) {
             return;
         }
         else if (t.isCompatible(e)) {   // insert cast on thenBody
@@ -361,7 +361,7 @@ class TypeChecker extends Visitor {
     protected void insertImplicitCast(BinaryOpNode node) {
         ExprNode r = node.right();
         ExprNode l = node.left();
-        if (r.type().equals(l.type())) {
+        if (r.type().isSameType(l.type())) {
             return;
         }
         else if (r.type().isCompatible(l.type())) {
@@ -447,7 +447,7 @@ class TypeChecker extends Visitor {
                                + arg.type().textize());
             return arg;
         }
-        if (arg.type().equals(param)) {
+        if (arg.type().isSameType(param)) {
             return arg;
         }
         else if (arg.type().isCompatible(param)) {

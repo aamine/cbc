@@ -7,6 +7,13 @@ public class UnionType extends ComplexType {
         super(name, membs);
     }
 
+    public boolean isUnion() { return true; }
+
+    public boolean isSameType(Type other) {
+        if (! other.isUnion()) return false;
+        return equals(other.getUnionType());
+    }
+
     public long alignmemt() {
         // platform depedent
         return 1;
@@ -23,10 +30,6 @@ public class UnionType extends ComplexType {
             }
         }
         size = max;
-    }
-
-    public boolean isUnion() {
-        return true;
     }
 
     public String textize() {

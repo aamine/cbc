@@ -4,13 +4,10 @@ public class VoidType extends Type {
     public VoidType() {
     }
 
-    public boolean isVoid() {
-        return true;
-    }
+    public boolean isVoid() { return true; }
+    public boolean isSameType(Type other) { return other.isVoid(); }
 
     public long size() {
-        // FIXME???: use exception
-        // This error is caused by user error??
         throw new Error("VoidType#size called");
     }
 

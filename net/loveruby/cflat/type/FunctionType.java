@@ -11,16 +11,19 @@ public class FunctionType extends Type {
         paramTypes = partypes;
     }
 
+    public boolean isFunction() { return true; }
+
+    public boolean isSameType(Type other) {
+        if (! other.isFunction()) return false;
+        return equals(other.getFunctionType());
+    }
+
     public Type returnType() {
         return returnType;
     }
 
     public boolean isVararg() {
         return paramTypes.isVararg();
-    }
-
-    public boolean isFunction() {
-        return true;
     }
 
     public boolean acceptsArgc(long numArgs) {

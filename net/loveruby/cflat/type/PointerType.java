@@ -25,7 +25,13 @@ public class PointerType extends Type {
         if (! (other instanceof Type)) return false;
         Type t = (Type)other;
         if (! t.isPointer()) return false;
-        return baseType.equals(t.getPointerType().baseType());
+        return baseType.equals(t.getPointerType().baseType);
+    }
+
+    public boolean isSameType(Type other) {
+        if (other.isAllocatedArray()) return false;
+        if (! other.isDereferable()) return false;
+        return baseType.isSameType(other.baseType());
     }
 
     public String textize() {

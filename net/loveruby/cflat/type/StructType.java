@@ -7,16 +7,19 @@ public class StructType extends ComplexType {
         super(name, membs);
     }
 
+    public boolean isStruct() { return true; }
+
+    public boolean isSameType(Type other) {
+        if (! other.isStruct()) return false;
+        return equals(other.getStructType());
+    }
+
     public long alignment() {
         if (members.isEmpty()) {
             return 0;
         } else {
             return ((Type)members.get(0)).alignment();
         }
-    }
-
-    public boolean isStruct() {
-        return true;
     }
 
     protected void computeOffsets() {

@@ -5,9 +5,9 @@ public class UserType extends Type {
     protected String name;
     protected TypeNode real;
 
-    public UserType(String n, TypeNode t) {
-        name = n;
-        real = t;
+    public UserType(String name, TypeNode real) {
+        this.name = name;
+        this.real = real;
     }
 
     public String name() {
@@ -48,11 +48,19 @@ public class UserType extends Type {
 
     public Type baseType() { return real().baseType(); }
 
-    public boolean isCompatible(Type other)
-            { return real().isCompatible(other); }
-    public boolean isCastableTo(Type other)
-            { return real().isCastableTo(other); }
+    public boolean isSameType(Type other) {
+        return real().isSameType(other);
+    }
 
+    public boolean isCompatible(Type other) {
+        return real().isCompatible(other);
+    }
+
+    public boolean isCastableTo(Type other) {
+        return real().isCastableTo(other);
+    }
+
+    public IntegerType getIntegerType() { return real().getIntegerType(); }
     public ComplexType getComplexType() { return real().getComplexType(); }
     public StructType getStructType() { return real().getStructType(); }
     public UnionType getUnionType() { return real().getUnionType(); }

@@ -1,3 +1,29 @@
+Thu Jan  3 21:36:23 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check type by
+	  #isSameType, do not use #equals.  List uses #equals for identity
+	  check, PointerType.equals(UserType) should be false.  But type
+	  check expects PointerType.isSameType(UserType) should be true if
+	  the UserType is really a pointer.
+
+	* net/loveruby/cflat/type/Type.java: new method #isSameType.
+
+	* net/loveruby/cflat/type/IntegerType.java: ditto.
+
+	* net/loveruby/cflat/type/StructType.java: ditto.
+
+	* net/loveruby/cflat/type/FunctionType.java: ditto.
+
+	* net/loveruby/cflat/type/VoidType.java: ditto.
+
+	* net/loveruby/cflat/type/UserType.java: ditto.
+
+	* net/loveruby/cflat/type/ArrayType.java: ditto.
+
+	* net/loveruby/cflat/type/PointerType.java: ditto.
+
+	* net/loveruby/cflat/type/UnionType.java: ditto.
+
 Thu Jan  3 20:51:47 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: reject LHS which

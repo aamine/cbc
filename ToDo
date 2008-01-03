@@ -164,8 +164,8 @@
         - ptr + int; ptr - int
         - check return type
         - check if &expr is assignable
-        * use user type instead of struct/union
-        * do not use #equals for type check
+        - use user type instead of struct/union
+        - do not use #equals for type check
 - op for various types
         - signed char
         - signed short
