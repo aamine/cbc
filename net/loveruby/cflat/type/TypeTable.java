@@ -1,8 +1,7 @@
 package net.loveruby.cflat.type;
 import net.loveruby.cflat.compiler.ErrorHandler;
-import net.loveruby.cflat.ast.TypeNode;
-import net.loveruby.cflat.ast.TypeDefinition;
-import net.loveruby.cflat.ast.Slot;
+import net.loveruby.cflat.ast.*;
+import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class TypeTable {
@@ -55,20 +54,27 @@ public class TypeTable {
     public Type get(TypeRef ref) {
         Type type = (Type)table.get(ref);
         if (type == null) {
-            if (ref.isPointer()) {
-                PointerTypeRef pref = ref.getPointerTypeRef();
-                Type t = new PointerType(pointerSize, get(pref.base()));
+            if (ref instanceof UserTypeRef) {
+                // If unregistered UserType is used in program, it causes
+                // parse error instead of semantic error.  So we do not
+                // need to handle this error.
+                UserTypeRef uref = (UserTypeRef)ref;
+                throw new Error("undefined type: " + uref.name());
+            }
+            else if (ref instanceof PointerTypeRef) {
+                PointerTypeRef pref = (PointerTypeRef)ref;
+                Type t = new PointerType(pointerSize, get(pref.baseType()));
                 table.put(pref, t);
                 return t;
             }
-            else if (ref.isArray()) {
-                ArrayTypeRef aref = ref.getArrayTypeRef();
-                Type t = new ArrayType(get(aref.base()), aref.length());
+            else if (ref instanceof ArrayTypeRef) {
+                ArrayTypeRef aref = (ArrayTypeRef)ref;
+                Type t = new ArrayType(get(aref.baseType()), aref.length());
                 table.put(aref, t);
                 return t;
             }
-            else if (ref.isFunction()) {
-                FunctionTypeRef fref = ref.getFunctionTypeRef();
+            else if (ref instanceof FunctionTypeRef) {
+                FunctionTypeRef fref = (FunctionTypeRef)ref;
                 Type t = new FunctionType(get(fref.returnType()),
                                           fref.params().internTypes(this));
                 table.put(fref, t);
@@ -131,8 +137,8 @@ public class TypeTable {
         table.put(ref, new UserType(ref.name(), real));
     }
 
-    public PointerType pointerTo(Type base) {
-        return new PointerType(pointerSize, base);
+    public PointerType pointerTo(Type baseType) {
+        return new PointerType(pointerSize, baseType);
     }
 
     public void semanticCheck(ErrorHandler errorHandler) {

@@ -2,53 +2,33 @@ package net.loveruby.cflat.type;
 
 public class PointerType extends Type {
     protected long size;
-    protected Type base;
+    protected Type baseType;
 
-    public PointerType(long s, Type t) {
-        size = s;
-        base = t;
+    public PointerType(long size, Type baseType) {
+        this.size = size;
+        this.baseType = baseType;
     }
+
+    public boolean isPointer() { return true; }
+    public boolean isDereferable() { return true; }
+    public boolean isCallable() { return baseType.isFunction(); }
 
     public long size() {
         return size;
     }
 
-    public Type base() {
-        return base;
-    }
-
-    public boolean isReferable() {
-        return true;
-    }
-
-    public boolean isAllocated() {
-        return true;
-    }
-
-    public boolean isInteger() {
-        return true;
-    }
-
-    public boolean isPointer() {
-        return true;
+    public Type baseType() {
+        return baseType;
     }
 
     public boolean equals(Object other) {
         if (! (other instanceof Type)) return false;
         Type t = (Type)other;
         if (! t.isPointer()) return false;
-        return this.base.equals(t.getPointerType().base());
+        return baseType.equals(t.getPointerType().baseType());
     }
 
     public String textize() {
-        return base.textize() + "*";
-    }
-
-    public boolean isCallable() {
-        return base.isFunction();
-    }
-
-    public boolean isIndexable() {
-        return true;
+        return baseType.textize() + "*";
     }
 }

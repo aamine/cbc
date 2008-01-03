@@ -13,14 +13,15 @@ abstract public class ExprNode extends Node {
         return type().isCallable();
     }
 
-    public boolean isIndexable() {
-        return type().isIndexable();
+    public boolean isDereferable() {
+        return type().isDereferable();
     }
 
     public boolean isAssignable() {
         return false;
     }
 
+    // FIXME: move this method to LHSNode
     public AsmEntity address() {
         throw new Error("ExprNode#address called");
     }

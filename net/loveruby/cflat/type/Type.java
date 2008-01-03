@@ -8,6 +8,7 @@ public abstract class Type {
     }
 
     public abstract long size();
+    public abstract String textize();
 
     public boolean isVoid() { return false; }
     public boolean isInt() { return false; }
@@ -21,14 +22,18 @@ public abstract class Type {
     public boolean isComplexType() { return false; }
     public boolean isUserType() { return false; }
     public boolean isFunction() { return false; }
+
+    // Ability methods (unary)
+    public boolean isDereferable() { return false; }
+    public boolean isCallable() { return false; }
+
+    // Ability methods (binary)
     public boolean isCompatible(Type other) { return false; }
     public boolean isCastableTo(Type target) { return equals(target); }
-    public boolean isReferable() { return false; }
-    public boolean isCallable() { return false; }
-    public boolean isIndexable() { return false; }
 
-    public abstract String textize();
+    public Type baseType() { throw new Error("#baseType called for undereferable type"); }
 
+    // Cast methods
     public PointerType getPointerType() { return (PointerType)this; }
     public FunctionType getFunctionType() { return (FunctionType)this; }
     public StructType getStructType() { return (StructType)this; }

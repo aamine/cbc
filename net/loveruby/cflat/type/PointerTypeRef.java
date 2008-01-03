@@ -1,26 +1,26 @@
 package net.loveruby.cflat.type;
 
 public class PointerTypeRef extends TypeRef {
-    protected TypeRef base;
+    protected TypeRef baseType;
 
-    public PointerTypeRef(TypeRef ref) {
-        base = ref;
+    public PointerTypeRef(TypeRef baseType) {
+        this.baseType = baseType;
     }
 
     public boolean isPointer() {
         return true;
     }
 
-    public TypeRef base() {
-        return base;
+    public TypeRef baseType() {
+        return baseType;
     }
 
     public boolean equals(Object other) {
-        return (other instanceof PointerTypeRef) &&
-            base.equals(((PointerTypeRef)other).base);
+        if (! (other instanceof PointerTypeRef)) return false;
+        return baseType.equals(((PointerTypeRef)other).baseType);
     }
 
     public int hashCode() {
-        return (1 << 11) & base.hashCode();
+        return (1 << 11) & baseType.hashCode();
     }
 }

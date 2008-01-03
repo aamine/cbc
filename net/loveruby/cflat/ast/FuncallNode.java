@@ -15,30 +15,34 @@ public class FuncallNode extends ExprNode {
         return expr;
     }
 
+    /** Returns true if this funcall is NOT a function pointer call. */
     public boolean isStaticCall() {
         return (expr instanceof VariableNode) &&
             (((VariableNode)expr).entity() instanceof Function);
     }
 
-    // This method expects static function
+    /**
+     * Returns a function object which is refered by expression.
+     * This method expects this is static function call (isStaticCall()).
+     */
     public Function function() {
         return (Function)((VariableNode)expr).entity();
     }
 
+    /**
+     * Returns a type of return value of the function which is refered
+     * by expr.  This method expects expr.type().isCallable() is true.
+     */
     public Type type() {
         return functionType().returnType();
     }
 
+    /**
+     * Returns a type of function which is refered by expr.
+     * This method expects expr.type().isCallable() is true.
+     */
     public FunctionType functionType() {
-        Type t = expr().type();
-        if (! (t instanceof PointerType)) {
-            throw new Error("calling non-function");
-        }
-        Type f = ((PointerType)t).base();
-        if (! (f instanceof FunctionType)) {
-            throw new Error("calling non-function");
-        }
-        return (FunctionType)f;
+        return expr.type().getPointerType().baseType().getFunctionType();
     }
 
     public long numArgs() {
@@ -49,7 +53,7 @@ public class FuncallNode extends ExprNode {
         return arguments.iterator();
     }
 
-    /** called from TypeChecker */
+    // called from TypeChecker
     public void replaceArgs(List args) {
         this.arguments = args;
     }

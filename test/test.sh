@@ -135,6 +135,8 @@ assert_error $CBC union-semcheck5.cb
 assert_error $CBC union-semcheck6.cb
 assert_error $CBC union-semcheck7.cb
 
+assert_out "1;2;1;1;3;4;5;6;OK" ./usertype
+
 assert_out "5;5" ./pointer
 assert_out "1;2" ./ptrmemb
 assert_error $CBC deref-semcheck1.cb

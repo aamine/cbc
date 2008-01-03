@@ -1,3 +1,73 @@
+Thu Jan  3 20:26:01 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: <<, >> does not
+	  require same type of integers.  2 types of integers are OK.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: arrays and
+	  pointers are both dereferable (== indexable).  We can dereference
+	  both.
+
+	* net/loveruby/cflat/type/Type.java: #isIndexable ->
+	  #isDereferable.
+
+	* net/loveruby/cflat/type/UserType.java: ditto.
+
+	* net/loveruby/cflat/type/ArrayType.java: ditto.
+
+	* net/loveruby/cflat/ast/ExprNode.java: ditto.
+
+	* net/loveruby/cflat/type/Type.java: #isReferable ->
+	  #isDereferable.
+
+	* net/loveruby/cflat/type/ArrayType.java: ditto.
+
+	* net/loveruby/cflat/type/PointerType.java: ditto.
+
+	* net/loveruby/cflat/type/UserType.java: ditto.
+
+	* net/loveruby/cflat/ast/ArefNode.java: ptr[0] should be allowed.
+	  Use #isDereferable instead of explict pointer check.
+
+	* net/loveruby/cflat/ast/DereferenceNode.java: override #type.
+
+	* net/loveruby/cflat/ast/ArefNode.java: remove cast for Type.
+
+	* net/loveruby/cflat/ast/FuncallNode.java: #functionType should be
+	  called after checking isCallable, type check is not needed in
+	  #functionType.
+
+	* net/loveruby/cflat/ast/PtrMemberNode.java: #baseType ->
+	  #dereferedType.
+
+	* net/loveruby/cflat/ast/MemberNode.java: reduce cast for Type.
+
+	* net/loveruby/cflat/type/Type.java: define #baseType here.
+
+	* net/loveruby/cflat/type/ArrayType.java: override #baseType
+	  (#base -> #baseType).
+
+	* net/loveruby/cflat/type/PointerType.java: ditto.
+
+	* net/loveruby/cflat/type/UserType.java: ditto.
+
+	* net/loveruby/cflat/ast/Function.java: ditto.
+
+	* net/loveruby/cflat/type/PointerType.java: is not an integer.
+	  #isInteger removed.
+
+	* net/loveruby/cflat/type/ArrayTypeRef.java: #base -> #baseType.
+
+	* net/loveruby/cflat/type/PointerTypeRef.java: ditto.
+
+	* net/loveruby/cflat/type/TypeTable.java: do not use cast methods,
+	  use true cast, since the real type is required here.
+
+	* test/usertype.cb: test user type.
+
+	* test/Makefile: build it.
+
+	* test/test.sh: run it.
+
 Thu Jan  3 18:00:10 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: check if parameter

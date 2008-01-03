@@ -16,7 +16,7 @@ public class MemberNode extends ExprNode implements LHSNode {
     }
 
     public ComplexType baseType() {
-        return (ComplexType)expr.type();
+        return expr.type().getComplexType();
     }
 
     public ExprNode expr() {

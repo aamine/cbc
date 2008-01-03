@@ -1,21 +1,24 @@
 package net.loveruby.cflat.type;
 
 public class ArrayType extends Type {
-    protected Type base;
+    protected Type baseType;
     protected long length;
 
-    public ArrayType(Type t) {
-        base = t;
+    public ArrayType(Type baseType) {
+        this.baseType = baseType;
         length = -1;
     }
 
-    public ArrayType(Type t, long len) {
-        base = t;
-        length = len;
+    public ArrayType(Type baseType, long length) {
+        this.baseType = baseType;
+        this.length = length;
     }
 
-    public Type base() {
-        return base;
+    public boolean isArray() { return true; }
+    public boolean isDereferable() { return true; }
+
+    public Type baseType() {
+        return baseType;
     }
 
     public long length() {
@@ -24,30 +27,15 @@ public class ArrayType extends Type {
 
     public long size() {
         // platform dependent: take alignment into account
-        return base.size() * length;
-    }
-
-    public boolean isReferable() {
-        return true;
-    }
-
-    public boolean isAllocated() {
-        return (length >= 0);
-    }
-
-    public boolean isArray() {
-        return true;
-    }
-
-    public boolean isIndexable() {
-        return true;
+        return baseType.size() * length;
     }
 
     public String textize() {
         if (length < 0) {
-            return base.textize() + "[]";
-        } else {
-            return base.textize() + "[" + length + "]";
+            return baseType.textize() + "[]";
+        }
+        else {
+            return baseType.textize() + "[" + length + "]";
         }
     }
 }

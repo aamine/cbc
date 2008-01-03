@@ -13,7 +13,8 @@ public class AddressNode extends UnaryOpNode {
         return type;
     }
 
-    /** This method is called in TypeChecker. */
+    /** Decides type of this node.
+     * This method is called in TypeChecker. */
     public void setType(Type type) {
         if (this.type != null) throw new Error("type set twice");
         this.type = type;

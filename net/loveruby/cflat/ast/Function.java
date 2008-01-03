@@ -14,7 +14,7 @@ abstract public class Function extends Entity {
     abstract public Iterator parameters();
 
     public FunctionType functionType() {
-        return type().getPointerType().base().getFunctionType();
+        return type().getPointerType().baseType().getFunctionType();
     }
 
     public Type returnType() {

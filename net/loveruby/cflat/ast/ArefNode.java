@@ -11,7 +11,7 @@ public class ArefNode extends ExprNode implements LHSNode {
     }
 
     public Type type() {
-        return ((ArrayType)expr.type()).base();
+        return expr.type().baseType();
     }
 
     public ExprNode expr() {
@@ -20,10 +20,6 @@ public class ArefNode extends ExprNode implements LHSNode {
 
     public ExprNode index() {
         return index;
-    }
-
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
     }
 
     public boolean isAssignable() {
@@ -38,5 +34,9 @@ public class ArefNode extends ExprNode implements LHSNode {
     public AsmEntity address() {
         // FIXME
         throw new Error("ArefNode#address");
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

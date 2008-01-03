@@ -1,18 +1,18 @@
 package net.loveruby.cflat.type;
 
 public class ArrayTypeRef extends TypeRef {
-    protected TypeRef base;
+    protected TypeRef baseType;
     protected long length;
     static final protected long undefined = -1;
 
-    public ArrayTypeRef(TypeRef base) {
-        this.base = base;
+    public ArrayTypeRef(TypeRef baseType) {
+        this.baseType = baseType;
         this.length = undefined;
     }
 
-    public ArrayTypeRef(TypeRef base, long length) {
+    public ArrayTypeRef(TypeRef baseType, long length) {
         if (length < 0) throw new Error("negative array length");
-        this.base = base;
+        this.baseType = baseType;
         this.length = length;
     }
 
@@ -29,8 +29,8 @@ public class ArrayTypeRef extends TypeRef {
         return (1 << 10) & (int)length;
     }
 
-    public TypeRef base() {
-        return base;
+    public TypeRef baseType() {
+        return baseType;
     }
 
     public long length() {

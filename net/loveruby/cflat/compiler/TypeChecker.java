@@ -182,7 +182,7 @@ class TypeChecker extends Visitor {
         }
         else if (r.isCastableTo(l)) {   // insert cast on RHS
             if (! r.isCompatible(l)) {
-                errorHandler.warn("incompatible cast from " +
+                errorHandler.warn("implicit cast from " +
                         r.textize() + " to " + l.textize());
             }
             node.setRHS(newCastNode(l, node.rhs()));
@@ -261,12 +261,12 @@ class TypeChecker extends Visitor {
 
     public void visit(LShiftNode node) {
         super.visit(node);
-        expectsSameInteger(node);
+        expectsIntegers(node);
     }
 
     public void visit(RShiftNode node) {
         super.visit(node);
-        expectsSameInteger(node);
+        expectsIntegers(node);
     }
 
     public void visit(EqNode node) {
@@ -330,11 +330,17 @@ class TypeChecker extends Visitor {
         }
     }
 
-    // *, /, %, &, |, ^, <<, >>
+    // *, /, %, &, |, ^
     protected void expectsSameInteger(BinaryOpNode node) {
         mustBeInteger(node.left());
         mustBeInteger(node.right());
         insertImplicitCast(node);
+    }
+
+    // <<, >>
+    protected void expectsIntegers(BinaryOpNode node) {
+        mustBeInteger(node.left());
+        mustBeInteger(node.right());
     }
 
     // ==, !=, <, <=, >, >=, &&, ||
@@ -459,7 +465,7 @@ class TypeChecker extends Visitor {
      */
     public void visit(ArefNode node) {
         resolve(node.expr());
-        if (! node.expr().isIndexable()) {
+        if (! node.expr().isDereferable()) {
             errorHandler.error("is not indexable: " +
                                node.expr().type().textize());
             return;
@@ -476,11 +482,10 @@ class TypeChecker extends Visitor {
     public void visit(PtrMemberNode node) {
         resolve(node.expr());
         if (! node.expr().type().isPointer()) {
-            notPointerError(node.type());
+            undereferableError(node.type());
             return;
         }
-        PointerType pt = node.expr().type().getPointerType();
-        checkMemberRef(pt.base(), node.name());
+        checkMemberRef(node.dereferedType(), node.name());
     }
 
     protected void checkMemberRef(Type t, String memb) {
@@ -498,8 +503,8 @@ class TypeChecker extends Visitor {
 
     public void visit(DereferenceNode node) {
         super.visit(node);
-        if (! node.expr().type().isPointer()) {
-            notPointerError(node.type());
+        if (! node.expr().type().isDereferable()) {
+            undereferableError(node.type());
             return;
         }
     }
@@ -519,9 +524,9 @@ class TypeChecker extends Visitor {
             incompatibleTypeError(node.expr().type(), node.type());
         }
         else if (! node.expr().type().isCompatible(node.type())) {
-            errorHandler.warn("incompatible cast from " +
-                    node.expr().type().textize() +
-                    " to " + node.type().textize());
+            errorHandler.warn("incompatible cast from "
+                              + node.expr().type().textize()
+                              + " to " + node.type().textize());
         }
     }
 
@@ -554,7 +559,7 @@ class TypeChecker extends Visitor {
                            + type.textize());
     }
 
-    protected void notPointerError(Type type) {
+    protected void undereferableError(Type type) {
         errorHandler.error("dereferencing non-pointer expression: "
                            + type.textize());
     }

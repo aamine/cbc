@@ -12,12 +12,12 @@ public class PtrMemberNode extends ExprNode implements LHSNode {
     }
 
     public Type type() {
-        return baseType().memberType(name);
+        return dereferedType().memberType(name);
     }
 
-    public ComplexType baseType() {
-        PointerType ptr = (PointerType)expr.type();
-        return (ComplexType)ptr.base();
+    public ComplexType dereferedType() {
+        PointerType pt = expr.type().getPointerType();
+        return pt.baseType().getComplexType();
     }
 
     public ExprNode expr() {
@@ -43,7 +43,7 @@ public class PtrMemberNode extends ExprNode implements LHSNode {
     }
 
     public long offset() {
-        return baseType().memberOffset(name);
+        return dereferedType().memberOffset(name);
     }
 
     public void accept(ASTVisitor visitor) {
