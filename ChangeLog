@@ -1,3 +1,7 @@
+Thu Jan  3 20:31:54 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/ptrtostruct.cb: test (*ptr).memb access.
+
 Thu Jan  3 20:26:01 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: <<, >> does not

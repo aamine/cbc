@@ -139,6 +139,7 @@ assert_out "1;2;1;1;3;4;5;6;OK" ./usertype
 
 assert_out "5;5" ./pointer
 assert_out "1;2" ./ptrmemb
+assert_out "1" ./ptrtostruct
 assert_error $CBC deref-semcheck1.cb
 assert_error $CBC deref-semcheck2.cb
 assert_error $CBC deref-semcheck3.cb
