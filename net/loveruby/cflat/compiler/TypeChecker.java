@@ -18,20 +18,22 @@ class TypeChecker extends Visitor {
         this.errorHandler = errorHandler;
     }
 
+    protected void check(Node node) {
+        resolve(node);
+    }
+
     public void visit(AST ast) throws SemanticException {
         Iterator vars = ast.variables();
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
-            if (var.hasInitializer()) {
-                resolve(var.initializer());
-            }
+            checkVariable(var);
         }
         Iterator funcs = ast.functions();
         while (funcs.hasNext()) {
             DefinedFunction f = (DefinedFunction)funcs.next();
             checkReturnType(f);
             checkParamTypes(f);
-            resolve(f.body());
+            check(f.body());
         }
         if (errorHandler.errorOccured()) {
             throw new SemanticException("compile failed.");
@@ -64,31 +66,43 @@ class TypeChecker extends Visitor {
         Iterator vars = node.variables();
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
-            if (var.hasInitializer()) {
-                try {
-                    if (isInvalidLHSType(var.type())) {
-                        errorHandler.error("invalid lhs type");
-                        continue;
-                    }
-                    resolve(var.initializer());
-                    var.setInitializer(
-                        checkRHSType(var.initializer(), var.type()));
-                }
-                catch (SemanticError err) {
-                    // ignore semantic errors
-                }
-            }
+            checkVariable(var);
         }
         Iterator stmts = node.stmts();
         while (stmts.hasNext()) {
             Node n = (Node)stmts.next();
             try {
-                resolve(n);
+                check(n);
             }
             catch (SemanticError err) {
                 // ignore semantic errors
             }
         }
+    }
+
+    protected void checkVariable(DefinedVariable var) {
+        if (isInvalidVariableType(var.type())) {
+            errorHandler.error("invalid variable type");
+            return;
+        }
+        if (var.hasInitializer()) {
+            try {
+                if (isInvalidLHSType(var.type())) {
+                    errorHandler.error("invalid lhs type");
+                    return;
+                }
+                check(var.initializer());
+                var.setInitializer(
+                    checkRHSType(var.initializer(), var.type()));
+            }
+            catch (SemanticError err) {
+                // ignore semantic errors
+            }
+        }
+    }
+
+    protected boolean isInvalidVariableType(Type t) {
+        return t.isVoid();
     }
 
     //
@@ -202,8 +216,8 @@ class TypeChecker extends Visitor {
     }
 
     protected void checkAssignment(AbstractAssignNode node) {
-        resolve(node.lhs());
-        resolve(node.rhs());
+        check(node.lhs());
+        check(node.rhs());
         if (! node.lhs().isAssignable()) {
             errorHandler.error("invalid lhs expression");
             return;
@@ -216,7 +230,8 @@ class TypeChecker extends Visitor {
     }
 
     protected boolean isInvalidLHSType(Type type) {
-        return type.isStruct() || type.isUnion() || type.isArray();
+        return type.isStruct() || type.isUnion()
+                || type.isArray() || type.isVoid();
     }
 
     protected ExprNode checkRHSType(ExprNode rhs, Type l) {
@@ -435,7 +450,7 @@ class TypeChecker extends Visitor {
 
     /** We can increment/decrement an integer or a pointer. */
     protected void expectsScalarOperand(UnaryOpNode node) {
-        resolve(node.expr());
+        check(node.expr());
         mustBeScalar(node.expr());
     }
 
@@ -448,7 +463,7 @@ class TypeChecker extends Visitor {
      *   * ARG is neither a struct nor an union.
      */
     public void visit(FuncallNode node) {
-        resolve(node.expr());
+        check(node.expr());
         if (! node.expr().isCallable()) {
             errorHandler.error("calling object is not a function");
             return;
@@ -465,12 +480,12 @@ class TypeChecker extends Visitor {
         while (params.hasNext()) {
             Type param = (Type)params.next();
             ExprNode arg = (ExprNode)args.next();
-            resolve(arg);
+            check(arg);
             newArgs.add(checkArgType(arg, param));
         }
         while (args.hasNext()) {
             ExprNode arg = (ExprNode)args.next();
-            resolve(arg);
+            check(arg);
             newArgs.add(arg);
         }
         node.replaceArgs(newArgs);
@@ -498,7 +513,8 @@ class TypeChecker extends Visitor {
      * Return true if the type t is invalid for function argument.
      */
     protected boolean isInvalidArgType(Type t) {
-        return isInvalidLHSType(t);
+        return t.isStruct() || t.isUnion()
+                || t.isAllocatedArray() || t.isVoid();
     }
 
     /**
@@ -506,22 +522,22 @@ class TypeChecker extends Visitor {
      * EXPR must be an array or a pointer.  IDX must be an integer.
      */
     public void visit(ArefNode node) {
-        resolve(node.expr());
+        check(node.expr());
         if (! node.expr().isDereferable()) {
             errorHandler.error("is not indexable: " + node.expr().type());
             return;
         }
-        resolve(node.index());
+        check(node.index());
         mustBeInteger(node.index());
     }
 
     public void visit(MemberNode node) {
-        resolve(node.expr());
+        check(node.expr());
         checkMemberRef(node.expr().type(), node.name());
     }
 
     public void visit(PtrMemberNode node) {
-        resolve(node.expr());
+        check(node.expr());
         if (! node.expr().isDereferable()) {
             undereferableError(node.expr().type());
             return;
@@ -560,7 +576,7 @@ class TypeChecker extends Visitor {
     }
 
     public void visit(CastNode node) {
-        resolve(node.expr());
+        check(node.expr());
         if (! node.expr().type().isCastableTo(node.type())) {
             incompatibleTypeError(node.expr().type(), node.type());
         }

@@ -1,3 +1,17 @@
+Sat Jan  5 04:05:19 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check if variable
+	  type is not void (gvar, lvar).
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check if parameter
+	  type is not void.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: allow unallocated
+	  array for parameter.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: refactoring:
+	  rename method: #resolve -> #check.
+
 Sat Jan  5 03:43:42 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/type/Type.java: #textize -> #toString.
