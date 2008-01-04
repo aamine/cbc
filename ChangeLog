@@ -1,3 +1,31 @@
+Sat Jan  5 03:43:42 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/type/Type.java: #textize -> #toString.
+
+	* net/loveruby/cflat/type/IntegerType.java: ditto.
+
+	* net/loveruby/cflat/type/ComplexType.java: ditto.
+
+	* net/loveruby/cflat/type/StructType.java: ditto.
+
+	* net/loveruby/cflat/type/FunctionType.java: ditto.
+
+	* net/loveruby/cflat/type/VoidType.java: ditto.
+
+	* net/loveruby/cflat/type/UserType.java: ditto.
+
+	* net/loveruby/cflat/type/ArrayType.java: ditto.
+
+	* net/loveruby/cflat/type/PointerType.java: ditto.
+
+	* net/loveruby/cflat/type/TypeTable.java: ditto.
+
+	* net/loveruby/cflat/type/UnionType.java: ditto.
+
+	* net/loveruby/cflat/ast/Dumper.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ditto.
+
 Fri Jan  4 08:30:55 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/Dumper.java: specialize TypeNode

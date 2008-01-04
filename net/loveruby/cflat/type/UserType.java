@@ -22,7 +22,7 @@ public class UserType extends Type {
         return real;
     }
 
-    public String textize() {
+    public String toString() {
         return name;
     }
 

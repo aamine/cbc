@@ -55,8 +55,7 @@ class TypeChecker extends Visitor {
         while (params.hasNext()) {
             Parameter param = (Parameter)params.next();
             if (isInvalidArgType(param.type())) {
-                errorHandler.error("invalid parameter type: "
-                                   + param.type().textize());
+                errorHandler.error("invalid parameter type: " + param.type());
             }
         }
     }
@@ -150,8 +149,7 @@ class TypeChecker extends Visitor {
             node.setExpr(newCastNode(retType, node.expr()));
         }
         else {
-            errorHandler.error("returning incompatible value: "
-                               + exprType.textize());
+            errorHandler.error("returning incompatible value: " + exprType);
         }
     }
 
@@ -228,8 +226,7 @@ class TypeChecker extends Visitor {
         }
         else if (r.isCastableTo(l)) {   // insert cast on RHS
             if (! r.isCompatible(l)) {
-                errorHandler.warn("implicit cast from " +
-                        r.textize() + " to " + l.textize());
+                errorHandler.warn("implicit cast from " + r + " to " + l);
             }
             return newCastNode(l, rhs);
         }
@@ -482,8 +479,7 @@ class TypeChecker extends Visitor {
     /** Checks argument type and insert implicit cast if needed. */
     protected ExprNode checkArgType(ExprNode arg, Type param) {
         if (isInvalidArgType(arg.type())) {
-            errorHandler.error("invalid argument type: "
-                               + arg.type().textize());
+            errorHandler.error("invalid argument type: " + arg.type());
             return arg;
         }
         if (arg.type().isSameType(param)) {
@@ -512,8 +508,7 @@ class TypeChecker extends Visitor {
     public void visit(ArefNode node) {
         resolve(node.expr());
         if (! node.expr().isDereferable()) {
-            errorHandler.error("is not indexable: " +
-                               node.expr().type().textize());
+            errorHandler.error("is not indexable: " + node.expr().type());
             return;
         }
         resolve(node.index());
@@ -536,13 +531,13 @@ class TypeChecker extends Visitor {
 
     protected void checkMemberRef(Type t, String memb) {
         if (! t.isComplexType()) {
-            errorHandler.error("is not struct/union: " + t.textize());
+            errorHandler.error("is not struct/union: " + t);
             return;
         }
         ComplexType type = t.getComplexType();
         if (! type.hasMember(memb)) {
-            errorHandler.error(type.textize() +
-                               " does not have member " + memb);
+            errorHandler.error(type.toString()
+                               + " does not have member " + memb);
             return;
         }
     }
@@ -571,8 +566,8 @@ class TypeChecker extends Visitor {
         }
         else if (! node.expr().type().isCompatible(node.type())) {
             errorHandler.warn("incompatible cast from "
-                              + node.expr().type().textize()
-                              + " to " + node.type().textize());
+                              + node.expr().type()
+                              + " to " + node.type());
         }
     }
 
@@ -596,17 +591,14 @@ class TypeChecker extends Visitor {
     }
 
     protected void incompatibleTypeError(Type l, Type r) {
-        errorHandler.error("incompatible type: "
-                           + l.textize() + " and " + r.textize());
+        errorHandler.error("incompatible type: " + l + " and " + r);
     }
 
     protected void notIntegerError(Type type) {
-        errorHandler.error("non-integer argument for unary op: "
-                           + type.textize());
+        errorHandler.error("non-integer argument for unary op: " + type);
     }
 
     protected void undereferableError(Type type) {
-        errorHandler.error("dereferencing non-pointer expression: "
-                           + type.textize());
+        errorHandler.error("dereferencing non-pointer expression: " + type);
     }
 }

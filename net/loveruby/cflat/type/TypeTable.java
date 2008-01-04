@@ -184,7 +184,7 @@ public class TypeTable {
         while (membs.hasNext()) {
             Slot memb = (Slot)membs.next();
             if (seen.containsKey(memb.name())) {
-                h.error(t.textize() + " has duplicated member: "
+                h.error(t.toString() + " has duplicated member: "
                         + memb.name());
             }
             seen.put(memb.name(), memb);
@@ -201,7 +201,7 @@ public class TypeTable {
     protected void _checkRecursiveDefinition(Type t, Map seen,
                                              ErrorHandler h) {
         if (seen.get(t) == checking) {
-            h.error("recursive type definition: " + t.textize());
+            h.error("recursive type definition: " + t);
             return;
         }
         else if (seen.get(t) == checked) {

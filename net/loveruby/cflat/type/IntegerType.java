@@ -31,7 +31,7 @@ public class IntegerType extends Type {
         return size;
     }
 
-    public String textize() {
+    public String toString() {
         return name;
     }
 }

@@ -51,14 +51,14 @@ public class FunctionType extends Type {
         throw new Error("FunctionType#size called");
     }
 
-    public String textize() {
+    public String toString() {
         StringBuffer buf = new StringBuffer();
-        buf.append(returnType.textize());
+        buf.append(returnType.toString());
         buf.append(" (*)(");
         Iterator params = paramTypes.parameters();
         while (params.hasNext()) {
             Type t = (Type)params.next();
-            buf.append(t.textize());
+            buf.append(t.toString());
         }
         buf.append(")");
         return buf.toString();

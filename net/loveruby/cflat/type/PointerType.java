@@ -33,7 +33,7 @@ public class PointerType extends Type {
         return baseType.isSameType(other.baseType());
     }
 
-    public String textize() {
-        return baseType.textize() + "*";
+    public String toString() {
+        return baseType.toString() + "*";
     }
 }

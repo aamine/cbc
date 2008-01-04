@@ -55,7 +55,7 @@ public class Dumper {
     }
 
     public void printMember(String name, Type t) {
-        printPair(name, (t == null ? "null" : t.textize()));
+        printPair(name, (t == null ? "null" : t.toString()));
     }
 
     public void printMember(String name, String str) {

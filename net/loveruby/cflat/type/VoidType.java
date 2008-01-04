@@ -11,7 +11,7 @@ public class VoidType extends Type {
         throw new Error("VoidType#size called");
     }
 
-    public String textize() {
+    public String toString() {
         return "void";
     }
 }

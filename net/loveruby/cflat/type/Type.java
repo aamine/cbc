@@ -8,8 +8,6 @@ public abstract class Type {
         return size();
     }
 
-    abstract public String textize();
-
     abstract public long size();
     public long allocSize() { return size(); }
 

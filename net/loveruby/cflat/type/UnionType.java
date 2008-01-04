@@ -32,7 +32,7 @@ public class UnionType extends ComplexType {
         size = max;
     }
 
-    public String textize() {
+    public String toString() {
         return "union " + name;
     }
 }

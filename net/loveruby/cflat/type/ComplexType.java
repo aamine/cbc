@@ -63,7 +63,7 @@ abstract public class ComplexType extends Type {
         Slot s = get(name);
         if (s == null) {
             throw new SemanticError("no such member in "
-                                    + textize() + ": " + name);
+                                    + toString() + ": " + name);
         }
         return s;
     }

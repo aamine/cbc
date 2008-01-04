@@ -33,7 +33,7 @@ public class StructType extends ComplexType {
         size = offset;
     }
 
-    public String textize() {
+    public String toString() {
         return "struct " + name;
     }
 }

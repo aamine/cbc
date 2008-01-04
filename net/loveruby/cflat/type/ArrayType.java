@@ -49,12 +49,12 @@ public class ArrayType extends Type {
         return baseType.isSameType(other.baseType());
     }
 
-    public String textize() {
+    public String toString() {
         if (length < 0) {
-            return baseType.textize() + "[]";
+            return baseType.toString() + "[]";
         }
         else {
-            return baseType.textize() + "[" + length + "]";
+            return baseType.toString() + "[" + length + "]";
         }
     }
 }
