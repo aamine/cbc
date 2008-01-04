@@ -1,3 +1,9 @@
+Sat Jan  5 07:36:43 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/cast2.cb: test cast from long* to int*.
+
+	* test/test.sh: change result.
+
 Sat Jan  5 07:33:06 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java
