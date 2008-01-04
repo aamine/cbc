@@ -414,8 +414,7 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(DereferenceNode node) {
-        compileLHS(node.expr());
-        as.movq(addr(PTRREG), reg("ax"));
+        compile(node.expr());
         loadWords(node.type(), addr("ax"), "ax");
     }
 

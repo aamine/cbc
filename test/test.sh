@@ -167,6 +167,7 @@ assert_out "1;2;1;1;3;4;5;6;OK" ./usertype
 assert_out "5;5" ./pointer
 assert_out "777" ./pointer2
 assert_out "1;777;3;4;1;777;3;4" ./pointer3
+assert_out "777" ./pointer4
 assert_out "1;2;3;4;5;6" ./ptrmemb
 assert_compile_error deref-semcheck1.cb
 assert_compile_error deref-semcheck2.cb

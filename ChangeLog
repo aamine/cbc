@@ -1,3 +1,12 @@
+Sat Jan  5 07:33:06 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (DereferenceNode): reduce compileLHS call.
+
+	* test/pointer4.cb: test derefering AddressNode.
+
+	* test/test.sh: run it.
+
 Sat Jan  5 07:21:18 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java (compileLHS):
