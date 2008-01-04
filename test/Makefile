@@ -35,13 +35,6 @@ test: cbprograms
 
 cbprograms: $(CBPROGS)
 
-errors:
-	-@for i in `grep assert_error test.sh | awk '{print $$3}'`; do \
-		echo "cbc $$i"; \
-		$(CBC) $$i; \
-		echo $$?; \
-	done
-
 clean:
 	rm -f $(CBPROGS) *.s *.o
 

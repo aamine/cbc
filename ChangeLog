@@ -1,3 +1,10 @@
+Sat Jan  5 04:27:29 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/test.sh: new function assert_compile_error to check if
+	  compile error occured really (rejects runtime error).
+
+	* test/Makefile: remove task "errors".
+
 Sat Jan  5 04:05:19 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: check if variable

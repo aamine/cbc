@@ -28,6 +28,25 @@ assert_private() {
     assert_eq "private" `symbol_visibility $1 $2`
 }
 
+assert_compile_error() {
+    begin_test
+    if eval "$CBC $@" >tc.out 2>&1
+    then
+        echo "shunit[$@]: compile error not occured"
+        test_failed
+        return 1
+    fi
+    assert_not_coredump || return
+    if egrep -qv 'cbc: (error|warning): ' tc.out
+    then
+        echo "shunit[$@]: abnormal cbc error; error message is:"
+        cat tc.out
+        test_failed
+        return 1
+    fi
+    return 0
+}
+
 assert_status 0 ./zero
 assert_status 1 ./one
 
@@ -111,46 +130,46 @@ assert_out "3;3;2;1;0" ./for1
 assert_ok ./for-break
 assert_ok ./for-continue
 
-assert_error $CBC break-semcheck.cb
-assert_error $CBC continue-semcheck.cb
+assert_compile_error break-semcheck.cb
+assert_compile_error continue-semcheck.cb
 
 assert_out "1;5;9" ./array
-assert_error $CBC aref-semcheck.cb
-assert_error $CBC array-semcheck1.cb
+assert_compile_error aref-semcheck.cb
+assert_compile_error array-semcheck1.cb
 
 assert_out "11;22" ./struct
 assert_status 0 ./struct-semcheck
-assert_error $CBC struct-semcheck2.cb
-assert_error $CBC struct-semcheck3.cb
-assert_error $CBC struct-semcheck4.cb
-assert_error $CBC struct-semcheck5.cb
-assert_error $CBC struct-semcheck6.cb
-assert_error $CBC struct-semcheck7.cb
-assert_error $CBC struct-semcheck8.cb
-assert_error $CBC struct-semcheck9.cb
-assert_error $CBC struct-semcheck10.cb
+assert_compile_error struct-semcheck2.cb
+assert_compile_error struct-semcheck3.cb
+assert_compile_error struct-semcheck4.cb
+assert_compile_error struct-semcheck5.cb
+assert_compile_error struct-semcheck6.cb
+assert_compile_error struct-semcheck7.cb
+assert_compile_error struct-semcheck8.cb
+assert_compile_error struct-semcheck9.cb
+assert_compile_error struct-semcheck10.cb
 
 assert_out "1;2;513" ./union   # little endian
 assert_status 0 ./union-semcheck
-assert_error $CBC union-semcheck2.cb
-assert_error $CBC union-semcheck3.cb
-assert_error $CBC union-semcheck4.cb
-assert_error $CBC union-semcheck5.cb
-assert_error $CBC union-semcheck6.cb
-assert_error $CBC union-semcheck7.cb
-assert_error $CBC union-semcheck8.cb
-assert_error $CBC union-semcheck9.cb
-assert_error $CBC union-semcheck10.cb
+assert_compile_error union-semcheck2.cb
+assert_compile_error union-semcheck3.cb
+assert_compile_error union-semcheck4.cb
+assert_compile_error union-semcheck5.cb
+assert_compile_error union-semcheck6.cb
+assert_compile_error union-semcheck7.cb
+assert_compile_error union-semcheck8.cb
+assert_compile_error union-semcheck9.cb
+assert_compile_error union-semcheck10.cb
 
 assert_out "1;2;1;1;3;4;5;6;OK" ./usertype
 
 assert_out "5;5" ./pointer
 assert_out "1;2;3;4;5;6" ./ptrmemb
-assert_error $CBC deref-semcheck1.cb
-assert_error $CBC deref-semcheck2.cb
-assert_error $CBC deref-semcheck3.cb
-assert_error $CBC deref-semcheck4.cb
-assert_error $CBC deref-semcheck5.cb
+assert_compile_error deref-semcheck1.cb
+assert_compile_error deref-semcheck2.cb
+assert_compile_error deref-semcheck3.cb
+assert_compile_error deref-semcheck4.cb
+assert_compile_error deref-semcheck5.cb
 assert_out "1;777;3;4;1;777;3;4" ./pointer-semcheck1
 
 assert_out "2;64;-128;0" ./charops
@@ -168,16 +187,16 @@ assert_out "1;2;3" ./defvar
 
 assert_out "OK" ./funcptr
 assert_out "OK" ./funcptr2
-assert_error $CBC defun-semcheck.cb
-assert_error $CBC defun-semcheck2.cb
-assert_error $CBC defun-semcheck3.cb
-assert_error $CBC defun-semcheck4.cb
-assert_error $CBC defun-semcheck5.cb
-assert_error $CBC defun-semcheck6.cb
-assert_error $CBC defun-semcheck7.cb
-assert_error $CBC defun-semcheck8.cb
-assert_error $CBC funcall-semcheck.cb
-assert_error $CBC funcall-semcheck2.cb
+assert_compile_error defun-semcheck.cb
+assert_compile_error defun-semcheck2.cb
+assert_compile_error defun-semcheck3.cb
+assert_compile_error defun-semcheck4.cb
+assert_compile_error defun-semcheck5.cb
+assert_compile_error defun-semcheck6.cb
+assert_compile_error defun-semcheck7.cb
+assert_compile_error defun-semcheck8.cb
+assert_compile_error funcall-semcheck.cb
+assert_compile_error funcall-semcheck2.cb
 
 assert_out "3" ./assoc
 
