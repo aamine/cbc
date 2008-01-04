@@ -35,7 +35,7 @@ public abstract class Type {
 
     // Ability methods (binary)
     public boolean isCompatible(Type other) { return false; }
-    public boolean isCastableTo(Type target) { return equals(target); }
+    public boolean isCastableTo(Type target) { return isCompatible(target); }
 
     public Type baseType() {
         throw new SemanticError("#baseType called for undereferable type");

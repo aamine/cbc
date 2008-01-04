@@ -23,15 +23,21 @@ public class PointerType extends Type {
     }
 
     public boolean equals(Object other) {
-        if (! (other instanceof Type)) return false;
-        Type t = (Type)other;
-        if (! t.isPointer()) return false;
-        return baseType.equals(t.getPointerType().baseType);
+        if (! (other instanceof PointerType)) return false;
+        return baseType.equals(((Type)other).getPointerType().baseType);
     }
 
     public boolean isSameType(Type other) {
         if (! other.isDereferable()) return false;
         return baseType.isSameType(other.baseType());
+    }
+
+    public boolean isComptible(Type other) {
+        return isSameType(other);
+    }
+
+    public boolean isCastableTo(Type other) {
+        return other.isDereferable() || other.isInteger();
     }
 
     public String toString() {

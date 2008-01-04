@@ -18,7 +18,7 @@ CBPROGS = zero one hello hello2 hello3 hello4 integer string \
           pointer pointer2 pointer3 ptrmemb funcptr funcptr2 \
           charops shortops intops longops \
           ucharops ushortops uintops ulongops \
-          block cast defvar mbc assoc \
+          block cast cast2 defvar mbc assoc \
 
 ANT = jant
 

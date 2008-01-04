@@ -1,0 +1,10 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    int i = 0;
+    int* ptr = &i;
+    printf("%d\n", *(int*)ptr);
+    return 0;
+}

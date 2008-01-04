@@ -478,11 +478,16 @@ as.comment("compileLHS: " + node.getClass().getName() + " {");
             compileLHS(n.expr());
             as.subq(imm(n.expr().type().size()), reg(PTRREG));
         }
-// FIXME
+        // FIXME
         //} else if (node instanceof SuffixIncNode) {
         //} else if (node instanceof SuffixDecNode) {
+        else if (node instanceof CastNode) {
+            CastNode n = (CastNode)node;
+            compileLHS(n.expr());
+            // FIXME: cast here
+        }
         else {
-            throw new Error("wrong type for compileLHS");
+            throw new Error("wrong type for compileLHS: " + node.getClass().getName());
         }
 as.comment("compileLHS: }");
     }

@@ -565,11 +565,6 @@ class TypeChecker extends Visitor {
         if (! node.expr().type().isCastableTo(node.type())) {
             incompatibleTypeError(node.expr().type(), node.type());
         }
-        else if (! node.expr().type().isCompatible(node.type())) {
-            errorHandler.warn("incompatible cast from "
-                              + node.expr().type()
-                              + " to " + node.type());
-        }
     }
 
     //

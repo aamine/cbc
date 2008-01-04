@@ -26,6 +26,10 @@ public class CastNode extends ExprNode {
         return expr;
     }
 
+    public boolean isAssignable() {
+        return expr.isAssignable();
+    }
+
     protected void _dump(Dumper d) {
         d.printMember("typeNode", typeNode);
         d.printMember("expr", expr);

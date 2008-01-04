@@ -183,8 +183,10 @@ assert_out "2;1073741824;2147483648;0" ./uintops
 assert_out "1;2;1073741824;-2147483648;0" ./longops  # 32bit
 assert_out "1;2;1073741824;2147483648;0" ./ulongops  # 32bit
 
-assert_out "2" ./block
 assert_out "25000000" ./cast
+assert_out "0" ./cast2
+
+assert_out "2" ./block
 assert_out "1;2;3" ./defvar
 
 assert_out "OK" ./funcptr
