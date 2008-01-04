@@ -134,9 +134,9 @@ assert_compile_error break-semcheck.cb
 assert_compile_error continue-semcheck.cb
 
 assert_out "1;5;9" ./array
+assert_out "0;0;0" ./array2
 assert_compile_error aref-semcheck.cb
 assert_compile_error array-semcheck1.cb
-assert_out "0;0;0" ./array-semcheck2
 
 assert_out "11;22" ./struct
 assert_status 0 ./struct-semcheck
@@ -165,13 +165,14 @@ assert_compile_error union-semcheck10.cb
 assert_out "1;2;1;1;3;4;5;6;OK" ./usertype
 
 assert_out "5;5" ./pointer
+assert_out "777" ./pointer2
+assert_out "1;777;3;4;1;777;3;4" ./pointer3
 assert_out "1;2;3;4;5;6" ./ptrmemb
 assert_compile_error deref-semcheck1.cb
 assert_compile_error deref-semcheck2.cb
 assert_compile_error deref-semcheck3.cb
 assert_compile_error deref-semcheck4.cb
 assert_compile_error deref-semcheck5.cb
-assert_out "1;777;3;4;1;777;3;4" ./pointer-semcheck1
 
 assert_out "2;64;-128;0" ./charops
 assert_out "2;64;128;0" ./ucharops

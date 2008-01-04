@@ -12,12 +12,13 @@ CBPROGS = zero one hello hello2 hello3 hello4 integer string \
           while1 while2 while3 while-break while-continue \
           dowhile1 dowhile2 dowhile3 dowhile-break dowhile-continue \
           for1 for-break for-continue \
-          array struct struct-semcheck union union-semcheck usertype \
-          pointer ptrmemb funcptr funcptr2 \
+          array array2 \
+          struct struct-semcheck union union-semcheck \
+          usertype \
+          pointer pointer2 pointer3 ptrmemb funcptr funcptr2 \
           charops shortops intops longops \
           ucharops ushortops uintops ulongops \
           block cast defvar mbc assoc \
-          pointer-semcheck1 array-semcheck2 \
 
 ANT = jant
 

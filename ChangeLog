@@ -1,3 +1,15 @@
+Sat Jan  5 06:51:34 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/pointer2.cb: test multiple level of pointer.
+
+	* test/array-semcheck2.cb -> array2.cb.
+
+	* test/pointer-semcheck1.cb -> pointer3.cb.
+
+	* test/Makefile: follow them.
+
+	* test/test.sh: ditto.
+
 Sat Jan  5 06:36:44 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: reject invalid RHS
