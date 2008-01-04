@@ -1,3 +1,15 @@
+Sat Jan  5 08:00:26 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/test.sh: compile command by myself before run it.
+
+	* test/shunit.sh (assert_status, assert_error, assert_stdout):
+	  allow any number of arguments for command.
+
+	* test/Makefile: remove task "cbprograms".
+
+	* test/Makefile (clean): clean programs depending on svn:ignore
+	  list.
+
 Sat Jan  5 07:36:43 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/cast2.cb: test cast from long* to int*.

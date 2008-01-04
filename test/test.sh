@@ -4,14 +4,24 @@ CBC=./cbc
 
 . ./shunit.sh
 
-assert_ok() {
-    assert_stdout "OK" $1
-    assert_status 0 $1
+assert_compile() {
+    assert_status 0 $CBC "$@"
+}
+
+assert_stat() {
+    st=$1; shift
+    assert_compile "$1.cb" &&
+    assert_status $st "$@"
 }
 
 assert_out() {
-    assert_stdout "$1" $2
-    assert_status 0 $2
+    msg="$1"; shift
+    assert_compile "$1.cb" &&
+    assert_stdout "$msg" "$@"
+}
+
+assert_ok() {
+    assert_out "OK" "$@"
 }
 
 symbol_visibility() {
@@ -47,19 +57,19 @@ assert_compile_error() {
     return 0
 }
 
-assert_status 0 ./zero
-assert_status 1 ./one
+assert_stat 0 ./zero
+assert_stat 1 ./one
 
 assert_out "Hello, World!" ./hello
 assert_out "Hello, World!" ./hello2
 assert_out "Hello, World!" ./hello3
 assert_out "Hello, World!" ./hello4
 
-assert_status 0 ./funcall0
-assert_status 0 ./funcall1
-assert_status 0 ./funcall2
-assert_status 0 ./funcall3
-assert_status 0 ./funcall4
+assert_stat 0 ./funcall0
+assert_stat 0 ./funcall1
+assert_stat 0 ./funcall2
+assert_stat 0 ./funcall3
+assert_stat 0 ./funcall4
 assert_out "1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28;29;30;31;32;33;34;35;36;37;38;39;40;41;42;43;44;45;46;47;48;49;50;51;52;53;54;55" ./funcall5
 
 assert_out "$(/bin/echo -e ';;a;aa;b;";'\'';\a\b\0033\f\n\r\t\v;ABCabc')" ./string
@@ -139,7 +149,7 @@ assert_compile_error aref-semcheck.cb
 assert_compile_error array-semcheck1.cb
 
 assert_out "11;22" ./struct
-assert_status 0 ./struct-semcheck
+assert_stat 0 ./struct-semcheck
 assert_compile_error struct-semcheck2.cb
 assert_compile_error struct-semcheck3.cb
 assert_compile_error struct-semcheck4.cb
@@ -151,7 +161,7 @@ assert_compile_error struct-semcheck9.cb
 assert_compile_error struct-semcheck10.cb
 
 assert_out "1;2;513" ./union   # little endian
-assert_status 0 ./union-semcheck
+assert_stat 0 ./union-semcheck
 assert_compile_error union-semcheck2.cb
 assert_compile_error union-semcheck3.cb
 assert_compile_error union-semcheck4.cb

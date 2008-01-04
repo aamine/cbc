@@ -44,13 +44,12 @@ test_failed() {
 assert_status() {
     begin_test
     expected=$1; shift
-    mycmd=$1; shift
-    eval "$mycmd" >/dev/null 2>&1
+    "$@" >/dev/null 2>&1
     really=$?
     assert_not_coredump || return
     if [ "$really" != "$expected" ]
     then
-        echo "shunit[$mycmd]: status $expected expected but was: $really"
+        echo "shunit[$@]: status $expected expected but was: $really"
         test_failed
         return 1
     fi
@@ -59,13 +58,12 @@ assert_status() {
 
 assert_error() {
     begin_test
-    mycmd=$1; shift
-    eval "$mycmd" >/dev/null 2>&1
+    "$@" >/dev/null 2>&1
     really=$?
     assert_not_coredump || return
     if [ "$really" = "0" ]
     then
-        echo "shunit[$mycmd]: non-zero status expected but was: $really"
+        echo "shunit[$@]: non-zero status expected but was: $really"
         test_failed
         return 1
     fi
@@ -74,8 +72,8 @@ assert_error() {
 
 assert_eq() {
     begin_test
-    expected="$1"; shift
-    really="$1"; shift
+    expected="$1"
+    really="$2"
     if [ "$really" != "$expected" ]
     then
         echo "shunit: <$expected> expected but is: <$really>"
@@ -88,8 +86,8 @@ assert_eq() {
 assert_equal() {
     begin_test
     _f="no"
-    excmd=$1; shift
-    mycmd=$1; shift
+    excmd=$1
+    mycmd=$2
     eval "$excmd" >tc.out.expected 2>tc.err.expected
     eval "$mycmd" >tc.out.real     2>tc.err.real
     assert_not_coredump || return
@@ -139,14 +137,13 @@ assert_equal_stdout() {
 assert_stdout() {
     begin_test
     expected=$1; shift
-    mycmd=$1; shift
     echo "$expected" > tc.out.expected
-    eval "$mycmd" >tc.out.real 2>/dev/null
+    "$@" >tc.out.real 2>/dev/null
     assert_not_coredump || return
     cmp tc.out.expected tc.out.real >/dev/null 2>&1
     if [ "$?" != "0" ]
     then
-        echo "stdout differ: string \"$expected\" and cmd \"$mycmd\""
+        echo "stdout differ: string \"$expected\" and cmd \"$@\""
         diff -u tc.out.expected tc.out.real
         echo "----"
         test_failed
