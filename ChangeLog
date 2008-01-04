@@ -1,3 +1,40 @@
+Sat Jan  5 06:36:44 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: reject invalid RHS
+	  type explicitly.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: reject void
+	  paramters.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: allow all type of
+	  arrays for RHS.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (variableNode):
+	  generate address for allocated array on RHS.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (ArefNode):
+	  expects expr generates pointer by compile().
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (compileLHS/ArefNode): unallocated array is a pointer.
+
+	* net/loveruby/cflat/type/Type.java: new method #isPointerAlike.
+
+	* net/loveruby/cflat/type/ArrayType.java: implement it.
+
+	* net/loveruby/cflat/type/PointerType.java: implement it.
+
+	* net/loveruby/cflat/asm/Assembler.java: new method #comment, to
+	  add comment.
+
+	* test/array-semcheck2.cb: check assignment to unallocated array.
+
+	* test/array-semcheck2.cb: check dereference of unallocated array.
+
+	* test/Makefile: build it.
+
+	* test/test.sh: run it.
+
 Sat Jan  5 04:27:29 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/test.sh: new function assert_compile_error to check if

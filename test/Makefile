@@ -17,7 +17,7 @@ CBPROGS = zero one hello hello2 hello3 hello4 integer string \
           charops shortops intops longops \
           ucharops ushortops uintops ulongops \
           block cast defvar mbc assoc \
-          pointer-semcheck1 \
+          pointer-semcheck1 array-semcheck2 \
 
 ANT = jant
 

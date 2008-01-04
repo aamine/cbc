@@ -18,7 +18,9 @@ public class ArrayType extends Type {
     public boolean isArray() { return true; }
     public boolean isAllocated() { return length != undefined; }
     public boolean isAllocatedArray() { return isAllocated(); }
+    public boolean isUnallocatedArray() { return !isAllocated(); }
     public boolean isDereferable() { return true; }
+    public boolean isPointerAlike() { return isUnallocatedArray(); }
 
     public Type baseType() {
         return baseType;

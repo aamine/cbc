@@ -44,6 +44,10 @@ public class Assembler {
         list.add("\t" + op + "\t" + arg1 + ", " + arg2 + ", " + arg3);
     }
 
+    public void comment(String str) {
+        list.add("\t# " + str);
+    }
+
     public void line(String str) {
         list.add(str);
     }

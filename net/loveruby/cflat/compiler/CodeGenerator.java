@@ -361,7 +361,7 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(VariableNode node) {
-        if (node.type().isArray()) {
+        if (node.type().isAllocatedArray()) {
             as.leaq(node.address(), reg("ax"));
         }
         else {
@@ -372,22 +372,18 @@ static public void p(String s) { System.err.println(s); }
     static final String PTRREG = "bx";
 
     public void visit(ArefNode node) {
-        if (node.expr().type().isArray()) {
-            compileLHS(node.expr());
-            as.pushq(reg(PTRREG));
-        }
-        else if (node.expr().type().isPointer()) {
+        if (node.expr().type().isPointerAlike()) {
             compile(node.expr());
             as.pushq(reg("ax"));
         }
         else {
-            throw new Error("aref expr is not an array/a pointer");
+            compileLHS(node.expr());
+            as.pushq(reg(PTRREG));
         }
         compile(node.index());
-        as.movq(reg("ax"), reg("cx"));
-        as.imulq(imm(node.type().size()), reg("cx"));
+        as.imulq(imm(node.type().size()), reg("ax"));
         as.popq(reg(PTRREG));
-        as.addq(reg("cx"), reg(PTRREG));
+        as.addq(reg("ax"), reg(PTRREG));
         loadWords(node.type(), addr(PTRREG), "ax");
     }
 
@@ -429,6 +425,7 @@ static public void p(String s) { System.err.println(s); }
     }
 
     protected void compileLHS(Node node) {
+as.comment("compileLHS: " + node.getClass().getName() + " {");
         if (node instanceof VariableNode) {
             // FIXME: support static variables
             VariableNode n = (VariableNode)node;
@@ -438,9 +435,9 @@ static public void p(String s) { System.err.println(s); }
             ArefNode n = (ArefNode)node;
             as.pushq(reg("ax"));
             compile(n.index());
-            as.imulq(imm(n.type().size()), reg("ax"));   // unsigned?
+            as.imulq(imm(n.type().size()), reg("ax"));
             as.pushq(reg("ax"));
-            if (n.expr().type().isPointer()) {
+            if (n.expr().type().isPointerAlike()) {
                 compile(n.expr());
                 as.movq(reg("ax"), reg(PTRREG));
             }
@@ -487,6 +484,7 @@ static public void p(String s) { System.err.println(s); }
         else {
             throw new Error("wrong type for compileLHS");
         }
+as.comment("compileLHS: }");
     }
 
     protected void opAssignInit(AbstractAssignNode node) {

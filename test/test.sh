@@ -136,6 +136,7 @@ assert_compile_error continue-semcheck.cb
 assert_out "1;5;9" ./array
 assert_compile_error aref-semcheck.cb
 assert_compile_error array-semcheck1.cb
+assert_out "0;0;0" ./array-semcheck2
 
 assert_out "11;22" ./struct
 assert_status 0 ./struct-semcheck

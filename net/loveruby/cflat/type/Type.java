@@ -21,6 +21,7 @@ public abstract class Type {
     public boolean isPointer() { return false; }
     public boolean isArray() { return false; }
     public boolean isAllocatedArray() { return false; }
+    public boolean isUnallocatedArray() { return false; }
     public boolean isStruct() { return false; }
     public boolean isUnion() { return false; }
     public boolean isComplexType() { return false; }
@@ -29,6 +30,7 @@ public abstract class Type {
 
     // Ability methods (unary)
     public boolean isDereferable() { return false; }
+    public boolean isPointerAlike() { return false; }
     public boolean isCallable() { return false; }
 
     // Ability methods (binary)

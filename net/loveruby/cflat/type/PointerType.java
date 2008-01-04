@@ -10,6 +10,7 @@ public class PointerType extends Type {
     }
 
     public boolean isPointer() { return true; }
+    public boolean isPointerAlike() { return true; }
     public boolean isDereferable() { return true; }
     public boolean isCallable() { return baseType.isFunction(); }
 

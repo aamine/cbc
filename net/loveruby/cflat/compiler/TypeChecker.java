@@ -41,14 +41,9 @@ class TypeChecker extends Visitor {
     }
 
     protected void checkReturnType(DefinedFunction f) {
-        if (f.returnType().isArray()) {
-            errorHandler.error("returns an array: " + f.name());
-        }
-        else if (f.returnType().isStruct()) {
-            errorHandler.error("returns a struct: " + f.name());
-        }
-        else if (f.returnType().isUnion()) {
-            errorHandler.error("returns a union: " + f.name());
+        if (isInvalidReturnType(f.returnType())) {
+            errorHandler.error("returns invalid type: " + f.returnType());
+            return;
         }
     }
 
@@ -56,7 +51,7 @@ class TypeChecker extends Visitor {
         Iterator params = f.parameters();
         while (params.hasNext()) {
             Parameter param = (Parameter)params.next();
-            if (isInvalidArgType(param.type())) {
+            if (isInvalidParameterType(param.type())) {
                 errorHandler.error("invalid parameter type: " + param.type());
             }
         }
@@ -88,7 +83,7 @@ class TypeChecker extends Visitor {
         if (var.hasInitializer()) {
             try {
                 if (isInvalidLHSType(var.type())) {
-                    errorHandler.error("invalid lhs type");
+                    errorHandler.error("invalid LHS type: " + var.type());
                     return;
                 }
                 check(var.initializer());
@@ -99,10 +94,6 @@ class TypeChecker extends Visitor {
                 // ignore semantic errors
             }
         }
-    }
-
-    protected boolean isInvalidVariableType(Type t) {
-        return t.isVoid();
     }
 
     //
@@ -229,13 +220,12 @@ class TypeChecker extends Visitor {
         node.setRHS(checkRHSType(node.rhs(), node.lhs().type()));
     }
 
-    protected boolean isInvalidLHSType(Type type) {
-        return type.isStruct() || type.isUnion()
-                || type.isArray() || type.isVoid();
-    }
-
     protected ExprNode checkRHSType(ExprNode rhs, Type l) {
         Type r = rhs.type();
+        if (isInvalidRHSType(r)) {
+            errorHandler.error("invalid rhs type: " + r);
+            return rhs;
+        }
         if (l.isSameType(r)) {
             return rhs;
         }
@@ -249,6 +239,27 @@ class TypeChecker extends Visitor {
             incompatibleTypeError(l, r);
             return rhs;
         }
+    }
+
+    protected boolean isInvalidReturnType(Type t) {
+        return t.isStruct() || t.isUnion() || t.isArray();
+    }
+
+    protected boolean isInvalidParameterType(Type t) {
+        return isInvalidLHSType(t);
+    }
+
+    protected boolean isInvalidVariableType(Type t) {
+        return t.isVoid();
+    }
+
+    protected boolean isInvalidLHSType(Type t) {
+        return t.isStruct() || t.isUnion()
+                || t.isAllocatedArray() || t.isVoid();
+    }
+
+    protected boolean isInvalidRHSType(Type t) {
+        return t.isStruct() || t.isUnion() || t.isVoid();
     }
 
     //
@@ -481,7 +492,7 @@ class TypeChecker extends Visitor {
             Type param = (Type)params.next();
             ExprNode arg = (ExprNode)args.next();
             check(arg);
-            newArgs.add(checkArgType(arg, param));
+            newArgs.add(checkRHSType(arg, param));
         }
         while (args.hasNext()) {
             ExprNode arg = (ExprNode)args.next();
@@ -489,32 +500,6 @@ class TypeChecker extends Visitor {
             newArgs.add(arg);
         }
         node.replaceArgs(newArgs);
-    }
-
-    /** Checks argument type and insert implicit cast if needed. */
-    protected ExprNode checkArgType(ExprNode arg, Type param) {
-        if (isInvalidArgType(arg.type())) {
-            errorHandler.error("invalid argument type: " + arg.type());
-            return arg;
-        }
-        if (arg.type().isSameType(param)) {
-            return arg;
-        }
-        else if (arg.type().isCompatible(param)) {
-            return newCastNode(param, arg);
-        }
-        else {
-            incompatibleTypeError(arg.type(), param);
-            return arg;
-        }
-    }
-
-    /**
-     * Return true if the type t is invalid for function argument.
-     */
-    protected boolean isInvalidArgType(Type t) {
-        return t.isStruct() || t.isUnion()
-                || t.isAllocatedArray() || t.isVoid();
     }
 
     /**
