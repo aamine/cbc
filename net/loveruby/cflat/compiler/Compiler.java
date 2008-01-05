@@ -62,6 +62,7 @@ public class Compiler {
             }
         }
         catch (CompileException ex) {
+            errorHandler.error(ex.getMessage());
             System.exit(1);
         }
     }

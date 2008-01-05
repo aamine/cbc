@@ -68,12 +68,13 @@ public class Parser {
             return compilation_unit();
         }
         catch (TokenMgrError err) {
-            errorHandler.error(err.getMessage());
             throw new SyntaxException(err.getMessage());
         }
         catch (ParseException ex) {
-            errorHandler.error(ex.getMessage());
             throw new SyntaxException(ex.getMessage());
+        }
+        catch (LookaheadSuccess err) {
+            throw new SyntaxException("syntax error");
         }
     }
 
@@ -82,11 +83,9 @@ public class Parser {
             return declaration_file();
         }
         catch (TokenMgrError ex) {
-            errorHandler.error(ex.getMessage());
             throw new SyntaxException(ex.getMessage());
         }
         catch (ParseException ex) {
-            errorHandler.error(ex.getMessage());
             throw new SyntaxException(ex.getMessage());
         }
     }
@@ -344,8 +343,7 @@ Declarations import_stmts():
                 }
             }
             catch (CompileException ex) {
-                errorHandler.error(ex.getMessage());
-                throw new ParseException("compile error");
+                throw new ParseException(ex.getMessage());
             }
         }
     )*

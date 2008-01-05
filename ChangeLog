@@ -1,3 +1,9 @@
+Sat Jan  5 13:57:33 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: report error.
+
+	* net/loveruby/cflat/parser/Parser.jj: simplify error message.
+
 Sat Jan  5 13:23:57 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/MemberNode.java: #name -> #member.
