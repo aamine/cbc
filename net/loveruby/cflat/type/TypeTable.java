@@ -10,28 +10,26 @@ public class TypeTable {
     static public TypeTable lp64()  { return newTable(1, 2, 4, 8, 8); }
     static public TypeTable llp64() { return newTable(1, 2, 4, 4, 8); }
 
-    static protected final TypeRef voidTypeRef = new VoidTypeRef();
-    static protected final TypeRef signedCharRef = new SignedCharRef();
-    static protected final TypeRef signedShortRef = new SignedShortRef();
-    static protected final TypeRef signedIntRef = new SignedIntRef();
-    static protected final TypeRef signedLongRef = new SignedLongRef();
-    static protected final TypeRef unsignedCharRef = new UnsignedCharRef();
-    static protected final TypeRef unsignedShortRef = new UnsignedShortRef();
-    static protected final TypeRef unsignedIntRef = new UnsignedIntRef();
-    static protected final TypeRef unsignedLongRef = new UnsignedLongRef();
-
     static private TypeTable newTable(int charsize, int shortsize,
-            int intsize, int longsize, int ptrsize) {
+                                      int intsize, int longsize, int ptrsize) {
         TypeTable table = new TypeTable(ptrsize);
-        table.put(voidTypeRef, new VoidType());
-        table.put(signedCharRef, new SignedCharType(charsize));
-        table.put(signedShortRef, new SignedShortType(shortsize));
-        table.put(signedIntRef, new SignedIntType(intsize));
-        table.put(signedLongRef, new SignedLongType(longsize));
-        table.put(unsignedCharRef, new UnsignedCharType(charsize));
-        table.put(unsignedShortRef, new UnsignedShortType(shortsize));
-        table.put(unsignedIntRef, new UnsignedIntType(intsize));
-        table.put(unsignedLongRef, new UnsignedLongType(longsize));
+        table.put(new VoidTypeRef(), new VoidType());
+        table.put(IntegerTypeRef.charRef(),
+                  new IntegerType(charsize,  true, "char"));
+        table.put(IntegerTypeRef.shortRef(),
+                  new IntegerType(shortsize, true, "short"));
+        table.put(IntegerTypeRef.intRef(),
+                  new IntegerType(intsize, true, "int"));
+        table.put(IntegerTypeRef.longRef(),
+                  new IntegerType(longsize, true, "long"));
+        table.put(IntegerTypeRef.ucharRef(),
+                  new IntegerType(charsize, false, "unsigned char"));
+        table.put(IntegerTypeRef.ushortRef(),
+                  new IntegerType(shortsize, false, "unsigned short"));
+        table.put(IntegerTypeRef.uintRef(),
+                  new IntegerType(intsize, false, "unsigned int"));
+        table.put(IntegerTypeRef.ulongRef(),
+                  new IntegerType(longsize, false, "unsigned long"));
         return table;
     }
 
@@ -85,36 +83,36 @@ public class TypeTable {
         return table.values().iterator();
     }
 
-    public SignedCharType signedChar() {
-        return (SignedCharType)table.get(signedCharRef);
+    public IntegerType signedChar() {
+        return (IntegerType)table.get(IntegerTypeRef.charRef());
     }
 
-    public SignedShortType signedShort() {
-        return (SignedShortType)table.get(signedShortRef);
+    public IntegerType signedShort() {
+        return (IntegerType)table.get(IntegerTypeRef.shortRef());
     }
 
-    public SignedIntType signedInt() {
-        return (SignedIntType)table.get(signedIntRef);
+    public IntegerType signedInt() {
+        return (IntegerType)table.get(IntegerTypeRef.intRef());
     }
 
-    public SignedLongType signedLong() {
-        return (SignedLongType)table.get(signedLongRef);
+    public IntegerType signedLong() {
+        return (IntegerType)table.get(IntegerTypeRef.longRef());
     }
 
-    public UnsignedCharType unsignedChar() {
-        return (UnsignedCharType)table.get(unsignedCharRef);
+    public IntegerType unsignedChar() {
+        return (IntegerType)table.get(IntegerTypeRef.ucharRef());
     }
 
-    public UnsignedShortType unsignedShort() {
-        return (UnsignedShortType)table.get(unsignedShortRef);
+    public IntegerType unsignedShort() {
+        return (IntegerType)table.get(IntegerTypeRef.ushortRef());
     }
 
-    public UnsignedIntType unsignedInt() {
-        return (UnsignedIntType)table.get(unsignedIntRef);
+    public IntegerType unsignedInt() {
+        return (IntegerType)table.get(IntegerTypeRef.uintRef());
     }
 
-    public UnsignedLongType unsignedLong() {
-        return (UnsignedLongType)table.get(unsignedLongRef);
+    public IntegerType unsignedLong() {
+        return (IntegerType)table.get(IntegerTypeRef.ulongRef());
     }
 
     public void define(TypeDefinition t) {

@@ -27,10 +27,6 @@ public class ArrayTypeRef extends TypeRef {
             (length == ((ArrayTypeRef)other).length);
     }
 
-    public int hashCode() {
-        return (1 << 10) & (int)length;
-    }
-
     public TypeRef baseType() {
         return baseType;
     }

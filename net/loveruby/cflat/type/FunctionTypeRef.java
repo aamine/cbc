@@ -23,10 +23,6 @@ public class FunctionTypeRef extends TypeRef {
                params.equals(ref.params());
     }
 
-    public int hashCode() {
-        return (1 << 13) ^ returnType.hashCode();
-    }
-
     public TypeRef returnType() {
         return returnType;
     }

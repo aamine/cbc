@@ -2,18 +2,18 @@ package net.loveruby.cflat.type;
 
 public class IntegerType extends Type {
     protected long size;
-    protected boolean signed;
+    protected boolean isSigned;
     protected String name;
 
-    public IntegerType(long sz, boolean sign, String nm) {
+    public IntegerType(long size, boolean isSigned, String name) {
         super();
-        size = sz;
-        signed = sign;
-        name = nm;
+        this.size = size;
+        this.isSigned = isSigned;
+        this.name = name;
     }
 
     public boolean isInteger() { return true; }
-    public boolean isSigned() { return signed; }
+    public boolean isSigned() { return isSigned; }
 
     // Use default #equals
     //public boolean equals(Object other)

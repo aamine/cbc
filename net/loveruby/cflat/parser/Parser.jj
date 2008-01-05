@@ -101,13 +101,13 @@ public class Parser {
     private IntegerLiteralNode integerNodeValue(Location loc, String image) {
         long i = integerValue(image);
         if (image.endsWith("UL")) {
-            return new IntegerLiteralNode(loc, new UnsignedLongRef(), i);
+            return new IntegerLiteralNode(loc, IntegerTypeRef.ulongRef(), i);
         } else if (image.endsWith("L")) {
-            return new IntegerLiteralNode(loc, new SignedLongRef(), i);
+            return new IntegerLiteralNode(loc, IntegerTypeRef.longRef(), i);
         } else if (image.endsWith("U")) {
-            return new IntegerLiteralNode(loc, new UnsignedIntRef(), i);
+            return new IntegerLiteralNode(loc, IntegerTypeRef.uintRef(), i);
         } else {
-            return new IntegerLiteralNode(loc, new SignedIntRef(), i);
+            return new IntegerLiteralNode(loc, IntegerTypeRef.intRef(), i);
         }
     }
 
@@ -639,18 +639,18 @@ TypeRef typeref_base():
 }
 {
       t=<VOID>          { return new VoidTypeRef(loc(t)); }
-    | t=<CHAR>          { return new SignedCharRef(loc(t)); }
-    | t=<SHORT>         { return new SignedShortRef(loc(t)); }
-    | t=<INT>           { return new SignedIntRef(loc(t)); }
-    | t=<LONG>          { return new SignedLongRef(loc(t)); }
+    | t=<CHAR>          { return IntegerTypeRef.charRef(loc(t)); }
+    | t=<SHORT>         { return IntegerTypeRef.shortRef(loc(t)); }
+    | t=<INT>           { return IntegerTypeRef.intRef(loc(t)); }
+    | t=<LONG>          { return IntegerTypeRef.longRef(loc(t)); }
     | LOOKAHEAD(2) t=<UNSIGNED> <CHAR>
-        { return new UnsignedCharRef(loc(t)); }
+        { return IntegerTypeRef.ucharRef(loc(t)); }
     | LOOKAHEAD(2) t=<UNSIGNED> <SHORT>
-        { return new UnsignedShortRef(loc(t)); }
+        { return IntegerTypeRef.ushortRef(loc(t)); }
     | LOOKAHEAD(2) t=<UNSIGNED> <INT>
-        { return new UnsignedIntRef(loc(t)); }
+        { return IntegerTypeRef.uintRef(loc(t)); }
     | LOOKAHEAD(2) t=<UNSIGNED> <LONG>
-        { return new UnsignedLongRef(loc(t)); }
+        { return IntegerTypeRef.ulongRef(loc(t)); }
     | t=<STRUCT> name=<IDENTIFIER>
         { return new StructTypeRef(loc(t), name.image); }
     | t=<UNION> name=<IDENTIFIER>
@@ -1101,13 +1101,13 @@ ExprNode primary():
     | t=<CHARACTER>
         {
             return new CharacterLiteralNode(loc(t),
-                                            new SignedCharRef(null),
+                                            IntegerTypeRef.charRef(),
                                             characterCode(t.image));
         }
     | t=<STRING>
         {
             return new StringLiteralNode(loc(t),
-                new PointerTypeRef(new SignedCharRef()),
+                new PointerTypeRef(IntegerTypeRef.charRef()),
                 stringValue(t.image));
         }
     | t=<IDENTIFIER>

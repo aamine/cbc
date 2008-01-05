@@ -22,10 +22,6 @@ public class StructTypeRef extends TypeRef {
         return name.equals(((StructTypeRef)other).name);
     }
 
-    public int hashCode() {
-        return 8 ^ name.hashCode();
-    }
-
     public String name() {
         return name;
     }

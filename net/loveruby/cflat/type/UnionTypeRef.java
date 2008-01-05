@@ -22,10 +22,6 @@ public class UnionTypeRef extends TypeRef {
         return name.equals(((UnionTypeRef)other).name);
     }
 
-    public int hashCode() {
-        return 9 ^ name.hashCode();
-    }
-
     public String name() {
         return name;
     }

@@ -1,3 +1,27 @@
+Sun Jan  6 00:33:34 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* Type class hierarchy grand restruct: retire Signed*Type,
+	  Unsigned*Type, Signed*Ref, Unsigned*Ref.
+
+	* net/loveruby/cflat/type/IntegerTypeRef.java: new class.  unify
+	  Signed*Ref, Unsigned*Ref.
+
+	* net/loveruby/cflat/type/IntegerType.java: unify Signed*Type,
+	  Unsigned*Type.
+
+	* net/loveruby/cflat/type/Unsigned*.java: removed.
+
+	* net/loveruby/cflat/type/Signed*.java: removed.
+
+	* net/loveruby/cflat/type/TypeRef.java (hashCode): calculate
+	  hashCode based on typeref name.
+
+	* net/loveruby/cflat/type/*TypeRef.java: follow it.
+
+	* net/loveruby/cflat/type/TypeTable.java: follow these changes.
+
+	* net/loveruby/cflat/parser/Parser.jj: ditto.
+
 Sat Jan  5 23:48:10 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* AST class hierarchy grand restruct: remove and unify many

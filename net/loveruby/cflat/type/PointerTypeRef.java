@@ -21,10 +21,6 @@ public class PointerTypeRef extends TypeRef {
         return baseType.equals(((PointerTypeRef)other).baseType);
     }
 
-    public int hashCode() {
-        return (1 << 11) & baseType.hashCode();
-    }
-
     public String toString() {
         return baseType.toString() + "*";
     }
