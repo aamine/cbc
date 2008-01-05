@@ -5,15 +5,15 @@ import net.loveruby.cflat.exception.*;
 
 public class MemberNode extends ExprNode {
     protected ExprNode expr;
-    protected String name;
+    protected String member;
 
-    public MemberNode(ExprNode expr, String name) {
+    public MemberNode(ExprNode expr, String member) {
         this.expr = expr;
-        this.name = name;
+        this.member = member;
     }
 
     public Type type() {
-        return baseType().memberType(name);
+        return baseType().memberType(member);
     }
 
     public ComplexType baseType() {
@@ -29,12 +29,12 @@ public class MemberNode extends ExprNode {
         return expr;
     }
 
-    public String name() {
-        return name;
+    public String member() {
+        return member;
     }
 
     public long offset() {
-        return baseType().memberOffset(name);
+        return baseType().memberOffset(member);
     }
 
     public boolean isAssignable() {
@@ -59,7 +59,7 @@ public class MemberNode extends ExprNode {
 
     protected void _dump(Dumper d) {
         d.printMember("expr", expr);
-        d.printMember("name", name);
+        d.printMember("member", member);
     }
 
     public void accept(ASTVisitor visitor) {

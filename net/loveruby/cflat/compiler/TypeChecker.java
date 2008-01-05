@@ -518,7 +518,7 @@ class TypeChecker extends Visitor {
 
     public void visit(MemberNode node) {
         check(node.expr());
-        checkMemberRef(node, node.expr().type(), node.name());
+        checkMemberRef(node, node.expr().type(), node.member());
     }
 
     public void visit(PtrMemberNode node) {
@@ -527,7 +527,7 @@ class TypeChecker extends Visitor {
             undereferableError(node, node.expr().type());
             return;
         }
-        checkMemberRef(node, node.dereferedType(), node.name());
+        checkMemberRef(node, node.dereferedType(), node.member());
     }
 
     protected void checkMemberRef(Node node, Type t, String memb) {

@@ -1,3 +1,11 @@
+Sat Jan  5 13:23:57 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/MemberNode.java: #name -> #member.
+
+	* net/loveruby/cflat/ast/PtrMemberNode.java: #name -> #member.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: follow changes.
+
 Sat Jan  5 13:20:32 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/Declaration.java: removed.
