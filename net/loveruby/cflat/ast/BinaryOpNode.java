@@ -2,14 +2,14 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.Type;
 
 public class BinaryOpNode extends ExprNode {
-    protected ExprNode left, right;
     protected String operator;
+    protected ExprNode left, right;
     protected Type type;
 
     public BinaryOpNode(ExprNode left, String op, ExprNode right) {
         super();
-        this.left = left;
         this.operator = op;
+        this.left = left;
         this.right = right;
     }
 
@@ -48,6 +48,7 @@ public class BinaryOpNode extends ExprNode {
     }
 
     protected void _dump(Dumper d) {
+        d.printMember("operator", operator);
         d.printMember("left", left);
         d.printMember("right", right);
     }

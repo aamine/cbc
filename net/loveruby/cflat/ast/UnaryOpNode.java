@@ -27,6 +27,7 @@ public class UnaryOpNode extends ExprNode {
     }
 
     protected void _dump(Dumper d) {
+        d.printMember("operator", operator);
         d.printMember("expr", expr);
     }
 

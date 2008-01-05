@@ -1,3 +1,9 @@
+Sun Jan  6 02:27:29 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/UnaryOpNode.java (_dump): show operator.
+
+	* net/loveruby/cflat/ast/BinaryOpNode.java (_dump): show operator.
+
 Sun Jan  6 00:33:34 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* Type class hierarchy grand restruct: retire Signed*Type,
