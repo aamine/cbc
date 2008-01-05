@@ -284,9 +284,11 @@ static public void p(String s) { System.err.println(s); }
         return reg("sp");
     }
 
-    // cdecl call
-    //     * all arguments are on stack
-    //     * rollback stack by caller
+    /** cdecl call
+     *
+     *    * all arguments are on stack
+     *    * rollback stack by caller
+     */
     public void visit(FuncallNode node) {
         ListIterator it = node.finalArg();
         while (it.hasPrevious()) {
@@ -323,6 +325,10 @@ static public void p(String s) { System.err.println(s); }
         jmpEpilogue();
     }
 
+    //
+    // Statements
+    //
+
     public void visit(BlockNode node) {
         Iterator vars = node.scope().variables();
         while (vars.hasNext()) {
@@ -341,454 +347,6 @@ static public void p(String s) { System.err.println(s); }
     // needed?
     protected void compileStmt(Node node) {
         compile(node);
-    }
-
-    public void visit(CastNode node) {
-        // FIXME: insert cast op here
-        compile(node.expr());
-    }
-
-    public void visit(IntegerLiteralNode node) {
-        as.mov(node.type(), imm(node.value()), reg("ax", node.type()));
-    }
-
-    public void visit(CharacterLiteralNode node) {
-        as.mov(node.type(), imm(node.value()), reg("ax", node.type()));
-    }
-
-    public void visit(StringLiteralNode node) {
-        loadWords(node.type(), imm(node.label()), "ax");
-    }
-
-    public void visit(VariableNode node) {
-        if (node.type().isAllocatedArray()) {
-            as.leaq(node.address(), reg("ax"));
-        }
-        else {
-            loadWords(node.type(), node.address(), "ax");
-        }
-    }
-
-    static final String PTRREG = "bx";
-
-    public void visit(ArefNode node) {
-        if (node.expr().type().isPointerAlike()) {
-            compile(node.expr());
-            as.pushq(reg("ax"));
-        }
-        else {
-            compileLHS(node.expr());
-            as.pushq(reg(PTRREG));
-        }
-        compile(node.index());
-        as.imulq(imm(node.type().size()), reg("ax"));
-        as.popq(reg(PTRREG));
-        as.addq(reg("ax"), reg(PTRREG));
-        loadWords(node.type(), addr(PTRREG), "ax");
-    }
-
-    public void visit(MemberNode node) {
-        compileLHS(node.expr());
-        loadWords(node.type(), addr2(node.offset(), PTRREG), "ax");
-    }
-
-    public void visit(PtrMemberNode node) {
-        compileLHS(node.expr());
-        loadWords(node.type(), addr(PTRREG), PTRREG);
-        loadWords(node.type(), addr2(node.offset(), PTRREG), "ax");
-    }
-
-    public void visit(AssignNode node) {
-        if (node.lhs().isConstantAddress()) {
-            compile(node.rhs());
-            saveWords(node.type(), "ax", node.lhs().address());
-        }
-        else {
-            compile(node.rhs());
-            as.pushq(reg("ax"));
-            compileLHS(node.lhs());
-            as.popq(reg("ax"));
-            saveWords(node.type(), "ax", addr(PTRREG));
-        }
-    }
-
-    public void visit(DereferenceNode node) {
-        compile(node.expr());
-        loadWords(node.type(), addr("ax"), "ax");
-    }
-
-    public void visit(AddressNode node) {
-        compileLHS(node.expr());
-        as.movq(reg(PTRREG), reg("ax"));
-    }
-
-    protected void compileLHS(Node node) {
-as.comment("compileLHS: " + node.getClass().getName() + " {");
-        if (node instanceof VariableNode) {
-            // FIXME: support static variables
-            VariableNode n = (VariableNode)node;
-            as.leaq(n.address(), reg(PTRREG));
-        }
-        else if (node instanceof ArefNode) {
-            ArefNode n = (ArefNode)node;
-            as.pushq(reg("ax"));
-            compile(n.index());
-            as.imulq(imm(n.type().size()), reg("ax"));
-            as.pushq(reg("ax"));
-            if (n.expr().type().isPointerAlike()) {
-                compile(n.expr());
-                as.movq(reg("ax"), reg(PTRREG));
-            }
-            else {
-                compileLHS(n.expr());
-            }
-            as.popq(reg("cx"));
-            as.addq(reg("cx"), reg(PTRREG));
-            as.popq(reg("ax"));
-        }
-        else if (node instanceof MemberNode) {
-            MemberNode n = (MemberNode)node;
-            compileLHS(n.expr());
-            as.addq(imm(n.offset()), reg(PTRREG));
-        }
-        else if (node instanceof DereferenceNode) {
-            DereferenceNode n = (DereferenceNode)node;
-            as.pushq(reg("ax"));
-            compile(n.expr());
-            as.movq(reg("ax"), reg(PTRREG));
-            as.popq(reg("ax"));
-        }
-        else if (node instanceof PtrMemberNode) {
-            PtrMemberNode n = (PtrMemberNode)node;
-            as.pushq(reg("ax"));
-            compile(n.expr());
-            as.addq(imm(n.offset()), reg("ax"));
-            as.movq(reg("ax"), reg(PTRREG));
-            as.popq(reg("ax"));
-        }
-        else if (node instanceof PrefixIncNode) {
-            PrefixIncNode n = (PrefixIncNode)node;
-            compileLHS(n.expr());
-            as.addq(imm(n.expr().type().size()), reg(PTRREG));
-        }
-        else if (node instanceof PrefixDecNode) {
-            PrefixDecNode n = (PrefixDecNode)node;
-            compileLHS(n.expr());
-            as.subq(imm(n.expr().type().size()), reg(PTRREG));
-        }
-        // FIXME
-        //} else if (node instanceof SuffixIncNode) {
-        //} else if (node instanceof SuffixDecNode) {
-        else if (node instanceof CastNode) {
-            CastNode n = (CastNode)node;
-            compileLHS(n.expr());
-            // FIXME: cast here
-        }
-        else {
-            throw new Error("wrong type for compileLHS: " + node.getClass().getName());
-        }
-as.comment("compileLHS: }");
-    }
-
-    protected void opAssignInit(AbstractAssignNode node) {
-        compile(node.rhs());
-        as.movq(reg("ax"), reg("cx"));
-        loadWords(node.type(), node.lhs().address(), "ax");
-    }
-
-    protected void opAssignFini(AbstractAssignNode node) {
-        saveWords(node.type(), "ax", node.lhs().address());
-    }
-
-    public void visit(PlusAssignNode node) {
-        opAssignInit(node);
-        compile_plus(node.type());
-        opAssignFini(node);
-    }
-
-    public void visit(MinusAssignNode node) {
-        opAssignInit(node);
-        compile_minus(node.type());
-        opAssignFini(node);
-    }
-
-    public void visit(MulAssignNode node) {
-        opAssignInit(node);
-        compile_mul(node.type());
-        opAssignFini(node);
-    }
-
-    public void visit(DivAssignNode node) {
-        opAssignInit(node);
-        compile_div(node.type());
-        opAssignFini(node);
-    }
-
-    public void visit(ModAssignNode node) {
-        opAssignInit(node);
-        compile_mod(node.type());
-        opAssignFini(node);
-    }
-
-    public void visit(RShiftAssignNode node) {
-        opAssignInit(node);
-        compile_rshift(node.type());
-        opAssignFini(node);
-    }
-
-    public void visit(LShiftAssignNode node) {
-        opAssignInit(node);
-        compile_lshift(node.type());
-        opAssignFini(node);
-    }
-
-    public void visit(AndAssignNode node) {
-        opAssignInit(node);
-        compile_bitwiseand(node.type());
-        opAssignFini(node);
-    }
-
-    public void visit(OrAssignNode node) {
-        opAssignInit(node);
-        compile_bitwiseor(node.type());
-        opAssignFini(node);
-    }
-
-    public void visit(XorAssignNode node) {
-        opAssignInit(node);
-        compile_bitwisexor(node.type());
-        opAssignFini(node);
-    }
-
-    protected void binaryOpSetup(BinaryOpNode node) {
-        compile(node.right());
-        as.pushq(reg("ax"));
-        compile(node.left());
-        as.popq(reg("cx"));
-    }
-
-    public void visit(PlusNode node) {
-        binaryOpSetup(node);
-        compile_plus(node.type());
-    }
-
-    public void visit(MinusNode node) {
-        binaryOpSetup(node);
-        compile_minus(node.type());
-    }
-
-    public void visit(MulNode node) {
-        binaryOpSetup(node);
-        compile_mul(node.type());
-    }
-
-    public void visit(DivNode node) {
-        binaryOpSetup(node);
-        compile_div(node.type());
-    }
-
-    public void visit(ModNode node) {
-        binaryOpSetup(node);
-        compile_mod(node.type());
-    }
-
-    public void visit(BitwiseAndNode node) {
-        binaryOpSetup(node);
-        compile_bitwiseand(node.type());
-    }
-
-    public void visit(BitwiseOrNode node) {
-        binaryOpSetup(node);
-        compile_bitwiseor(node.type());
-    }
-
-    public void visit(BitwiseXorNode node) {
-        binaryOpSetup(node);
-        compile_bitwisexor(node.type());
-    }
-
-    public void visit(RShiftNode node) {
-        binaryOpSetup(node);
-        compile_rshift(node.type());
-    }
-
-    public void visit(LShiftNode node) {
-        binaryOpSetup(node);
-        compile_lshift(node.type());
-    }
-
-    public void visit(EqNode node) {
-        binaryOpSetup(node);
-        compile_eq(node.type());
-    }
-
-    public void visit(NotEqNode node) {
-        binaryOpSetup(node);
-        compile_neq(node.type());
-    }
-
-    public void visit(GtNode node) {
-        binaryOpSetup(node);
-        compile_gt(node.type());
-    }
-
-    public void visit(LtNode node) {
-        binaryOpSetup(node);
-        compile_lt(node.type());
-    }
-
-    public void visit(GtEqNode node) {
-        binaryOpSetup(node);
-        compile_gteq(node.type());
-    }
-
-    public void visit(LtEqNode node) {
-        binaryOpSetup(node);
-        compile_lteq(node.type());
-    }
-
-    protected void compile_plus(Type t) {
-        as.add(t, reg("cx", t), reg("ax", t));
-    }
-
-    protected void compile_minus(Type t) {
-        as.sub(t, reg("cx", t), reg("ax", t));
-    }
-
-    protected void compile_mul(Type t) {
-        as.imul(t, reg("cx", t), reg("ax", t));
-    }
-
-    protected void compile_div(Type t) {
-        as.movq(imm(0), reg("dx"));
-        as.idiv(t, reg("cx", t));
-    }
-
-    protected void compile_mod(Type t) {
-        as.movq(imm(0), reg("dx"));
-        as.idiv(t, reg("cx", t));
-        as.movq(reg("dx"), reg("ax"));
-    }
-
-    protected void compile_bitwiseand(Type t) {
-        as.and(t, reg("cx", t), reg("ax", t));
-    }
-
-    protected void compile_bitwiseor(Type t) {
-        as.or(t, reg("cx", t), reg("ax", t));
-    }
-
-    protected void compile_bitwisexor(Type t) {
-        as.xor(t, reg("cx", t), reg("ax", t));
-    }
-
-    protected void compile_rshift(Type t) {
-        as.sar(t, register("cl"), reg("ax", t));
-    }
-
-    protected void compile_lshift(Type t) {
-        as.sal(t, register("cl"), reg("ax", t));
-    }
-
-    protected void compile_eq(Type t) {
-        as.cmp(t, reg("cx", t), reg("ax", t));
-        as.sete(register("al"));
-        as.movzb(t, register("al"), reg("ax", t));
-    }
-
-    protected void compile_neq(Type t) {
-        as.cmp(t, reg("cx", t), reg("ax", t));
-        as.setne(register("al"));
-        as.movzb(t, register("al"), reg("ax", t));
-    }
-
-    protected void compile_gt(Type t) {
-        as.cmp(t, reg("cx", t), reg("ax", t));
-        as.setg(register("al"));
-        as.movzb(t, register("al"), reg("ax", t));
-    }
-
-    protected void compile_lt(Type t) {
-        as.cmp(t, reg("cx", t), reg("ax", t));
-        as.setl(register("al"));
-        as.movzb(t, register("al"), reg("ax", t));
-    }
-
-    protected void compile_gteq(Type t) {
-        as.cmp(t, reg("cx", t), reg("ax", t));
-        as.setge(register("al"));
-        as.movzb(t, register("al"), reg("ax", t));
-    }
-
-    protected void compile_lteq(Type t) {
-        as.cmp(t, reg("cx", t), reg("ax", t));
-        as.setle(register("al"));
-        as.movzb(t, register("al"), reg("ax", t));
-    }
-
-    public void visit(UnaryPlusNode node) {
-        compile(node.expr());
-    }
-
-    public void visit(UnaryMinusNode node) {
-        compile(node.expr());
-        as.neg(node.expr().type(), reg("ax", node.expr().type()));
-    }
-
-    public void visit(LogicalNotNode node) {
-        compile(node.expr());
-        testCond(node.expr().type(), "ax");
-        as.sete(register("al"));
-        as.movzbl(register("al"), register("eax"));
-    }
-
-    public void visit(BitwiseNotNode node) {
-        compile(node.expr());
-        as.not(node.expr().type(), reg("ax", node.expr().type()));
-    }
-
-    public void visit(PrefixIncNode node) {
-        ExprNode e = node.expr();
-        if (e.type().isInteger()) {
-            as.inc(e.type(), e.address());
-        }
-        else {
-            as.addq(imm(e.type().size()), e.address());
-        }
-        loadWords(e.type(), e.address(), "ax");
-    }
-
-    public void visit(PrefixDecNode node) {
-        ExprNode e = node.expr();
-        if (e.type().isInteger()) {
-            as.dec(e.type(), e.address());
-        }
-        else {
-            as.subq(imm(e.type().size()), e.address());
-        }
-        loadWords(e.type(), e.address(), "ax");
-    }
-
-    public void visit(SuffixIncNode node) {
-        ExprNode e = node.expr();
-        loadWords(e.type(), e.address(), "ax");
-        if (e.type().isInteger()) {
-            as.inc(e.type(), e.address());
-        }
-        else {
-            as.addq(imm(e.type().size()), e.address());
-        }
-    }
-
-    public void visit(SuffixDecNode node) {
-        ExprNode e = node.expr();
-        loadWords(e.type(), e.address(), "ax");
-        if (e.type().isInteger()) {
-            as.dec(e.type(), e.address());
-        }
-        else {
-            as.subq(imm(e.type().size()), e.address());
-        }
     }
 
     private void testCond(Type t, String regname) {
@@ -920,6 +478,286 @@ as.comment("compileLHS: }");
 
     public void visit(GotoNode node) {
         as.jmp(node.targetLabel());
+    }
+
+    //
+    // Expressions
+    //
+
+    public void visit(BinaryOpNode node) {
+        compile(node.right());
+        as.pushq(reg("ax"));
+        compile(node.left());
+        as.popq(reg("cx"));
+        compileBinaryOp(node.operator(), node.type());
+    }
+
+    protected void compileBinaryOp(String op, Type t) {
+        if (op.equals("+")) {
+            as.add(t, reg("cx", t), reg("ax", t));
+        }
+        else if (op.equals("-")) {
+            as.sub(t, reg("cx", t), reg("ax", t));
+        }
+        else if (op.equals("*")) {
+            as.imul(t, reg("cx", t), reg("ax", t));
+        }
+        else if (op.equals("/")) {
+            as.movq(imm(0), reg("dx"));
+            as.idiv(t, reg("cx", t));
+        }
+        else if (op.equals("%")) {
+            as.movq(imm(0), reg("dx"));
+            as.idiv(t, reg("cx", t));
+            as.movq(reg("dx"), reg("ax"));
+        }
+        else if (op.equals("&")) {
+            as.and(t, reg("cx", t), reg("ax", t));
+        }
+        else if (op.equals("|")) {
+            as.or(t, reg("cx", t), reg("ax", t));
+        }
+        else if (op.equals("^")) {
+            as.xor(t, reg("cx", t), reg("ax", t));
+        }
+        else if (op.equals(">>")) {
+            as.sar(t, register("cl"), reg("ax", t));
+        }
+        else if (op.equals("<<")) {
+            as.sal(t, register("cl"), reg("ax", t));
+        }
+        else {
+            // Comparison operators
+            as.cmp(t, reg("cx", t), reg("ax", t));
+            if      (op.equals("=="))   as.sete (register("al"));
+            else if (op.equals("!="))   as.setne(register("al"));
+            else if (op.equals(">"))    as.setg (register("al"));
+            else if (op.equals(">="))   as.setge(register("al"));
+            else if (op.equals("<"))    as.setl (register("al"));
+            else if (op.equals("<="))   as.setle(register("al"));
+            else {
+                throw new Error("unknown binary operator: " + op);
+            }
+            as.movzb(t, register("al"), reg("ax", t));
+        }
+    }
+
+    public void visit(UnaryOpNode node) {
+        compile(node.expr());
+        if (node.operator().equals("+")) {
+            ;
+        }
+        else if (node.operator().equals("-")) {
+            as.neg(node.expr().type(), reg("ax", node.expr().type()));
+        }
+        else if (node.operator().equals("~")) {
+            as.not(node.expr().type(), reg("ax", node.expr().type()));
+        }
+        else if (node.operator().equals("!")) {
+            testCond(node.expr().type(), "ax");
+            as.sete(register("al"));
+            as.movzbl(register("al"), register("eax"));
+        }
+    }
+
+    public void visit(PrefixOpNode node) {
+        compileIncDec(node.operator(), node.expr());
+        loadWords(node.expr().type(), node.expr().address(), "ax");
+    }
+
+    public void visit(SuffixOpNode node) {
+        loadWords(node.expr().type(), node.expr().address(), "ax");
+        compileIncDec(node.operator(), node.expr());
+    }
+
+    protected void compileIncDec(String op, ExprNode e) {
+        if (op.equals("++")) {
+            if (e.type().isInteger()) {
+                as.inc(e.type(), e.address());
+            }
+            else {
+                as.addq(imm(e.type().size()), e.address());
+            }
+        }
+        else if (op.equals("--")) {
+            if (e.type().isInteger()) {
+                as.dec(e.type(), e.address());
+            }
+            else {
+                as.subq(imm(e.type().size()), e.address());
+            }
+        }
+        else {
+            throw new Error("unknown unary operator: " + op);
+        }
+    }
+
+    public void visit(CastNode node) {
+        // FIXME: insert cast op here
+        compile(node.expr());
+    }
+
+    public void visit(VariableNode node) {
+        if (node.type().isAllocatedArray()) {
+            as.leaq(node.address(), reg("ax"));
+        }
+        else {
+            loadWords(node.type(), node.address(), "ax");
+        }
+    }
+
+    public void visit(IntegerLiteralNode node) {
+        as.mov(node.type(), imm(node.value()), reg("ax", node.type()));
+    }
+
+    public void visit(CharacterLiteralNode node) {
+        as.mov(node.type(), imm(node.value()), reg("ax", node.type()));
+    }
+
+    public void visit(StringLiteralNode node) {
+        loadWords(node.type(), imm(node.label()), "ax");
+    }
+
+    //
+    // Assignable expressions
+    //
+
+    public void visit(AssignNode node) {
+        if (node.lhs().isConstantAddress()) {
+            compile(node.rhs());
+            saveWords(node.type(), "ax", node.lhs().address());
+        }
+        else {
+            compile(node.rhs());
+            as.pushq(reg("ax"));
+            compileLHS(node.lhs());
+            as.popq(reg("ax"));
+            saveWords(node.type(), "ax", addr(PTRREG));
+        }
+    }
+
+    public void visit(OpAssignNode node) {
+        compile(node.rhs());
+        as.movq(reg("ax"), reg("cx"));
+        loadWords(node.type(), node.lhs().address(), "ax");
+        compileBinaryOp(node.operator(), node.type());
+        saveWords(node.type(), "ax", node.lhs().address());
+    }
+
+    public void visit(ArefNode node) {
+        if (node.expr().type().isPointerAlike()) {
+            compile(node.expr());
+            as.pushq(reg("ax"));
+        }
+        else {
+            compileLHS(node.expr());
+            as.pushq(reg(PTRREG));
+        }
+        compile(node.index());
+        as.imulq(imm(node.type().size()), reg("ax"));
+        as.popq(reg(PTRREG));
+        as.addq(reg("ax"), reg(PTRREG));
+        loadWords(node.type(), addr(PTRREG), "ax");
+    }
+
+    public void visit(MemberNode node) {
+        compileLHS(node.expr());
+        loadWords(node.type(), addr2(node.offset(), PTRREG), "ax");
+    }
+
+    public void visit(PtrMemberNode node) {
+        compileLHS(node.expr());
+        loadWords(node.type(), addr(PTRREG), PTRREG);
+        loadWords(node.type(), addr2(node.offset(), PTRREG), "ax");
+    }
+
+    public void visit(DereferenceNode node) {
+        compile(node.expr());
+        loadWords(node.type(), addr("ax"), "ax");
+    }
+
+    public void visit(AddressNode node) {
+        compileLHS(node.expr());
+        as.movq(reg(PTRREG), reg("ax"));
+    }
+
+    static final String PTRREG = "bx";
+
+    protected void compileLHS(Node node) {
+as.comment("compileLHS: " + node.getClass().getName() + " {");
+        if (node instanceof VariableNode) {
+            // FIXME: support static variables
+            VariableNode n = (VariableNode)node;
+            as.leaq(n.address(), reg(PTRREG));
+        }
+        else if (node instanceof ArefNode) {
+            ArefNode n = (ArefNode)node;
+            as.pushq(reg("ax"));
+            compile(n.index());
+            as.imulq(imm(n.type().size()), reg("ax"));
+            as.pushq(reg("ax"));
+            if (n.expr().type().isPointerAlike()) {
+                compile(n.expr());
+                as.movq(reg("ax"), reg(PTRREG));
+            }
+            else {
+                compileLHS(n.expr());
+            }
+            as.popq(reg("cx"));
+            as.addq(reg("cx"), reg(PTRREG));
+            as.popq(reg("ax"));
+        }
+        else if (node instanceof MemberNode) {
+            MemberNode n = (MemberNode)node;
+            compileLHS(n.expr());
+            as.addq(imm(n.offset()), reg(PTRREG));
+        }
+        else if (node instanceof DereferenceNode) {
+            DereferenceNode n = (DereferenceNode)node;
+            as.pushq(reg("ax"));
+            compile(n.expr());
+            as.movq(reg("ax"), reg(PTRREG));
+            as.popq(reg("ax"));
+        }
+        else if (node instanceof PtrMemberNode) {
+            PtrMemberNode n = (PtrMemberNode)node;
+            as.pushq(reg("ax"));
+            compile(n.expr());
+            as.addq(imm(n.offset()), reg("ax"));
+            as.movq(reg("ax"), reg(PTRREG));
+            as.popq(reg("ax"));
+        }
+        else if (node instanceof PrefixOpNode) {
+            PrefixOpNode n = (PrefixOpNode)node;
+            compileLHS(n.expr());
+            if (n.operator().equals("++")) {
+                as.addq(imm(n.expr().type().size()), addr(PTRREG));
+                as.addq(imm(n.expr().type().size()), reg(PTRREG));
+            }
+            else {
+                as.subq(imm(n.expr().type().size()), addr(PTRREG));
+                as.subq(imm(n.expr().type().size()), reg(PTRREG));
+            }
+        }
+        else if (node instanceof SuffixOpNode) {
+            SuffixOpNode n = (SuffixOpNode)node;
+            compileLHS(n.expr());
+            if (n.operator().equals("++")) {
+                as.addq(imm(n.expr().type().size()), reg(PTRREG));
+            }
+            else {
+                as.subq(imm(n.expr().type().size()), reg(PTRREG));
+            }
+        }
+        else if (node instanceof CastNode) {
+            CastNode n = (CastNode)node;
+            compileLHS(n.expr());
+            // FIXME: cast here
+        }
+        else {
+            throw new Error("wrong type for compileLHS: " + node.getClass().getName());
+        }
+as.comment("compileLHS: }");
     }
 
     /*

@@ -6,7 +6,7 @@ public class LogicalAndNode extends BinaryOpNode {
     protected Label endLabel;
 
     public LogicalAndNode(LabelPool lp, ExprNode left, ExprNode right) {
-        super(left, right);
+        super(left, "&&", right);
         pool = lp;
     }
 

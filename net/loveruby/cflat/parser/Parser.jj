@@ -884,8 +884,8 @@ ReturnNode return_stmt():
 
 ExprNode expr():
 {
-    ExprNode l, r, n;
-    Class c;
+    ExprNode l, r, expr;
+    String op;
 }
 {
       LOOKAHEAD(term() "=")
@@ -894,35 +894,28 @@ ExprNode expr():
             return new AssignNode(l, r);
         }
     | LOOKAHEAD(term() opassign_op())
-      l=term() c=opassign_op() r=expr()
+      l=term() op=opassign_op() r=expr()
         {
-            try {
-                Constructor cons = c.getConstructor(
-                        new Class[] {ExprNode.class, ExprNode.class});
-                return (ExprNode)cons.newInstance(new Object[] {l, r});
-            }
-            catch (Exception ex) {
-                throw new Error("fatal: " + ex.getMessage());
-            }
+            return new OpAssignNode(l, op, r);
         }
-    | n=expr10()
+    | expr=expr10()
         {
-            return n;
+            return expr;
         }
 }
 
-Class opassign_op(): {}
+String opassign_op(): {}
 {
-    ( "+="  { return PlusAssignNode.class; }
-    | "-="  { return MinusAssignNode.class; }
-    | "*="  { return MulAssignNode.class; }
-    | "/="  { return DivAssignNode.class; }
-    | "%="  { return ModAssignNode.class; }
-    | "&="  { return AndAssignNode.class; }
-    | "|="  { return OrAssignNode.class; }
-    | "^="  { return XorAssignNode.class; }
-    | "<<=" { return LShiftAssignNode.class; }
-    | ">>=" { return RShiftAssignNode.class; }
+    ( "+="  { return "+"; }
+    | "-="  { return "-"; }
+    | "*="  { return "*"; }
+    | "/="  { return "/"; }
+    | "%="  { return "%"; }
+    | "&="  { return "&"; }
+    | "|="  { return "|"; }
+    | "^="  { return "^"; }
+    | "<<=" { return "<<"; }
+    | ">>=" { return ">>"; }
     )
 }
 
@@ -957,12 +950,12 @@ ExprNode expr8():
 ExprNode expr7():
 { ExprNode l, r; }
 {
-    l=expr6() ( ">"  r=expr6() { l = new GtNode(l, r); }
-              | "<"  r=expr6() { l = new LtNode(l, r); }
-              | ">=" r=expr6() { l = new GtEqNode(l, r); }
-              | "<=" r=expr6() { l = new LtEqNode(l, r); }
-              | "==" r=expr6() { l = new EqNode(l, r); }
-              | "!=" r=expr6() { l = new NotEqNode(l, r); } )*
+    l=expr6() ( ">"  r=expr6() { l = new BinaryOpNode(l, ">", r); }
+              | "<"  r=expr6() { l = new BinaryOpNode(l, "<", r); }
+              | ">=" r=expr6() { l = new BinaryOpNode(l, ">=", r); }
+              | "<=" r=expr6() { l = new BinaryOpNode(l, "<=", r); }
+              | "==" r=expr6() { l = new BinaryOpNode(l, "==", r); }
+              | "!=" r=expr6() { l = new BinaryOpNode(l, "!=", r); } )*
         {
             return l;
         }
@@ -971,7 +964,7 @@ ExprNode expr7():
 ExprNode expr6():
 { ExprNode l, r; }
 {
-    l=expr5() ("|" r=expr5() { l = new BitwiseOrNode(l, r); })*
+    l=expr5() ("|" r=expr5() { l = new BinaryOpNode(l, "|", r); })*
         {
             return l;
         }
@@ -980,7 +973,7 @@ ExprNode expr6():
 ExprNode expr5():
 { ExprNode l, r; }
 {
-    l=expr4() ("^" r=expr4() { l = new BitwiseXorNode(l, r); })*
+    l=expr4() ("^" r=expr4() { l = new BinaryOpNode(l, "^", r); })*
         {
             return l;
         }
@@ -989,7 +982,7 @@ ExprNode expr5():
 ExprNode expr4():
 { ExprNode l, r; }
 {
-    l=expr3() ("&" r=expr3() { l = new BitwiseAndNode(l, r); })*
+    l=expr3() ("&" r=expr3() { l = new BinaryOpNode(l, "&", r); })*
         {
             return l;
         }
@@ -998,8 +991,8 @@ ExprNode expr4():
 ExprNode expr3():
 { ExprNode l, r; }
 {
-    l=expr2() ( ">>" r=expr2() { l = new RShiftNode(l, r); }
-              | "<<" r=expr2() { l = new LShiftNode(l, r); }
+    l=expr2() ( ">>" r=expr2() { l = new BinaryOpNode(l, ">>", r); }
+              | "<<" r=expr2() { l = new BinaryOpNode(l, "<<", r); }
               )*
         {
             return l;
@@ -1009,8 +1002,8 @@ ExprNode expr3():
 ExprNode expr2():
 { ExprNode l, r; }
 {
-    l=expr1() ( "+" r=expr1() { l = new PlusNode(l, r); }
-              | "-" r=expr1() { l = new MinusNode(l, r); }
+    l=expr1() ( "+" r=expr1() { l = new BinaryOpNode(l, "+", r); }
+              | "-" r=expr1() { l = new BinaryOpNode(l, "-", r); }
               )*
         {
             return l;
@@ -1020,9 +1013,9 @@ ExprNode expr2():
 ExprNode expr1():
 { ExprNode l, r; }
 {
-    l=term() ( "*" r=term() { l = new MulNode(l, r); }
-             | "/" r=term() { l = new DivNode(l, r); }
-             | "%" r=term() { l = new ModNode(l, r); }
+    l=term() ( "*" r=term() { l = new BinaryOpNode(l, "*", r); }
+             | "/" r=term() { l = new BinaryOpNode(l, "/", r); }
+             | "%" r=term() { l = new BinaryOpNode(l, "%", r); }
              )*
         {
             return l;
@@ -1045,12 +1038,12 @@ ExprNode unary():
     ExprNode n;
 }
 {
-      "++" n=unary()    { return new PrefixIncNode(n); }
-    | "--" n=unary()    { return new PrefixDecNode(n); }
-    | "+" n=term()      { return new UnaryPlusNode(n); }
-    | "-" n=term()      { return new UnaryMinusNode(n); }
-    | "!" n=term()      { return new LogicalNotNode(n); }
-    | "~" n=term()      { return new BitwiseNotNode(n); }
+      "++" n=unary()    { return new PrefixOpNode("++", n); }
+    | "--" n=unary()    { return new PrefixOpNode("--", n); }
+    | "+" n=term()      { return new UnaryOpNode("+", n); }
+    | "-" n=term()      { return new UnaryOpNode("-", n); }
+    | "!" n=term()      { return new UnaryOpNode("!", n); }
+    | "~" n=term()      { return new UnaryOpNode("~", n); }
     | "*" n=term()      { return new DereferenceNode(n); }
     | "&" n=term()      { return new AddressNode(n); }
     | n=postfix()       { return n; }
@@ -1064,8 +1057,8 @@ ExprNode postfix():
 }
 {
     base=primary()
-    ( "++"                  { base = new SuffixIncNode(base); }
-    | "--"                  { base = new SuffixDecNode(base); }
+    ( "++"                  { base = new SuffixOpNode("++", base); }
+    | "--"                  { base = new SuffixOpNode("--", base); }
     | "[" idx=expr() "]"    { base = new ArefNode(base, idx); }
     | "." memb=name()       { base = new MemberNode(base, memb); }
     | "->" memb=name()      { base = new PtrMemberNode(base, memb); }

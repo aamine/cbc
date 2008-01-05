@@ -5,7 +5,7 @@ public class AddressNode extends UnaryOpNode {
     protected Type type;
 
     public AddressNode(ExprNode n) {
-        super(n);
+        super("&", n);
     }
 
     public Type type() {

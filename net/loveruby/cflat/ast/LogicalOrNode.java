@@ -6,7 +6,7 @@ public class LogicalOrNode extends BinaryOpNode {
     protected Label endLabel;
 
     public LogicalOrNode(LabelPool lp, ExprNode left, ExprNode right) {
-        super(left, right);
+        super(left, "||", right);
         pool = lp;
     }
 

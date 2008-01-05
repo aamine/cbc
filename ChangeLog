@@ -1,3 +1,42 @@
+Sat Jan  5 23:48:10 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* AST class hierarchy grand restruct: remove and unify many
+	  operator nodes.
+
+	* net/loveruby/cflat/ast/UnaryOpNode.java: unify arithmetic unary
+	  op nodes (+, -, !, ~).
+
+	* net/loveruby/cflat/ast/BinaryOpNode.java: unify almost all
+	  binary op nodes (+, -, *, /, %, &, |, ^, <<, >>) and comparison
+	  operators (==, !=, >, >=, <, <=).
+
+	* net/loveruby/cflat/ast/PrefixOpNode.java: new class.  unify
+	  prefix inc/dec.
+
+	* net/loveruby/cflat/ast/SuffixOpNode.java: new class.  unify
+	  suffix inc/dec.
+
+	* net/loveruby/cflat/ast/OpAssignNode.java: new class.  unify all
+	  *AssignNode.
+
+	* net/loveruby/cflat/parser/Parser.jj: follow these grand changes.
+
+	* net/loveruby/cflat/compiler/Visitor.java: ditto.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ditto.
+
+	* net/loveruby/cflat/ast/DereferenceNode.java: ditto.
+
+	* net/loveruby/cflat/ast/LogicalAndNode.java: ditto.
+
+	* net/loveruby/cflat/ast/LogicalOrNode.java: ditto.
+
+	* net/loveruby/cflat/ast/AddressNode.java: ditto.
+
+	* net/loveruby/cflat/ast/ASTVisitor.java: ditto.
+
 Sat Jan  5 13:57:33 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: report error.

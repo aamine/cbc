@@ -1,11 +1,17 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.Type;
 
-abstract public class UnaryOpNode extends ExprNode {
+public class UnaryOpNode extends ExprNode {
+    protected String operator;
     protected ExprNode expr;
 
-    public UnaryOpNode(ExprNode expr) {
+    public UnaryOpNode(String op, ExprNode expr) {
+        this.operator = op;
         this.expr = expr;
+    }
+
+    public String operator() {
+        return operator;
     }
 
     public Type type() {
@@ -22,5 +28,9 @@ abstract public class UnaryOpNode extends ExprNode {
 
     protected void _dump(Dumper d) {
         d.printMember("expr", expr);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        visitor.visit(this);
     }
 }

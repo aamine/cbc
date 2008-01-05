@@ -4,7 +4,7 @@ import net.loveruby.cflat.asm.*;
 
 public class DereferenceNode extends UnaryOpNode {
     public DereferenceNode(ExprNode n) {
-        super(n);
+        super("*", n);
     }
 
     public Type type() {

@@ -57,6 +57,10 @@ class TypeChecker extends Visitor {
         }
     }
 
+    //
+    // Statements
+    //
+
     public void visit(BlockNode node) {
         Iterator vars = node.variables();
         while (vars.hasNext()) {
@@ -96,26 +100,22 @@ class TypeChecker extends Visitor {
         }
     }
 
-    //
-    // Statement Nodes
-    //
-
     public void visit(IfNode node) {
         super.visit(node);
-        checkCondExpr(node.cond());
+        checkCond(node.cond());
     }
 
     public void visit(WhileNode node) {
         super.visit(node);
-        checkCondExpr(node.cond());
+        checkCond(node.cond());
     }
 
     public void visit(ForNode node) {
         super.visit(node);
-        checkCondExpr(node.cond());
+        checkCond(node.cond());
     }
 
-    protected void checkCondExpr(ExprNode cond) {
+    protected void checkCond(ExprNode cond) {
         Type t = cond.type();
         if (!t.isInteger() && !t.isPointer()) {
             notIntegerError(cond, t);
@@ -159,51 +159,16 @@ class TypeChecker extends Visitor {
     }
 
     //
-    // Assignment Expression Nodes
+    // Assignment Expressions
     //
 
     public void visit(AssignNode node) {
         checkAssignment(node);
     }
 
-    public void visit(PlusAssignNode node) {
+    public void visit(OpAssignNode node) {
         checkAssignment(node);
-    }
-
-    public void visit(MinusAssignNode node) {
-        checkAssignment(node);
-    }
-
-    public void visit(MulAssignNode node) {
-        checkAssignment(node);
-    }
-
-    public void visit(DivAssignNode node) {
-        checkAssignment(node);
-    }
-
-    public void visit(ModAssignNode node) {
-        checkAssignment(node);
-    }
-
-    public void visit(AndAssignNode node) {
-        checkAssignment(node);
-    }
-
-    public void visit(OrAssignNode node) {
-        checkAssignment(node);
-    }
-
-    public void visit(XorAssignNode node) {
-        checkAssignment(node);
-    }
-
-    public void visit(LShiftAssignNode node) {
-        checkAssignment(node);
-    }
-
-    public void visit(RShiftAssignNode node) {
-        checkAssignment(node);
+        // check as operator
     }
 
     protected void checkAssignment(AbstractAssignNode node) {
@@ -263,12 +228,12 @@ class TypeChecker extends Visitor {
     }
 
     //
-    // Condition Expression Node
+    // Expressions
     //
 
     public void visit(CondExprNode node) {
         super.visit(node);
-        checkCondExpr(node.cond());
+        checkCond(node.cond());
         Type t = node.thenExpr().type();
         Type e = node.elseExpr().type();
         if (t.isSameType(e)) {
@@ -285,88 +250,36 @@ class TypeChecker extends Visitor {
         }
     }
 
-    //
-    // Binary Operator Nodes
-    //
-
-    public void visit(PlusNode node) {
+    public void visit(BinaryOpNode node) {
         super.visit(node);
-        expectsSameIntegerOrPointerDiff(node);
-    }
-
-    public void visit(MinusNode node) {
-        super.visit(node);
-        expectsSameIntegerOrPointerDiff(node);
-    }
-
-    public void visit(MulNode node) {
-        super.visit(node);
-        expectsSameInteger(node);
-    }
-
-    public void visit(DivNode node) {
-        super.visit(node);
-        expectsSameInteger(node);
-    }
-
-    public void visit(ModNode node) {
-        super.visit(node);
-        expectsSameInteger(node);
-    }
-
-    public void visit(BitwiseAndNode node) {
-        super.visit(node);
-        expectsSameInteger(node);
-    }
-
-    public void visit(BitwiseOrNode node) {
-        super.visit(node);
-        expectsSameInteger(node);
-    }
-
-    public void visit(BitwiseXorNode node) {
-        super.visit(node);
-        expectsSameInteger(node);
-    }
-
-    public void visit(LShiftNode node) {
-        super.visit(node);
-        expectsIntegers(node);
-    }
-
-    public void visit(RShiftNode node) {
-        super.visit(node);
-        expectsIntegers(node);
-    }
-
-    public void visit(EqNode node) {
-        super.visit(node);
-        expectsComparableScalars(node);
-    }
-
-    public void visit(NotEqNode node) {
-        super.visit(node);
-        expectsComparableScalars(node);
-    }
-
-    public void visit(LtNode node) {
-        super.visit(node);
-        expectsComparableScalars(node);
-    }
-
-    public void visit(LtEqNode node) {
-        super.visit(node);
-        expectsComparableScalars(node);
-    }
-
-    public void visit(GtNode node) {
-        super.visit(node);
-        expectsComparableScalars(node);
-    }
-
-    public void visit(GtEqNode node) {
-        super.visit(node);
-        expectsComparableScalars(node);
+        if (node.operator().equals("+")
+                || node.operator().equals("-")) {
+            expectsSameIntegerOrPointerDiff(node);
+        }
+        else if (node.operator().equals("*")
+                || node.operator().equals("/")
+                || node.operator().equals("%")
+                || node.operator().equals("&")
+                || node.operator().equals("|")
+                || node.operator().equals("^")) {
+            expectsSameInteger(node);
+        }
+        else if (node.operator().equals("<<")
+                || node.operator().equals(">>")) {
+            expectsIntegers(node);
+            expectsIntegers(node);
+        }
+        else if (node.operator().equals("==")
+                || node.operator().equals("!=")
+                || node.operator().equals("<")
+                || node.operator().equals("<=")
+                || node.operator().equals(">")
+                || node.operator().equals(">=")) {
+            expectsComparableScalars(node);
+        }
+        else {
+            throw new Error("unknown binary operator: " + node.operator());
+        }
     }
 
     public void visit(LogicalAndNode node) {
@@ -439,28 +352,20 @@ class TypeChecker extends Visitor {
         }
     }
 
-    //
-    // Unary Operator Nodes
-    //
-
-    public void visit(PrefixIncNode node) {
-        expectsScalarOperand(node);
+    // +, -, !, ~
+    public void visit(UnaryOpNode node) {
+        check(node.expr());
+        mustBeInteger(node.expr());
     }
 
-    public void visit(SuffixIncNode node) {
-        expectsScalarOperand(node);
+    // ++, --
+    public void visit(PrefixOpNode node) {
+        check(node.expr());
+        mustBeScalar(node.expr());
     }
 
-    public void visit(PrefixDecNode node) {
-        expectsScalarOperand(node);
-    }
-
-    public void visit(SuffixDecNode node) {
-        expectsScalarOperand(node);
-    }
-
-    /** We can increment/decrement an integer or a pointer. */
-    protected void expectsScalarOperand(UnaryOpNode node) {
+    // ++, --
+    public void visit(SuffixOpNode node) {
         check(node.expr());
         mustBeScalar(node.expr());
     }
@@ -543,7 +448,7 @@ class TypeChecker extends Visitor {
     }
 
     public void visit(DereferenceNode node) {
-        super.visit(node);
+        check(node.expr());
         if (! node.expr().isDereferable()) {
             undereferableError(node, node.expr().type());
             return;
@@ -551,7 +456,7 @@ class TypeChecker extends Visitor {
     }
 
     public void visit(AddressNode node) {
-        super.visit(node);
+        check(node.expr());
         Type t = typeTable.pointerTo(node.expr().type());
         node.setType(t);
         if (! node.expr().isAssignable()) {
