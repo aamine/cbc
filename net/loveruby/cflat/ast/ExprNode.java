@@ -17,11 +17,18 @@ abstract public class ExprNode extends Node {
         return type().isDereferable();
     }
 
+    public boolean isConstant() {
+        return false;
+    }
+
     public boolean isAssignable() {
         return false;
     }
 
-    // FIXME: move this method to LHSNode
+    public boolean isConstantAddress() {
+        throw new Error("ExprNode#isConstantAddress called");
+    }
+
     public AsmEntity address() {
         throw new Error("ExprNode#address called");
     }

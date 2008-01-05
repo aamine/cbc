@@ -2,7 +2,7 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
-public class ArefNode extends ExprNode implements LHSNode {
+public class ArefNode extends ExprNode {
     protected ExprNode expr, index;
 
     public ArefNode(ExprNode expr, ExprNode index) {

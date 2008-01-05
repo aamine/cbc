@@ -1,3 +1,32 @@
+Sat Jan  5 12:52:38 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/ExprNode.java: has all LHSNode methods.
+
+	* net/loveruby/cflat/ast/LHSNode.java: removed (methods merged
+	  into ExprNode).
+
+	* net/loveruby/cflat/ast/CastNode.java: should implement
+	  #isConstantAddress.
+
+	* net/loveruby/cflat/ast/DereferenceNode.java: does not implement
+	  LHSNode.
+
+	* net/loveruby/cflat/ast/ArefNode.java: ditto.
+
+	* net/loveruby/cflat/ast/PtrMemberNode.java: ditto.
+
+	* net/loveruby/cflat/ast/MemberNode.java: ditto.
+
+	* net/loveruby/cflat/ast/VariableNode.java: ditto.
+
+	* net/loveruby/cflat/ast/LiteralNode.java: ditto.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: cast not needed.
+
+	* test/cast3.cb: test cast on LHS.
+
+	* test/test.sh: run it.
+
 Sat Jan  5 12:23:25 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: show error location.

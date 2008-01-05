@@ -2,7 +2,7 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
-public class DereferenceNode extends UnaryOpNode implements LHSNode {
+public class DereferenceNode extends UnaryOpNode {
     public DereferenceNode(ExprNode n) {
         super(n);
     }
@@ -12,14 +12,7 @@ public class DereferenceNode extends UnaryOpNode implements LHSNode {
     }
 
     public boolean isAssignable() { return true; }
-
-    // LHS node requirement
     public boolean isConstantAddress() { return false; }
-
-    // LHS node requirement
-    public AsmEntity address() {
-        throw new Error("DereferenceNode#address");
-    }
 
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);

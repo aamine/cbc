@@ -3,7 +3,7 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.exception.*;
 
-public class PtrMemberNode extends ExprNode implements LHSNode {
+public class PtrMemberNode extends ExprNode {
     public ExprNode expr;
     public String name;
 
@@ -38,12 +38,10 @@ public class PtrMemberNode extends ExprNode implements LHSNode {
         return true;
     }
 
-    // LHS node requirement
     public boolean isConstantAddress() {
         return false;
     }
 
-    // LHS node requirement
     public AsmEntity address() {
         throw new Error("PtrMemberNode#address");
     }

@@ -3,7 +3,7 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.AsmEntity;
 import net.loveruby.cflat.exception.*;
 
-public class MemberNode extends ExprNode implements LHSNode {
+public class MemberNode extends ExprNode {
     protected ExprNode expr;
     protected String name;
 
@@ -41,14 +41,16 @@ public class MemberNode extends ExprNode implements LHSNode {
         return true;
     }
 
-    // LHS node requirement
-    public boolean isConstantAddress() {
-        return ((LHSNode)expr).isConstantAddress();
+    public boolean isConstant() {
+        return expr.isConstantAddress();
     }
 
-    // LHS node requirement
+    public boolean isConstantAddress() {
+        return expr.isConstantAddress();
+    }
+
     public AsmEntity address() {
-        return ((LHSNode)expr).address().add(offset());
+        return expr.address().add(offset());
     }
 
     public Location location() {

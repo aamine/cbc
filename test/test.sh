@@ -196,6 +196,7 @@ assert_out "1;2;1073741824;2147483648;0" ./ulongops  # 32bit
 
 assert_out "25000000" ./cast
 assert_out "777;666" ./cast2
+assert_out "666;777" ./cast3
 
 assert_out "2" ./block
 assert_out "1;2;3" ./defvar

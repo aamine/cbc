@@ -180,8 +180,8 @@
 - parse command line option
 - --dump-tokens
 - --dump-ast
+- print node location in error message
 * parse command line option more precisely
-* print node location in error message
 * --dump-semantic
 * generate IR
 * --dump-ir
@@ -197,4 +197,4 @@
 * semantic check (dflow)
 * register allocation
 * vararg retrieve
-* 64bit long_long support
+? 64bit long_long support

@@ -399,8 +399,7 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(AssignNode node) {
-        // FIXME
-        if (((LHSNode)node.lhs()).isConstantAddress()) {
+        if (node.lhs().isConstantAddress()) {
             compile(node.rhs());
             saveWords(node.type(), "ax", node.lhs().address());
         }

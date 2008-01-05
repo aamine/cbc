@@ -2,7 +2,7 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.Type;
 import net.loveruby.cflat.asm.*;
 
-public class VariableNode extends ExprNode implements LHSNode {
+public class VariableNode extends ExprNode {
     protected Location location;
     protected String name;
     protected Entity entity;
@@ -40,12 +40,10 @@ public class VariableNode extends ExprNode implements LHSNode {
         return true;
     }
 
-    // LHS node requirement
     public boolean isConstantAddress() {
         return true;
     }
 
-    // LHS node requirement
     public AsmEntity address() {
         return entity.address();
     }

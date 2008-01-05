@@ -1,5 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.asm.*;
 
 public class CastNode extends ExprNode {
     protected TypeNode typeNode;
@@ -26,8 +27,20 @@ public class CastNode extends ExprNode {
         return expr;
     }
 
+    public boolean isConstant() {
+        return expr.isConstant();
+    }
+
     public boolean isAssignable() {
         return expr.isAssignable();
+    }
+
+    public boolean isConstantAddress() {
+        return expr.isConstantAddress();
+    }
+
+    public AsmEntity address() {
+        return expr.address();
     }
 
     public Location location() {
