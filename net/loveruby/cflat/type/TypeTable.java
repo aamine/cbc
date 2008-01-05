@@ -5,37 +5,33 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class TypeTable {
-    static public TypeTable ilp32() { return newTable(1, 2, 4, 4, 8, 4); }
-    static public TypeTable ilp64() { return newTable(1, 2, 8, 8, 8, 8); }
-    static public TypeTable lp64()  { return newTable(1, 2, 4, 8, 8, 8); }
-    static public TypeTable llp64() { return newTable(1, 2, 4, 4, 8, 8); }
+    static public TypeTable ilp32() { return newTable(1, 2, 4, 4, 4); }
+    static public TypeTable ilp64() { return newTable(1, 2, 8, 8, 8); }
+    static public TypeTable lp64()  { return newTable(1, 2, 4, 8, 8); }
+    static public TypeTable llp64() { return newTable(1, 2, 4, 4, 8); }
 
     static protected final TypeRef voidTypeRef = new VoidTypeRef();
     static protected final TypeRef signedCharRef = new SignedCharRef();
     static protected final TypeRef signedShortRef = new SignedShortRef();
     static protected final TypeRef signedIntRef = new SignedIntRef();
     static protected final TypeRef signedLongRef = new SignedLongRef();
-    static protected final TypeRef signedLongLongRef = new SignedLongLongRef();
     static protected final TypeRef unsignedCharRef = new UnsignedCharRef();
     static protected final TypeRef unsignedShortRef = new UnsignedShortRef();
     static protected final TypeRef unsignedIntRef = new UnsignedIntRef();
     static protected final TypeRef unsignedLongRef = new UnsignedLongRef();
-    static protected final TypeRef unsignedLongLongRef = new UnsignedLongLongRef();
 
     static private TypeTable newTable(int charsize, int shortsize,
-            int intsize, int longsize, int longlongsize, int ptrsize) {
+            int intsize, int longsize, int ptrsize) {
         TypeTable table = new TypeTable(ptrsize);
         table.put(voidTypeRef, new VoidType());
         table.put(signedCharRef, new SignedCharType(charsize));
         table.put(signedShortRef, new SignedShortType(shortsize));
         table.put(signedIntRef, new SignedIntType(intsize));
         table.put(signedLongRef, new SignedLongType(longsize));
-        table.put(signedLongLongRef, new SignedLongType(longlongsize));
         table.put(unsignedCharRef, new UnsignedCharType(charsize));
         table.put(unsignedShortRef, new UnsignedShortType(shortsize));
         table.put(unsignedIntRef, new UnsignedIntType(intsize));
         table.put(unsignedLongRef, new UnsignedLongType(longsize));
-        table.put(unsignedLongLongRef, new UnsignedLongLongType(longlongsize));
         return table;
     }
 

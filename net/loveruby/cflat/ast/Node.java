@@ -1,9 +1,11 @@
 package net.loveruby.cflat.ast;
 import java.io.*;
 
-abstract public class Node implements Dumpable {
+abstract public class Node {
     public Node() {
     }
+
+    abstract public Location location();
 
     public void dump() {
         dump(System.out);
@@ -14,11 +16,11 @@ abstract public class Node implements Dumpable {
     }
 
     public void dump(Dumper d) {
-        d.printClass(this);
+        d.printClass(this, location());
         _dump(d);
     }
 
-    abstract void _dump(Dumper d);
+    abstract protected void _dump(Dumper d);
 
     abstract public void accept(ASTVisitor visitor);
 }

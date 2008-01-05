@@ -13,14 +13,14 @@ public class Dumper {
         this.nIndent = 0;
     }
 
-    public void printClass(Object obj) {
+    public void printClass(Object obj, Location loc) {
         printIndent();
-        stream.println(className(obj));
+        stream.println("<<" + className(obj) + ">> (" + loc + ")");
     }
 
     protected String className(Object obj) {
         String[] ids = obj.getClass().getName().split("\\.");
-        return "<<" + ids[ids.length - 1] + ">>";
+        return ids[ids.length - 1];
     }
 
     public void printNodeList(String name, List list) {
@@ -32,8 +32,8 @@ public class Dumper {
         stream.println(name + ":");
         indent();
         while (list.hasNext()) {
-            Dumpable i = (Dumpable)list.next();
-            i.dump(this);
+            Node n = (Node)list.next();
+            n.dump(this);
         }
         unindent();
     }

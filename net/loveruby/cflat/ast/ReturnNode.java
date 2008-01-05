@@ -1,11 +1,11 @@
 package net.loveruby.cflat.ast;
 
-public class ReturnNode extends Node {
-    ExprNode expr;
-    Function function;
+public class ReturnNode extends StmtNode {
+    protected ExprNode expr;
+    protected Function function;
 
-    public ReturnNode(ExprNode expr) {
-        super();
+    public ReturnNode(Location loc, ExprNode expr) {
+        super(loc);
         this.expr = expr;
     }
 

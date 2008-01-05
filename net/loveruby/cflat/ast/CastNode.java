@@ -30,6 +30,10 @@ public class CastNode extends ExprNode {
         return expr.isAssignable();
     }
 
+    public Location location() {
+        return typeNode.location();
+    }
+
     protected void _dump(Dumper d) {
         d.printMember("typeNode", typeNode);
         d.printMember("expr", expr);

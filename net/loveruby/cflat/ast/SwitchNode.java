@@ -2,14 +2,15 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.*;
 import java.util.*;
 
-public class SwitchNode extends Node implements BreakableStmt {
+public class SwitchNode extends StmtNode implements BreakableStmt {
     protected LabelPool pool;
     protected ExprNode cond;
     protected List cases;
     protected Label endLabel;
 
-    public SwitchNode(LabelPool pool, ExprNode cond, List cases) {
-        super();
+    public SwitchNode(Location loc, LabelPool pool,
+                      ExprNode cond, List cases) {
+        super(loc);
         this.pool = pool;
         this.cond = cond;
         this.cases = cases;

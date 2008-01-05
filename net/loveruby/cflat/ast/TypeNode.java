@@ -37,6 +37,10 @@ public class TypeNode extends Node {
         return type;
     }
 
+    public Location location() {
+        return typeRef.location();
+    }
+
     protected void _dump(Dumper d) {
         d.printMember("typeref", typeRef);
         d.printMember("type", type);

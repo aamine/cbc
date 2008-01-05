@@ -1,12 +1,12 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.Label;
 
-public class GotoNode extends Node {
+public class GotoNode extends StmtNode {
     protected String target;
     protected Label label;
 
-    public GotoNode(String target) {
-        super();
+    public GotoNode(Location loc, String target) {
+        super(loc);
         this.target = target;
     }
 

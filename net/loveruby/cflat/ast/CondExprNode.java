@@ -54,6 +54,10 @@ public class CondExprNode extends ExprNode {
         return endLabel;
     }
 
+    public Location location() {
+        return cond.location();
+    }
+
     protected void _dump(Dumper d) {
         d.printMember("cond", cond);
         d.printMember("thenExpr", thenExpr);

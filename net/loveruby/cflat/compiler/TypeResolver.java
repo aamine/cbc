@@ -3,7 +3,7 @@ import net.loveruby.cflat.ast.*;
 import net.loveruby.cflat.type.*;
 import java.util.*;
 
-public class TypeResolver extends Visitor implements DefinitionVisitor {
+public class TypeResolver extends Visitor {
     static public void resolve(AST ast, TypeTable typeTable,
             ErrorHandler errorHandler) {
         new TypeResolver(typeTable, errorHandler).resolveProgram(ast);

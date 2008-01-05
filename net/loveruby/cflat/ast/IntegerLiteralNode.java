@@ -1,21 +1,12 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
-public class IntegerLiteralNode extends ExprNode {
-    protected TypeNode typeNode;
+public class IntegerLiteralNode extends LiteralNode {
     protected long value;
 
-    public IntegerLiteralNode(TypeRef ref, long i) {
-        typeNode = new TypeNode(ref);
-        value = i;
-    }
-
-    public Type type() {
-        return typeNode.type();
-    }
-
-    public TypeNode typeNode() {
-        return typeNode;
+    public IntegerLiteralNode(Location loc, TypeRef ref, long value) {
+        super(loc, ref);
+        this.value = value;
     }
 
     public long value() {

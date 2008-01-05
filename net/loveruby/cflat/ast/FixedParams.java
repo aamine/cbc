@@ -3,10 +3,21 @@ import net.loveruby.cflat.type.*;
 import java.util.*;
 
 public class FixedParams extends Params {
+    protected Location location;
     protected List parameters;
 
     public FixedParams(List params) {
-        parameters = params;
+        this(null, params);
+    }
+
+    public FixedParams(Location loc, List params) {
+        super();
+        this.location = loc;
+        this.parameters = params;
+    }
+
+    public Location location() {
+        return location;
     }
 
     /**
@@ -51,7 +62,7 @@ public class FixedParams extends Params {
         while (it.hasNext()) {
             types.add(table.get((TypeRef)it.next()));
         }
-        return new FixedParams(types);
+        return new FixedParams(location, types);
     }
 
     public Params typeRefs() {
@@ -61,6 +72,6 @@ public class FixedParams extends Params {
             Parameter param = (Parameter)it.next();
             typerefs.add(param.typeNode().typeRef());
         }
-        return new FixedParams(typerefs);
+        return new FixedParams(location, typerefs);
     }
 }

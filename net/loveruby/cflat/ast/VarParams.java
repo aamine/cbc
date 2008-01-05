@@ -6,6 +6,7 @@ public class VarParams extends Params {
     protected FixedParams params;
 
     public VarParams(FixedParams params) {
+        super();
         this.params = params;
     }
 
@@ -41,5 +42,9 @@ public class VarParams extends Params {
 
     public Params typeRefs() {
         return new VarParams((FixedParams)params.typeRefs());
+    }
+
+    public Location location() {
+        return params.location();
     }
 }

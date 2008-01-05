@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
-public class Slot implements Dumpable {
+public class Slot extends Node {
     protected TypeNode typeNode;
     protected String name;
     protected long offset;
@@ -40,9 +40,16 @@ public class Slot implements Dumpable {
         this.offset = offset;
     }
 
-    public void dump(Dumper d) {
-        d.printClass(this);
+    public Location location() {
+        return typeNode.location();
+    }
+
+    protected void _dump(Dumper d) {
         d.printMember("name", name);
         d.printMember("typeNode", typeNode);
+    }
+
+    public void accept(ASTVisitor visitor) {
+        throw new Error("Slot#accept");
     }
 }

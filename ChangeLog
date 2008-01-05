@@ -1,3 +1,53 @@
+Sat Jan  5 10:34:24 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/Node.java: all nodes must contain
+	  Location.
+
+	* net/loveruby/cflat/ast/*Node.java: ditto.
+
+	* net/loveruby/cflat/ast/Location.java: new class.
+
+	* net/loveruby/cflat/ast/Dumper.java (printClass): show location.
+
+	* net/loveruby/cflat/type/*Ref.java: support Location.
+
+	* net/loveruby/cflat/parser/Parser.jj: pass location to nodes.
+
+	* net/loveruby/cflat/parser/Parser.jj: long long removed.
+
+	* net/loveruby/cflat/type/SignedLongLongRef.java: ditto.
+
+	* net/loveruby/cflat/type/UnsignedLongLongRef.java: ditto.
+
+	* net/loveruby/cflat/type/SignedLongLongType.java: ditto.
+
+	* net/loveruby/cflat/type/UnsignedLongLongType.java: ditto.
+
+	* net/loveruby/cflat/type/TypeTable.java: ditto.
+
+	* net/loveruby/cflat/ast/LiteralNode.java: introduce new
+	  superclass of all literal nodes.
+
+	* net/loveruby/cflat/ast/StmtNode.java: introduce new superclass
+	  of all statement nodes.
+
+	* net/loveruby/cflat/ast/Declaration.java: is subclass of Node.
+
+	* net/loveruby/cflat/ast/Dumpable.java: removed: Now declarations
+	  are subclass of Node.
+
+	* net/loveruby/cflat/ast/Dumper.java: follow new class hierarchy.
+
+	* net/loveruby/cflat/ast/DefinitionVisitor.java: removed: merge
+	  into ASTVisitor again.
+
+	* net/loveruby/cflat/compiler/Visitor.java: follow new class
+	  hierarchy.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: ditto.
+
 Sat Jan  5 08:00:26 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/test.sh: compile command by myself before run it.

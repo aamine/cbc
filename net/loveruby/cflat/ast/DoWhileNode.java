@@ -5,8 +5,9 @@ public class DoWhileNode extends LoopNode {
     protected ExprNode cond;
     protected Node body;
 
-    public DoWhileNode(LabelPool pool, Node body, ExprNode cond) {
-        super(pool);
+    public DoWhileNode(Location loc, LabelPool pool,
+                       Node body, ExprNode cond) {
+        super(loc, pool);
         this.body = body;
         this.cond = cond;
     }

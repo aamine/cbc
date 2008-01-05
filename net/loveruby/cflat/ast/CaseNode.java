@@ -31,6 +31,10 @@ public class CaseNode extends Node {
         return beginLabel;
     }
 
+    public Location location() {
+        return ((Node)values.get(0)).location();
+    }
+
     protected void _dump(Dumper d) {
         d.printNodeList("values", values);
         d.printMember("body", body);

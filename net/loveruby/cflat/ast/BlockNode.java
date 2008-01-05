@@ -1,11 +1,12 @@
 package net.loveruby.cflat.ast;
 import java.util.*;
 
-public class BlockNode extends Node {
+public class BlockNode extends StmtNode {
     protected List variables;
     protected List stmts;
 
-    public BlockNode(List vars, List ss) {
+    public BlockNode(Location loc, List vars, List ss) {
+        super(loc);
         variables = vars;
         stmts = ss;
     }

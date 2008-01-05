@@ -3,16 +3,12 @@ import net.loveruby.cflat.type.*;
 import java.util.*;
 
 public class UnionNode extends ComplexTypeDefinition {
-    public UnionNode(TypeRef ref, String name, List membs) {
-        super(ref, name, membs);
+    public UnionNode(Location loc, TypeRef ref, String name, List membs) {
+        super(loc, ref, name, membs);
     }
 
-    public String type() {
+    public String kind() {
         return "union";
-    }
-
-    public TypeRef typeRef() {
-        return (UnionTypeRef)super.typeRef();
     }
 
     public boolean isUnion() {
@@ -23,7 +19,7 @@ public class UnionNode extends ComplexTypeDefinition {
         table.defineUnion((UnionTypeRef)typeRef(), members());
     }
 
-    public void accept(DefinitionVisitor visitor) {
+    public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
 }

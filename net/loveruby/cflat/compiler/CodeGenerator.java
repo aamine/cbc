@@ -4,7 +4,7 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 import java.util.*;
 
-public class CodeGenerator implements ASTVisitor {
+public class CodeGenerator extends Visitor {
     static public String generate(AST ast, TypeTable typeTable,
             ErrorHandler errorHandler) {
         CodeGenerator gen = new CodeGenerator(new Assembler(), errorHandler);

@@ -1,7 +1,13 @@
 package net.loveruby.cflat.type;
+import net.loveruby.cflat.ast.Location;
 
 public class SignedLongRef extends TypeRef {
     public SignedLongRef() {
+        super(null);
+    }
+
+    public SignedLongRef(Location loc) {
+        super(loc);
     }
 
     public boolean isSignedLong() {

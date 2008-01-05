@@ -5,8 +5,9 @@ public class WhileNode extends LoopNode {
     protected ExprNode cond;
     protected Node body;
 
-    public WhileNode(LabelPool pool, ExprNode cond, Node body) {
-        super(pool);
+    public WhileNode(Location loc, LabelPool pool,
+                     ExprNode cond, Node body) {
+        super(loc, pool);
         this.cond = cond;
         this.body = body;
     }

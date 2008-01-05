@@ -5,9 +5,9 @@ public class ForNode extends LoopNode {
     protected ExprNode init, cond, incr;
     protected Node body;
 
-    public ForNode(LabelPool pool,
+    public ForNode(Location loc, LabelPool pool,
                    ExprNode init, ExprNode cond, ExprNode incr, Node body) {
-        super(pool);
+        super(loc, pool);
         this.init = init;
         this.cond = cond;
         this.incr = incr;

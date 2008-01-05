@@ -1,6 +1,6 @@
 package net.loveruby.cflat.ast;
 
-abstract public class Declaration implements Dumpable {
+abstract public class Declaration extends Node {
     protected String name;
 
     public Declaration(String n) {
@@ -10,13 +10,4 @@ abstract public class Declaration implements Dumpable {
     public String name() {
         return name;
     }
-
-    public void dump(Dumper d) {
-        d.printClass(this);
-        _dump(d);
-    }
-
-    abstract void _dump(Dumper d);
-
-    abstract public void accept(DefinitionVisitor visitor);
 }

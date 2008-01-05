@@ -6,6 +6,7 @@ public class IntegerType extends Type {
     protected String name;
 
     public IntegerType(long sz, boolean sign, String nm) {
+        super();
         size = sz;
         signed = sign;
         name = nm;

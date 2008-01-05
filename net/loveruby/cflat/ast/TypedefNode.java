@@ -2,27 +2,12 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
 public class TypedefNode extends TypeDefinition {
-    protected TypeNode typeNode;
-
-    public TypedefNode(TypeNode t, String name) {
-        super(name);
-        typeNode = t;
+    public TypedefNode(Location loc, TypeRef ref, String name) {
+        super(loc, ref, name);
     }
 
     public boolean isUserType() {
         return true;
-    }
-
-    public TypeRef typeRef() {
-        return typeNode.typeRef();
-    }
-
-    public TypeNode typeNode() {
-        return typeNode;
-    }
-
-    public Type type() {
-        return typeNode.type();
     }
 
     public void defineIn(TypeTable table) {
@@ -34,7 +19,7 @@ public class TypedefNode extends TypeDefinition {
         d.printMember("typeNode", typeNode);
     }
 
-    public void accept(DefinitionVisitor visitor) {
+    public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
 }

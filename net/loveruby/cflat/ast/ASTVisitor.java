@@ -62,4 +62,12 @@ public interface ASTVisitor {
     public void visit(PrefixIncNode node);
     public void visit(PrefixDecNode node);
     public void visit(CastNode node);
+
+    public void visit(DefinedVariable var);
+    public void visit(UndefinedVariable var);
+    public void visit(DefinedFunction func);
+    public void visit(UndefinedFunction func);
+    public void visit(StructNode struct);
+    public void visit(UnionNode union);
+    public void visit(TypedefNode typedef);
 }

@@ -3,12 +3,14 @@ import net.loveruby.cflat.type.Type;
 import net.loveruby.cflat.asm.*;
 
 public class VariableNode extends ExprNode implements LHSNode {
+    protected Location location;
     protected String name;
     protected Entity entity;
 
-    public VariableNode(String n) {
+    public VariableNode(Location loc, String name) {
         super();
-        name = n;
+        this.location = loc;
+        this.name = name;
     }
 
     public String name() {
@@ -46,6 +48,10 @@ public class VariableNode extends ExprNode implements LHSNode {
     // LHS node requirement
     public AsmEntity address() {
         return entity.address();
+    }
+
+    public Location location() {
+        return location;
     }
 
     protected void _dump(Dumper d) {

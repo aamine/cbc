@@ -1,13 +1,13 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.Label;
 
-public class LabelNode extends Node {
+public class LabelNode extends StmtNode {
     protected String name;
     protected Node stmt;
     protected Label label;
 
-    public LabelNode(String name, Node stmt) {
-        super();
+    public LabelNode(Location loc, String name, Node stmt) {
+        super(loc);
         this.name = name;
         this.stmt = stmt;
     }

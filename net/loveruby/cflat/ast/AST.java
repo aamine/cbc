@@ -82,6 +82,10 @@ public class AST extends Node {
         return constantTable;
     }
 
+    public Location location() {
+        return new Location(fileName, 0, 0);
+    }
+
     protected void _dump(Dumper d) {
         d.printNodeList("variables", variables());
         d.printNodeList("functions", functions());

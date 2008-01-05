@@ -1,7 +1,13 @@
 package net.loveruby.cflat.type;
+import net.loveruby.cflat.ast.Location;
 
 public class UnsignedIntRef extends TypeRef {
     public UnsignedIntRef() {
+        super(null);
+    }
+
+    public UnsignedIntRef(Location loc) {
+        super(loc);
     }
 
     public boolean isUnsignedInt() {

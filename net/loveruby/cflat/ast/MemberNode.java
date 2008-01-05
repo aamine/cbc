@@ -51,6 +51,10 @@ public class MemberNode extends ExprNode implements LHSNode {
         return ((LHSNode)expr).address().add(offset());
     }
 
+    public Location location() {
+        return expr.location();
+    }
+
     protected void _dump(Dumper d) {
         d.printMember("expr", expr);
         d.printMember("name", name);

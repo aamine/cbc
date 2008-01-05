@@ -1,9 +1,9 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.*;
 
-public class ContinueNode extends Node {
-    public ContinueNode() {
-        super();
+public class ContinueNode extends StmtNode {
+    public ContinueNode(Location loc) {
+        super(loc);
     }
 
     protected Label label;

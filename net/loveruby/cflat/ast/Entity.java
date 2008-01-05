@@ -50,4 +50,8 @@ abstract public class Entity extends Definition {
 
     abstract public void defineIn(ToplevelScope toplevel);
     abstract public AsmEntity address();
+
+    public Location location() {
+        return typeNode.location();
+    }
 }

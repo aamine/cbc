@@ -3,16 +3,12 @@ import net.loveruby.cflat.type.*;
 import java.util.*;
 
 public class StructNode extends ComplexTypeDefinition {
-    public StructNode(TypeRef ref, String name, List membs) {
-        super(ref, name, membs);
+    public StructNode(Location loc, TypeRef ref, String name, List membs) {
+        super(loc, ref, name, membs);
     }
 
-    public String type() {
+    public String kind() {
         return "struct";
-    }
-
-    public TypeRef typeRef() {
-        return super.typeRef();
     }
 
     public boolean isStruct() {
@@ -23,7 +19,7 @@ public class StructNode extends ComplexTypeDefinition {
         table.defineStruct((StructTypeRef)typeRef(), members());
     }
 
-    public void accept(DefinitionVisitor visitor) {
+    public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
 }

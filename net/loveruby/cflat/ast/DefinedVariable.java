@@ -49,7 +49,7 @@ public class DefinedVariable extends Variable {
         d.printMember("initializer", initializer);
     }
 
-    public void accept(DefinitionVisitor visitor) {
+    public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
 }

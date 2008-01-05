@@ -16,6 +16,10 @@ abstract public class UnaryOpNode extends ExprNode {
         return expr;
     }
 
+    public Location location() {
+        return expr.location();
+    }
+
     protected void _dump(Dumper d) {
         d.printMember("expr", expr);
     }

@@ -37,6 +37,10 @@ abstract public class BinaryOpNode extends ExprNode {
         this.right = right;
     }
 
+    public Location location() {
+        return left.location();
+    }
+
     protected void _dump(Dumper d) {
         d.printMember("left", left);
         d.printMember("right", right);

@@ -68,6 +68,10 @@ public class FuncallNode extends ExprNode {
         return arguments.listIterator(arguments.size());
     }
 
+    public Location location() {
+        return expr.location();
+    }
+
     protected void _dump(Dumper d) {
         d.printMember("expr", expr);
         d.printNodeList("arguments", arguments);

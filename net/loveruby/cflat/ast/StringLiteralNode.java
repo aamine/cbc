@@ -2,22 +2,13 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
-public class StringLiteralNode extends ExprNode {
-    protected TypeNode typeNode;
+public class StringLiteralNode extends LiteralNode {
     protected String value;
     protected ConstantEntry entry;
 
-    public StringLiteralNode(TypeRef ref, String s) {
-        typeNode = new TypeNode(ref);
-        value = s;
-    }
-
-    public TypeNode typeNode() {
-        return typeNode;
-    }
-
-    public Type type() {
-        return typeNode.type();
+    public StringLiteralNode(Location loc, TypeRef ref, String value) {
+        super(loc, ref);
+        this.value = value;
     }
 
     public String value() {

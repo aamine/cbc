@@ -7,6 +7,7 @@ public class FunctionTypeRef extends TypeRef {
     protected Params params;
 
     public FunctionTypeRef(TypeRef returnType, Params params) {
+        super(returnType.location());
         this.returnType = returnType;
         this.params = params;
     }

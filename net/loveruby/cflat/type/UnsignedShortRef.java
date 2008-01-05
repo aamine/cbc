@@ -1,7 +1,13 @@
 package net.loveruby.cflat.type;
+import net.loveruby.cflat.ast.Location;
 
 public class UnsignedShortRef extends TypeRef {
     public UnsignedShortRef() {
+        super(null);
+    }
+
+    public UnsignedShortRef(Location loc) {
+        super(loc);
     }
 
     public boolean isUnsignedShort() {

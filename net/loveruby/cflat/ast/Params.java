@@ -3,8 +3,8 @@ import net.loveruby.cflat.type.TypeTable;
 import java.util.*;
 
 abstract public class Params extends Node {
-    public void accept(ASTVisitor visitor) {
-        throw new Error("do not use Params#accept");
+    public Params() {
+        super();
     }
 
     abstract public Iterator parameters();
@@ -17,5 +17,9 @@ abstract public class Params extends Node {
 
     protected void _dump(Dumper d) {
         d.printNodeList("parameters", parameters());
+    }
+
+    public void accept(ASTVisitor visitor) {
+        throw new Error("do not use Params#accept");
     }
 }

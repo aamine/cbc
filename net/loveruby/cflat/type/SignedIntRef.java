@@ -1,7 +1,13 @@
 package net.loveruby.cflat.type;
+import net.loveruby.cflat.ast.Location;
 
 public class SignedIntRef extends TypeRef {
     public SignedIntRef() {
+        super(null);
+    }
+
+    public SignedIntRef(Location loc) {
+        super(loc);
     }
 
     public boolean isSignedInt() {

@@ -1,7 +1,13 @@
 package net.loveruby.cflat.type;
+import net.loveruby.cflat.ast.Location;
 
 public class UnsignedLongRef extends TypeRef {
     public UnsignedLongRef() {
+        super(null);
+    }
+
+    public UnsignedLongRef(Location loc) {
+        super(loc);
     }
 
     public boolean isUnsignedLong() {
