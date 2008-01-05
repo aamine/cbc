@@ -2,14 +2,14 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.*;
 import java.util.*;
 
-public class CaseNode extends Node {
+public class CaseNode extends StmtNode {
     protected LabelPool pool;
     protected Label beginLabel;
     protected List values;      // List<Node>
     protected BlockNode body;
 
     public CaseNode(LabelPool pool, List values, BlockNode body) {
-        super();
+        super(((Node)values.get(0)).location());
         this.pool = pool;
         this.values = values;
         this.body = body;
@@ -29,10 +29,6 @@ public class CaseNode extends Node {
             beginLabel = pool.newLabel();
         }
         return beginLabel;
-    }
-
-    public Location location() {
-        return ((Node)values.get(0)).location();
     }
 
     protected void _dump(Dumper d) {

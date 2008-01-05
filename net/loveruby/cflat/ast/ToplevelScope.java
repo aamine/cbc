@@ -17,19 +17,17 @@ public class ToplevelScope extends Scope {
         return true;
     }
 
-    /*public void defineType(TypeDefinition t) {
-        System.err.println("FIXME: defineType");
-    }*/
-
-    // Declare external symbols
+    /** Declares external symbols */
     public void declare(Entity entity) {
         addEntity(entity);
     }
 
+    /** Defines entity */
     public void define(Entity entity) {
         entity.defineIn(this);
     }
 
+    /** Defines (local) function */
     public void defineFunction(DefinedFunction f) {
         if (f.isPrivate()) {
             addPrivateEntity(f);
@@ -39,19 +37,19 @@ public class ToplevelScope extends Scope {
         }
     }
 
-    // Allocate public global variable or common symbol
+    /** Allocates public global variable or common symbol */
     public void allocateVariable(Variable var) {
         addEntity(var);
         var.toplevelDefinition();
     }
 
-    // Allocate private global variable or common symbol
+    /** Allocates private global variable or common symbol */
     public void allocatePrivateVariable(Variable var) {
         addPrivateEntity(var);
         var.toplevelDefinition();
     }
 
-    // Allocate static local variable
+    /** Allocates static local variable */
     public void allocateStaticLocalVariable(Variable var) {
         addPrivateEntity(var);
         Long seq = (Long)sequenceTable.get(var.name());
@@ -70,6 +68,7 @@ public class ToplevelScope extends Scope {
         privateEntities.add(ent);
     }
 
+    /** Searches and gets entity searching scopes upto ToplevelScope. */
     public Entity get(String name) throws SemanticException {
         Entity ent;
         ent = (Entity)privateEntitiesMap.get(name);
@@ -81,19 +80,11 @@ public class ToplevelScope extends Scope {
 
     public Iterator allVariables() {
         throw new Error("TopScope#allVariables called");
-    /*
-        List result = allEntities();
-        Iterator ents = privateEntitiesMap.values().iterator();
-        while (ents.hasNext()) {
-            Entity ent = (Entity)ents.next();
-            if (ent.isVariable()) {
-                result.add(ent);
-            }
-        }
-        return result.iterator();
-    */
     }
 
+    /** Returns the list of global variables.
+     *  A global variable is a variable which has
+     *  global scope and is initialized.  */
     public List globalVariables() {
         List result = new ArrayList();
         List src = new ArrayList();
@@ -112,6 +103,9 @@ public class ToplevelScope extends Scope {
         return result;
     }
 
+    /** Returns the list of common symbols.
+     *  A common symbol is a variable which has
+     *  global scope and is not initialized.  */
     public List commonSymbols() {
         List result = new ArrayList();
         List src = new ArrayList();
@@ -119,9 +113,12 @@ public class ToplevelScope extends Scope {
         src.addAll(privateEntities);
         Iterator ents = src.iterator();
         while (ents.hasNext()) {
-            Entity ent = (Entity)ents.next();
-            if (ent.isVariable() && !ent.isInitialized()) {
-                result.add(ent);
+            Object ent = ents.next();
+            if (ent instanceof DefinedVariable) {
+                DefinedVariable var = (DefinedVariable)ent;
+                if (!var.hasInitializer()) {
+                    result.add(var);
+                }
             }
         }
         return result;

@@ -1,3 +1,20 @@
+Sat Jan  5 13:20:32 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/Declaration.java: removed.
+
+	* net/loveruby/cflat/ast/Definition.java: removed.
+
+	* net/loveruby/cflat/ast/Entity.java: inherits Node now.
+
+	* net/loveruby/cflat/ast/TypeDefinition.java: inherits Node now.
+
+	* net/loveruby/cflat/ast/ToplevelScope.java: do not depend on
+	  Declaration.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: ditto.
+
+	* net/loveruby/cflat/ast/CaseNode.java: inherits StmtNode.
+
 Sat Jan  5 12:52:38 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/ExprNode.java: has all LHSNode methods.

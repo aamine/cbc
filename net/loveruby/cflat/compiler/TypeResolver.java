@@ -19,9 +19,9 @@ public class TypeResolver extends Visitor {
 
     public void resolveProgram(AST ast) {
         defineTypes(ast.types());
-        resolveDeclarations(ast.types());
-        resolveDeclarations(ast.declarations());
-        resolveDeclarations(ast.entities());
+        resolveNodeList(ast.types());
+        resolveNodeList(ast.declarations());
+        resolveNodeList(ast.entities());
     }
 
     private void defineTypes(Iterator deftypes) {
@@ -33,12 +33,6 @@ public class TypeResolver extends Visitor {
     private void bindType(TypeNode n) {
         if (n.isResolved()) return;
         n.setType(typeTable.get(n.typeRef()));
-    }
-
-    private void resolveDeclarations(Iterator decls) {
-        while (decls.hasNext()) {
-            ((Declaration)decls.next()).accept(this);
-        }
     }
 
     public void visit(StructNode struct) {

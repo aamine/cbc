@@ -1,22 +1,23 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
-abstract public class TypeDefinition extends Definition {
+abstract public class TypeDefinition extends Node {
+    protected String name;
     protected Location location;
     protected TypeNode typeNode;
 
     public TypeDefinition(Location loc, TypeRef ref, String name) {
-        super(name);
+        this.name = name;
         this.location = loc;
         this.typeNode = new TypeNode(ref);
     }
 
-    public Location location() {
-        return location;
+    public String name() {
+        return name;
     }
 
-    public boolean isType() {
-        return true;
+    public Location location() {
+        return location;
     }
 
     public TypeNode typeNode() {
