@@ -29,7 +29,7 @@ public class JumpResolver extends Visitor {
             currentFunction.checkJumpLinks(errorHandler);
         }
         if (errorHandler.errorOccured()) {
-            throw new SemanticException("semantic error");
+            throw new SemanticException("compile failed.");
         }
     }
 
@@ -90,7 +90,7 @@ public class JumpResolver extends Visitor {
             node.setTargetLabel(currentBreakTarget().endLabel());
         }
         catch (SemanticException ex) {
-            errorHandler.error(ex.getMessage());
+            errorHandler.error(node.location(), ex.getMessage());
         }
     }
 
@@ -99,17 +99,18 @@ public class JumpResolver extends Visitor {
             node.setTargetLabel(currentContinueTarget().continueLabel());
         }
         catch (SemanticException ex) {
-            errorHandler.error(ex.getMessage());
+            errorHandler.error(node.location(), ex.getMessage());
         }
     }
 
     public void visit(LabelNode node) {
         try {
-            Label label = currentFunction.defineLabel(node.name());
+            Label label = currentFunction.defineLabel(node.name(),
+                                                      node.location());
             node.setLabel(label);
         }
         catch (SemanticException ex) {
-            errorHandler.error(ex.getMessage());
+            errorHandler.error(node.location(), ex.getMessage());
         }
     }
 

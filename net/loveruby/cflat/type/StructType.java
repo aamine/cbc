@@ -1,10 +1,11 @@
 package net.loveruby.cflat.type;
 import net.loveruby.cflat.ast.Slot;
+import net.loveruby.cflat.ast.Location;
 import java.util.*;
 
 public class StructType extends ComplexType {
-    public StructType(String name, List membs) {
-        super(name, membs);
+    public StructType(String name, List membs, Location loc) {
+        super(name, membs, loc);
     }
 
     public boolean isStruct() { return true; }

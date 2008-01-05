@@ -121,16 +121,25 @@ public class TypeTable {
         t.defineIn(this);
     }
 
-    public void defineStruct(StructTypeRef ref, List membs) {
-        table.put(ref, new StructType(ref.name(), membs));
+    public void defineStruct(StructNode node) {
+        Type type = new StructType(node.name(),
+                                   node.members(),
+                                   node.location());
+        table.put(node.typeRef(), type);
     }
 
-    public void defineUnion(UnionTypeRef ref, List membs) {
-        table.put(ref, new UnionType(ref.name(), membs));
+    public void defineUnion(UnionNode node) {
+        Type type = new UnionType(node.name(),
+                                  node.members(),
+                                  node.location());
+        table.put(node.typeRef(), type);
     }
 
-    public void defineUserType(UserTypeRef ref, TypeNode real) {
-        table.put(ref, new UserType(ref.name(), real));
+    public void defineUserType(TypedefNode node) {
+        Type type = new UserType(node.name(),
+                                 node.realTypeNode(),
+                                 node.location());
+        table.put(node.typeRef(), type);
     }
 
     public PointerType pointerTo(Type baseType) {
@@ -150,6 +159,7 @@ public class TypeTable {
                 checkRecursiveDefinition((ComplexType)t, h);
             }
             else if (t instanceof ArrayType) {
+                // FIXME: check on the fly
                 checkVoidMembers((ArrayType)t, h);
             }
             else if (t instanceof UserType) {
@@ -169,7 +179,7 @@ public class TypeTable {
         while (membs.hasNext()) {
             Slot memb = (Slot)membs.next();
             if (memb.type().isVoid()) {
-                h.error("struct/union cannot contain void");
+                h.error(t.location(), "struct/union cannot contain void");
             }
         }
     }
@@ -180,7 +190,8 @@ public class TypeTable {
         while (membs.hasNext()) {
             Slot memb = (Slot)membs.next();
             if (seen.containsKey(memb.name())) {
-                h.error(t.toString() + " has duplicated member: "
+                h.error(t.location(),
+                        t.toString() + " has duplicated member: "
                         + memb.name());
             }
             seen.put(memb.name(), memb);
@@ -197,7 +208,8 @@ public class TypeTable {
     protected void _checkRecursiveDefinition(Type t, Map seen,
                                              ErrorHandler h) {
         if (seen.get(t) == checking) {
-            h.error("recursive type definition: " + t);
+            h.error(((NamedType)t).location(),
+                    "recursive type definition: " + t);
             return;
         }
         else if (seen.get(t) == checked) {

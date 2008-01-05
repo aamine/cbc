@@ -42,7 +42,7 @@ class TypeChecker extends Visitor {
 
     protected void checkReturnType(DefinedFunction f) {
         if (isInvalidReturnType(f.returnType())) {
-            errorHandler.error("returns invalid type: " + f.returnType());
+            error(f, "returns invalid type: " + f.returnType());
             return;
         }
     }
@@ -52,7 +52,7 @@ class TypeChecker extends Visitor {
         while (params.hasNext()) {
             Parameter param = (Parameter)params.next();
             if (isInvalidParameterType(param.type())) {
-                errorHandler.error("invalid parameter type: " + param.type());
+                error(param, "invalid parameter type: " + param.type());
             }
         }
     }
@@ -77,13 +77,13 @@ class TypeChecker extends Visitor {
 
     protected void checkVariable(DefinedVariable var) {
         if (isInvalidVariableType(var.type())) {
-            errorHandler.error("invalid variable type");
+            error(var, "invalid variable type");
             return;
         }
         if (var.hasInitializer()) {
             try {
                 if (isInvalidLHSType(var.type())) {
-                    errorHandler.error("invalid LHS type: " + var.type());
+                    error(var, "invalid LHS type: " + var.type());
                     return;
                 }
                 check(var.initializer());
@@ -118,7 +118,7 @@ class TypeChecker extends Visitor {
     protected void checkCondExpr(ExprNode cond) {
         Type t = cond.type();
         if (!t.isInteger() && !t.isPointer()) {
-            notIntegerError(t);
+            notIntegerError(cond, t);
             return;
         }
     }
@@ -132,12 +132,12 @@ class TypeChecker extends Visitor {
         super.visit(node);
         if (node.function().isVoid()) {
             if (node.expr() != null) {
-                errorHandler.error("returning value from void function");
+                error(node, "returning value from void function");
             }
         }
         else {  // non-void function
             if (node.expr() == null) {
-                errorHandler.error("missing return value");
+                error(node, "missing return value");
                 return;
             }
             insertImplicitCast(node);
@@ -154,7 +154,7 @@ class TypeChecker extends Visitor {
             node.setExpr(newCastNode(retType, node.expr()));
         }
         else {
-            errorHandler.error("returning incompatible value: " + exprType);
+            error(node, "returning incompatible value: " + exprType);
         }
     }
 
@@ -210,11 +210,11 @@ class TypeChecker extends Visitor {
         check(node.lhs());
         check(node.rhs());
         if (! node.lhs().isAssignable()) {
-            errorHandler.error("invalid lhs expression");
+            error(node, "invalid lhs expression");
             return;
         }
         if (isInvalidLHSType(node.lhs().type())) {
-            errorHandler.error("invalid lhs type");
+            error(node, "invalid lhs type");
             return;
         }
         node.setRHS(checkRHSType(node.rhs(), node.lhs().type()));
@@ -223,7 +223,7 @@ class TypeChecker extends Visitor {
     protected ExprNode checkRHSType(ExprNode rhs, Type l) {
         Type r = rhs.type();
         if (isInvalidRHSType(r)) {
-            errorHandler.error("invalid rhs type: " + r);
+            error(rhs, "invalid rhs type: " + r);
             return rhs;
         }
         if (l.isSameType(r)) {
@@ -231,12 +231,12 @@ class TypeChecker extends Visitor {
         }
         else if (r.isCastableTo(l)) {   // insert cast on RHS
             if (! r.isCompatible(l)) {
-                errorHandler.warn("implicit cast from " + r + " to " + l);
+                warn(rhs, "implicit cast from " + r + " to " + l);
             }
             return newCastNode(l, rhs);
         }
         else {
-            incompatibleTypeError(l, r);
+            incompatibleTypeError(rhs, l, r);
             return rhs;
         }
     }
@@ -281,7 +281,7 @@ class TypeChecker extends Visitor {
             node.setElseExpr(newCastNode(t, node.elseExpr()));
         }
         else {
-            incompatibleTypeError(e, t);
+            incompatibleTypeError(node.thenExpr(), e, t);
         }
     }
 
@@ -435,7 +435,7 @@ class TypeChecker extends Visitor {
             node.setLeft(newCastNode(r.type(), l));
         }
         else {
-            incompatibleTypeError(l.type(), r.type());
+            incompatibleTypeError(node, l.type(), r.type());
         }
     }
 
@@ -476,12 +476,12 @@ class TypeChecker extends Visitor {
     public void visit(FuncallNode node) {
         check(node.expr());
         if (! node.expr().isCallable()) {
-            errorHandler.error("calling object is not a function");
+            error(node, "calling object is not a function");
             return;
         }
         FunctionType type = node.functionType();
         if (! type.acceptsArgc(node.numArgs())) {
-            errorHandler.error("wrong number of argments: " + node.numArgs());
+            error(node, "wrong number of argments: " + node.numArgs());
             return;
         }
         // Check type of only mandatory parameters.
@@ -509,7 +509,7 @@ class TypeChecker extends Visitor {
     public void visit(ArefNode node) {
         check(node.expr());
         if (! node.expr().isDereferable()) {
-            errorHandler.error("is not indexable: " + node.expr().type());
+            error(node, "is not indexable: " + node.expr().type());
             return;
         }
         check(node.index());
@@ -518,27 +518,26 @@ class TypeChecker extends Visitor {
 
     public void visit(MemberNode node) {
         check(node.expr());
-        checkMemberRef(node.expr().type(), node.name());
+        checkMemberRef(node, node.expr().type(), node.name());
     }
 
     public void visit(PtrMemberNode node) {
         check(node.expr());
         if (! node.expr().isDereferable()) {
-            undereferableError(node.expr().type());
+            undereferableError(node, node.expr().type());
             return;
         }
-        checkMemberRef(node.dereferedType(), node.name());
+        checkMemberRef(node, node.dereferedType(), node.name());
     }
 
-    protected void checkMemberRef(Type t, String memb) {
+    protected void checkMemberRef(Node node, Type t, String memb) {
         if (! t.isComplexType()) {
-            errorHandler.error("is not struct/union: " + t);
+            error(node, "is not struct/union: " + t);
             return;
         }
         ComplexType type = t.getComplexType();
         if (! type.hasMember(memb)) {
-            errorHandler.error(type.toString()
-                               + " does not have member " + memb);
+            error(node, type.toString() + " does not have member " + memb);
             return;
         }
     }
@@ -546,7 +545,7 @@ class TypeChecker extends Visitor {
     public void visit(DereferenceNode node) {
         super.visit(node);
         if (! node.expr().isDereferable()) {
-            undereferableError(node.expr().type());
+            undereferableError(node, node.expr().type());
             return;
         }
     }
@@ -556,14 +555,14 @@ class TypeChecker extends Visitor {
         Type t = typeTable.pointerTo(node.expr().type());
         node.setType(t);
         if (! node.expr().isAssignable()) {
-            errorHandler.error("invalid LHS expression for &");
+            error(node, "invalid LHS expression for &");
         }
     }
 
     public void visit(CastNode node) {
         check(node.expr());
         if (! node.expr().type().isCastableTo(node.type())) {
-            incompatibleTypeError(node.expr().type(), node.type());
+            incompatibleTypeError(node, node.expr().type(), node.type());
         }
     }
 
@@ -577,24 +576,32 @@ class TypeChecker extends Visitor {
 
     protected void mustBeInteger(ExprNode node) {
         if (node.type().isInteger()) return;
-        notIntegerError(node.type());
+        notIntegerError(node, node.type());
     }
 
     protected void mustBeScalar(ExprNode node) {
         if (node.type().isInteger()) return;
         if (node.type().isPointer()) return;
-        notIntegerError(node.type());
+        notIntegerError(node, node.type());
     }
 
-    protected void incompatibleTypeError(Type l, Type r) {
-        errorHandler.error("incompatible type: " + l + " and " + r);
+    protected void incompatibleTypeError(Node n, Type l, Type r) {
+        error(n, "incompatible type: " + l + " and " + r);
     }
 
-    protected void notIntegerError(Type type) {
-        errorHandler.error("non-integer argument for unary op: " + type);
+    protected void notIntegerError(Node n, Type type) {
+        error(n, "non-integer argument for unary op: " + type);
     }
 
-    protected void undereferableError(Type type) {
-        errorHandler.error("dereferencing non-pointer expression: " + type);
+    protected void undereferableError(Node n, Type type) {
+        error(n, "dereferencing non-pointer expression: " + type);
+    }
+
+    protected void warn(Node n, String msg) {
+        errorHandler.warn(n.location(), msg);
+    }
+
+    protected void error(Node n, String msg) {
+        errorHandler.error(n.location(), msg);
     }
 }

@@ -59,6 +59,7 @@ public class DefinedFunction extends Function {
         public Label label;
         public long numRefered;
         public boolean isDefined;
+        public Location location;
 
         public JumpEntry(Label label) {
             this.label = label;
@@ -67,13 +68,15 @@ public class DefinedFunction extends Function {
         }
     }
 
-    public Label defineLabel(String name) throws SemanticException {
+    public Label defineLabel(String name, Location loc)
+                                    throws SemanticException {
         JumpEntry ent = getJumpEntry(name);
         if (ent.isDefined) {
             throw new SemanticException(
                 "duplicated jump labels in " + name + "(): " + name);
         }
         ent.isDefined = true;
+        ent.location = loc;
         return ent.label;
     }
 
@@ -99,11 +102,12 @@ public class DefinedFunction extends Function {
             String labelName = (String)ent.getKey();
             JumpEntry jump = (JumpEntry)ent.getValue();
             if (!jump.isDefined) {
-                handler.error("undefined label in function " +
-                              name + ": " + labelName);
+                handler.error(jump.location,
+                              name + ": undefined label: " + labelName);
             }
             if (jump.numRefered == 0) {
-                handler.warn("useless label: " + labelName);
+                handler.warn(jump.location,
+                             name + ": useless label: " + labelName);
             }
         }
     }

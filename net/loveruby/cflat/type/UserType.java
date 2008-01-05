@@ -1,25 +1,17 @@
 package net.loveruby.cflat.type;
 import net.loveruby.cflat.ast.TypeNode;
+import net.loveruby.cflat.ast.Location;
 
-public class UserType extends Type {
-    protected String name;
+public class UserType extends NamedType {
     protected TypeNode real;
 
-    public UserType(String name, TypeNode real) {
-        this.name = name;
+    public UserType(String name, TypeNode real, Location loc) {
+        super(name, loc);
         this.real = real;
-    }
-
-    public String name() {
-        return name;
     }
 
     public Type realType() {
         return real.type();
-    }
-
-    public TypeNode typeNode() {
-        return real;
     }
 
     public String toString() {

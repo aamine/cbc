@@ -16,7 +16,7 @@ public class StructNode extends ComplexTypeDefinition {
     }
 
     public void defineIn(TypeTable table) {
-        table.defineStruct((StructTypeRef)typeRef(), members());
+        table.defineStruct(this);
     }
 
     public void accept(ASTVisitor visitor) {

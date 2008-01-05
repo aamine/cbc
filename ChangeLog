@@ -1,3 +1,44 @@
+Sat Jan  5 12:23:25 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: show error location.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/ErrorHandler.java: ditto.
+
+	* net/loveruby/cflat/compiler/LocalReferenceResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/JumpResolver.java: ditto.
+
+	* net/loveruby/cflat/type/TypeTable.java: ditto.
+
+	* net/loveruby/cflat/ast/Scope.java: ditto.
+
+	* net/loveruby/cflat/type/NamedType.java: introduce new common
+	  superclass of ComplexType and UserType.
+
+	* net/loveruby/cflat/type/ComplexType.java: inherit NamedType.
+
+	* net/loveruby/cflat/type/UserType.java: inherit NamedType.
+
+	* net/loveruby/cflat/type/StructType.java: memoise defined
+	  location.
+
+	* net/loveruby/cflat/type/UnionType.java: ditto.
+
+	* net/loveruby/cflat/ast/DefinedFunction.java: ditto.
+
+	* net/loveruby/cflat/type/TypeTable.java: change define* methods
+	  interface to pass all definition informations.
+
+	* net/loveruby/cflat/ast/StructNode.java: follow it.
+
+	* net/loveruby/cflat/ast/UnionNode.java: follow it.
+
+	* net/loveruby/cflat/ast/TypedefNode.java: follow it.
+
 Sat Jan  5 10:34:24 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/Node.java: all nodes must contain

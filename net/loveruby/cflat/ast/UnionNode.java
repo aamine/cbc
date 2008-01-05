@@ -16,7 +16,7 @@ public class UnionNode extends ComplexTypeDefinition {
     }
 
     public void defineIn(TypeTable table) {
-        table.defineUnion((UnionTypeRef)typeRef(), members());
+        table.defineUnion(this);
     }
 
     public void accept(ASTVisitor visitor) {

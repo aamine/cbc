@@ -152,18 +152,18 @@ public class Scope {
         return result;
     }
 
-    public void checkReferences(ErrorHandler handler) {
+    public void checkReferences(ErrorHandler h) {
         Iterator ents = entities.iterator();
         while (ents.hasNext()) {
             Entity ent = (Entity)ents.next();
             if (ent.isDefined() && ent.isPrivate() && !ent.isRefered()) {
-                handler.warn("unused variable: " + ent.name());
+                h.warn(ent.location(), "unused variable: " + ent.name());
             }
         }
         Iterator cs = children.iterator();
         while (cs.hasNext()) {
             Scope s = (Scope)cs.next();
-            s.checkReferences(handler);
+            s.checkReferences(h);
         }
     }
 }

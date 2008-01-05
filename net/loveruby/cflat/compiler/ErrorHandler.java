@@ -1,4 +1,5 @@
 package net.loveruby.cflat.compiler;
+import net.loveruby.cflat.ast.Location;
 import java.io.*;
 
 public class ErrorHandler {
@@ -17,9 +18,17 @@ public class ErrorHandler {
         this.stream = new PrintStream(stream);
     }
 
+    public void error(Location loc, String msg) {
+        error(loc.toString() + ": " + msg);
+    }
+
     public void error(String msg) {
         stream.println(programId + ": error: " + msg);
         nError++;
+    }
+
+    public void warn(Location loc, String msg) {
+        warn(loc.toString() + ": " + msg);
     }
 
     public void warn(String msg) {

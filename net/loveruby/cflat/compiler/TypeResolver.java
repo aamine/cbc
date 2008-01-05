@@ -22,7 +22,6 @@ public class TypeResolver extends Visitor {
         resolveDeclarations(ast.types());
         resolveDeclarations(ast.declarations());
         resolveDeclarations(ast.entities());
-        typeTable.semanticCheck(errorHandler);
     }
 
     private void defineTypes(Iterator deftypes) {
@@ -64,6 +63,7 @@ public class TypeResolver extends Visitor {
 
     public void visit(TypedefNode typedef) {
         bindType(typedef.typeNode());
+        bindType(typedef.realTypeNode());
     }
 
     public void visit(VariableNode n) {

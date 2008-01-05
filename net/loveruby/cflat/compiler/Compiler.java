@@ -111,15 +111,21 @@ public class Compiler {
     }
 
     public void compileFile(String path) throws CompileException {
-        TypeTable typeTable = TypeTable.ilp32();
         AST ast = parseFile(path);
-        JumpResolver.resolve(ast, errorHandler);
-        LocalReferenceResolver.resolve(ast, errorHandler);
-        TypeResolver.resolve(ast, typeTable, errorHandler);
-        TypeChecker.check(ast, typeTable, errorHandler);
+        TypeTable typeTable = TypeTable.ilp32();
+        semanticAnalysis(ast, typeTable);
         String asm = CodeGenerator.generate(ast, typeTable, errorHandler);
         writeFile(asmFileName(path), asm);
         assemble(asmFileName(path));
+    }
+
+    public void semanticAnalysis(AST ast, TypeTable typeTable)
+                                            throws SemanticException {
+        JumpResolver.resolve(ast, errorHandler);
+        LocalReferenceResolver.resolve(ast, errorHandler);
+        TypeResolver.resolve(ast, typeTable, errorHandler);
+        typeTable.semanticCheck(errorHandler);
+        TypeChecker.check(ast, typeTable, errorHandler);
     }
 
     public AST parseFile(String path) throws CompileException {

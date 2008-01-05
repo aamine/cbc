@@ -9,13 +9,13 @@ public class LocalReferenceResolver extends Visitor {
         new LocalReferenceResolver(handler).resolveAST(ast);
     }
 
-    protected ErrorHandler handler;
+    protected ErrorHandler errorHandler;
     protected ToplevelScope toplevel;
     protected LinkedList scopeStack;
     protected ConstantTable constantTable;
 
-    public LocalReferenceResolver(ErrorHandler handler) {
-        this.handler = handler;
+    public LocalReferenceResolver(ErrorHandler h) {
+        this.errorHandler = h;
     }
 
     public void resolveAST(AST ast) throws SemanticException {
@@ -28,9 +28,9 @@ public class LocalReferenceResolver extends Visitor {
         defineToplevelEntities(ast.entities());
         resolveGvarInitializers(ast.variables());
         resolveFunctions(ast.functions());
-        toplevel.checkReferences(handler);
-        if (handler.errorOccured()) {
-            throw new SemanticException("compile error");
+        toplevel.checkReferences(errorHandler);
+        if (errorHandler.errorOccured()) {
+            throw new SemanticException("compile failed.");
         }
     }
 
@@ -69,7 +69,7 @@ public class LocalReferenceResolver extends Visitor {
         while (params.hasNext()) {
             Parameter param = (Parameter)params.next();
             if (frame.isDefinedLocally(param.name())) {
-                handler.error("duplicated parameter: " + param.name());
+                error(param, "duplicated parameter: " + param.name());
             }
             else {
                 frame.allocateVariable(param);
@@ -121,7 +121,11 @@ public class LocalReferenceResolver extends Visitor {
             node.setEntity(ent);
         }
         catch (SemanticException ex) {
-            handler.error(ex.getMessage());
+            error(node, ex.getMessage());
         }
+    }
+
+    protected void error(Node node, String message) {
+        errorHandler.error(node.location(), message);
     }
 }
