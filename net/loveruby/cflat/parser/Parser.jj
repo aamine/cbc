@@ -1088,6 +1088,7 @@ List args():
         }
 }
 
+// #@@range/primary{
 ExprNode primary():
 {
     Token t;
@@ -1119,3 +1120,4 @@ ExprNode primary():
             return n;
         }
 }
+// #@@}
