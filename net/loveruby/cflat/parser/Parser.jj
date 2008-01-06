@@ -192,7 +192,7 @@ public class Parser {
         }
     }
 
-    protected Location loc(Token t) {
+    protected Location location(Token t) {
         return new Location(sourceName, t.beginLine, t.beginColumn);
     }
 }
@@ -448,7 +448,7 @@ Params params():
       LOOKAHEAD(<VOID> ")")
       t=<VOID>
         {
-            return new FixedParams(loc(t), new ArrayList());
+            return new FixedParams(location(t), new ArrayList());
         }
     | params=fixedparams()
             ["," "..." { return new VarParams(params); }]
@@ -489,7 +489,7 @@ BlockNode block():
 {
     t="{" (vars=defvars() { list.addAll(vars); })* stmts=stmts() "}"
         {
-            return new BlockNode(loc(t), list, stmts);
+            return new BlockNode(location(t), list, stmts);
         }
 }
 
@@ -502,7 +502,7 @@ StructNode defstruct():
 {
     t=<STRUCT> n=name() membs=member_list() ";"
         {
-            return new StructNode(loc(t), new StructTypeRef(n), n, membs);
+            return new StructNode(location(t), new StructTypeRef(n), n, membs);
         }
 }
 
@@ -515,7 +515,7 @@ UnionNode defunion():
 {
     t=<UNION> n=name() membs=member_list() ";"
         {
-            return new UnionNode(loc(t), new UnionTypeRef(n), n, membs);
+            return new UnionNode(location(t), new UnionTypeRef(n), n, membs);
         }
 }
 
@@ -638,25 +638,25 @@ TypeRef typeref_base():
     Token t, name;
 }
 {
-      t=<VOID>          { return new VoidTypeRef(loc(t)); }
-    | t=<CHAR>          { return IntegerTypeRef.charRef(loc(t)); }
-    | t=<SHORT>         { return IntegerTypeRef.shortRef(loc(t)); }
-    | t=<INT>           { return IntegerTypeRef.intRef(loc(t)); }
-    | t=<LONG>          { return IntegerTypeRef.longRef(loc(t)); }
+      t=<VOID>          { return new VoidTypeRef(location(t)); }
+    | t=<CHAR>          { return IntegerTypeRef.charRef(location(t)); }
+    | t=<SHORT>         { return IntegerTypeRef.shortRef(location(t)); }
+    | t=<INT>           { return IntegerTypeRef.intRef(location(t)); }
+    | t=<LONG>          { return IntegerTypeRef.longRef(location(t)); }
     | LOOKAHEAD(2) t=<UNSIGNED> <CHAR>
-        { return IntegerTypeRef.ucharRef(loc(t)); }
+        { return IntegerTypeRef.ucharRef(location(t)); }
     | LOOKAHEAD(2) t=<UNSIGNED> <SHORT>
-        { return IntegerTypeRef.ushortRef(loc(t)); }
+        { return IntegerTypeRef.ushortRef(location(t)); }
     | LOOKAHEAD(2) t=<UNSIGNED> <INT>
-        { return IntegerTypeRef.uintRef(loc(t)); }
+        { return IntegerTypeRef.uintRef(location(t)); }
     | LOOKAHEAD(2) t=<UNSIGNED> <LONG>
-        { return IntegerTypeRef.ulongRef(loc(t)); }
+        { return IntegerTypeRef.ulongRef(location(t)); }
     | t=<STRUCT> name=<IDENTIFIER>
-        { return new StructTypeRef(loc(t), name.image); }
+        { return new StructTypeRef(location(t), name.image); }
     | t=<UNION> name=<IDENTIFIER>
-        { return new UnionTypeRef(loc(t), name.image); }
+        { return new UnionTypeRef(location(t), name.image); }
     | LOOKAHEAD({isType(getToken(1).image)}) name=<IDENTIFIER>
-        { return new UserTypeRef(loc(name), name.image); }
+        { return new UserTypeRef(location(name), name.image); }
 }
 
 TypedefNode typedef():
@@ -669,7 +669,7 @@ TypedefNode typedef():
     t=<TYPEDEF> ref=typeref() newname=<IDENTIFIER> ";"
         {
             addType(newname.image);
-            return new TypedefNode(loc(t), ref, newname.image);
+            return new TypedefNode(location(t), ref, newname.image);
         }
 }
 
@@ -715,7 +715,7 @@ LabelNode labeled_stmt():
 {
     t=<IDENTIFIER> ":" n=stmt()
         {
-            return new LabelNode(loc(t), t.image, n);
+            return new LabelNode(location(t), t.image, n);
         }
 }
 
@@ -729,7 +729,7 @@ IfNode if_stmt():
     t=<IF> "(" cond=expr() ")" thenBody=stmt()
             [LOOKAHEAD(1) <ELSE> elseBody=stmt()]
         {
-            return new IfNode(loc(t), labelPool, cond, thenBody, elseBody);
+            return new IfNode(location(t), labelPool, cond, thenBody, elseBody);
         }
 }
 
@@ -742,7 +742,7 @@ WhileNode while_stmt():
 {
     t=<WHILE> "(" cond=expr() ")" body=stmt()
         {
-            return new WhileNode(loc(t), labelPool, cond, body);
+            return new WhileNode(location(t), labelPool, cond, body);
         }
 }
 
@@ -755,7 +755,7 @@ DoWhileNode dowhile_stmt():
 {
     t=<DO> body=stmt() <WHILE> "(" cond=expr() ")" ";"
         {
-            return new DoWhileNode(loc(t), labelPool, body, cond);
+            return new DoWhileNode(location(t), labelPool, body, cond);
         }
 }
 
@@ -770,7 +770,7 @@ ForNode for_stmt():
               [cond=expr()] ";"
               [incr=expr()] ")" body=stmt()
         {
-            return new ForNode(loc(t), labelPool, init, cond, incr, body);
+            return new ForNode(location(t), labelPool, init, cond, incr, body);
         }
 }
 
@@ -783,7 +783,7 @@ SwitchNode switch_stmt():
 {
     t=<SWITCH> "(" cond=expr() ")" "{" bodies=case_clauses() "}"
         {
-            return new SwitchNode(loc(t), labelPool, cond, bodies);
+            return new SwitchNode(location(t), labelPool, cond, bodies);
         }
 }
 
@@ -856,20 +856,20 @@ GotoNode goto_stmt():
 {
     t=<GOTO> name=<IDENTIFIER> ";"
         {
-            return new GotoNode(loc(t), name.image);
+            return new GotoNode(location(t), name.image);
         }
 }
 
 BreakNode break_stmt():
 { Token t; }
 {
-    t=<BREAK> ";" { return new BreakNode(loc(t)); }
+    t=<BREAK> ";" { return new BreakNode(location(t)); }
 }
 
 ContinueNode continue_stmt():
 { Token t; }
 {
-    t=<CONTINUE> ";" { return new ContinueNode(loc(t)); }
+    t=<CONTINUE> ";" { return new ContinueNode(location(t)); }
 }
 
 ReturnNode return_stmt():
@@ -878,8 +878,8 @@ ReturnNode return_stmt():
     ExprNode expr;
 }
 {
-      LOOKAHEAD(2) t=<RETURN> ";" { return new ReturnNode(loc(t), null); }
-    | t=<RETURN> expr=expr() ";"  { return new ReturnNode(loc(t), expr); }
+      LOOKAHEAD(2) t=<RETURN> ";" { return new ReturnNode(location(t), null); }
+    | t=<RETURN> expr=expr() ";"  { return new ReturnNode(location(t), expr); }
 }
 
 ExprNode expr():
@@ -1097,23 +1097,23 @@ ExprNode primary():
 {
       t=<INTEGER>
         {
-            return integerNodeValue(loc(t), t.image);
+            return integerNodeValue(location(t), t.image);
         }
     | t=<CHARACTER>
         {
-            return new CharacterLiteralNode(loc(t),
+            return new CharacterLiteralNode(location(t),
                                             IntegerTypeRef.charRef(),
                                             characterCode(t.image));
         }
     | t=<STRING>
         {
-            return new StringLiteralNode(loc(t),
+            return new StringLiteralNode(location(t),
                 new PointerTypeRef(IntegerTypeRef.charRef()),
                 stringValue(t.image));
         }
     | t=<IDENTIFIER>
         {
-            return new VariableNode(loc(t), t.image);
+            return new VariableNode(location(t), t.image);
         }
     | "(" n=expr() ")"
         {
