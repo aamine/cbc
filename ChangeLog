@@ -1,3 +1,17 @@
+Mon Jan  7 02:22:34 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java (invoke): pass through
+	  stdout/stderr of child process.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: #register
+	  removed.  Use DSL method al(), cl(), eax() instead.
+
+	* net/loveruby/cflat/asm/Register.java: return "%al" for size 1 ax
+	  register.
+
+	* test/shunit.sh: allow to get stderr of testing command by
+	  setting environment variable SHUNIT_VERBOSE.
+
 Sun Jan  6 02:27:29 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/UnaryOpNode.java (_dump): show operator.

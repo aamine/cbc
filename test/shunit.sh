@@ -41,10 +41,19 @@ test_failed() {
     n_failed=`expr $n_failed "+" 1`
 }
 
+execute_command() {
+    if [ "$SHUNIT_VERBOSE" = true ]
+    then
+        "$@"
+    else
+        "$@" >/dev/null 2>&1
+    fi
+}
+
 assert_status() {
     begin_test
     expected=$1; shift
-    "$@" >/dev/null 2>&1
+    execute_command "$@"
     really=$?
     assert_not_coredump || return
     if [ "$really" != "$expected" ]
@@ -58,7 +67,7 @@ assert_status() {
 
 assert_error() {
     begin_test
-    "$@" >/dev/null 2>&1
+    execute_command "$@"
     really=$?
     assert_not_coredump || return
     if [ "$really" = "0" ]

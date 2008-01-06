@@ -142,6 +142,8 @@ public class Compiler {
         try {
             Process proc = Runtime.getRuntime().exec(cmd);
             proc.waitFor();
+            passThrough(proc.getInputStream());
+            passThrough(proc.getErrorStream());
             if (proc.exitValue() != 0) {
                 errorHandler.error("gcc failed (assemble); status " +
                               proc.exitValue());
@@ -155,6 +157,14 @@ public class Compiler {
         catch (IOException ex) {
             errorHandler.error(ex.getMessage());
             throw new IPCException("compile error");
+        }
+    }
+
+    protected void passThrough(InputStream s) throws IOException {
+        BufferedReader r = new BufferedReader(new InputStreamReader(s));
+        String line;
+        while ((line = r.readLine()) != null) {
+            System.err.println(line);
         }
     }
 

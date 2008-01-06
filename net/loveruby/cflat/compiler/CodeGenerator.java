@@ -276,14 +276,6 @@ static public void p(String s) { System.err.println(s); }
         return (n + alignment - 1) / alignment * alignment;
     }
 
-    protected Register bp() {
-        return reg("bp");
-    }
-
-    protected Register sp() {
-        return reg("sp");
-    }
-
     /** cdecl call
      *
      *    * all arguments are on stack
@@ -521,24 +513,24 @@ static public void p(String s) { System.err.println(s); }
             as.xor(t, reg("cx", t), reg("ax", t));
         }
         else if (op.equals(">>")) {
-            as.sar(t, register("cl"), reg("ax", t));
+            as.sar(t, cl(), reg("ax", t));
         }
         else if (op.equals("<<")) {
-            as.sal(t, register("cl"), reg("ax", t));
+            as.sal(t, cl(), reg("ax", t));
         }
         else {
             // Comparison operators
             as.cmp(t, reg("cx", t), reg("ax", t));
-            if      (op.equals("=="))   as.sete (register("al"));
-            else if (op.equals("!="))   as.setne(register("al"));
-            else if (op.equals(">"))    as.setg (register("al"));
-            else if (op.equals(">="))   as.setge(register("al"));
-            else if (op.equals("<"))    as.setl (register("al"));
-            else if (op.equals("<="))   as.setle(register("al"));
+            if      (op.equals("=="))   as.sete (al());
+            else if (op.equals("!="))   as.setne(al());
+            else if (op.equals(">"))    as.setg (al());
+            else if (op.equals(">="))   as.setge(al());
+            else if (op.equals("<"))    as.setl (al());
+            else if (op.equals("<="))   as.setle(al());
             else {
                 throw new Error("unknown binary operator: " + op);
             }
-            as.movzb(t, register("al"), reg("ax", t));
+            as.movzb(t, al(), reg("ax", t));
         }
     }
 
@@ -555,8 +547,8 @@ static public void p(String s) { System.err.println(s); }
         }
         else if (node.operator().equals("!")) {
             testCond(node.expr().type(), "ax");
-            as.sete(register("al"));
-            as.movzbl(register("al"), register("eax"));
+            as.sete(al());
+            as.movzbl(al(), reg("ax"));
         }
     }
 
@@ -764,16 +756,17 @@ as.comment("compileLHS: }");
      *  x86 assembly DSL
      */
 
+    protected Register bp() { return reg("bp"); }
+    protected Register sp() { return reg("sp"); }
+    protected Register al() { return new Register(1, "ax"); }
+    protected Register cl() { return new Register(1, "cx"); }
+
     protected Register reg(String name, Type type) {
         return Register.forType(type, name);
     }
 
     protected Register reg(String name) {
         return Register.widestRegister(name);
-    }
-
-    protected Register register(String name) {
-        return new Register(name);
     }
 
     protected SimpleAddress addr(String regname) {
@@ -796,26 +789,22 @@ as.comment("compileLHS: }");
         switch ((int)type.size()) {
         case 1:
             if (type.isSigned()) {  // signed char
-                as.movsbl(addr, intReg(reg));
+                as.movsbl(addr, reg(reg));
             } else {                // unsigned char
-                as.movzbl(addr, intReg(reg));
+                as.movzbl(addr, reg(reg));
             }
             break;
         case 2:
             if (type.isSigned()) {  // signed short
-                as.movswl(addr, intReg(reg));
+                as.movswl(addr, reg(reg));
             } else {                // unsigned short
-                as.movzwl(addr, intReg(reg));
+                as.movzwl(addr, reg(reg));
             }
             break;
         default:                    // int, long, long_long
             as.mov(type, addr, reg(reg, type));
             break;
         }
-    }
-
-    protected Register intReg(String reg) {
-        return new Register("e" + reg);
     }
 
     protected void saveWords(Type type, String reg, AsmEntity addr) {
