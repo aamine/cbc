@@ -5,3 +5,5 @@ struct file {
 };
 
 struct file f;
+
+int main(int argc, char **argv) { return 0; }

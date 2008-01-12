@@ -1,3 +1,14 @@
+Sun Jan 13 06:52:52 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: throw
+	  SemanticError on invalid expr and catch it on each statement.
+
+	* test/test3.cb: make compilable.
+
+	* test/aref-semcheck2.cb: test nested invalid expr.
+
+	* test/test.sh: run aref-semcheck2.cb.
+
 Sun Jan 13 05:20:59 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/type/ArrayType.java (size): returns pointer

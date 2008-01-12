@@ -40,9 +40,32 @@ class DereferenceChecker extends Visitor {
     // Statements
     //
 
+    public void visit(BlockNode node) {
+        Iterator vars = node.variables();
+        while (vars.hasNext()) {
+            DefinedVariable var = (DefinedVariable)vars.next();
+            checkVariable(var);
+        }
+        Iterator stmts = node.stmts();
+        while (stmts.hasNext()) {
+            try {
+                Node n = (Node)stmts.next();
+                check(n);
+            }
+            catch (SemanticError err) {
+                ;
+            }
+        }
+    }
+
     protected void checkVariable(DefinedVariable var) {
         if (var.hasInitializer()) {
-            check(var.initializer());
+            try {
+                check(var.initializer());
+            }
+            catch (SemanticError err) {
+                ;
+            }
         }
     }
 
@@ -63,8 +86,7 @@ class DereferenceChecker extends Visitor {
 
     protected void checkAssignment(AbstractAssignNode node) {
         if (! node.lhs().isAssignable()) {
-            error(node, "invalid lhs expression");
-            return;
+            semanticError(node, "invalid lhs expression");
         }
     }
 
@@ -75,16 +97,14 @@ class DereferenceChecker extends Visitor {
     public void visit(FuncallNode node) {
         super.visit(node);
         if (! node.expr().isCallable()) {
-            error(node, "calling object is not a function");
-            return;
+            semanticError(node, "calling object is not a function");
         }
     }
 
     public void visit(ArefNode node) {
         super.visit(node);
         if (! node.expr().isDereferable()) {
-            error(node, "is not indexable: " + node.expr().type());
-            return;
+            semanticError(node, "indexing non-array/pointer expression");
         }
         check(node.index());
     }
@@ -97,36 +117,34 @@ class DereferenceChecker extends Visitor {
     public void visit(PtrMemberNode node) {
         super.visit(node);
         if (! node.expr().isDereferable()) {
-            undereferableError(node, node.expr().type());
-            return;
+            undereferableError(node);
         }
         checkMemberRef(node, node.dereferedType(), node.member());
     }
 
     protected void checkMemberRef(Node node, Type t, String memb) {
         if (! t.isComplexType()) {
-            error(node, "is not struct/union: " + t);
-            return;
+            semanticError(node, "accessing member `" + memb
+                                + "' for non-struct/union: " + t);
         }
         ComplexType type = t.getComplexType();
         if (! type.hasMember(memb)) {
-            error(node, type.toString() + " does not have member " + memb);
-            return;
+            semanticError(node, type.toString()
+                                + " does not have member: " + memb);
         }
     }
 
     public void visit(DereferenceNode node) {
         super.visit(node);
         if (! node.expr().isDereferable()) {
-            undereferableError(node, node.expr().type());
-            return;
+            undereferableError(node);
         }
     }
 
     public void visit(AddressNode node) {
         super.visit(node);
         if (! node.expr().isAssignable()) {
-            error(node, "invalid LHS expression for &");
+            semanticError(node, "invalid LHS expression for &");
         }
     }
 
@@ -134,15 +152,12 @@ class DereferenceChecker extends Visitor {
     // Utilities
     //
 
-    protected void undereferableError(Node n, Type type) {
-        error(n, "dereferencing non-pointer expression: " + type);
+    protected void undereferableError(Node n) {
+        semanticError(n, "dereferencing non-pointer expression");
     }
 
-    protected void warn(Node n, String msg) {
-        errorHandler.warn(n.location(), msg);
-    }
-
-    protected void error(Node n, String msg) {
+    protected void semanticError(Node n, String msg) {
         errorHandler.error(n.location(), msg);
+        throw new SemanticError("invalid expr");
     }
 }
