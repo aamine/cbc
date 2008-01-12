@@ -1,5 +1,5 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.TypeTable;
+import net.loveruby.cflat.type.*;
 import java.util.*;
 
 abstract public class Params extends Node {
@@ -14,6 +14,8 @@ abstract public class Params extends Node {
     abstract public boolean equals(Object other);
     abstract public Params internTypes(TypeTable table);
     abstract public Params typeRefs();
+    abstract public Iterator types();
+    abstract public boolean isSameType(Params other);
 
     protected void _dump(Dumper d) {
         d.printNodeList("parameters", parameters());

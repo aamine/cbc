@@ -74,4 +74,24 @@ public class FixedParams extends Params {
         }
         return new FixedParams(location, typerefs);
     }
+
+    /** parameters is a list of Type when
+     *  this object is hold in FunctionType. */
+    public Iterator types() {
+        return parameters.iterator();
+    }
+
+    public boolean isSameType(Params other) {
+        if (other.isVararg()) return false;
+        if (other.argc() != argc()) return false;
+        Iterator types = types();
+        Iterator otherTypes = other.types();
+        while (types.hasNext()) {
+            Type t = (Type)types.next();
+            Type tt = (Type)otherTypes.next();
+            if (t.isSameType(t))
+                return false;
+        }
+        return true;
+    }
 }

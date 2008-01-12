@@ -15,7 +15,20 @@ public class FunctionType extends Type {
 
     public boolean isSameType(Type other) {
         if (! other.isFunction()) return false;
-        return equals(other.getFunctionType());
+        FunctionType t = other.getFunctionType();
+        return t.returnType.isSameType(returnType)
+            && t.paramTypes.isSameType(paramTypes);
+    }
+
+    public boolean isCompatible(Type target) {
+        if (! target.isFunction()) return false;
+        FunctionType t = target.getFunctionType();
+        return t.returnType.isCompatible(returnType)
+            && t.paramTypes.isSameType(paramTypes);
+    }
+
+    public boolean isCastableTo(Type target) {
+        return target.isFunction();
     }
 
     public Type returnType() {

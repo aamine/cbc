@@ -44,6 +44,16 @@ public class VarParams extends Params {
         return new VarParams((FixedParams)params.typeRefs());
     }
 
+    public Iterator types() {
+        return params.types();
+    }
+
+    public boolean isSameType(Params other) {
+        if (!other.isVararg()) return false;
+        VarParams otherParams = (VarParams)other;
+        return this.fixedParams().isSameType(otherParams.fixedParams());
+    }
+
     public Location location() {
         return params.location();
     }

@@ -1,3 +1,32 @@
+Sun Jan 13 04:47:12 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/type/Type.java: make #isCompatible and
+	  #isCastable abstract.
+
+	* net/loveruby/cflat/type/VoidType.java: define #equals,
+	  #isSameType, #isCompatible, #isCastableTo.
+
+	* net/loveruby/cflat/type/ComplexType.java: define #isSameType,
+	  #isCompatible, #isCastableTo, #memberTypes.
+
+	* net/loveruby/cflat/type/ArrayType.java: define #isCompatible,
+	  #isCastableTo.
+
+	* net/loveruby/cflat/type/PointerType.java (isCompatible): void
+	  pointer is compatible with any pointer.
+
+	* net/loveruby/cflat/type/FunctionType.java: check parameter
+	  types.
+
+	* net/loveruby/cflat/ast/Params.java: define #types and
+	  #isSameType to be used from FunctionType.
+
+	* net/loveruby/cflat/ast/FixedParams.java: ditto.
+
+	* net/loveruby/cflat/ast/VarParams.java: ditto.
+
+	* net/loveruby/cflat/type/TypeTable.java: new method #voidType.
+
 Sun Jan 13 04:34:30 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/unistd.hb: define _exit.

@@ -5,10 +5,25 @@ public class VoidType extends Type {
     }
 
     public boolean isVoid() { return true; }
-    public boolean isSameType(Type other) { return other.isVoid(); }
 
     public long size() {
         throw new Error("VoidType#size called");
+    }
+
+    public boolean equals(Object other) {
+        return (other instanceof VoidType);
+    }
+
+    public boolean isSameType(Type other) {
+        return other.isVoid();
+    }
+
+    public boolean isCompatible(Type other) {
+        return other.isVoid();
+    }
+
+    public boolean isCastableTo(Type other) {
+        return other.isVoid();
     }
 
     public String toString() {

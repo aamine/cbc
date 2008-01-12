@@ -3,6 +3,7 @@ import net.loveruby.cflat.ast.Slot;
 import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
+import java.lang.reflect.*;
 
 abstract public class ComplexType extends NamedType {
     protected List members;     // List<Slot>
@@ -20,6 +21,53 @@ abstract public class ComplexType extends NamedType {
         return true;
     }
 
+    public boolean isSameType(Type other) {
+        return compareMemberTypes(other, "isSameType");
+    }
+
+    public boolean isCompatible(Type target) {
+        return compareMemberTypes(target, "isCompatible");
+    }
+
+    public boolean isCastableTo(Type target) {
+        return compareMemberTypes(target, "isCastableTo");
+    }
+
+    protected boolean compareMemberTypes(Type other, String cmpMethod) {
+        if (isStruct() && !other.isStruct()) return false;
+        if (isUnion() && !other.isUnion()) return false;
+        ComplexType otherType = other.getComplexType();
+        if (members.size() != other.size()) return false;
+        Iterator types = memberTypes();
+        Iterator otherTypes = otherType.memberTypes();
+        while (types.hasNext()) {
+            if (! compareTypesBy(cmpMethod,
+                                 (Type)types.next(),
+                                 (Type)otherTypes.next())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected boolean compareTypesBy(String cmpMethod, Type t, Type tt) {
+        try {
+            Method cmp = Type.class.getMethod(cmpMethod,
+                                              new Class[] { Type.class });
+            Boolean b = (Boolean)cmp.invoke(t, new Object[] { tt });
+            return b.booleanValue();
+        }
+        catch (NoSuchMethodException ex) {
+            throw new Error(ex.getMessage());
+        }
+        catch (IllegalAccessException ex) {
+            throw new Error(ex.getMessage());
+        }
+        catch (InvocationTargetException ex) {
+            throw new Error(ex.getMessage());
+        }
+    }
+
     public long size() {
         if (size == Type.sizeUnknown) {
             computeOffsets();
@@ -27,8 +75,19 @@ abstract public class ComplexType extends NamedType {
         return size;
     }
 
+    /** Returns a List<Slot> of members. */
     public Iterator members() {
         return members.iterator();
+    }
+
+    /** Returns a List<Type> of members. */
+    public Iterator memberTypes() {
+        Iterator membs = members.iterator();
+        List result = new ArrayList();
+        while (membs.hasNext()) {
+            result.add(((Slot)membs.next()).type());
+        }
+        return result.iterator();
     }
 
     public boolean hasMember(String name) {

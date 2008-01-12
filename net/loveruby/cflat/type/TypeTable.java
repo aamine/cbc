@@ -83,6 +83,10 @@ public class TypeTable {
         return table.values().iterator();
     }
 
+    public VoidType voidType() {
+        return (VoidType)table.get(new VoidTypeRef());
+    }
+
     public IntegerType signedChar() {
         return (IntegerType)table.get(IntegerTypeRef.charRef());
     }

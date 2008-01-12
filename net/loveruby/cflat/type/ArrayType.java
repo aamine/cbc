@@ -51,6 +51,16 @@ public class ArrayType extends Type {
         return baseType.isSameType(other.baseType());
     }
 
+    public boolean isCompatible(Type target) {
+        if (! target.isDereferable()) return false;
+        return baseType.isCompatible(target.baseType())
+                && baseType.size() == target.baseType().size();
+    }
+
+    public boolean isCastableTo(Type target) {
+        return target.isDereferable();
+    }
+
     public String toString() {
         if (length < 0) {
             return baseType.toString() + "[]";

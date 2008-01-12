@@ -32,8 +32,12 @@ public class PointerType extends Type {
         return baseType.isSameType(other.baseType());
     }
 
-    public boolean isComptible(Type other) {
-        return isSameType(other);
+    public boolean isCompatible(Type other) {
+        if (! other.isDereferable()) return false;
+        if (baseType.isVoid() && ! other.baseType().isPointer()) {
+            return true;
+        }
+        return baseType.isCompatible(other.baseType());
     }
 
     public boolean isCastableTo(Type other) {
