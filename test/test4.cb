@@ -8,7 +8,7 @@ struct file {
 };
 
 int
-f(void)
+main(int argc, char **argv)
 {
     int i = 3;
     int j = 5 * 5;
@@ -85,7 +85,7 @@ f(void)
          g(fp->fd);
     }
 
-    return 1;
+    return 0;
 }
 
 void g(int i) {}

@@ -1,3 +1,24 @@
+Sun Jan 13 05:20:59 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/type/ArrayType.java (size): returns pointer
+	  size if the type is not allocated.
+
+	* test/test.sh: test integer.cb.
+
+	* test/test.sh: test initializer.cb.
+
+	* test/test.sh: test test2.cb.
+
+	* test/test.sh: test test3.cb.
+
+	* test/test.sh: test test4.cb.
+
+	* test/test2.cb: long long is not supported now.
+
+	* test/test4.cb: f -> main to make compilable.
+
+	* test/list-untested.rb: new tool.
+
 Sun Jan 13 04:48:28 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: fork

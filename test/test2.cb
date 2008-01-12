@@ -16,13 +16,11 @@ char c;
 short s;
 int ii;
 long l;
-long long ll;
 
 unsigned char uc;
 unsigned short us;
 unsigned int ui;
 unsigned long ul;
-unsigned long long ull;
 
 int* p;
 int** pp;

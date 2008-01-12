@@ -36,7 +36,12 @@ public class ArrayType extends Type {
 
     public long allocSize() {
         // platform dependent: take alignment into account
-        return baseType.size() * length;
+        if (isAllocated()) {
+            return baseType.size() * length;
+        }
+        else {
+            return size();
+        }
     }
 
     public boolean equals(Object other) {

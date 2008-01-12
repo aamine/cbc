@@ -65,6 +65,8 @@ assert_out "Hello, World!" ./hello2
 assert_out "Hello, World!" ./hello3
 assert_out "Hello, World!" ./hello4
 
+assert_out "0;0;0;1;1;1;9;9;9;17;17;17" ./integer
+
 assert_stat 0 ./funcall0
 assert_stat 0 ./funcall1
 assert_stat 0 ./funcall2
@@ -214,6 +216,11 @@ assert_compile_error defun-semcheck8.cb
 assert_compile_error funcall-semcheck.cb
 assert_compile_error funcall-semcheck2.cb
 
+#assert_out "..." ./mbc   # FIXME
 assert_out "3" ./assoc
+assert_out "4;80;0" ./initializer
+assert_out "1, 2, 0" ./test2
+assert_status 0 ./cbc test3.cb
+assert_stat 0 ./test4
 
 test_finished
