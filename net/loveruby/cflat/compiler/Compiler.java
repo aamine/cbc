@@ -138,9 +138,18 @@ public class Compiler {
             parseFile(path);
             return true;
         }
-        catch (CompileException ex) {
+        catch (SyntaxException ex) {
             return false;
         }
+        catch (FileException ex) {
+            errorHandler.error(ex.getMessage());
+            return false;
+        }
+    }
+
+    public AST parseFile(String path) throws SyntaxException, FileException {
+        return Parser.parseFile(new File(path), loader,
+                                errorHandler, debugParser);
     }
 
     public void dumpTokensFromFile(String path) throws CompileException {
@@ -211,11 +220,6 @@ public class Compiler {
 
     private TypeTable defaultTypeTable() {
         return TypeTable.ilp32();
-    }
-
-    public AST parseFile(String path) throws CompileException {
-        return Parser.parseFile(new File(path), loader,
-                                errorHandler, debugParser);
     }
 
     public void assemble(String path) throws IPCException {

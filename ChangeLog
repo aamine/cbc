@@ -1,3 +1,11 @@
+Sun Jan 13 08:13:44 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java (parseFile): report
+	  errors if it is not a syntax error.
+
+	* net/loveruby/cflat/parser/Parser.jj: declare SyntaxException and
+	  FileException separately.
+
 Sun Jan 13 07:54:02 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: new option

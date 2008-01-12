@@ -18,20 +18,21 @@ import java.io.*;
 public class Parser {
     static public AST parseFile(File file, LibraryLoader loader,
                                 ErrorHandler errorHandler)
-                                throws CompileException {
+                                throws SyntaxException, FileException {
         return newFileParser(file, loader, errorHandler, false).parse();
     }
 
     static public AST parseFile(File file, LibraryLoader loader,
                                 ErrorHandler errorHandler, boolean debug)
-                                throws CompileException {
+                                throws SyntaxException, FileException {
         return newFileParser(file, loader, errorHandler, debug).parse();
     }
 
     static public Declarations parseDeclFile(File file,
                                              LibraryLoader loader,
                                              ErrorHandler errorHandler)
-                                             throws CompileException {
+                                             throws SyntaxException,
+                                                    FileException {
         return newFileParser(file, loader, errorHandler, false).parseDecls();
     }
 
@@ -39,7 +40,8 @@ public class Parser {
                                              LibraryLoader loader,
                                              ErrorHandler errorHandler,
                                              boolean debug)
-                                             throws CompileException {
+                                             throws SyntaxException,
+                                                    FileException {
         return newFileParser(file, loader, errorHandler, debug).parseDecls();
     }
 
