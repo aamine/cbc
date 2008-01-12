@@ -13,17 +13,20 @@ public class Compiler {
     }
 
     static final private String programId = "cbc";
+    protected boolean debugParser;
     protected TypeTable typeTable;
     protected LibraryLoader loader;
     protected ErrorHandler errorHandler;
 
     public Compiler() {
+        debugParser = false;
         typeTable = TypeTable.ilp32();
         loader = new LibraryLoader();
         errorHandler = new ErrorHandler(programId);
     }
 
     public Compiler(TypeTable table, LibraryLoader ld, ErrorHandler h) {
+        debugParser = false;
         typeTable = table;
         loader = ld;
         errorHandler = h;
@@ -37,8 +40,7 @@ public class Compiler {
         while (it.hasNext()) {
             String arg = (String)it.next();
             if (arg.startsWith("-")) {
-                if (arg.equals("--compile")
-                        || arg.equals("--check-syntax")
+                if (arg.equals("--check-syntax")
                         || arg.equals("--dump-tokens")
                         || arg.equals("--dump-ast")
                         || arg.equals("--dump-reference")
@@ -48,6 +50,10 @@ public class Compiler {
                                   arg + " option is exclusive");
                     }
                     mode = arg;
+                    it.remove();
+                }
+                else if (arg.equals("--debug-parser")) {
+                    debugParser = true;
                     it.remove();
                 }
                 else if (arg.equals("--help")) {
@@ -62,7 +68,7 @@ public class Compiler {
             }
         }
         if (mode == null) {
-            mode = "--compile";
+            mode = "compile";
         }
         if (args.size() == 0) errorExit("no input file");
         if (args.size() > 1) errorExit("too many input files");
@@ -70,7 +76,7 @@ public class Compiler {
 
         // execute
         try {
-            if (mode.equals("--compile")) {
+            if (mode.equals("compile")) {
                 compileFile(inputFile);
             }
             else if (mode.equals("--check-syntax")) {
@@ -107,6 +113,7 @@ public class Compiler {
         // --dump-reference is hidden option
         out.println("Usage: cbc [option] file");
         out.println("  --check-syntax   Syntax check only.");
+        out.println("  --debug-parser   Dump parsing process.");
         out.println("  --dump-tokens    Parses source file and dumps tokens.");
         out.println("  --dump-ast       Parses source file and dumps AST.");
         out.println("  --dump-semantic  Check semantics and dumps AST.");
@@ -207,7 +214,8 @@ public class Compiler {
     }
 
     public AST parseFile(String path) throws CompileException {
-        return Parser.parseFile(new File(path), loader, errorHandler);
+        return Parser.parseFile(new File(path), loader,
+                                errorHandler, debugParser);
     }
 
     public void assemble(String path) throws IPCException {

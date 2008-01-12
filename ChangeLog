@@ -1,3 +1,11 @@
+Sun Jan 13 07:54:02 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: new option
+	  --debug-parser.
+
+	* net/loveruby/cflat/parser/Parser.jj: dump parsing process using
+	  JavaCC's tracing function.
+
 Sun Jan 13 06:52:52 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/DereferenceChecker.java: throw

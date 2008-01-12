@@ -1,5 +1,6 @@
 options {
     STATIC = false;
+    DEBUG_PARSER = true;
     UNICODE_INPUT = true;
 }
 
@@ -16,20 +17,41 @@ import java.io.*;
 
 public class Parser {
     static public AST parseFile(File file, LibraryLoader loader,
-            ErrorHandler errorHandler) throws CompileException {
-        return newFileParser(file, loader, errorHandler).parse();
+                                ErrorHandler errorHandler)
+                                throws CompileException {
+        return newFileParser(file, loader, errorHandler, false).parse();
     }
 
-    static public Declarations parseDeclFile(File file, LibraryLoader loader,
-            ErrorHandler errorHandler) throws CompileException {
-        return newFileParser(file, loader, errorHandler).parseDecls();
+    static public AST parseFile(File file, LibraryLoader loader,
+                                ErrorHandler errorHandler, boolean debug)
+                                throws CompileException {
+        return newFileParser(file, loader, errorHandler, debug).parse();
     }
 
-    static public Parser newFileParser(File file, LibraryLoader loader,
-            ErrorHandler errorHandler) throws FileException {
+    static public Declarations parseDeclFile(File file,
+                                             LibraryLoader loader,
+                                             ErrorHandler errorHandler)
+                                             throws CompileException {
+        return newFileParser(file, loader, errorHandler, false).parseDecls();
+    }
+
+    static public Declarations parseDeclFile(File file,
+                                             LibraryLoader loader,
+                                             ErrorHandler errorHandler,
+                                             boolean debug)
+                                             throws CompileException {
+        return newFileParser(file, loader, errorHandler, debug).parseDecls();
+    }
+
+    static public Parser newFileParser(File file,
+                                       LibraryLoader loader,
+                                       ErrorHandler errorHandler,
+                                       boolean debug)
+                                       throws FileException {
         try {
             return new Parser(newReader(new FileInputStream(file)),
-                              file.getPath(), loader, errorHandler);
+                              file.getPath(), loader,
+                              errorHandler, debug);
         }
         catch (FileNotFoundException ex) {
             throw new FileException(ex.getMessage());
@@ -54,13 +76,24 @@ public class Parser {
     protected ErrorHandler errorHandler;
 
     public Parser(Reader s, String name,
-            LibraryLoader loader, ErrorHandler errorHandler) {
+                  LibraryLoader loader, ErrorHandler errorHandler) {
+        this(s, name, loader, errorHandler, false);
+    }
+
+    public Parser(Reader s, String name, LibraryLoader loader,
+                  ErrorHandler errorHandler, boolean debug) {
         this(s);
         this.sourceName = name;
         this.loader = loader;
         this.errorHandler = errorHandler;
         this.labelPool = new LabelPool();
         this.knownTypedefs = new HashSet();
+        if (debug) {
+            enable_tracing();
+        }
+        else {
+            disable_tracing();
+        }
     }
 
     public AST parse() throws SyntaxException {
