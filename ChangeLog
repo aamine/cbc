@@ -1,3 +1,7 @@
+Sun Jan 13 04:34:30 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/unistd.hb: define _exit.
+
 Mon Jan  7 07:08:44 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: refactoring: rename method:
