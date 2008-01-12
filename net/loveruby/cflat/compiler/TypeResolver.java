@@ -1,6 +1,7 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ast.*;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class TypeResolver extends Visitor {
@@ -19,9 +20,9 @@ public class TypeResolver extends Visitor {
 
     public void resolveProgram(AST ast) {
         defineTypes(ast.types());
-        resolveNodeList(ast.types());
-        resolveNodeList(ast.declarations());
-        resolveNodeList(ast.entities());
+        visitNodeList(ast.types());
+        visitNodeList(ast.declarations());
+        visitNodeList(ast.entities());
     }
 
     private void defineTypes(Iterator deftypes) {
@@ -66,9 +67,7 @@ public class TypeResolver extends Visitor {
 
     public void visit(DefinedVariable var) {
         bindType(var.typeNode());
-        if (var.isInitialized()) {
-            resolve(var.initializer());
-        }
+        super.visit(var);       // resolve initializer
     }
 
     public void visit(UndefinedVariable var) {
@@ -77,8 +76,8 @@ public class TypeResolver extends Visitor {
 
     public void visit(DefinedFunction func) {
         resolveFunctionHeader(func);
-        resolveLocalVariables(func);
-        resolve(func.body());
+        //resolveLocalVariables(func);
+        visitNode(func.body());
     }
 
     public void visit(UndefinedFunction func) {
@@ -98,6 +97,20 @@ public class TypeResolver extends Visitor {
         Iterator vars = func.localVariables();
         while (vars.hasNext()) {
             visit((DefinedVariable)vars.next());
+        }
+    }
+
+    public void visit(AddressNode node) {
+        super.visit(node);
+        // to avoid SemanticError which occurs when getting type of
+        // expr which is not assignable.
+        try {
+            Type t = typeTable.pointerTo(node.expr().type());
+            node.setType(t);
+        }
+        catch (SemanticError err) {
+            Type t = typeTable.pointerTo(typeTable.voidType());
+            node.setType(t);
         }
     }
 

@@ -58,8 +58,13 @@ public class Dumper {
         printPair(name, (t == null ? "null" : t.toString()));
     }
 
+    public void printMember(String name, String str, boolean isResolved) {
+        printPair(name, TextUtils.escapeString(str)
+                        + (isResolved ? " (resolved)" : ""));
+    }
+
     public void printMember(String name, String str) {
-        printPair(name, TextUtils.escapeString(str));
+        printMember(name, str, false);
     }
 
     protected void printPair(String name, String value) {
@@ -69,7 +74,8 @@ public class Dumper {
 
     public void printMember(String name, TypeNode n) {
         printIndent();
-        stream.println(name + ": " + n.typeRef());
+        stream.println(name + ": " + n.typeRef()
+                       + (n.isResolved() ? " (resolved)" : ""));
     }
 
     public void printMember(String name, Node n) {

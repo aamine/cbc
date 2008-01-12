@@ -1,6 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.Type;
 import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.exception.*;
 
 abstract public class ExprNode extends Node {
     public ExprNode() {
@@ -10,11 +11,21 @@ abstract public class ExprNode extends Node {
     abstract public Type type();
 
     public boolean isCallable() {
-        return type().isCallable();
+        try {
+            return type().isCallable();
+        }
+        catch (SemanticError err) {
+            return false;
+        }
     }
 
     public boolean isDereferable() {
-        return type().isDereferable();
+        try {
+            return type().isDereferable();
+        }
+        catch (SemanticError err) {
+            return false;
+        }
     }
 
     public boolean isConstant() {

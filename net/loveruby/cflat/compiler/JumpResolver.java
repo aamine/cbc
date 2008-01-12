@@ -7,7 +7,7 @@ import java.util.*;
 public class JumpResolver extends Visitor {
     static public void resolve(AST ast, ErrorHandler h)
                                     throws SemanticException {
-        new JumpResolver(h).resolveAST(ast);
+        new JumpResolver(h).resolve(ast);
     }
 
     protected ErrorHandler errorHandler;
@@ -19,7 +19,7 @@ public class JumpResolver extends Visitor {
         errorHandler = h;
     }
 
-    public void resolveAST(AST ast) throws SemanticException {
+    public void resolve(AST ast) throws SemanticException {
         breakTargetStack = new LinkedList();
         continueTargetStack = new LinkedList();
         Iterator funcs = ast.functions();
@@ -31,6 +31,10 @@ public class JumpResolver extends Visitor {
         if (errorHandler.errorOccured()) {
             throw new SemanticException("compile failed.");
         }
+    }
+
+    protected void resolve(Node n) {
+        visitNode(n);
     }
 
     private BreakableStmt currentBreakTarget()
@@ -52,7 +56,7 @@ public class JumpResolver extends Visitor {
     public void visit(SwitchNode node) {
         resolve(node.cond());
         breakTargetStack.add(node);
-        resolveNodeList(node.cases());
+        visitNodeList(node.cases());
         breakTargetStack.removeLast();
     }
 

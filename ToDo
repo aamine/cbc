@@ -181,8 +181,10 @@
 - --dump-tokens
 - --dump-ast
 - print node location in error message
-* parse command line option more precisely
-* --dump-semantic
+- parse command line option more precisely
+- --dump-reference
+- --dump-semantic
+* add standard load path
 * generate IR
 * --dump-ir
 * control flow graph

@@ -17,8 +17,8 @@ public class VariableNode extends ExprNode {
         return name;
     }
 
-    public void setEntity(Entity ent) {
-        entity = ent;
+    public boolean isResolved() {
+        return (entity != null);
     }
 
     public Entity entity() {
@@ -26,6 +26,10 @@ public class VariableNode extends ExprNode {
             throw new Error("VariableNode.entity == null");
         }
         return entity;
+    }
+
+    public void setEntity(Entity ent) {
+        entity = ent;
     }
 
     public Type type() {
@@ -53,7 +57,7 @@ public class VariableNode extends ExprNode {
     }
 
     protected void _dump(Dumper d) {
-        d.printMember("name", name);
+        d.printMember("name", name, isResolved());
     }
 
     public void accept(ASTVisitor visitor) {

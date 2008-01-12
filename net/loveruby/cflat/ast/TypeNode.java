@@ -15,10 +15,6 @@ public class TypeNode extends Node {
         this.type = type;
     }
 
-    public void resolve(TypeTable tbl) {
-        // FIXME
-    }
-
     public TypeRef typeRef() {
         return typeRef;
     }

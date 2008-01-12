@@ -29,42 +29,96 @@ public class Compiler {
         errorHandler = h;
     }
 
-    public void commandMain(String[] args) {
+    public void commandMain(String[] origArgs) {
+        // parse options
+        String mode = null;
+        List args = listFromArray(origArgs);
+        ListIterator it = args.listIterator();
+        while (it.hasNext()) {
+            String arg = (String)it.next();
+            if (arg.startsWith("-")) {
+                if (arg.equals("--compile")
+                        || arg.equals("--check-syntax")
+                        || arg.equals("--dump-tokens")
+                        || arg.equals("--dump-ast")
+                        || arg.equals("--dump-reference")
+                        || arg.equals("--dump-semantic")) {
+                    if (mode != null) {
+                        errorExit(mode + " option and " +
+                                  arg + " option is exclusive");
+                    }
+                    mode = arg;
+                    it.remove();
+                }
+                else if (arg.equals("--help")) {
+                    printUsage(System.out);
+                    System.exit(0);
+                }
+                else {
+                    System.err.println("unknown option: " + arg);
+                    printUsage(System.err);
+                    System.exit(1);
+                }
+            }
+        }
+        if (mode == null) {
+            mode = "--compile";
+        }
+        if (args.size() == 0) errorExit("no input file");
+        if (args.size() > 1) errorExit("too many input files");
+        String inputFile = (String)args.get(0);
+
+        // execute
         try {
-            if (args.length == 0) errorExit("no argument given");
-            if (args[0].equals("--dump-tokens")) {
-                if (args.length != 2) {
-                    errorExit("no file input or too many files");
-                }
-                dumpTokensFromFile(args[1]);
+            if (mode.equals("--compile")) {
+                compileFile(inputFile);
             }
-            else if (args[0].equals("--dump-ast")) {
-                if (args.length != 2) {
-                    errorExit("no file input or too many files");
-                }
-                dumpASTFromFile(args[1]);
-            }
-            else if (args[0].equals("--check-syntax")) {
-                if (args.length != 2) {
-                    errorExit("no file input or too many files");
-                }
-                if (isValidSyntax(args[1])) {
+            else if (mode.equals("--check-syntax")) {
+                if (isValidSyntax(inputFile)) {
                     System.out.println("Syntax OK");
                     System.exit(0);
                 } else {
                     System.exit(1);
                 }
             }
+            else if (mode.equals("--dump-tokens")) {
+                dumpTokensFromFile(inputFile);
+            }
+            else if (mode.equals("--dump-ast")) {
+                dumpASTFromFile(inputFile);
+            }
+            else if (mode.equals("--dump-reference")) {
+                dumpReferenceFromFile(inputFile);
+            }
+            else if (mode.equals("--dump-semantic")) {
+                dumpSemanticFromFile(inputFile);
+            }
             else {
-                if (args.length != 1)
-                    errorExit("no file input or too many files");
-                compileFile(args[0]);
+                throw new Error("unknown mode: " + mode);
             }
         }
         catch (CompileException ex) {
             errorHandler.error(ex.getMessage());
             System.exit(1);
         }
+    }
+
+    protected void printUsage(PrintStream out) {
+        // --dump-reference is hidden option
+        out.println("Usage: cbc [option] file");
+        out.println("  --check-syntax   Syntax check only.");
+        out.println("  --dump-tokens    Parses source file and dumps tokens.");
+        out.println("  --dump-ast       Parses source file and dumps AST.");
+        out.println("  --dump-semantic  Check semantics and dumps AST.");
+        out.println("  --help           Prints this message and quit.");
+    }
+
+    private List listFromArray(Object[] a) {
+        List list = new ArrayList();
+        for (int i = 0; i < a.length; i++) {
+            list.add(a[i]);
+        }
+        return list;
     }
 
     private void errorExit(String msg) {
@@ -111,9 +165,27 @@ public class Compiler {
         parseFile(path).dump();
     }
 
+    public void dumpReferenceFromFile(String path) throws CompileException {
+        AST ast = parseFile(path);
+        TypeTable typeTable = defaultTypeTable();
+        JumpResolver.resolve(ast, errorHandler);
+        LocalReferenceResolver.resolve(ast, errorHandler);
+        TypeResolver.resolve(ast, typeTable, errorHandler);
+        typeTable.semanticCheck(errorHandler);
+        DereferenceChecker.check(ast, errorHandler);
+        ast.dump();
+    }
+
+    public void dumpSemanticFromFile(String path) throws CompileException {
+        AST ast = parseFile(path);
+        TypeTable typeTable = defaultTypeTable();
+        semanticAnalysis(ast, typeTable);
+        ast.dump();
+    }
+
     public void compileFile(String path) throws CompileException {
         AST ast = parseFile(path);
-        TypeTable typeTable = TypeTable.ilp32();
+        TypeTable typeTable = defaultTypeTable();
         semanticAnalysis(ast, typeTable);
         String asm = CodeGenerator.generate(ast, typeTable, errorHandler);
         writeFile(asmFileName(path), asm);
@@ -126,7 +198,12 @@ public class Compiler {
         LocalReferenceResolver.resolve(ast, errorHandler);
         TypeResolver.resolve(ast, typeTable, errorHandler);
         typeTable.semanticCheck(errorHandler);
+        DereferenceChecker.check(ast, errorHandler);
         TypeChecker.check(ast, typeTable, errorHandler);
+    }
+
+    private TypeTable defaultTypeTable() {
+        return TypeTable.ilp32();
     }
 
     public AST parseFile(String path) throws CompileException {

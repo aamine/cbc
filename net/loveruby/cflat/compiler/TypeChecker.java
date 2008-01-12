@@ -19,7 +19,7 @@ class TypeChecker extends Visitor {
     }
 
     protected void check(Node node) {
-        resolve(node);
+        visitNode(node);
     }
 
     public void visit(AST ast) throws SemanticException {
@@ -70,12 +70,7 @@ class TypeChecker extends Visitor {
         Iterator stmts = node.stmts();
         while (stmts.hasNext()) {
             Node n = (Node)stmts.next();
-            try {
-                check(n);
-            }
-            catch (SemanticError err) {
-                // ignore semantic errors
-            }
+            check(n);
         }
     }
 
@@ -85,18 +80,13 @@ class TypeChecker extends Visitor {
             return;
         }
         if (var.hasInitializer()) {
-            try {
-                if (isInvalidLHSType(var.type())) {
-                    error(var, "invalid LHS type: " + var.type());
-                    return;
-                }
-                check(var.initializer());
-                var.setInitializer(
-                    checkRHSType(var.initializer(), var.type()));
+            if (isInvalidLHSType(var.type())) {
+                error(var, "invalid LHS type: " + var.type());
+                return;
             }
-            catch (SemanticError err) {
-                // ignore semantic errors
-            }
+            check(var.initializer());
+            var.setInitializer(
+                checkRHSType(var.initializer(), var.type()));
         }
     }
 
@@ -174,10 +164,6 @@ class TypeChecker extends Visitor {
     protected void checkAssignment(AbstractAssignNode node) {
         check(node.lhs());
         check(node.rhs());
-        if (! node.lhs().isAssignable()) {
-            error(node, "invalid lhs expression");
-            return;
-        }
         if (isInvalidLHSType(node.lhs().type())) {
             error(node, "invalid lhs type");
             return;
@@ -354,36 +340,31 @@ class TypeChecker extends Visitor {
 
     // +, -, !, ~
     public void visit(UnaryOpNode node) {
-        check(node.expr());
+        super.visit(node);
         mustBeInteger(node.expr());
     }
 
     // ++, --
     public void visit(PrefixOpNode node) {
-        check(node.expr());
+        super.visit(node);
         mustBeScalar(node.expr());
     }
 
     // ++, --
     public void visit(SuffixOpNode node) {
-        check(node.expr());
+        super.visit(node);
         mustBeScalar(node.expr());
     }
 
     /**
      * For EXPR(ARG), checks:
      *
-     *   * EXPR is callable (a pointer to a function).
      *   * The number of argument matches function prototype.
      *   * ARG matches function prototype.
      *   * ARG is neither a struct nor an union.
      */
     public void visit(FuncallNode node) {
-        check(node.expr());
-        if (! node.expr().isCallable()) {
-            error(node, "calling object is not a function");
-            return;
-        }
+        super.visit(node);
         FunctionType type = node.functionType();
         if (! type.acceptsArgc(node.numArgs())) {
             error(node, "wrong number of argments: " + node.numArgs());
@@ -407,65 +388,13 @@ class TypeChecker extends Visitor {
         node.replaceArgs(newArgs);
     }
 
-    /**
-     * Checks if the type of base expression of EXPR[IDX] is valid.
-     * EXPR must be an array or a pointer.  IDX must be an integer.
-     */
     public void visit(ArefNode node) {
-        check(node.expr());
-        if (! node.expr().isDereferable()) {
-            error(node, "is not indexable: " + node.expr().type());
-            return;
-        }
-        check(node.index());
+        super.visit(node);
         mustBeInteger(node.index());
     }
 
-    public void visit(MemberNode node) {
-        check(node.expr());
-        checkMemberRef(node, node.expr().type(), node.member());
-    }
-
-    public void visit(PtrMemberNode node) {
-        check(node.expr());
-        if (! node.expr().isDereferable()) {
-            undereferableError(node, node.expr().type());
-            return;
-        }
-        checkMemberRef(node, node.dereferedType(), node.member());
-    }
-
-    protected void checkMemberRef(Node node, Type t, String memb) {
-        if (! t.isComplexType()) {
-            error(node, "is not struct/union: " + t);
-            return;
-        }
-        ComplexType type = t.getComplexType();
-        if (! type.hasMember(memb)) {
-            error(node, type.toString() + " does not have member " + memb);
-            return;
-        }
-    }
-
-    public void visit(DereferenceNode node) {
-        check(node.expr());
-        if (! node.expr().isDereferable()) {
-            undereferableError(node, node.expr().type());
-            return;
-        }
-    }
-
-    public void visit(AddressNode node) {
-        check(node.expr());
-        Type t = typeTable.pointerTo(node.expr().type());
-        node.setType(t);
-        if (! node.expr().isAssignable()) {
-            error(node, "invalid LHS expression for &");
-        }
-    }
-
     public void visit(CastNode node) {
-        check(node.expr());
+        super.visit(node);
         if (! node.expr().type().isCastableTo(node.type())) {
             incompatibleTypeError(node, node.expr().type(), node.type());
         }

@@ -6,14 +6,14 @@ abstract public class Visitor implements ASTVisitor {
     public Visitor() {
     }
 
-    protected void resolve(Node node) {
+    protected void visitNode(Node node) {
         node.accept(this);
     }
 
-    protected void resolveNodeList(Iterator ns) {
+    protected void visitNodeList(Iterator ns) {
         while (ns.hasNext()) {
             Node n = (Node)ns.next();
-            resolve(n);
+            visitNode(n);
         }
     }
 
@@ -22,6 +22,9 @@ abstract public class Visitor implements ASTVisitor {
     //
 
     public void visit(DefinedVariable var) {
+        if (var.hasInitializer()) {
+            visitNode(var.initializer());
+        }
     }
 
     public void visit(UndefinedVariable var) {
@@ -50,46 +53,44 @@ abstract public class Visitor implements ASTVisitor {
         Iterator vars = node.variables();
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
-            if (var.hasInitializer()) {
-                resolve(var.initializer());
-            }
+            visit(var);
         }
-        resolveNodeList(node.stmts());
+        visitNodeList(node.stmts());
     }
 
     public void visit(IfNode n) {
-        resolve(n.cond());
-        resolve(n.thenBody());
+        visitNode(n.cond());
+        visitNode(n.thenBody());
         if (n.elseBody() != null) {
-            resolve(n.elseBody());
+            visitNode(n.elseBody());
         }
     }
 
     public void visit(SwitchNode n) {
-        resolve(n.cond());
-        resolveNodeList(n.cases());
+        visitNode(n.cond());
+        visitNodeList(n.cases());
     }
 
     public void visit(CaseNode n) {
-        resolveNodeList(n.values());
-        resolve(n.body());
+        visitNodeList(n.values());
+        visitNode(n.body());
     }
 
     public void visit(WhileNode n) {
-        resolve(n.cond());
-        resolve(n.body());
+        visitNode(n.cond());
+        visitNode(n.body());
     }
 
     public void visit(DoWhileNode n) {
-        resolve(n.body());
-        resolve(n.cond());
+        visitNode(n.body());
+        visitNode(n.cond());
     }
 
     public void visit(ForNode n) {
-        resolve(n.init());
-        resolve(n.cond());
-        resolve(n.incr());
-        resolve(n.body());
+        visitNode(n.init());
+        visitNode(n.cond());
+        visitNode(n.incr());
+        visitNode(n.body());
     }
 
     public void visit(BreakNode n) {
@@ -102,12 +103,12 @@ abstract public class Visitor implements ASTVisitor {
     }
 
     public void visit(LabelNode n) {
-        resolve(n.stmt());
+        visitNode(n.stmt());
     }
 
     public void visit(ReturnNode n) {
         if (n.expr() != null) {
-            resolve(n.expr());
+            visitNode(n.expr());
         }
     }
 
@@ -116,78 +117,78 @@ abstract public class Visitor implements ASTVisitor {
     //
 
     public void visit(CondExprNode n) {
-        resolve(n.cond());
-        resolve(n.thenExpr());
+        visitNode(n.cond());
+        visitNode(n.thenExpr());
         if (n.elseExpr() != null) {
-            resolve(n.elseExpr());
+            visitNode(n.elseExpr());
         }
     }
 
     public void visit(LogicalOrNode node) {
-        resolve(node.left());
-        resolve(node.right());
+        visitNode(node.left());
+        visitNode(node.right());
     }
 
     public void visit(LogicalAndNode node) {
-        resolve(node.left());
-        resolve(node.right());
+        visitNode(node.left());
+        visitNode(node.right());
     }
 
     public void visit(AssignNode n) {
-        resolve(n.lhs());
-        resolve(n.rhs());
+        visitNode(n.lhs());
+        visitNode(n.rhs());
     }
 
     public void visit(OpAssignNode n) {
-        resolve(n.lhs());
-        resolve(n.rhs());
+        visitNode(n.lhs());
+        visitNode(n.rhs());
     }
 
     public void visit(BinaryOpNode n) {
-        resolve(n.left());
-        resolve(n.right());
+        visitNode(n.left());
+        visitNode(n.right());
     }
 
     public void visit(UnaryOpNode node) {
-        resolve(node.expr());
+        visitNode(node.expr());
     }
 
     public void visit(PrefixOpNode node) {
-        resolve(node.expr());
+        visitNode(node.expr());
     }
 
     public void visit(SuffixOpNode node) {
-        resolve(node.expr());
+        visitNode(node.expr());
     }
 
     public void visit(FuncallNode node) {
-        resolve(node.expr());
-        resolveNodeList(node.arguments());
+        visitNode(node.expr());
+        visitNodeList(node.arguments());
     }
 
     public void visit(ArefNode node) {
-        resolve(node.expr());
-        resolve(node.index());
+        visitNode(node.expr());
+        visitNode(node.index());
     }
 
     public void visit(MemberNode node) {
-        resolve(node.expr());
+        visitNode(node.expr());
     }
 
     public void visit(PtrMemberNode node) {
-        resolve(node.expr());
+        visitNode(node.expr());
     }
 
     public void visit(DereferenceNode node) {
-        resolve(node.expr());
+        visitNode(node.expr());
     }
 
     public void visit(AddressNode node) {
-        resolve(node.expr());
+        visitNode(node.expr());
     }
 
     public void visit(CastNode node) {
-        resolve(node.expr());
+        visitNode(node.expr());
     }
 
     public void visit(VariableNode node) {

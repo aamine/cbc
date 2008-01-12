@@ -6,7 +6,7 @@ import java.util.*;
 public class LocalReferenceResolver extends Visitor {
     static public void resolve(AST ast, ErrorHandler handler)
                                     throws SemanticException {
-        new LocalReferenceResolver(handler).resolveAST(ast);
+        new LocalReferenceResolver(handler).resolve(ast);
     }
 
     protected ErrorHandler errorHandler;
@@ -18,7 +18,11 @@ public class LocalReferenceResolver extends Visitor {
         this.errorHandler = h;
     }
 
-    public void resolveAST(AST ast) throws SemanticException {
+    protected void resolve(Node n) {
+        visitNode(n);
+    }
+
+    public void resolve(AST ast) throws SemanticException {
         toplevel = ast.scope();
         scopeStack = new LinkedList();
         scopeStack.add(toplevel);

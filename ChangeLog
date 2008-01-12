@@ -1,3 +1,46 @@
+Sun Jan 13 04:48:28 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: fork
+	  DereferenceChecker, to reduce catch(SemanticError).
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: new class.
+
+	* net/loveruby/cflat/ast/ExprNode.java (isAssignable,
+	  isDereferable): catch SemanticError which may occuer on
+	  type.isXXXX.
+
+	* net/loveruby/cflat/compiler/Visitor.java: refactoring: rename
+	  method: #resolve -> #visitNode.
+
+	* net/loveruby/cflat/compiler/Visitor.java: refactoring: rename
+	  method: #resolveNodeList -> #visitNodeList.
+
+	* net/loveruby/cflat/compiler/JumpResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/LocalReferenceResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/Compiler.java: parse command line
+	  options more precisely.
+
+	* net/loveruby/cflat/compiler/Compiler.java: new option --compile.
+
+	* net/loveruby/cflat/compiler/Compiler.java: new option
+	  --dump-reference.
+
+	* net/loveruby/cflat/compiler/Compiler.java: new option
+	  --dump-semantic.
+
+	* net/loveruby/cflat/ast/VariableNode.java (dump): show resolved
+	  or not.
+
+	* net/loveruby/cflat/ast/TypeNode.java (dump): ditto.
+
+	* net/loveruby/cflat/ast/Dumper.java (printMember): ditto.
+
 Sun Jan 13 04:47:12 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/type/Type.java: make #isCompatible and
