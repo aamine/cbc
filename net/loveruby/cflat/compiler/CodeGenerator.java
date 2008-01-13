@@ -602,10 +602,6 @@ static public void p(String s) { System.err.println(s); }
         as.mov(node.type(), imm(node.value()), reg("ax", node.type()));
     }
 
-    public void visit(CharacterLiteralNode node) {
-        as.mov(node.type(), imm(node.value()), reg("ax", node.type()));
-    }
-
     public void visit(StringLiteralNode node) {
         loadWords(node.type(), imm(node.label()), "ax");
     }

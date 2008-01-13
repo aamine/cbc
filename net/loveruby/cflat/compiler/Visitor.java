@@ -197,9 +197,6 @@ abstract public class Visitor implements ASTVisitor {
     public void visit(IntegerLiteralNode node) {
     }
 
-    public void visit(CharacterLiteralNode node) {
-    }
-
     public void visit(StringLiteralNode node) {
     }
 }

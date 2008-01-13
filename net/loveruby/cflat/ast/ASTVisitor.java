@@ -43,6 +43,5 @@ public interface ASTVisitor {
     public void visit(CastNode node);
     public void visit(VariableNode node);
     public void visit(IntegerLiteralNode node);
-    public void visit(CharacterLiteralNode node);
     public void visit(StringLiteralNode node);
 }

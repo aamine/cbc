@@ -14,6 +14,7 @@ public class IntegerLiteralNode extends LiteralNode {
     }
 
     protected void _dump(Dumper d) {
+        d.printMember("typeNode", typeNode);
         d.printMember("value", value);
     }
 

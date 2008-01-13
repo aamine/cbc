@@ -133,7 +133,7 @@ public class Parser {
         return knownTypedefs.contains(name);
     }
 
-    private IntegerLiteralNode integerNodeValue(Location loc, String image) {
+    private IntegerLiteralNode integerNode(Location loc, String image) {
         long i = integerValue(image);
         if (image.endsWith("UL")) {
             return new IntegerLiteralNode(loc, IntegerTypeRef.ulongRef(), i);
@@ -1134,13 +1134,13 @@ ExprNode primary():
 {
       t=<INTEGER>
         {
-            return integerNodeValue(location(t), t.image);
+            return integerNode(location(t), t.image);
         }
     | t=<CHARACTER>
         {
-            return new CharacterLiteralNode(location(t),
-                                            IntegerTypeRef.charRef(),
-                                            characterCode(t.image));
+            return new IntegerLiteralNode(location(t),
+                                          IntegerTypeRef.charRef(),
+                                          characterCode(t.image));
         }
     | t=<STRING>
         {

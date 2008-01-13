@@ -123,10 +123,6 @@ public class TypeResolver extends Visitor {
         bindType(node.typeNode());
     }
 
-    public void visit(CharacterLiteralNode node) {
-        bindType(node.typeNode());
-    }
-
     public void visit(StringLiteralNode node) {
         bindType(node.typeNode());
     }

@@ -1,3 +1,21 @@
+Mon Jan 14 02:21:22 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: unify IntegerLiteralNode
+	  and CharacterLiteralNode.
+
+	* net/loveruby/cflat/compiler/Visitor.java: ditto.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: ditto.
+
+	* net/loveruby/cflat/ast/ASTVisitor.java: ditto.
+
+	* net/loveruby/cflat/ast/CharacterLiteralNode.java: removed.
+
+	* net/loveruby/cflat/ast/IntegerLiteralNode.java: show typeNode
+	  member.
+
 Sun Jan 13 08:13:44 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java (parseFile): report
