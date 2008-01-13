@@ -528,6 +528,7 @@ BlockNode block():
         }
 }
 
+// #@@range/defstruct{
 StructNode defstruct():
 {
     Token t;
@@ -540,6 +541,7 @@ StructNode defstruct():
             return new StructNode(location(t), new StructTypeRef(n), n, membs);
         }
 }
+// #@@}
 
 UnionNode defunion():
 {
