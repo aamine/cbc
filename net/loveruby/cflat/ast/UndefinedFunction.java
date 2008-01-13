@@ -19,10 +19,6 @@ public class UndefinedFunction extends Function {
         return false;
     }
 
-    public boolean isFunction() {
-        return true;
-    }
-
     public void defineIn(ToplevelScope scope) {
         throw new Error("UndefinedFunction#defineIn");
     }

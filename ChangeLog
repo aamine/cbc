@@ -1,3 +1,10 @@
+Mon Jan 14 02:40:32 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/DefinedFunction.java: remove unused
+	  method #isFunction.
+
+	* net/loveruby/cflat/ast/UndefinedFunction.java: ditto.
+
 Mon Jan 14 02:21:22 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: unify IntegerLiteralNode
