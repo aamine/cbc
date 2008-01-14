@@ -1,3 +1,7 @@
+Tue Jan 15 00:16:18 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* cbc: $basedir should be relative to cbc command.
+
 Tue Jan 15 00:11:08 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/cbc -> ./cbc

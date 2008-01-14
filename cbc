@@ -1,6 +1,6 @@
 #!/bin/sh
 
-basedir=.
+basedir=`dirname $0`
 java -classpath $basedir/cbc.jar \
         net.loveruby.cflat.compiler.Compiler \
         -I$basedir/import \
