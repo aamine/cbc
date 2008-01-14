@@ -40,7 +40,18 @@ public class Compiler {
         while (it.hasNext()) {
             String arg = (String)it.next();
             if (arg.startsWith("-")) {
-                if (arg.equals("--check-syntax")
+                if (arg.startsWith("-I")) {
+                    String path = arg.substring(2);
+                    if (path.length() == 0) {
+                        if (! it.hasNext()) {
+                            errorExit("-I option missing argument");
+                        }
+                        it.remove();
+                        path = (String)it.next();
+                    }
+                    loader.addLoadPath(path);
+                }
+                else if (arg.equals("--check-syntax")
                         || arg.equals("--dump-tokens")
                         || arg.equals("--dump-ast")
                         || arg.equals("--dump-reference")
@@ -50,11 +61,9 @@ public class Compiler {
                                   arg + " option is exclusive");
                     }
                     mode = arg;
-                    it.remove();
                 }
                 else if (arg.equals("--debug-parser")) {
                     debugParser = true;
-                    it.remove();
                 }
                 else if (arg.equals("--help")) {
                     printUsage(System.out);
@@ -65,6 +74,7 @@ public class Compiler {
                     printUsage(System.err);
                     System.exit(1);
                 }
+                it.remove();
             }
         }
         if (mode == null) {

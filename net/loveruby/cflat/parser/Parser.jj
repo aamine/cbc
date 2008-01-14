@@ -388,9 +388,17 @@ Declarations import_stmts():
 }
 
 String import_stmt():
-{ String n; }
 {
-    <IMPORT> n=name() ";" { return n; }
+    StringBuffer buf = new StringBuffer();
+    String n;
+}
+{
+    <IMPORT> n=name()   { buf.append(n); }
+    ("." n=name()       { buf.append("."); buf.append(n); } )*
+    ";"
+        {
+            return buf.toString();
+        }
 }
 
 Declarations top_decls():

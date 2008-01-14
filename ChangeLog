@@ -1,3 +1,20 @@
+Mon Jan 14 21:48:59 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/cbc: provide -I option to add load path.
+
+	* net/loveruby/cflat/compiler/Compiler.java: new option -I.
+
+	* net/loveruby/cflat/parser/Parser.jj: allow nested library ID
+	  "a.b.c".
+
+	* net/loveruby/cflat/compiler/LibraryLoader.java: ditto.
+
+	* import/unistd.hb: declare fork, getpid, getppid.
+
+	* import/sys/types.hb: new file.
+
+	* test/fork.cb: test nested library ID "sys.types".
+
 Mon Jan 14 21:23:33 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* move *.hb files from test/ to import/.

@@ -20,6 +20,10 @@ public class LibraryLoader {
         loadedLibrary = new HashMap();
     }
 
+    public void addLoadPath(String path) {
+        loadPath.add(path);
+    }
+
     public Declarations loadLibrary(String libid, ErrorHandler handler)
             throws CompileException {
         if (loadedLibrary.containsKey(libid)) {
@@ -36,7 +40,7 @@ public class LibraryLoader {
             Iterator pathes = loadPath.iterator();
             while (pathes.hasNext()) {
                 String path = (String)pathes.next();
-                File file = new File(path + "/" + libid + ".hb");
+                File file = new File(path + "/" + libPath(libid) + ".hb");
                 if (file.exists()) {
                     return file;
                 }
@@ -47,5 +51,9 @@ public class LibraryLoader {
         catch (SecurityException ex) {
             throw new FileException(ex.getMessage());
         }
+    }
+
+    protected String libPath(String id) {
+        return id.replace('.', '/');
     }
 }
