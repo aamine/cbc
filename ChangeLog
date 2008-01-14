@@ -1,3 +1,7 @@
+Tue Jan 15 02:31:14 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: LOOKAHEAD is useless here.
+
 Tue Jan 15 01:04:55 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* build.xml: read user defined property file from $HOME.

@@ -773,7 +773,7 @@ TypeRef typeref_base():
         { return IntegerTypeRef.ushortRef(location(t)); }
     | LOOKAHEAD(2) t=<UNSIGNED> <INT>
         { return IntegerTypeRef.uintRef(location(t)); }
-    | LOOKAHEAD(2) t=<UNSIGNED> <LONG>
+    | t=<UNSIGNED> <LONG>
         { return IntegerTypeRef.ulongRef(location(t)); }
     | t=<STRUCT> name=<IDENTIFIER>
         { return new StructTypeRef(location(t), name.image); }
