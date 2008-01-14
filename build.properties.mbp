@@ -1,9 +1,0 @@
-javacc.dir=/opt/local/share/java
-
-src.dir=.
-build.dir=build
-build.classes.dir=build/classes
-build.jar=cbc.jar
-
-src.jj.file=./net/loveruby/cflat/parser/Parser.jj
-build.parser.dir=./net/loveruby/cflat/parser
