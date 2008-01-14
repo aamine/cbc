@@ -270,7 +270,7 @@ SPECIAL_TOKEN: { <([" ","\t","\n","\r"])+> }
 // #@@range/lex_block_comment{
 MORE: { "/*" : IN_BLOCK_COMMENT }
 <IN_BLOCK_COMMENT> MORE: { <~[]> }
-<IN_BLOCK_COMMENT> SKIP: { "*/" : DEFAULT }
+<IN_BLOCK_COMMENT> SPECIAL_TOKEN: { "*/" : DEFAULT }
 // #@@}
 
 // line comment
