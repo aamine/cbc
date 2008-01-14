@@ -1,8 +1,8 @@
 #!/bin/sh
 
-CBC=./cbc
-
+cd `dirname $0`
 . ./shunit.sh
+CBC=../cbc
 
 assert_compile() {
     assert_status 0 $CBC "$@"
@@ -221,7 +221,7 @@ assert_compile_error funcall-semcheck2.cb
 assert_out "3" ./assoc
 assert_out "4;80;0" ./initializer
 assert_out "1, 2, 0" ./test2
-assert_status 0 ./cbc test3.cb
+assert_status 0 $CBC test3.cb
 assert_stat 0 ./test4
 
 test_finished
