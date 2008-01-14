@@ -22,11 +22,13 @@ public class Parser {
         return newFileParser(file, loader, errorHandler, false).parse();
     }
 
+    // #@@range/parseFile{
     static public AST parseFile(File file, LibraryLoader loader,
                                 ErrorHandler errorHandler, boolean debug)
                                 throws SyntaxException, FileException {
         return newFileParser(file, loader, errorHandler, debug).parse();
     }
+    // #@@}
 
     static public Declarations parseDeclFile(File file,
                                              LibraryLoader loader,
@@ -45,6 +47,7 @@ public class Parser {
         return newFileParser(file, loader, errorHandler, debug).parseDecls();
     }
 
+    // #@@range/newFileParser{
     static public Parser newFileParser(File file,
                                        LibraryLoader loader,
                                        ErrorHandler errorHandler,
@@ -62,7 +65,9 @@ public class Parser {
             throw new FileException(ex.getMessage());
         }
     }
+    // #@@}
 
+    // #@@range/newReader{
     static final protected String sourceEncoding = "UTF-8";
 
     static protected Reader newReader(InputStream s)
@@ -70,7 +75,9 @@ public class Parser {
             InputStreamReader r = new InputStreamReader(s, sourceEncoding);
             return new BufferedReader(r);
     }
+    // #@@}
 
+    // #@@range/ctor{
     protected String sourceName;
     protected LabelPool labelPool;
     protected Set knownTypedefs;
@@ -97,7 +104,9 @@ public class Parser {
             disable_tracing();
         }
     }
+    // #@@}
 
+    // #@@range/parse{
     public AST parse() throws SyntaxException {
         try {
             return compilation_unit();
@@ -112,6 +121,7 @@ public class Parser {
             throw new SyntaxException("syntax error");
         }
     }
+    // #@@}
 
     public Declarations parseDecls() throws SyntaxException {
         try {
@@ -133,6 +143,7 @@ public class Parser {
         return knownTypedefs.contains(name);
     }
 
+    // #@@range/newReader{
     private IntegerLiteralNode integerNode(Location loc, String image) {
         long i = integerValue(image);
         if (image.endsWith("UL")) {
@@ -145,7 +156,9 @@ public class Parser {
             return new IntegerLiteralNode(loc, IntegerTypeRef.intRef(), i);
         }
     }
+    // #@@}
 
+    // #@@range/integerValue{
     private long integerValue(String image) {
         String s = image.replaceFirst("[UL]+", "");
         if (s.startsWith("0x") || s.startsWith("0X")) {
@@ -158,7 +171,9 @@ public class Parser {
             return Long.parseLong(s, 10);
         }
     }
+    // #@@}
 
+    // #@@range/characterCode{
     private long characterCode(String image) throws ParseException {
         String s = stringValue(image);
         if (s.length() != 1) {
@@ -166,7 +181,9 @@ public class Parser {
         }
         return (long)s.charAt(0);
     }
+    // #@@}
 
+    // #@@range/stringValue{
     private String stringValue(String _image) throws ParseException {
         int pos = 0;
         int idx;
@@ -192,7 +209,9 @@ public class Parser {
         }
         return buf.toString();
     }
+    // #@@}
 
+    // #@@range/unescapeOctal{
     private static final int charMax = 255;
 
     private char unescapeOctal(String digits) throws ParseException {
@@ -203,7 +222,9 @@ public class Parser {
         }
         return (char)i;
     }
+    // #@@}
 
+    // #@@range/unescapeSeq{
     private static final char bell = 7;
     private static final char backspace = 8;
     private static final char escape = 27;
@@ -226,10 +247,13 @@ public class Parser {
             throw new ParseException("unknown escape sequence: \"\\" + c);
         }
     }
+    // #@@}
 
+    // #@@range/location{
     protected Location location(Token t) {
         return new Location(sourceName, t.beginLine, t.beginColumn);
     }
+    // #@@}
 }
 PARSER_END(Parser)
 
@@ -238,19 +262,26 @@ PARSER_END(Parser)
  */
 
 // linear-white-spaces
+// #@@range/lex_spaces{
 SPECIAL_TOKEN: { <([" ","\t","\n","\r"])+> }
+// #@@}
 
 // block comment
+// #@@range/lex_block_comment{
 MORE: { "/*" : IN_BLOCK_COMMENT }
 <IN_BLOCK_COMMENT> MORE: { <~[]> }
 <IN_BLOCK_COMMENT> SKIP: { "*/" : DEFAULT }
+// #@@}
 
 // line comment
+// #@@range/lex_line_comment{
 SPECIAL_TOKEN: {
     <"//" (~["\n","\r"])* ("\n" | "\r\n" | "\r")?>
 }
+// #@@}
 
 // reserved words
+// #@@range/lex_reswords{
 TOKEN: {
       <VOID     : "void">
     | <CHAR     : "char">
@@ -279,21 +310,27 @@ TOKEN: {
     | <TYPEDEF  : "typedef">
     | <IMPORT   : "import">
 }
+// #@@}
 
 // identifier
+// #@@range/lex_ident{
 TOKEN: {
     <IDENTIFIER: ["a"-"z","A"-"Z","_"] (["a"-"z","A"-"Z","_","0"-"9"])*>
 }
+// #@@}
 
 // integer literals
+// #@@range/lex_integer{
 TOKEN: {
     <INTEGER: ["1"-"9"] (["0"-"9"])* ("U")? ("L")?
             | "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])* ("U")? ("L")?
             | "0" (["0"-"7"])* ("U")? ("L")?
             >
 }
+// #@@}
 
 // character literal
+// #@@range/lex_char{
 MORE: { <"'"> : IN_CHARACTER }
 <IN_CHARACTER> MORE: {
       <~["'","\\","\n","\r"]>
@@ -301,8 +338,10 @@ MORE: { <"'"> : IN_CHARACTER }
     | <"\\" ~[]>
 }
 <IN_CHARACTER> TOKEN: { <CHARACTER: "'"> : DEFAULT }
+// #@@}
 
 // string literal
+// #@@range/lex_string{
 MORE: { <"\""> : IN_STRING }
 <IN_STRING> MORE: {
       <(~["\"","\\","\n","\r"])+>
@@ -310,11 +349,13 @@ MORE: { <"\""> : IN_STRING }
     | <"\\" ~[]>
 }
 <IN_STRING> TOKEN: { <STRING: "\""> : DEFAULT }
+// #@@}
 
 /*
  *  Grammar
  */
 
+// #@@range/compilation_unit{
 AST compilation_unit():
 {
     Token t;
@@ -330,7 +371,9 @@ AST compilation_unit():
             return new AST(sourceName, decls, t);
         }
 }
+// #@@}
 
+// #@@range/declaration_file{
 Declarations declaration_file():
 {
     Declarations impdecls, decls = new Declarations();
@@ -357,7 +400,9 @@ Declarations declaration_file():
             return decls;
         }
 }
+// #@@}
 
+// #@@range/import_stmts{
 Declarations import_stmts():
 {
     String libid;
@@ -386,7 +431,9 @@ Declarations import_stmts():
             return impdecls;
         }
 }
+// #@@}
 
+// #@@range/import_stmt{
 String import_stmt():
 {
     StringBuffer buf = new StringBuffer();
@@ -400,7 +447,9 @@ String import_stmt():
             return buf.toString();
         }
 }
+// #@@}
 
+// #@@range/top_decls{
 Declarations top_decls():
 {
     Declarations decls = new Declarations();
@@ -432,7 +481,9 @@ Declarations top_decls():
             return decls;
         }
 }
+// #@@}
 
+// #@@range/defvars{
 List defvars():
 {
     List defs = new ArrayList();
@@ -457,7 +508,9 @@ List defvars():
             return defs;
         }
 }
+// #@@}
 
+// #@@range/defun{
 DefinedFunction defun():
 {
     boolean priv;
@@ -475,13 +528,17 @@ DefinedFunction defun():
             return new DefinedFunction(labelPool, priv, t, n, ps, body);
         }
 }
+// #@@}
 
+// #@@range/storage{
 boolean storage():
 { Token t = null; }
 {
     [t=<STATIC>] { return (t == null ? false : true); }
 }
+// #@@}
 
+// #@@range/storage{
 Params params():
 {
     Token t;
@@ -499,7 +556,9 @@ Params params():
             return params;
         }
 }
+// #@@}
 
+// #@@range/fixedparams{
 FixedParams fixedparams():
 {
     List params = new ArrayList();
@@ -512,7 +571,9 @@ FixedParams fixedparams():
             return new FixedParams(param1.location(), params);
         }
 }
+// #@@}
 
+// #@@range/param{
 Parameter param():
 {
     TypeNode t;
@@ -521,7 +582,9 @@ Parameter param():
 {
     t=type() n=name() { return new Parameter(t, n); }
 }
+// #@@}
 
+// #@@range/block{
 BlockNode block():
 {
     Token t;
@@ -535,6 +598,7 @@ BlockNode block():
             return new BlockNode(location(t), list, stmts);
         }
 }
+// #@@}
 
 // #@@range/defstruct{
 StructNode defstruct():
@@ -564,6 +628,7 @@ UnionNode defunion():
         }
 }
 
+// #@@range/member_list{
 List member_list():
 {
     List membs = new ArrayList();
@@ -575,7 +640,9 @@ List member_list():
             return membs;
         }
 }
+// #@@}
 
+// #@@range/slot{
 Slot slot():
 {
     TypeNode t;
@@ -584,7 +651,9 @@ Slot slot():
 {
     t=type() n=name() { return new Slot(t, n); }
 }
+// #@@}
 
+// #@@range/funcdecl{
 UndefinedFunction funcdecl():
 {
     TypeRef ref;
@@ -600,6 +669,7 @@ UndefinedFunction funcdecl():
             return new UndefinedFunction(t, n, ps);
         }
 }
+// #@@}
 
 UndefinedVariable vardecl():
 {
@@ -613,12 +683,15 @@ UndefinedVariable vardecl():
         }
 }
 
+// #@@range/type{
 TypeNode type():
 { TypeRef ref; }
 {
     ref=typeref() { return new TypeNode(ref); }
 }
+// #@@}
 
+// #@@range/typeref{
 TypeRef typeref():
 {
     TypeRef ref;
@@ -649,7 +722,9 @@ TypeRef typeref():
             return ref;
         }
 }
+// #@@}
 
+// #@@range/param_typerefs{
 Params param_typerefs():
 { FixedParams params; }
 {
@@ -664,7 +739,9 @@ Params param_typerefs():
             return params;
         }
 }
+// #@@}
 
+// #@@range/fixedparam_typerefs{
 FixedParams fixedparam_typerefs():
 {
     List refs = new ArrayList();
@@ -677,7 +754,9 @@ FixedParams fixedparam_typerefs():
             return new FixedParams(refs);
         }
 }
+// #@@}
 
+// #@@range/typeref_base{
 TypeRef typeref_base():
 {
     Token t, name;
@@ -703,7 +782,9 @@ TypeRef typeref_base():
     | LOOKAHEAD({isType(getToken(1).image)}) name=<IDENTIFIER>
         { return new UserTypeRef(location(name), name.image); }
 }
+// #@@}
 
+// #@@range/typedef{
 TypedefNode typedef():
 {
     Token t;
@@ -717,7 +798,9 @@ TypedefNode typedef():
             return new TypedefNode(location(t), ref, newname.image);
         }
 }
+// #@@}
 
+// #@@range/stmts{
 List stmts():
 {
     List ss = new ArrayList();
@@ -729,7 +812,9 @@ List stmts():
             return ss;
         }
 }
+// #@@}
 
+// #@@range/stmt{
 Node stmt():
 { Node n = null; }
 {
@@ -751,6 +836,7 @@ Node stmt():
             return n;
         }
 }
+// #@@}
 
 LabelNode labeled_stmt():
 {
@@ -764,6 +850,7 @@ LabelNode labeled_stmt():
         }
 }
 
+// #@@range/if_stmt{
 IfNode if_stmt():
 {
     Token t;
@@ -777,7 +864,9 @@ IfNode if_stmt():
             return new IfNode(location(t), labelPool, cond, thenBody, elseBody);
         }
 }
+// #@@}
 
+// #@@range/while_stmt{
 WhileNode while_stmt():
 {
     Token t;
@@ -790,6 +879,7 @@ WhileNode while_stmt():
             return new WhileNode(location(t), labelPool, cond, body);
         }
 }
+// #@@}
 
 DoWhileNode dowhile_stmt():
 {
@@ -905,11 +995,13 @@ GotoNode goto_stmt():
         }
 }
 
+// #@@range/break_stmt{
 BreakNode break_stmt():
 { Token t; }
 {
     t=<BREAK> ";" { return new BreakNode(location(t)); }
 }
+// #@@}
 
 ContinueNode continue_stmt():
 { Token t; }
@@ -927,6 +1019,7 @@ ReturnNode return_stmt():
     | t=<RETURN> expr=expr() ";"  { return new ReturnNode(location(t), expr); }
 }
 
+// #@@range/expr{
 ExprNode expr():
 {
     ExprNode l, r, expr;
@@ -948,7 +1041,9 @@ ExprNode expr():
             return expr;
         }
 }
+// #@@}
 
+// #@@range/opassign_op{
 String opassign_op(): {}
 {
     ( "+="  { return "+"; }
@@ -963,7 +1058,9 @@ String opassign_op(): {}
     | ">>=" { return ">>"; }
     )
 }
+// #@@}
 
+// #@@range/expr10{
 ExprNode expr10():
 { ExprNode c, t, e; }
 {
@@ -973,7 +1070,9 @@ ExprNode expr10():
             return c;
         }
 }
+// #@@}
 
+// #@@range/expr9{
 ExprNode expr9():
 { ExprNode l, r; }
 {
@@ -982,7 +1081,9 @@ ExprNode expr9():
             return l;
         }
 }
+// #@@}
 
+// #@@range/expr8{
 ExprNode expr8():
 { ExprNode l, r; }
 {
@@ -991,7 +1092,9 @@ ExprNode expr8():
             return l;
         }
 }
+// #@@}
 
+// #@@range/expr7{
 ExprNode expr7():
 { ExprNode l, r; }
 {
@@ -1005,7 +1108,9 @@ ExprNode expr7():
             return l;
         }
 }
+// #@@}
 
+// #@@range/expr6{
 ExprNode expr6():
 { ExprNode l, r; }
 {
@@ -1014,7 +1119,9 @@ ExprNode expr6():
             return l;
         }
 }
+// #@@}
 
+// #@@range/expr5{
 ExprNode expr5():
 { ExprNode l, r; }
 {
@@ -1023,7 +1130,9 @@ ExprNode expr5():
             return l;
         }
 }
+// #@@}
 
+// #@@range/expr4{
 ExprNode expr4():
 { ExprNode l, r; }
 {
@@ -1032,7 +1141,9 @@ ExprNode expr4():
             return l;
         }
 }
+// #@@}
 
+// #@@range/expr3{
 ExprNode expr3():
 { ExprNode l, r; }
 {
@@ -1043,7 +1154,9 @@ ExprNode expr3():
             return l;
         }
 }
+// #@@}
 
+// #@@range/expr2{
 ExprNode expr2():
 { ExprNode l, r; }
 {
@@ -1054,7 +1167,9 @@ ExprNode expr2():
             return l;
         }
 }
+// #@@}
 
+// #@@range/expr1{
 ExprNode expr1():
 { ExprNode l, r; }
 {
@@ -1066,7 +1181,9 @@ ExprNode expr1():
             return l;
         }
 }
+// #@@}
 
+// #@@range/term{
 ExprNode term():
 {
     TypeNode t;
@@ -1077,7 +1194,9 @@ ExprNode term():
       "(" t=type() ")" n=term()     { return new CastNode(t, n); }
     | n=unary()                     { return n; }
 }
+// #@@}
 
+// #@@range/unary{
 ExprNode unary():
 {
     ExprNode n;
@@ -1093,7 +1212,9 @@ ExprNode unary():
     | "&" n=term()      { return new AddressNode(n); }
     | n=postfix()       { return n; }
 }
+// #@@}
 
+// #@@range/postfix{
 ExprNode postfix():
 {
     ExprNode base, idx;
@@ -1113,13 +1234,17 @@ ExprNode postfix():
             return base;
         }
 }
+// #@@}
 
+// #@@range/name{
 String name():
 { Token t; }
 {
     t=<IDENTIFIER> { return t.image; }
 }
+// #@@}
 
+// #@@range/args{
 List args():
 {
     List args = new ArrayList();
@@ -1132,6 +1257,7 @@ List args():
             return args;
         }
 }
+// #@@}
 
 // #@@range/primary{
 ExprNode primary():
