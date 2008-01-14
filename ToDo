@@ -184,8 +184,8 @@
 - parse command line option more precisely
 - --dump-reference
 - --dump-semantic
+- add standard load path (use -I option)
 * dump UTF-8 string byte by byte.
-* add standard load path
 * generate IR
 * --dump-ir
 * control flow graph
