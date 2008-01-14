@@ -1,3 +1,7 @@
+Tue Jan 15 00:11:08 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/cbc -> ./cbc
+
 Tue Jan 15 00:09:47 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* build.xml: new task recompile.

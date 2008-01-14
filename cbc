@@ -1,0 +1,7 @@
+#!/bin/sh
+
+basedir=.
+java -classpath $basedir/cbc.jar \
+        net.loveruby.cflat.compiler.Compiler \
+        -I$basedir/import \
+        ${@+"$@"}
