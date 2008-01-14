@@ -1,3 +1,7 @@
+Mon Jan 14 21:23:33 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* move *.hb files from test/ to import/.
+
 Mon Jan 14 21:22:26 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/string.hb: new file.
