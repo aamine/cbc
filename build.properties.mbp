@@ -4,7 +4,5 @@ src.dir=.
 build.dir=build
 build.classes.dir=build/classes
 
-src.jjt.file=${src.dir}/net/loveruby/cflat/parser/Parser.jjt
-build.parser.dir=${src.dir}/net/loveruby/cflat/parser
-build.jj.file=${build.parser.dir}/Parser.jj
-src.jj.file=${src.dir}/net/loveruby/cflat/parser/Parser.jj
+src.jj.file=./net/loveruby/cflat/parser/Parser.jj
+build.parser.dir=./net/loveruby/cflat/parser
