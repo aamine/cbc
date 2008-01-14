@@ -17,7 +17,7 @@
         </javac>
     </target>
 
-    <target name="recompile" depends="clean, compile" />
+    <target name="recompile" depends="clean, jar" />
 
     <target name="jar" depends="compile">
         <jar jarfile="${build.jar}" basedir="${build.classes.dir}" />
