@@ -1,16 +1,11 @@
 CBC = ./cbc
 ANT = jant
 
-.SUFFIXES:
-.SUFFIXES: .cb .
-.cb:
-	$(CBC) $<
-
 test:
 	./test.sh
 
 recompile:
-	cd .. && $(ANT) clean && $(ANT) compile
+	cd .. && $(ANT) recompile
 
 comptest: recompile
 	./test.sh

@@ -1,3 +1,19 @@
+Tue Jan 15 00:09:47 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* build.xml: new task recompile.
+
+	* build.xml: new task jar.
+
+	* build.xml: new task clean-build.
+
+	* build.xml: new task dist.
+
+	* build.properties: remove unused JJT properties.
+
+	* test/cbc: use jar file.
+
+	* test/Makefile
+
 Mon Jan 14 21:48:59 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/cbc: provide -I option to add load path.

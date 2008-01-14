@@ -1,2 +1,2 @@
 #!/bin/sh
-java -classpath ../build/classes net.loveruby.cflat.compiler.Compiler -I../import ${@+"$@"}
+java -classpath ../cbc.jar net.loveruby.cflat.compiler.Compiler -I../import ${@+"$@"}
