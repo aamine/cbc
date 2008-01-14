@@ -1,3 +1,15 @@
+Mon Jan 14 21:22:26 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/string.hb: new file.
+
+	* test/strings.hb: new file.
+
+	* test/stddef.hb: new file.
+
+	* test/errno.hb: new file.
+
+	* test/stdio.hb: add more decls.
+
 Mon Jan 14 02:40:32 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/DefinedFunction.java: remove unused
