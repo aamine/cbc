@@ -23,6 +23,12 @@
         <jar jarfile="${build.jar}" basedir="${build.classes.dir}" />
     </target>
 
+    <target name="test" depends="jar">
+        <exec executable="./test/test.sh" />
+    </target>
+
+    <target name="comptest" depends="clean, test" />
+
     <target name="clean" depends="init, clean-build">
         <delete file="${build.jar}" />
     </target>

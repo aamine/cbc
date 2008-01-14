@@ -1,3 +1,11 @@
+Tue Jan 15 00:30:43 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* build.xml: new task test.
+
+	* build.xml: new task comptest.
+
+	* test/Makefile: new task compile.
+
 Tue Jan 15 00:21:38 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/test.sh: should be executable from any directory.
