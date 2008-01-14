@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="CflatCompiler" default="jar" basedir=".">
     <target name="init">
+        <property file="${user.home}/.ant-global.properties" />
         <property file="build.properties" />
     </target>
 

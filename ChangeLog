@@ -1,3 +1,7 @@
+Tue Jan 15 01:04:55 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* build.xml: read user defined property file from $HOME.
+
 Tue Jan 15 00:51:41 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* build.xml: now default task is "jar" instead of "compile".
