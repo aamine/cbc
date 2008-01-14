@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="CflatCompiler" default="compile" basedir=".">
+<project name="CflatCompiler" default="jar" basedir=".">
     <target name="init">
         <property file="build.properties" />
     </target>
