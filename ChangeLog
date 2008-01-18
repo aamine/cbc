@@ -1,3 +1,7 @@
+Sat Jan 19 07:22:29 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: refactoring: rename lvar.
+
 Tue Jan 15 02:34:00 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: should generate special

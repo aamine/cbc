@@ -1022,19 +1022,19 @@ ReturnNode return_stmt():
 // #@@range/expr{
 ExprNode expr():
 {
-    ExprNode l, r, expr;
+    ExprNode lhs, rhs, expr;
     String op;
 }
 {
       LOOKAHEAD(term() "=")
-      l=term() "=" r=expr()
+      lhs=term() "=" rhs=expr()
         {
-            return new AssignNode(l, r);
+            return new AssignNode(lhs, rhs);
         }
     | LOOKAHEAD(term() opassign_op())
-      l=term() op=opassign_op() r=expr()
+      lhs=term() op=opassign_op() rhs=expr()
         {
-            return new OpAssignNode(l, op, r);
+            return new OpAssignNode(lhs, op, rhs);
         }
     | expr=expr10()
         {
@@ -1217,21 +1217,21 @@ ExprNode unary():
 // #@@range/postfix{
 ExprNode postfix():
 {
-    ExprNode base, idx;
+    ExprNode expr, idx;
     String memb;
     List args;
 }
 {
-    base=primary()
-    ( "++"                  { base = new SuffixOpNode("++", base); }
-    | "--"                  { base = new SuffixOpNode("--", base); }
-    | "[" idx=expr() "]"    { base = new ArefNode(base, idx); }
-    | "." memb=name()       { base = new MemberNode(base, memb); }
-    | "->" memb=name()      { base = new PtrMemberNode(base, memb); }
-    | "(" args=args() ")"   { base = new FuncallNode(base, args); }
+    expr=primary()
+    ( "++"                  { expr = new SuffixOpNode("++", expr); }
+    | "--"                  { expr = new SuffixOpNode("--", expr); }
+    | "[" idx=expr() "]"    { expr = new ArefNode(expr, idx); }
+    | "." memb=name()       { expr = new MemberNode(expr, memb); }
+    | "->" memb=name()      { expr = new PtrMemberNode(expr, memb); }
+    | "(" args=args() ")"   { expr = new FuncallNode(expr, args); }
     )*
         {
-            return base;
+            return expr;
         }
 }
 // #@@}
