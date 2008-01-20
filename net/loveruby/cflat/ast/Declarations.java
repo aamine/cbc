@@ -27,6 +27,10 @@ public class Declarations {
         defvars.add(var);
     }
 
+    public void addDefvars(List vars) {
+        defvars.addAll(vars);
+    }
+
     public List defvars() {
         return defvars;
     }

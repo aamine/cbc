@@ -461,18 +461,9 @@ Declarations top_decls():
 }
 {
     ( LOOKAHEAD(storage() typeref() <IDENTIFIER> "(")
-      defun=defun()
-        {
-            decls.addDefun(defun);
-        }
+      defun=defun()         { decls.addDefun(defun); }
     | LOOKAHEAD(3)
-      defvars=defvars()
-        {
-            Iterator it = defvars.iterator();
-            while (it.hasNext()) {
-                decls.addDefvar((DefinedVariable)it.next());
-            }
-        }
+      defvars=defvars()     { decls.addDefvars(defvars); }
     | defstruct=defstruct() { decls.addDefstruct(defstruct); }
     | defunion=defunion()   { decls.addDefunion(defunion); }
     | typedef=typedef()     { decls.addTypedef(typedef); }

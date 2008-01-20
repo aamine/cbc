@@ -1,3 +1,10 @@
+Mon Jan 21 01:19:10 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/Declarations.java: refactoring: new
+	  method #addDefvars.
+
+	* net/loveruby/cflat/parser/Parser.jj: use it.
+
 Mon Jan 21 00:42:50 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/Parameter.java: simplify dump output.
