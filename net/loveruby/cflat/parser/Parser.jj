@@ -79,10 +79,10 @@ public class Parser {
 
     // #@@range/instance_members{
     protected String sourceName;
-    protected LabelPool labelPool;
-    protected Set knownTypedefs;
     protected LibraryLoader loader;
     protected ErrorHandler errorHandler;
+    protected LabelPool labelPool;
+    protected Set knownTypedefs;
     // #@@}
 
     // #@@range/ctor1{
