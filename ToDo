@@ -185,6 +185,7 @@
 - --dump-reference
 - --dump-semantic
 - add standard load path (use -I option)
+- prohibit multi-dimension array without size
 * dump UTF-8 string byte by byte.
 * generate IR
 * --dump-ir
