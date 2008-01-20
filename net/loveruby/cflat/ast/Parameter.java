@@ -8,4 +8,9 @@ public class Parameter extends DefinedVariable {
     public boolean isParameter() {
         return true;
     }
+
+    protected void _dump(Dumper d) {
+        d.printMember("name", name);
+        d.printMember("typeNode", typeNode);
+    }
 }

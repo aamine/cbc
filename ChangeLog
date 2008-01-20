@@ -1,3 +1,7 @@
+Mon Jan 21 00:42:50 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/Parameter.java: simplify dump output.
+
 Sat Jan 19 07:22:29 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: refactoring: rename lvar.
