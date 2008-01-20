@@ -474,8 +474,8 @@ Declarations top_decls():
 }
 // #@@}
 
-// #@@range/defvars{
-List defvars():
+// #@@range/defvar{
+List defvar():
 {
     List defs = new ArrayList();
     boolean priv;
@@ -489,7 +489,7 @@ List defvars():
             defs.add(new DefinedVariable(priv, type, name, init));
             init = null;
         }
-    ("," name=name() ["=" init=expr()]
+    ( "," name=name() ["=" init=expr()]
         {
             defs.add(new DefinedVariable(priv, type, name, init));
             init = null;
@@ -579,14 +579,28 @@ Parameter param():
 BlockNode block():
 {
     Token t;
-    List list = new ArrayList();
     List vars;
     List stmts;
 }
 {
-    t="{" (vars=defvars() { list.addAll(vars); })* stmts=stmts() "}"
+    t="{" vars=defvar_list() stmts=stmts() "}"
         {
-            return new BlockNode(location(t), list, stmts);
+            return new BlockNode(location(t), vars, stmts);
+        }
+}
+// #@@}
+
+
+// #@@range/defvar_list{
+List defvar_list():
+{
+    List result = new ArrayList();
+    List vars;
+}
+{
+    ( vars=defvar() { result.addAll(vars); } )*
+        {
+            return result;
         }
 }
 // #@@}
