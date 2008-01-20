@@ -133,7 +133,7 @@
         - *st.memb = ...
         - *ptr++ = ...
         - *(int*)ptr = ...
-        * *(ptr + N) = ...
+        * *(ptr + N) = ...     should implement ptr+int
         * their combination
 - bare block ({...})
 - cast
@@ -185,7 +185,8 @@
 - --dump-reference
 - --dump-semantic
 - add standard load path (use -I option)
-- prohibit multi-dimension array without size
+- call GNU as and GNU ld instead of gcc.
+* prohibit multi-dimension array without size
 * dump UTF-8 string byte by byte.
 * generate IR
 * --dump-ir
@@ -200,5 +201,6 @@
         * warn uninitialized use of variables
 * semantic check (dflow)
 * register allocation
+* peephole optimization
 * vararg retrieve
-? 64bit long_long support
+* remove all FIXME
