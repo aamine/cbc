@@ -77,18 +77,22 @@ public class Parser {
     }
     // #@@}
 
-    // #@@range/ctor{
+    // #@@range/instance_members{
     protected String sourceName;
     protected LabelPool labelPool;
     protected Set knownTypedefs;
     protected LibraryLoader loader;
     protected ErrorHandler errorHandler;
+    // #@@}
 
+    // #@@range/ctor1{
     public Parser(Reader s, String name,
                   LibraryLoader loader, ErrorHandler errorHandler) {
         this(s, name, loader, errorHandler, false);
     }
+    // #@@}
 
+    // #@@range/ctor2{
     public Parser(Reader s, String name, LibraryLoader loader,
                   ErrorHandler errorHandler, boolean debug) {
         this(s);

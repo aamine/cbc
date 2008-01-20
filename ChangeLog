@@ -1,3 +1,7 @@
+Mon Jan 21 01:39:22 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: modify preproc tag.
+
 Mon Jan 21 01:24:22 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: change symbol name to fix
