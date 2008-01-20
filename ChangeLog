@@ -1,3 +1,9 @@
+Mon Jan 21 02:51:02 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: produce Error for
+	  UnknownEncodingError.  Current Java runtime must know UTF-8
+	  encoding.
+
 Mon Jan 21 01:58:57 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: refactoring: reorder member

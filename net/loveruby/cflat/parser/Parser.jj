@@ -1,8 +1,10 @@
+// #@@range/options{
 options {
     STATIC = false;
     DEBUG_PARSER = true;
     UNICODE_INPUT = true;
 }
+// #@@}
 
 PARSER_BEGIN(Parser)
 package net.loveruby.cflat.parser;
@@ -19,7 +21,7 @@ public class Parser {
     static public AST parseFile(File file, LibraryLoader loader,
                                 ErrorHandler errorHandler)
                                 throws SyntaxException, FileException {
-        return newFileParser(file, loader, errorHandler, false).parse();
+        return parseFile(file, loader, errorHandler, false);
     }
 
     // #@@range/parseFile{
@@ -35,7 +37,7 @@ public class Parser {
                                              ErrorHandler errorHandler)
                                              throws SyntaxException,
                                                     FileException {
-        return newFileParser(file, loader, errorHandler, false).parseDecls();
+        return parseDeclFile(file, loader, errorHandler, false);
     }
 
     static public Declarations parseDeclFile(File file,
@@ -61,19 +63,20 @@ public class Parser {
         catch (FileNotFoundException ex) {
             throw new FileException(ex.getMessage());
         }
-        catch (UnsupportedEncodingException ex) {
-            throw new FileException(ex.getMessage());
-        }
     }
     // #@@}
 
     // #@@range/newReader{
     static final protected String sourceEncoding = "UTF-8";
 
-    static protected Reader newReader(InputStream s)
-                                throws UnsupportedEncodingException {
+    static protected Reader newReader(InputStream s) {
+        try {
             InputStreamReader r = new InputStreamReader(s, sourceEncoding);
             return new BufferedReader(r);
+        }
+        catch (UnsupportedEncodingException ex) {
+            throw new Error("must not happen: " + ex.getMessage());
+        }
     }
     // #@@}
 
