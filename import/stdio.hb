@@ -1,3 +1,4 @@
+// #@@range/head{
 // stdio.hb
 
 import stddef;  // for size_t
@@ -12,6 +13,7 @@ extern FILE* fopen(char* path, char* mode);
 extern FILE* fdopen(int fd, char* mode);
 extern FILE* freopen(char* path, char* mode, FILE* stream);
 extern int fclose(FILE* stream);
+// #@@}
 extern int getchar(void);
 extern int getc(FILE* stream);
 extern int fgetc(FILE* stream);
