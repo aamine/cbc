@@ -50,6 +50,7 @@ public class Compiler {
         public String mode;
         public String inputFile;
         //public String outputFile;
+        public boolean verbose;
         public boolean debugParser;
         //public boolean debugBuild;
         public TypeTable typeTable;
@@ -105,6 +106,9 @@ public class Compiler {
                 //else if (arg.startsWith("-l"))
                 //else if (arg.startsWith("-Wl,"))
                 //else if (arg.equals("-Xlinker"))
+                else if (arg.equals("-v")) {
+                    opts.verbose = true;
+                }
                 else if (arg.equals("--help")) {
                     printUsage(System.out);
                     System.exit(0);
@@ -201,11 +205,15 @@ public class Compiler {
         if (opts.isMode("-S")) {
             return;
         }
-        assemble(asmFileName(opts.inputFile), objFileName(opts.inputFile));
+        assemble(asmFileName(opts.inputFile),
+                 objFileName(opts.inputFile),
+                 opts);
         if (opts.isMode("-c")) {
             return;
         }
-        link(objFileName(opts.inputFile), exeFileName(opts.inputFile));
+        link(objFileName(opts.inputFile),
+             exeFileName(opts.inputFile),
+             opts);
     }
 
     protected void dumpTokenList(Token t, PrintStream s) {
@@ -250,17 +258,19 @@ public class Compiler {
     }
 
     protected void assemble(String srcPath,
-                            String destPath) throws IPCException {
+                            String destPath,
+                            Options opts) throws IPCException {
         String[] cmd = {
             "as",
             "-o", destPath,
             srcPath
         };
-        invoke(cmd);
+        invoke(cmd, opts.verbose);
     }
 
     protected void link(String srcPath,
-                        String destPath) throws IPCException {
+                        String destPath,
+                        Options opts) throws IPCException {
         String[] cmd = {
             "ld",
             "-dynamic-linker", "/lib/ld-linux.so.2",
@@ -272,10 +282,13 @@ public class Compiler {
             "/usr/lib/crtn.o",
             "-o", destPath
         };
-        invoke(cmd);
+        invoke(cmd, opts.verbose);
     }
 
-    public void invoke(String[] cmd) throws IPCException {
+    public void invoke(String[] cmd, boolean debug) throws IPCException {
+        if (debug) {
+            dumpCommand(cmd);
+        }
         try {
             Process proc = Runtime.getRuntime().exec(cmd);
             proc.waitFor();
@@ -295,6 +308,15 @@ public class Compiler {
             errorHandler.error(ex.getMessage());
             throw new IPCException("compile error");
         }
+    }
+
+    protected void dumpCommand(String[] cmd) {
+        String sep = "";
+        for (int i = 0; i < cmd.length; i++) {
+            System.out.print(sep); sep = " ";
+            System.out.print(cmd[i]);
+        }
+        System.out.println("");
     }
 
     protected void passThrough(InputStream s) throws IOException {
