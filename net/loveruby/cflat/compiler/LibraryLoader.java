@@ -7,17 +7,23 @@ import java.io.*;
 
 public class LibraryLoader {
     protected List loadPath;
-    protected Map loadedLibrary;
+    protected LinkedList loadingLibraries;      // LinkedList<String>
+    protected Map loadedLibraries;              // Map<String, Boolean>
+
+    static public List defaultLoadPath() {
+        List pathes = new ArrayList();
+        pathes.add(".");
+        return pathes;
+    }
 
     public LibraryLoader() {
-        loadPath = new ArrayList();
-        loadPath.add(".");
-        loadedLibrary = new HashMap();
+        this(defaultLoadPath());
     }
 
     public LibraryLoader(List loadPath) {
         this.loadPath = loadPath;
-        loadedLibrary = new HashMap();
+        loadingLibraries = new LinkedList();
+        loadedLibraries = new HashMap();
     }
 
     public void addLoadPath(String path) {
@@ -26,12 +32,20 @@ public class LibraryLoader {
 
     public Declarations loadLibrary(String libid, ErrorHandler handler)
             throws CompileException {
-        if (loadedLibrary.containsKey(libid)) {
+        if (loadingLibraries.contains(libid)) {
+            throw new SemanticException("recursive import from "
+                                        + loadingLibraries.getLast()
+                                        + ": " + libid);
+        }
+        loadingLibraries.addLast(libid);   // stop recursive import
+        if (loadedLibraries.containsKey(libid)) {
+            // Already loaded import file.  Do nothing.
             return null;
         }
         Declarations decls =
             Parser.parseDeclFile(searchLibrary(libid), this, handler);
-        loadedLibrary.put(libid, decls);
+        loadedLibraries.put(libid, decls);
+        loadingLibraries.removeLast();
         return decls;
     }
 

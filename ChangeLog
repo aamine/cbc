@@ -1,3 +1,8 @@
+Mon Jan 21 05:24:49 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/LibraryLoader.java: should reject
+	  recursive import.
+
 Mon Jan 21 02:51:02 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: produce Error for
