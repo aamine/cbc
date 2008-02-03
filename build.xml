@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="CflatCompiler" default="jar" basedir=".">
+<project name="CflatCompiler" default="compile" basedir=".">
     <target name="init">
         <property file="${user.home}/.ant-global.properties" />
         <property file="build.properties" />
@@ -16,15 +16,12 @@
                debug="true" source="1.4">
             <include name="net/**/*.java" />
         </javac>
-    </target>
-
-    <target name="recompile" depends="clean, jar" />
-
-    <target name="jar" depends="compile">
         <jar jarfile="${build.jar}" basedir="${build.classes.dir}" />
     </target>
 
-    <target name="test" depends="jar">
+    <target name="recompile" depends="clean, compile" />
+
+    <target name="test" depends="compile">
         <exec executable="./test/test.sh" />
     </target>
 
@@ -47,7 +44,7 @@
 
     <target name="dist">
         <antcall target="clean" />
-        <antcall target="jar" />
+        <antcall target="compile" />
         <antcall target="clean-build" />
     </target>
 </project>
