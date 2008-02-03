@@ -142,6 +142,13 @@ public class Parser {
         }
     }
 
+    private void addKnownTypedefs(Iterator typedefs) {
+        while (typedefs.hasNext()) {
+            TypedefNode n = (TypedefNode)typedefs.next();
+            addType(n.name());
+        }
+    }
+
     private void addType(String name) {
         knownTypedefs.add(name);
     }
@@ -155,11 +162,14 @@ public class Parser {
         long i = integerValue(image);
         if (image.endsWith("UL")) {
             return new IntegerLiteralNode(loc, IntegerTypeRef.ulongRef(), i);
-        } else if (image.endsWith("L")) {
+        }
+        else if (image.endsWith("L")) {
             return new IntegerLiteralNode(loc, IntegerTypeRef.longRef(), i);
-        } else if (image.endsWith("U")) {
+        }
+        else if (image.endsWith("U")) {
             return new IntegerLiteralNode(loc, IntegerTypeRef.uintRef(), i);
-        } else {
+        }
+        else {
             return new IntegerLiteralNode(loc, IntegerTypeRef.intRef(), i);
         }
     }
@@ -422,11 +432,7 @@ Declarations import_stmts():
                 Declarations decls = loader.loadLibrary(libid, errorHandler);
                 if (decls != null) {
                     impdecls.add(decls);
-                    Iterator types = decls.typedefs().iterator();
-                    while (types.hasNext()) {
-                        TypedefNode n = (TypedefNode)types.next();
-                        addType(n.name());
-                    }
+                    addKnownTypedefs(decls.typedefs().iterator());
                 }
             }
             catch (CompileException ex) {
