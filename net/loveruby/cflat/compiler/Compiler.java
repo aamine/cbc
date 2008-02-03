@@ -217,22 +217,44 @@ public class Compiler {
     }
 
     protected void dumpTokenList(Token t, PrintStream s) {
-        while (t != null) {
-            dumpTokenList(t.specialToken, s);
+        for (; t != null; t = t.next) {
+            if (t.specialToken != null) {
+                dumpSpecialTokenList(t.specialToken, s);
+            }
             dumpToken(t, s);
-            t = t.next;
         }
+    }
+
+    protected void dumpSpecialTokenList(Token tok, PrintStream s) {
+        for (Token t = specialTokenHead(tok); t != null; t = t.next) {
+            dumpToken(t, s);
+        }
+    }
+
+    protected Token specialTokenHead(Token tok) {
+        Token t = tok;
+        while (t.specialToken != null) {
+            t = t.specialToken;
+        }
+        return t;
     }
 
     static final protected int typeLen = 24;
 
     protected void dumpToken(Token t, PrintStream s) {
-        String type = ParserConstants.tokenImage[t.kind];
-        s.print(type);
-        for (int n = typeLen - type.length(); n > 0; n--) {
+        ljustPrint(s, typeLen, tokenType(t));
+        s.println(TextUtils.escapeString(t.image));
+    }
+
+    protected String tokenType(Token t) {
+        return ParserConstants.tokenImage[t.kind];
+    }
+
+    protected void ljustPrint(PrintStream s, int width, String value) {
+        s.print(value);
+        for (int n = width - value.length(); n > 0; n--) {
             s.print(" ");
         }
-        s.println(TextUtils.escapeString(t.image));
     }
 
     protected AST parseFile(Options opts)

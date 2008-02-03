@@ -1,3 +1,12 @@
+Sun Feb  3 18:30:18 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java (dumpTokenList):
+	  specialToken handling was wrong.  We should trace t.specialToken
+	  while it becomes null, then follow t.next.
+
+	* net/loveruby/cflat/parser/Parser.jj: write token name for
+	  special tokens.
+
 Mon Jan 21 05:37:28 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: new command line
