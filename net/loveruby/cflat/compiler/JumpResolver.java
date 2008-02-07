@@ -41,16 +41,6 @@ public class JumpResolver extends Visitor {
         visitNode(n);
     }
 
-    // #@@range/currentBreakTarget{
-    private BreakableStmt currentBreakTarget() {
-        return (BreakableStmt)breakTargetStack.getLast();
-    }
-    // #@@}
-
-    private ContinueableStmt currentContinueTarget() {
-        return (ContinueableStmt)continueTargetStack.getLast();
-    }
-
     public void visit(SwitchNode node) {
         resolve(node.cond());
         breakTargetStack.add(node);
@@ -93,27 +83,26 @@ public class JumpResolver extends Visitor {
 
     // #@@range/_break{
     public void visit(BreakNode node) {
-        BreakableStmt target = currentBreakTarget();
-        if (target != null) {
-            node.setTargetLabel(target.endLabel());
-        }
-        else {
+        if (breakTargetStack.isEmpty()) {
             errorHandler.error(node.location(), 
-                               "break from out of while/do-while/for/switch");
+                    "break from out of while/do-while/for/switch");
+            return;
         }
+        BreakableStmt target = (BreakableStmt)breakTargetStack.getLast();
+        node.setTargetLabel(target.endLabel());
     }
     // #@@}
 
     // #@@range/_continue{
     public void visit(ContinueNode node) {
-        ContinueableStmt target = currentContinueTarget();
-        if (target != null) {
-            node.setTargetLabel(target.continueLabel());
-        }
-        else {
+        if (breakTargetStack.isEmpty()) {
             errorHandler.error(node.location(),
-                               "continue from out of while/do-while/for");
+                        "continue from out of while/do-while/for");
+            return;
         }
+        ContinueableStmt target =
+                (ContinueableStmt)continueTargetStack.getLast();
+        node.setTargetLabel(target.continueLabel());
     }
     // #@@}
 

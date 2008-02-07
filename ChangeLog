@@ -1,3 +1,8 @@
+Fri Feb  8 04:59:38 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/JumpResolver.java: remove
+	  currentBreakTarget and currentContinueTarget to simplify.
+
 Fri Feb  8 04:46:14 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/JumpResolver.java
