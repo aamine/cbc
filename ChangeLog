@@ -1,3 +1,11 @@
+Fri Feb  8 04:46:14 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/JumpResolver.java
+	  (currentBreakTarget, currentContinueTarget): does not throw
+	  exception.
+
+	* net/loveruby/cflat/compiler/JumpResolver.java: add preproc tags.
+
 Sun Feb  3 18:37:21 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* build.xml: unify task: jar and compile.

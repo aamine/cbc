@@ -10,6 +10,7 @@ public class JumpResolver extends Visitor {
         new JumpResolver(h).resolve(ast);
     }
 
+    // #@@range/ctor{
     protected ErrorHandler errorHandler;
     protected LinkedList breakTargetStack;
     protected LinkedList continueTargetStack;
@@ -18,7 +19,9 @@ public class JumpResolver extends Visitor {
     public JumpResolver(ErrorHandler h) {
         errorHandler = h;
     }
+    // #@@}
 
+    // #@@range/resolve{
     public void resolve(AST ast) throws SemanticException {
         breakTargetStack = new LinkedList();
         continueTargetStack = new LinkedList();
@@ -32,24 +35,19 @@ public class JumpResolver extends Visitor {
             throw new SemanticException("compile failed.");
         }
     }
+    // #@@}
 
     protected void resolve(Node n) {
         visitNode(n);
     }
 
-    private BreakableStmt currentBreakTarget()
-                                throws SemanticException {
-        if (breakTargetStack.isEmpty()) {
-            throw new SemanticException("break from out of while/for/switch");
-        }
+    // #@@range/currentBreakTarget{
+    private BreakableStmt currentBreakTarget() {
         return (BreakableStmt)breakTargetStack.getLast();
     }
+    // #@@}
 
-    private ContinueableStmt currentContinueTarget()
-                                throws SemanticException {
-        if (continueTargetStack.isEmpty()) {
-            throw new SemanticException("continue from out of while/for");
-        }
+    private ContinueableStmt currentContinueTarget() {
         return (ContinueableStmt)continueTargetStack.getLast();
     }
 
@@ -60,6 +58,7 @@ public class JumpResolver extends Visitor {
         breakTargetStack.removeLast();
     }
 
+    // #@@range/_while{
     public void visit(WhileNode node) {
         resolve(node.cond());
         breakTargetStack.add(node);
@@ -68,6 +67,7 @@ public class JumpResolver extends Visitor {
         continueTargetStack.removeLast();
         breakTargetStack.removeLast();
     }
+    // #@@}
 
     public void visit(DoWhileNode node) {
         breakTargetStack.add(node);
@@ -78,6 +78,7 @@ public class JumpResolver extends Visitor {
         resolve(node.cond());
     }
 
+    // #@@range/_for{
     public void visit(ForNode node) {
         resolve(node.init());
         resolve(node.cond());
@@ -88,24 +89,33 @@ public class JumpResolver extends Visitor {
         continueTargetStack.removeLast();
         breakTargetStack.removeLast();
     }
+    // #@@}
 
+    // #@@range/_break{
     public void visit(BreakNode node) {
-        try {
-            node.setTargetLabel(currentBreakTarget().endLabel());
+        BreakableStmt target = currentBreakTarget();
+        if (target != null) {
+            node.setTargetLabel(target.endLabel());
         }
-        catch (SemanticException ex) {
-            errorHandler.error(node.location(), ex.getMessage());
+        else {
+            errorHandler.error(node.location(), 
+                               "break from out of while/do-while/for/switch");
         }
     }
+    // #@@}
 
+    // #@@range/_continue{
     public void visit(ContinueNode node) {
-        try {
-            node.setTargetLabel(currentContinueTarget().continueLabel());
+        ContinueableStmt target = currentContinueTarget();
+        if (target != null) {
+            node.setTargetLabel(target.continueLabel());
         }
-        catch (SemanticException ex) {
-            errorHandler.error(node.location(), ex.getMessage());
+        else {
+            errorHandler.error(node.location(),
+                               "continue from out of while/do-while/for");
         }
     }
+    // #@@}
 
     public void visit(LabelNode node) {
         try {
