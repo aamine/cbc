@@ -15,10 +15,6 @@ public class UndefinedVariable extends Variable {
         return name();
     }
 
-    public void defineIn(ToplevelScope s) {
-        throw new Error("UndefinedVariable#defineIn called");
-    }
-
     public void setAddress(AsmEntity addr) {
         throw new Error("UndefinedVariable#setAddress");
     }

@@ -3,18 +3,12 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
 abstract public class Variable extends Entity {
-    protected boolean toplevel;
     protected long sequence;
     protected AsmEntity address;
 
     public Variable(boolean priv, TypeNode type, String name) {
         super(priv, type, name);
-        toplevel = false;
         sequence = -1;
-    }
-
-    public void toplevelDefinition() {
-        toplevel = true;
     }
 
     public void setSequence(long seq) {

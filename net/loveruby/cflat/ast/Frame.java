@@ -6,8 +6,20 @@ public class Frame extends Scope {
         super(up);
     }
 
-    public void allocatePrivateVariable(Variable var) {
-        throw new Error("Frame#allocatePrivateVariable called");
+    public List staticLocalVariables() {
+        List result = new ArrayList();
+        Iterator scopes = allChildren();
+        while (scopes.hasNext()) {
+            Scope s = (Scope)scopes.next();
+            Iterator vars = s.variables();
+            while (vars.hasNext()) {
+                DefinedVariable var = (DefinedVariable)vars.next();
+                if (var.isPrivate()) {
+                    result.add(var);
+                }
+            }
+        }
+        return result;
     }
 
     public long numLocalVariables() {

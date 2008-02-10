@@ -10,7 +10,6 @@ public class DefinedVariable extends Variable {
                            String name, ExprNode init) {
         super(priv, type, name);
         initializer = init;
-        toplevel = false;
         sequence = -1;
     }
 
@@ -32,14 +31,6 @@ public class DefinedVariable extends Variable {
 
     public void setInitializer(ExprNode expr) {
         this.initializer = expr;
-    }
-
-    public void defineIn(ToplevelScope toplevel) {
-        if (isPrivate()) {
-            toplevel.allocatePrivateVariable(this);
-        } else {
-            toplevel.allocateVariable(this);
-        }
     }
 
     protected void _dump(Dumper d) {

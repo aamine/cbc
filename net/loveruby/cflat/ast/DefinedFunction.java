@@ -47,10 +47,6 @@ public class DefinedFunction extends Function {
         return true;
     }
 
-    public void defineIn(ToplevelScope toplevel) {
-        toplevel.defineFunction(this);
-    }
-
     class JumpEntry {
         public Label label;
         public long numRefered;

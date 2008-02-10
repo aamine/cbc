@@ -32,7 +32,7 @@ public class LocalReferenceResolver extends Visitor {
         constantTable = ast.constantTable();
 
         declareToplevelEntities(ast.declarations());
-        defineToplevelEntities(ast.entities());
+        declareToplevelEntities(ast.entities());
         resolveGvarInitializers(ast.variables());
         resolveFunctions(ast.functions());
         toplevel.checkReferences(errorHandler);
@@ -45,15 +45,7 @@ public class LocalReferenceResolver extends Visitor {
     // #@@range/declareToplevelEntities{
     protected void declareToplevelEntities(Iterator decls) {
         while (decls.hasNext()) {
-            toplevel.declare((Entity)decls.next());
-        }
-    }
-    // #@@}
-
-    // #@@range/defineToplevelEntities{
-    protected void defineToplevelEntities(Iterator entities) {
-        while (entities.hasNext()) {
-            toplevel.define((Entity)entities.next());
+            toplevel.declareEntity((Entity)decls.next());
         }
     }
     // #@@}
@@ -89,7 +81,7 @@ public class LocalReferenceResolver extends Visitor {
                 error(param, "duplicated parameter: " + param.name());
             }
             else {
-                frame.allocateVariable(param);
+                frame.declareEntity(param);
             }
         }
         scopeStack.addLast(frame);
@@ -114,13 +106,7 @@ public class LocalReferenceResolver extends Visitor {
     protected void pushScope(Iterator vars) {
         Scope scope = new Scope(currentScope());
         while (vars.hasNext()) {
-            Variable var = (Variable)vars.next();
-            if (var.isPrivate()) {
-                scope.allocateStaticLocalVariable(var);
-            }
-            else {
-                scope.allocateVariable(var);
-            }
+            scope.declareEntity((DefinedVariable)vars.next());
         }
         scopeStack.addLast(scope);
     }

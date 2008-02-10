@@ -6,11 +6,9 @@ import java.util.*;
 public class Scope {
     protected Scope parent;
     protected List children;
-
-    protected long numAllEntities;
     protected List entities;
     protected Map entitiesMap;
-    protected Map privateEntitiesMap;
+    protected long numAllEntities;
 
     public Scope(Scope up) {
         parent = up;
@@ -19,7 +17,6 @@ public class Scope {
         numAllEntities = -1;
         entities = new ArrayList();
         entitiesMap = new HashMap();
-        privateEntitiesMap = new HashMap();
     }
 
     public boolean isToplevel() {
@@ -61,55 +58,30 @@ public class Scope {
         }
     }
 
-    /** Allocates variable var in this scope. */
-    // #@@range/allocateVariable{
-    public void allocateVariable(Variable var) {
-        checkDuplicatedVariable(var.name());
-        addEntity(var);
-    }
-    // #@@}
-
-    /** Allocates static variable var in this scope.
-     *  This method causes var defined in the top scope,
-     *  instead of this scope.
-     */
-    // #@@range/allocateStaticLocalVariable{
-    public void allocateStaticLocalVariable(Variable var) {
-        checkDuplicatedVariable(var.name());
-        toplevel().allocateStaticLocalVariable(var);
-        addPrivateEntity(var);
-    }
-    // #@@}
-
-    protected void addEntity(Entity ent) {
+    /** Declare variable or function in this scope. */
+    // #@@range/declareEntity{
+    public void declareEntity(Entity ent) {
+        if (entitiesMap.containsKey(ent.name())) {
+            throw new Error("duplicated entity: " + ent.name());
+        }
         entities.add(ent);
         entitiesMap.put(ent.name(), ent);
     }
-
-    protected void addPrivateEntity(Entity ent) {
-        privateEntitiesMap.put(ent.name(), ent);
-    }
-
-    protected void checkDuplicatedVariable(String name) {
-        if (entitiesMap.containsKey(name)
-                || privateEntitiesMap.containsKey(name)) {
-            throw new Error("duplicated variable: " + name);
-        }
-    }
+    // #@@}
 
     public boolean isDefinedLocally(String name) {
-        return (entitiesMap.containsKey(name)
-                || privateEntitiesMap.containsKey(name));
+        return entitiesMap.containsKey(name);
     }
 
     // #@@range/get{
     public Entity get(String name) throws SemanticException {
-        Entity ent;
-        ent = (Entity)privateEntitiesMap.get(name);
-        if (ent != null) return ent;
-        ent = (Entity)entitiesMap.get(name);
-        if (ent != null) return ent;
-        return parent.get(name);
+        Entity ent = (Entity)entitiesMap.get(name);
+        if (ent != null) {
+            return ent;
+        }
+        else {
+            return parent.get(name);
+        }
     }
     // #@@}
 

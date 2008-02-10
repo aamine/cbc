@@ -1,3 +1,33 @@
+Mon Feb 11 03:08:16 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/Scope.java: ban all allocate* methods,
+	  privateEntitiesMap.  Use #declareEntity instead.
+
+	* net/loveruby/cflat/ast/Frame.java: ditto.
+
+	* net/loveruby/cflat/ast/ToplevelScope.java: ditto.
+
+	* net/loveruby/cflat/ast/ToplevelScope.java (commonSymbols,
+	  globalVariables): static local variables are now in each Scopes,
+	  collect static local variables from them by myself.
+
+	* net/loveruby/cflat/ast/Entity.java: #defineIn removed.
+
+	* net/loveruby/cflat/ast/Variable.java: #defineIn removed.
+
+	* net/loveruby/cflat/ast/DefinedVariable.java: #defineIn removed.
+
+	* net/loveruby/cflat/ast/UndefinedVariable.java: #defineIn
+	  removed.
+
+	* net/loveruby/cflat/ast/DefinedFunction.java: #defineIn removed.
+
+	* net/loveruby/cflat/ast/UndefinedFunction.java: #defineIn
+	  removed.
+
+	* net/loveruby/cflat/compiler/LocalReferenceResolver.java: follow
+	  these changes.
+
 Mon Feb 11 00:17:28 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/LocalReferenceResolver.java: add

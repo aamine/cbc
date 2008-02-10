@@ -4,98 +4,55 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class ToplevelScope extends Scope {
-    protected List privateEntities;
-    protected Map sequenceTable;
+    protected List staticLocalVariables;
 
     public ToplevelScope() {
         super(null);
-        privateEntities = new ArrayList();
-        sequenceTable = new HashMap();
     }
 
     public boolean isToplevel() {
         return true;
     }
 
-    /** Declares external symbols */
-    // #@@range/declare{
-    public void declare(Entity entity) {
-        addEntity(entity);
-    }
-    // #@@}
-
-    /** Defines entity */
-    // #@@range/define{
-    public void define(Entity entity) {
-        entity.defineIn(this);
-    }
-    // #@@}
-
-    /** Defines (local) function */
-    // #@@range/defineFunction{
-    public void defineFunction(DefinedFunction f) {
-        if (f.isPrivate()) {
-            addPrivateEntity(f);
-        }
-        else {
-            addEntity(f);
-        }
-    }
-    // #@@}
-
-    /** Allocates public global variable or common symbol */
-    // #@@range/allocateVariable{
-    public void allocateVariable(Variable var) {
-        addEntity(var);
-        var.toplevelDefinition();
-    }
-    // #@@}
-
-    /** Allocates private global variable or common symbol */
-    // #@@range/allocatePrivateVariable{
-    public void allocatePrivateVariable(Variable var) {
-        addPrivateEntity(var);
-        var.toplevelDefinition();
-    }
-    // #@@}
-
-    /** Allocates static local variable */
-    // #@@range/allocateStaticLocalVariable{
-    public void allocateStaticLocalVariable(Variable var) {
-        addPrivateEntity(var);
-        Long seq = (Long)sequenceTable.get(var.name());
-        if (seq == null) {
-            var.setSequence(0);
-            sequenceTable.put(var.name(), new Long(1));
-        }
-        else {
-            var.setSequence(seq.longValue());
-            sequenceTable.put(var.name(), new Long(seq.longValue() + 1));
-        }
-    }
-    // #@@}
-
-    // #@@range/addPrivateEntity{
-    protected void addPrivateEntity(Entity ent) {
-        super.addPrivateEntity(ent);
-        privateEntities.add(ent);
-    }
-    // #@@}
-
     /** Searches and gets entity searching scopes upto ToplevelScope. */
     // #@@range/get{
     public Entity get(String name) throws SemanticException {
-        Entity ent;
-        ent = (Entity)privateEntitiesMap.get(name);
-        if (ent != null) return ent;
-        ent = (Entity)entitiesMap.get(name);
-        if (ent != null) return ent;
-        throw new SemanticException("unresolved reference: " + name);
+        Entity ent = (Entity)entitiesMap.get(name);
+        if (ent == null) {
+            throw new SemanticException("unresolved reference: " + name);
+        }
+        return ent;
     }
     // #@@}
 
     public Iterator allVariables() {
         throw new Error("TopScope#allVariables called");
+    }
+
+    protected List staticLocalVariables() {
+        if (staticLocalVariables == null) {
+            staticLocalVariables = new ArrayList();
+            Iterator frames = children.iterator();
+            while (frames.hasNext()) {
+                Frame f = (Frame)frames.next();
+                staticLocalVariables.addAll(f.staticLocalVariables());
+            }
+            Map seqTable = new HashMap();
+            Iterator vars = staticLocalVariables.iterator();
+            while (vars.hasNext()) {
+                DefinedVariable var = (DefinedVariable)vars.next();
+                Long seq = (Long)seqTable.get(var.name());
+                if (seq == null) {
+                    var.setSequence(0);
+                    seqTable.put(var.name(), new Long(1));
+                }
+                else {
+                    var.setSequence(seq.longValue());
+                    seqTable.put(var.name(), new Long(seq.longValue() + 1));
+                }
+            }
+        }
+        return staticLocalVariables;
     }
 
     /** Returns the list of global variables.
@@ -105,13 +62,13 @@ public class ToplevelScope extends Scope {
         List result = new ArrayList();
         List src = new ArrayList();
         src.addAll(entities);
-        src.addAll(privateEntities);
+        src.addAll(staticLocalVariables());
         Iterator ents = src.iterator();
         while (ents.hasNext()) {
             Object ent = ents.next();
             if (ent instanceof DefinedVariable) {
                 DefinedVariable var = (DefinedVariable)ent;
-                if (var.isInitialized()) {
+                if (var.hasInitializer()) {
                     result.add(var);
                 }
             }
@@ -126,7 +83,7 @@ public class ToplevelScope extends Scope {
         List result = new ArrayList();
         List src = new ArrayList();
         src.addAll(entities);
-        src.addAll(privateEntities);
+        src.addAll(staticLocalVariables());
         Iterator ents = src.iterator();
         while (ents.hasNext()) {
             Object ent = ents.next();

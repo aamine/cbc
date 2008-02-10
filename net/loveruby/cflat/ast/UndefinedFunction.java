@@ -19,10 +19,6 @@ public class UndefinedFunction extends Function {
         return false;
     }
 
-    public void defineIn(ToplevelScope scope) {
-        throw new Error("UndefinedFunction#defineIn");
-    }
-
     protected void _dump(Dumper d) {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate());

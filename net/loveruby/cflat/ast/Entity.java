@@ -50,7 +50,6 @@ abstract public class Entity extends Node {
         return (nRefered > 0);
     }
 
-    abstract public void defineIn(ToplevelScope toplevel);
     abstract public AsmEntity address();
 
     public Location location() {
