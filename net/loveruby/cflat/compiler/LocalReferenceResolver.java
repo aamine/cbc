@@ -31,10 +31,14 @@ public class LocalReferenceResolver extends Visitor {
         scopeStack.add(toplevel);
         constantTable = ast.constantTable();
 
+        // #@@range/declareToplevel{
         declareToplevelEntities(ast.declarations());
         declareToplevelEntities(ast.entities());
+        // #@@}
+        // #@@range/resolveRefs{
         resolveGvarInitializers(ast.variables());
         resolveFunctions(ast.functions());
+        // #@@}
         toplevel.checkReferences(errorHandler);
         if (errorHandler.errorOccured()) {
             throw new SemanticException("compile failed.");
