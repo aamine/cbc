@@ -50,29 +50,22 @@ public class Parser {
     }
 
     // #@@range/newFileParser{
+    static final protected String sourceEncoding = "UTF-8";
+
     static public Parser newFileParser(File file,
                                        LibraryLoader loader,
                                        ErrorHandler errorHandler,
                                        boolean debug)
                                        throws FileException {
         try {
-            return new Parser(newReader(new FileInputStream(file)),
-                              file.getPath(), loader,
-                              errorHandler, debug);
+            BufferedReader r =
+                new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file),
+                                          sourceEncoding));
+            return new Parser(r, file.getPath(), loader, errorHandler, debug);
         }
         catch (FileNotFoundException ex) {
             throw new FileException(ex.getMessage());
-        }
-    }
-    // #@@}
-
-    // #@@range/newReader{
-    static final protected String sourceEncoding = "UTF-8";
-
-    static protected Reader newReader(InputStream s) {
-        try {
-            InputStreamReader r = new InputStreamReader(s, sourceEncoding);
-            return new BufferedReader(r);
         }
         catch (UnsupportedEncodingException ex) {
             throw new Error("must not happen: " + ex.getMessage());
