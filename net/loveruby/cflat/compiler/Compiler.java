@@ -73,6 +73,7 @@ public class Compiler {
                 if (arg.equals("--check-syntax")
                         || arg.equals("--dump-tokens")
                         || arg.equals("--dump-ast")
+                        || arg.equals("--dump-stmt")
                         || arg.equals("--dump-reference")
                         || arg.equals("--dump-semantic")
                         || arg.equals("-S")
@@ -195,6 +196,10 @@ public class Compiler {
             ast.dump();
             return;
         }
+        if (opts.isMode("--dump-stmt")) {
+            findStmt(ast).dump();
+            return;
+        }
         semanticAnalysis(ast, opts);
         if (opts.isMode("--dump-semantic")) {
             ast.dump();
@@ -255,6 +260,22 @@ public class Compiler {
         for (int n = width - value.length(); n > 0; n--) {
             s.print(" ");
         }
+    }
+
+    protected Node findStmt(AST ast) {
+        Iterator funcs = ast.functions();
+        while (funcs.hasNext()) {
+            DefinedFunction f = (DefinedFunction)funcs.next();
+            if (f.name().equals("main")) {
+                Iterator stmts = f.body().stmts();
+                while (stmts.hasNext()) {
+                    return (Node)stmts.next();
+                }
+                errorExit("main() has no stmt");
+            }
+        }
+        errorExit("source file does not contains main()");
+        return null;   // never reach
     }
 
     protected AST parseFile(Options opts)

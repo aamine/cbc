@@ -1,3 +1,8 @@
+Mon Feb 11 06:54:20 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: new option
+	  --dump-stmt, to dump only first statement of main.
+
 Mon Feb 11 06:33:10 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: unify newFileParser and
