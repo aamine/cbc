@@ -91,7 +91,6 @@ public class LocalReferenceResolver extends Visitor {
             else {
                 scope.declareEntity(var);
             }
-            scope.declareEntity(var);
         }
         scopeStack.addLast(scope);
     }
