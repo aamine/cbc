@@ -3,7 +3,7 @@
 
 import stddef;  // for size_t
 
-typedef unsigned long FILE;
+typedef unsigned long FILE;   // dummy
 
 extern FILE* stdin;
 extern FILE* stdout;
