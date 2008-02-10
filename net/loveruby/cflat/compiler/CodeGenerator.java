@@ -632,6 +632,7 @@ static public void p(String s) { System.err.println(s); }
         saveWords(node.type(), "ax", node.lhs().address());
     }
 
+    // FIXME: use -4(%edx,%esi,4) addressing
     public void visit(ArefNode node) {
         if (node.expr().type().isPointerAlike()) {
             compile(node.expr());

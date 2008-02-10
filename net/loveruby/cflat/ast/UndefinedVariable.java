@@ -19,6 +19,14 @@ public class UndefinedVariable extends Variable {
         throw new Error("UndefinedVariable#defineIn called");
     }
 
+    public void setAddress(AsmEntity addr) {
+        throw new Error("UndefinedVariable#setAddress");
+    }
+
+    public AsmEntity address() {
+        return new Reference(symbol());
+    }
+
     protected void _dump(Dumper d) {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate());

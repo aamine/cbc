@@ -35,19 +35,18 @@ public class AST extends Node {
         return result.iterator();
     }
 
+    public Iterator declarations() {
+        List result = new ArrayList();
+        result.addAll(declarations.funcdecls());
+        result.addAll(declarations.vardecls());
+        return result.iterator();
+    }
+
     public Iterator entities() {
         List result = new ArrayList();
         result.addAll(declarations.defvars());
         result.addAll(declarations.defuns());
         return result.iterator();
-    }
-
-    public Iterator globalVariables() {
-        return scope.globalVariables().iterator();
-    }
-
-    public Iterator commonSymbols() {
-        return scope.commonSymbols().iterator();
     }
 
     public Iterator variables() {
@@ -62,20 +61,16 @@ public class AST extends Node {
         return declarations.defuns().iterator();
     }
 
-    public void declare(UndefinedFunction f) {
-        declarations.funcdecls().add(f);
-    }
-
-    public Iterator declarations() {
-        List result = new ArrayList();
-        //result.addAll(declarations.defvars());
-        //result.addAll(declarations.defuns());
-        result.addAll(declarations.funcdecls());
-        return result.iterator();
-    }
-
     public ToplevelScope scope() {
         return scope;
+    }
+
+    public Iterator globalVariables() {
+        return scope.globalVariables().iterator();
+    }
+
+    public Iterator commonSymbols() {
+        return scope.commonSymbols().iterator();
     }
 
     public ConstantTable constantTable() {

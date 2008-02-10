@@ -38,9 +38,9 @@ public class LocalReferenceResolver extends Visitor {
         }
     }
 
-    protected void declareToplevelEntities(Iterator funcdecls) {
-        while (funcdecls.hasNext()) {
-            toplevel.declare((UndefinedFunction)funcdecls.next());
+    protected void declareToplevelEntities(Iterator decls) {
+        while (decls.hasNext()) {
+            toplevel.declare((Entity)decls.next());
         }
     }
 
