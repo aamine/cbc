@@ -1,3 +1,30 @@
+Mon Feb 11 04:26:04 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/LocalScope.java: new subclass of Scope.
+
+	* net/loveruby/cflat/ast/Scope.java: move local scope only methods
+	  to LocalScope class.
+
+	* net/loveruby/cflat/ast/ToplevelScope.java: local scope only
+	  methods are moved to LocalScope, do not need to disable
+	  #variables, #allVariables, ...
+
+	* net/loveruby/cflat/ast/Frame.java: is useless, removed.
+
+	* net/loveruby/cflat/ast/DefinedFunction.java: Frame ->
+	  LocalScope.
+
+	* net/loveruby/cflat/ast/BlockNode.java: Scope -> LocalScope.
+
+	* net/loveruby/cflat/compiler/LocalReferenceResolver.java: Frame
+	  removed.
+
+	* net/loveruby/cflat/compiler/LocalReferenceResolver.java: Scope
+	  -> LocalScope.
+
+	* net/loveruby/cflat/compiler/LocalReferenceResolver.java
+	  (pushScope): check duplicated local variables.
+
 Mon Feb 11 03:59:19 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/Scope.java: use LinkedHashMap to unify

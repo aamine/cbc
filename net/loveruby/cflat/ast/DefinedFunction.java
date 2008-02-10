@@ -10,7 +10,7 @@ public class DefinedFunction extends Function {
     protected Params params;
     protected BlockNode body;
     protected Map jumpMap;
-    protected Frame frame;
+    protected LocalScope scope;
 
     public DefinedFunction(LabelPool pool, boolean priv, TypeNode type,
                            String name, Params params, BlockNode body) {
@@ -30,8 +30,8 @@ public class DefinedFunction extends Function {
         return body;
     }
 
-    public void setFrame(Frame f) {
-        frame = f;
+    public void setScope(LocalScope scope) {
+        this.scope = scope;
     }
 
     /**
@@ -40,7 +40,7 @@ public class DefinedFunction extends Function {
      * Does NOT include static local variables.
      */
     public Iterator localVariables() {
-        return frame.allVariables();
+        return scope.allVariables();
     }
 
     public boolean isDefined() {

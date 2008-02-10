@@ -4,6 +4,7 @@ import java.util.*;
 public class BlockNode extends StmtNode {
     protected List variables;
     protected List stmts;
+    protected LocalScope scope;
 
     public BlockNode(Location loc, List vars, List ss) {
         super(loc);
@@ -24,14 +25,12 @@ public class BlockNode extends StmtNode {
         return (Node)stmts.get(stmts.size() - 1);
     }
 
-    protected Scope scope;
-
-    public Scope scope() {
+    public LocalScope scope() {
         return scope;
     }
 
-    public void setScope(Scope s) {
-        scope = s;
+    public void setScope(LocalScope scope) {
+        this.scope = scope;
     }
 
     protected void _dump(Dumper d) {

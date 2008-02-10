@@ -65,32 +65,10 @@ public class LocalReferenceResolver extends Visitor {
     protected void resolveFunctions(Iterator funcs) {
         while (funcs.hasNext()) {
             DefinedFunction func = (DefinedFunction)funcs.next();
-            pushFrame(func.parameters());
+            pushScope(func.parameters());
             resolve(func.body());
-            func.setFrame(popFrame());
+            func.setScope(popScope());
         }
-    }
-    // #@@}
-
-    // #@@range/pushFrame{
-    protected void pushFrame(Iterator params) {
-        Frame frame = new Frame(toplevel);
-        while (params.hasNext()) {
-            Parameter param = (Parameter)params.next();
-            if (frame.isDefinedLocally(param.name())) {
-                error(param, "duplicated parameter: " + param.name());
-            }
-            else {
-                frame.declareEntity(param);
-            }
-        }
-        scopeStack.addLast(frame);
-    }
-    // #@@}
-
-    // #@@range/popFrame{
-    protected Frame popFrame() {
-        return (Frame)scopeStack.removeLast();
     }
     // #@@}
 
@@ -104,17 +82,24 @@ public class LocalReferenceResolver extends Visitor {
 
     // #@@range/pushScope{
     protected void pushScope(Iterator vars) {
-        Scope scope = new Scope(currentScope());
+        LocalScope scope = new LocalScope(currentScope());
         while (vars.hasNext()) {
-            scope.declareEntity((DefinedVariable)vars.next());
+            DefinedVariable var = (DefinedVariable)vars.next();
+            if (scope.isDefinedLocally(var.name())) {
+                error(var, "duplicated variable in scope: " + var.name());
+            }
+            else {
+                scope.declareEntity(var);
+            }
+            scope.declareEntity(var);
         }
         scopeStack.addLast(scope);
     }
     // #@@}
 
     // #@@range/popScope{
-    protected Scope popScope() {
-        return (Scope)scopeStack.removeLast();
+    protected LocalScope popScope() {
+        return (LocalScope)scopeStack.removeLast();
     }
     // #@@}
 

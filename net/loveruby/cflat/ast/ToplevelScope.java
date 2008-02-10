@@ -25,29 +25,13 @@ public class ToplevelScope extends Scope {
     }
     // #@@}
 
-    public Iterator variables() {
-        throw new Error("TopScope#variables called");
-    }
-
-    public Iterator allVariables() {
-        throw new Error("TopScope#allVariables called");
-    }
-
-    public long numAllEntities() {
-        throw new Error("TopScope#numAllEntities called");
-    }
-
-    protected List allEntities() {
-        throw new Error("TopScope#allEntities called");
-    }
-
     protected List staticLocalVariables() {
         if (staticLocalVariables == null) {
             staticLocalVariables = new ArrayList();
-            Iterator frames = children.iterator();
-            while (frames.hasNext()) {
-                Frame f = (Frame)frames.next();
-                staticLocalVariables.addAll(f.staticLocalVariables());
+            Iterator scopes = children.iterator();
+            while (scopes.hasNext()) {
+                LocalScope s = (LocalScope)scopes.next();
+                staticLocalVariables.addAll(s.staticLocalVariables());
             }
             Map seqTable = new HashMap();
             Iterator vars = staticLocalVariables.iterator();
