@@ -62,20 +62,24 @@ public class Scope {
     }
 
     /** Allocates variable var in this scope. */
+    // #@@range/allocateVariable{
     public void allocateVariable(Variable var) {
         checkDuplicatedVariable(var.name());
         addEntity(var);
     }
+    // #@@}
 
     /** Allocates static variable var in this scope.
      *  This method causes var defined in the top scope,
      *  instead of this scope.
      */
+    // #@@range/allocateStaticLocalVariable{
     public void allocateStaticLocalVariable(Variable var) {
         checkDuplicatedVariable(var.name());
         toplevel().allocateStaticLocalVariable(var);
         addPrivateEntity(var);
     }
+    // #@@}
 
     protected void addEntity(Entity ent) {
         entities.add(ent);
@@ -98,14 +102,16 @@ public class Scope {
                 || privateEntitiesMap.containsKey(name));
     }
 
+    // #@@range/get{
     public Entity get(String name) throws SemanticException {
         Entity ent;
-        ent = (Entity)(privateEntitiesMap.get(name));
+        ent = (Entity)privateEntitiesMap.get(name);
         if (ent != null) return ent;
-        ent = (Entity)(entitiesMap.get(name));
+        ent = (Entity)entitiesMap.get(name);
         if (ent != null) return ent;
         return parent.get(name);
     }
+    // #@@}
 
     // Returns all function local variables defined in this scope.
     // Does includes all nested local variables.

@@ -9,6 +9,7 @@ public class LocalReferenceResolver extends Visitor {
         new LocalReferenceResolver(handler).resolve(ast);
     }
 
+    // #@@range/ctor{
     protected ErrorHandler errorHandler;
     protected ToplevelScope toplevel;
     protected LinkedList scopeStack;
@@ -17,11 +18,13 @@ public class LocalReferenceResolver extends Visitor {
     public LocalReferenceResolver(ErrorHandler h) {
         this.errorHandler = h;
     }
+    // #@@}
 
     protected void resolve(Node n) {
         visitNode(n);
     }
 
+    // #@@range/resolve{
     public void resolve(AST ast) throws SemanticException {
         toplevel = ast.scope();
         scopeStack = new LinkedList();
@@ -37,19 +40,25 @@ public class LocalReferenceResolver extends Visitor {
             throw new SemanticException("compile failed.");
         }
     }
+    // #@@}
 
+    // #@@range/declareToplevelEntities{
     protected void declareToplevelEntities(Iterator decls) {
         while (decls.hasNext()) {
             toplevel.declare((Entity)decls.next());
         }
     }
+    // #@@}
 
+    // #@@range/defineToplevelEntities{
     protected void defineToplevelEntities(Iterator entities) {
         while (entities.hasNext()) {
             toplevel.define((Entity)entities.next());
         }
     }
+    // #@@}
 
+    // #@@range/resolveGvarInitializers{
     protected void resolveGvarInitializers(Iterator vars) {
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
@@ -58,7 +67,9 @@ public class LocalReferenceResolver extends Visitor {
             }
         }
     }
+    // #@@}
 
+    // #@@range/resolveFunctions{
     protected void resolveFunctions(Iterator funcs) {
         while (funcs.hasNext()) {
             DefinedFunction func = (DefinedFunction)funcs.next();
@@ -67,7 +78,9 @@ public class LocalReferenceResolver extends Visitor {
             func.setFrame(popFrame());
         }
     }
+    // #@@}
 
+    // #@@range/pushFrame{
     protected void pushFrame(Iterator params) {
         Frame frame = new Frame(toplevel);
         while (params.hasNext()) {
@@ -81,17 +94,23 @@ public class LocalReferenceResolver extends Visitor {
         }
         scopeStack.addLast(frame);
     }
+    // #@@}
 
+    // #@@range/popFrame{
     protected Frame popFrame() {
         return (Frame)scopeStack.removeLast();
     }
+    // #@@}
 
+    // #@@range/BlockNode{
     public void visit(BlockNode node) {
         pushScope(node.variables());
         super.visit(node);
         node.setScope(popScope());
     }
+    // #@@}
 
+    // #@@range/pushScope{
     protected void pushScope(Iterator vars) {
         Scope scope = new Scope(currentScope());
         while (vars.hasNext()) {
@@ -105,19 +124,27 @@ public class LocalReferenceResolver extends Visitor {
         }
         scopeStack.addLast(scope);
     }
+    // #@@}
 
+    // #@@range/popScope{
     protected Scope popScope() {
         return (Scope)scopeStack.removeLast();
     }
+    // #@@}
 
+    // #@@range/currentScope{
     protected Scope currentScope() {
         return (Scope)scopeStack.getLast();
     }
+    // #@@}
 
+    // #@@range/StringLiteralNode{
     public void visit(StringLiteralNode node) {
         node.setEntry(constantTable.intern(node.value()));
     }
+    // #@@}
 
+    // #@@range/VariableNode{
     public void visit(VariableNode node) {
         try {
             Entity ent = currentScope().get(node.name());
@@ -128,6 +155,7 @@ public class LocalReferenceResolver extends Visitor {
             error(node, ex.getMessage());
         }
     }
+    // #@@}
 
     protected void error(Node node, String message) {
         errorHandler.error(node.location(), message);

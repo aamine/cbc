@@ -18,16 +18,21 @@ public class ToplevelScope extends Scope {
     }
 
     /** Declares external symbols */
+    // #@@range/declare{
     public void declare(Entity entity) {
         addEntity(entity);
     }
+    // #@@}
 
     /** Defines entity */
+    // #@@range/define{
     public void define(Entity entity) {
         entity.defineIn(this);
     }
+    // #@@}
 
     /** Defines (local) function */
+    // #@@range/defineFunction{
     public void defineFunction(DefinedFunction f) {
         if (f.isPrivate()) {
             addPrivateEntity(f);
@@ -36,20 +41,26 @@ public class ToplevelScope extends Scope {
             addEntity(f);
         }
     }
+    // #@@}
 
     /** Allocates public global variable or common symbol */
+    // #@@range/allocateVariable{
     public void allocateVariable(Variable var) {
         addEntity(var);
         var.toplevelDefinition();
     }
+    // #@@}
 
     /** Allocates private global variable or common symbol */
+    // #@@range/allocatePrivateVariable{
     public void allocatePrivateVariable(Variable var) {
         addPrivateEntity(var);
         var.toplevelDefinition();
     }
+    // #@@}
 
     /** Allocates static local variable */
+    // #@@range/allocateStaticLocalVariable{
     public void allocateStaticLocalVariable(Variable var) {
         addPrivateEntity(var);
         Long seq = (Long)sequenceTable.get(var.name());
@@ -62,13 +73,17 @@ public class ToplevelScope extends Scope {
             sequenceTable.put(var.name(), new Long(seq.longValue() + 1));
         }
     }
+    // #@@}
 
+    // #@@range/addPrivateEntity{
     protected void addPrivateEntity(Entity ent) {
         super.addPrivateEntity(ent);
         privateEntities.add(ent);
     }
+    // #@@}
 
     /** Searches and gets entity searching scopes upto ToplevelScope. */
+    // #@@range/get{
     public Entity get(String name) throws SemanticException {
         Entity ent;
         ent = (Entity)privateEntitiesMap.get(name);
@@ -77,6 +92,7 @@ public class ToplevelScope extends Scope {
         if (ent != null) return ent;
         throw new SemanticException("unresolved reference: " + name);
     }
+    // #@@}
 
     public Iterator allVariables() {
         throw new Error("TopScope#allVariables called");
