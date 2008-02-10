@@ -11,7 +11,7 @@ public class Frame extends Scope {
         Iterator scopes = allChildren();
         while (scopes.hasNext()) {
             Scope s = (Scope)scopes.next();
-            Iterator vars = s.variables();
+            Iterator vars = s.entities.values().iterator();
             while (vars.hasNext()) {
                 DefinedVariable var = (DefinedVariable)vars.next();
                 if (var.isPrivate()) {
@@ -27,7 +27,7 @@ public class Frame extends Scope {
     }
 
     public Iterator localVariables() {
-        return bodyScope().entities();
+        return bodyScope().variables();
     }
 
     private Scope bodyScope() {

@@ -6,8 +6,7 @@ import java.util.*;
 public class Scope {
     protected Scope parent;
     protected List children;
-    protected List entities;
-    protected Map entitiesMap;
+    protected Map entities;
     protected long numAllEntities;
 
     public Scope(Scope up) {
@@ -15,8 +14,7 @@ public class Scope {
         if (up != null) up.addChild(this);
         children = new ArrayList();
         numAllEntities = -1;
-        entities = new ArrayList();
-        entitiesMap = new HashMap();
+        entities = new LinkedHashMap();
     }
 
     public boolean isToplevel() {
@@ -61,21 +59,20 @@ public class Scope {
     /** Declare variable or function in this scope. */
     // #@@range/declareEntity{
     public void declareEntity(Entity ent) {
-        if (entitiesMap.containsKey(ent.name())) {
+        if (entities.containsKey(ent.name())) {
             throw new Error("duplicated entity: " + ent.name());
         }
-        entities.add(ent);
-        entitiesMap.put(ent.name(), ent);
+        entities.put(ent.name(), ent);
     }
     // #@@}
 
     public boolean isDefinedLocally(String name) {
-        return entitiesMap.containsKey(name);
+        return entities.containsKey(name);
     }
 
     // #@@range/get{
     public Entity get(String name) throws SemanticException {
-        Entity ent = (Entity)entitiesMap.get(name);
+        Entity ent = (Entity)entities.get(name);
         if (ent != null) {
             return ent;
         }
@@ -85,26 +82,30 @@ public class Scope {
     }
     // #@@}
 
-    // Returns all function local variables defined in this scope.
-    // Does includes all nested local variables.
-    // Does NOT include static local variables.
-    public Iterator allVariables() {
-        return allEntities().iterator();
-    }
-
-    public Iterator variables() {
-        return entities();
-    }
-
     public long numEntities() {
         return entities.size();
     }
 
-    // Returns local variables defined in this scope itself.
-    // Does NOT include nested local variables.
+    // Returns local variables defined in this scope.
+    // Does includes all nested local variables.
     // Does NOT include static local variables.
-    public Iterator entities() {
-        return entities.iterator();
+    public Iterator variables() {
+        return variablesList().iterator();
+    }
+
+    protected List variablesList() {
+        List result = new ArrayList();
+        Iterator ents = entities.values().iterator();
+        while (ents.hasNext()) {
+            Entity ent = (Entity)ents.next();
+            if (ent instanceof DefinedVariable) {
+                DefinedVariable var = (DefinedVariable)ent;
+                if (!var.isPrivate()) {
+                    result.add(var);
+                }
+            }
+        }
+        return result;
     }
 
     public long numAllEntities() {
@@ -120,27 +121,34 @@ public class Scope {
         return numAllEntities;
     }
 
+    // Returns all function local variables defined in this scope.
+    // Does includes all nested local variables.
+    // Does NOT include static local variables.
+    public Iterator allVariables() {
+        return allEntities().iterator();
+    }
+
     protected List allEntities() {
         List result = new ArrayList();
-        Iterator cs = allChildren();
-        while (cs.hasNext()) {
-            Scope c = (Scope)cs.next();
-            result.addAll(c.entities);
+        Iterator scopes = allChildren();
+        while (scopes.hasNext()) {
+            Scope s = (Scope)scopes.next();
+            result.addAll(s.variablesList());
         }
         return result;
     }
 
     public void checkReferences(ErrorHandler h) {
-        Iterator ents = entities.iterator();
+        Iterator ents = entities.values().iterator();
         while (ents.hasNext()) {
             Entity ent = (Entity)ents.next();
             if (ent.isDefined() && ent.isPrivate() && !ent.isRefered()) {
                 h.warn(ent.location(), "unused variable: " + ent.name());
             }
         }
-        Iterator cs = children.iterator();
-        while (cs.hasNext()) {
-            Scope s = (Scope)cs.next();
+        Iterator scopes = children.iterator();
+        while (scopes.hasNext()) {
+            Scope s = (Scope)scopes.next();
             s.checkReferences(h);
         }
     }

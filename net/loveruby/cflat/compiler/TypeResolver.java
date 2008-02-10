@@ -76,7 +76,6 @@ public class TypeResolver extends Visitor {
 
     public void visit(DefinedFunction func) {
         resolveFunctionHeader(func);
-        //resolveLocalVariables(func);
         visitNode(func.body());
     }
 
@@ -90,13 +89,6 @@ public class TypeResolver extends Visitor {
         while (params.hasNext()) {
             Parameter param = (Parameter)params.next();
             bindType(param.typeNode());
-        }
-    }
-
-    protected void resolveLocalVariables(DefinedFunction func) {
-        Iterator vars = func.localVariables();
-        while (vars.hasNext()) {
-            visit((DefinedVariable)vars.next());
         }
     }
 

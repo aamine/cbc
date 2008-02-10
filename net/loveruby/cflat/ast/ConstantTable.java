@@ -1,13 +1,12 @@
 package net.loveruby.cflat.ast;
 import java.util.*;
 
-public class ConstantTable
-{
-    protected HashMap table;
+public class ConstantTable {
+    protected Map table;
     protected long id;
 
     public ConstantTable() {
-        table = new HashMap();
+        table = new LinkedHashMap();
         id = 0;
     }
 

@@ -1,3 +1,22 @@
+Mon Feb 11 03:59:19 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/Scope.java: use LinkedHashMap to unify
+	  entities and entitiesMap (entities should be ordered).
+
+	* net/loveruby/cflat/ast/Frame.java: ditto.
+
+	* net/loveruby/cflat/ast/ToplevelScope.java: ditto.
+
+	* net/loveruby/cflat/ast/Scope.java: remove unused method
+	  #entities.  Use #variables instead.
+
+	* net/loveruby/cflat/ast/Frame.java: ditto.
+
+	* net/loveruby/cflat/ast/ConstantTable.java: use
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: remove useless
+	  code.
+
 Mon Feb 11 03:08:16 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/Scope.java: ban all allocate* methods,

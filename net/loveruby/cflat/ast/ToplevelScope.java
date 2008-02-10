@@ -17,7 +17,7 @@ public class ToplevelScope extends Scope {
     /** Searches and gets entity searching scopes upto ToplevelScope. */
     // #@@range/get{
     public Entity get(String name) throws SemanticException {
-        Entity ent = (Entity)entitiesMap.get(name);
+        Entity ent = (Entity)entities.get(name);
         if (ent == null) {
             throw new SemanticException("unresolved reference: " + name);
         }
@@ -25,8 +25,20 @@ public class ToplevelScope extends Scope {
     }
     // #@@}
 
+    public Iterator variables() {
+        throw new Error("TopScope#variables called");
+    }
+
     public Iterator allVariables() {
         throw new Error("TopScope#allVariables called");
+    }
+
+    public long numAllEntities() {
+        throw new Error("TopScope#numAllEntities called");
+    }
+
+    protected List allEntities() {
+        throw new Error("TopScope#allEntities called");
     }
 
     protected List staticLocalVariables() {
@@ -61,7 +73,7 @@ public class ToplevelScope extends Scope {
     public List globalVariables() {
         List result = new ArrayList();
         List src = new ArrayList();
-        src.addAll(entities);
+        src.addAll(entities.values());
         src.addAll(staticLocalVariables());
         Iterator ents = src.iterator();
         while (ents.hasNext()) {
@@ -82,7 +94,7 @@ public class ToplevelScope extends Scope {
     public List commonSymbols() {
         List result = new ArrayList();
         List src = new ArrayList();
-        src.addAll(entities);
+        src.addAll(entities.values());
         src.addAll(staticLocalVariables());
         Iterator ents = src.iterator();
         while (ents.hasNext()) {
