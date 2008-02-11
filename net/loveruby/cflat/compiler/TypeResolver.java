@@ -10,6 +10,7 @@ public class TypeResolver extends Visitor {
         new TypeResolver(typeTable, errorHandler).resolveProgram(ast);
     }
 
+    // #@@range/ctor{
     protected TypeTable typeTable;
     protected ErrorHandler errorHandler;
 
@@ -17,38 +18,52 @@ public class TypeResolver extends Visitor {
         this.typeTable = typeTable;
         this.errorHandler = errorHandler;
     }
+    // #@@}
 
+    // #@@range/resolveNodeList{
     protected void resolveNodeList(Iterator nodes) {
         visitNodeList(nodes);
     }
+    // #@@}
 
+    // #@@range/resolveProgram{
     public void resolveProgram(AST ast) {
         defineTypes(ast.types());
         resolveNodeList(ast.types());
         resolveNodeList(ast.declarations());
         resolveNodeList(ast.entities());
     }
+    // #@@}
 
+    // #@@range/defineTypes{
     private void defineTypes(Iterator deftypes) {
         while (deftypes.hasNext()) {
             TypeDefinition def = (TypeDefinition)deftypes.next();
             typeTable.put(def.typeRef(), def.definingType());
         }
     }
+    // #@@}
 
+    // #@@range/bindType{
     private void bindType(TypeNode n) {
         if (n.isResolved()) return;
         n.setType(typeTable.get(n.typeRef()));
     }
+    // #@@}
 
+    // #@@range/StructNode{
     public void visit(StructNode struct) {
         resolveComplexType(struct);
     }
+    // #@@}
 
+    // #@@range/UnionNode{
     public void visit(UnionNode union) {
         resolveComplexType(union);
     }
+    // #@@}
 
+    // #@@range/resolveComplexType{
     public void resolveComplexType(ComplexTypeDefinition def) {
         ComplexType ct = (ComplexType)typeTable.get(def.typeNode().typeRef());
         if (ct == null) {
@@ -60,16 +75,21 @@ public class TypeResolver extends Visitor {
             bindType(slot.typeNode());
         }
     }
+    // #@@}
 
+    // #@@range/TypedefNode{
     public void visit(TypedefNode typedef) {
         bindType(typedef.typeNode());
         bindType(typedef.realTypeNode());
     }
+    // #@@}
 
+    // #@@range/DefinedVariable{
     public void visit(DefinedVariable var) {
         bindType(var.typeNode());
         super.visit(var);       // resolve initializer
     }
+    // #@@}
 
     public void visit(UndefinedVariable var) {
         bindType(var.typeNode());
