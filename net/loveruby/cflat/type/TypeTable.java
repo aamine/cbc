@@ -171,6 +171,7 @@ public class TypeTable {
         }
     }
 
+    // #@@range/checkRecursiveDefinition{
     protected void checkRecursiveDefinition(Type t, ErrorHandler h) {
         _checkRecursiveDefinition(t, new HashMap(), h);
     }
@@ -209,4 +210,5 @@ public class TypeTable {
             marks.put(t, checked);
         }
     }
+    // #@@}
 }
