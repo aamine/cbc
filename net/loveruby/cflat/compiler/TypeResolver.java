@@ -6,7 +6,7 @@ import java.util.*;
 
 public class TypeResolver extends Visitor {
     static public void resolve(AST ast, TypeTable typeTable,
-            ErrorHandler errorHandler) {
+                               ErrorHandler errorHandler) {
         new TypeResolver(typeTable, errorHandler).resolveProgram(ast);
     }
 
@@ -18,17 +18,19 @@ public class TypeResolver extends Visitor {
         this.errorHandler = errorHandler;
     }
 
-    public void resolveProgram(AST ast) {
-        defineTypes(ast.types());
-        visitNodeList(ast.types());
-        visitNodeList(ast.declarations());
-        visitNodeList(ast.entities());
+    protected void resolveNodeList(Iterator nodes) {
+        visitNodeList(nodes);
     }
 
-    private void defineTypes(Iterator deftypes) {
+    public void resolveProgram(AST ast) {
+        Iterator deftypes = ast.types();
         while (deftypes.hasNext()) {
             typeTable.define((TypeDefinition)deftypes.next());
         }
+
+        resolveNodeList(ast.types());
+        resolveNodeList(ast.declarations());
+        resolveNodeList(ast.entities());
     }
 
     private void bindType(TypeNode n) {
@@ -59,10 +61,6 @@ public class TypeResolver extends Visitor {
     public void visit(TypedefNode typedef) {
         bindType(typedef.typeNode());
         bindType(typedef.realTypeNode());
-    }
-
-    public void visit(VariableNode n) {
-        bindType(n.typeNode());
     }
 
     public void visit(DefinedVariable var) {
