@@ -176,6 +176,7 @@ assert_compile_error union-semcheck9.cb
 assert_compile_error union-semcheck10.cb
 
 assert_out "1;2;1;1;3;4;5;6;OK" ./usertype
+assert_compile_error recursivetypedef.cb
 
 assert_out "5;5" ./pointer
 assert_out "777" ./pointer2

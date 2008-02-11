@@ -39,7 +39,12 @@ public class TypeResolver extends Visitor {
     private void defineTypes(Iterator deftypes) {
         while (deftypes.hasNext()) {
             TypeDefinition def = (TypeDefinition)deftypes.next();
-            typeTable.put(def.typeRef(), def.definingType());
+            if (typeTable.isDefined(def.typeRef())) {
+                error(def, "duplicated type definition: " + def.typeRef());
+            }
+            else {
+                typeTable.put(def.typeRef(), def.definingType());
+            }
         }
     }
     // #@@}
@@ -142,5 +147,9 @@ public class TypeResolver extends Visitor {
 
     public void visit(StringLiteralNode node) {
         bindType(node.typeNode());
+    }
+
+    protected void error(Node node, String msg) {
+        errorHandler.error(node.location(), msg);
     }
 }

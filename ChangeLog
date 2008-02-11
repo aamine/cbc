@@ -1,3 +1,17 @@
+Tue Feb 12 06:49:39 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: should check
+	  duplicated type definition.
+
+	* net/loveruby/cflat/type/TypeTable.java: new method #isDefined.
+
+	* net/loveruby/cflat/type/TypeTable.java (put): reject duplicated
+	  type definition.
+
+	* test/recursivetypedef.cb: test duplicated typedef.
+
+	* test/test.sh: run it.
+
 Tue Feb 12 06:23:21 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/type/TypeTable.java (semanticCheck): check
