@@ -95,15 +95,18 @@ public class TypeResolver extends Visitor {
         bindType(var.typeNode());
     }
 
+    // #@@range/DefinedFunction{
     public void visit(DefinedFunction func) {
         resolveFunctionHeader(func);
         visitNode(func.body());
     }
+    // #@@}
 
     public void visit(UndefinedFunction func) {
         resolveFunctionHeader(func);
     }
 
+    // #@@range/resolveFunctionHeader{
     protected void resolveFunctionHeader(Function func) {
         bindType(func.typeNode());
         Iterator params = func.parameters();
@@ -112,6 +115,7 @@ public class TypeResolver extends Visitor {
             bindType(param.typeNode());
         }
     }
+    // #@@}
 
     public void visit(AddressNode node) {
         super.visit(node);
