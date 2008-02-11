@@ -133,15 +133,11 @@ public class TypeTable {
             if (t instanceof ComplexType) {
                 checkVoidMembers((ComplexType)t, h);
                 checkDuplicatedMembers((ComplexType)t, h);
-                checkRecursiveDefinition((ComplexType)t, h);
             }
             else if (t instanceof ArrayType) {
-                // FIXME: check on the fly
                 checkVoidMembers((ArrayType)t, h);
             }
-            else if (t instanceof UserType) {
-                checkRecursiveDefinition((UserType)t, h);
-            }
+            checkRecursiveDefinition(t, h);
         }
     }
 
@@ -182,34 +178,35 @@ public class TypeTable {
     static final protected Object checking = new Object();
     static final protected Object checked = new Object();
 
-    protected void _checkRecursiveDefinition(Type t, Map seen,
+    protected void _checkRecursiveDefinition(Type t, Map marks,
                                              ErrorHandler h) {
-        if (seen.get(t) == checking) {
+        if (marks.get(t) == checking) {
             h.error(((NamedType)t).location(),
                     "recursive type definition: " + t);
             return;
         }
-        else if (seen.get(t) == checked) {
+        else if (marks.get(t) == checked) {
             return;
         }
-        seen.put(t, checking);
-        if (t instanceof ComplexType) {
-            ComplexType ct = (ComplexType)t;
-            Iterator membs = ct.members();
-            while (membs.hasNext()) {
-                Slot slot = (Slot)membs.next();
-                if (slot.type().isComplexType()) {
-                    _checkRecursiveDefinition(slot.type().getComplexType(),
-                                              seen, h);
+        else {
+            marks.put(t, checking);
+            if (t instanceof ComplexType) {
+                ComplexType ct = (ComplexType)t;
+                Iterator membs = ct.members();
+                while (membs.hasNext()) {
+                    Slot slot = (Slot)membs.next();
+                    _checkRecursiveDefinition(slot.type(), marks, h);
                 }
             }
-        }
-        else if (t instanceof UserType) {
-            UserType ut = (UserType)t;
-            if (ut.realType() instanceof UserType) {
-                _checkRecursiveDefinition(ut.realType(), seen, h);
+            else if (t instanceof ArrayType) {
+                ArrayType at = (ArrayType)t;
+                _checkRecursiveDefinition(at.baseType(), marks, h);
             }
+            else if (t instanceof UserType) {
+                UserType ut = (UserType)t;
+                _checkRecursiveDefinition(ut.realType(), marks, h);
+            }
+            marks.put(t, checked);
         }
-        seen.put(t, checked);
     }
 }

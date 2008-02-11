@@ -1,3 +1,18 @@
+Tue Feb 12 06:23:21 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/type/TypeTable.java (semanticCheck): check
+	  all types by checkRecursiveDefinition.  It is not efficient
+	  because checking char, short, int, long, ... is not needed, but is
+	  more reliable.
+
+	* net/loveruby/cflat/type/TypeTable.java
+	  (checkRecursiveDefinition): should traverse ArrayType.
+
+	* net/loveruby/cflat/type/TypeTable.java
+	  (checkRecursiveDefinition): should traverse ComplexType and
+	  ArrayType (and UserType which points these types) *at the same
+	  time*.
+
 Tue Feb 12 00:45:47 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeResolver.java: extract method
