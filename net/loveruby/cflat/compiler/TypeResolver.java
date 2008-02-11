@@ -23,14 +23,17 @@ public class TypeResolver extends Visitor {
     }
 
     public void resolveProgram(AST ast) {
-        Iterator deftypes = ast.types();
-        while (deftypes.hasNext()) {
-            typeTable.define((TypeDefinition)deftypes.next());
-        }
-
+        defineTypes(ast.types());
         resolveNodeList(ast.types());
         resolveNodeList(ast.declarations());
         resolveNodeList(ast.entities());
+    }
+
+    private void defineTypes(Iterator deftypes) {
+        while (deftypes.hasNext()) {
+            TypeDefinition def = (TypeDefinition)deftypes.next();
+            typeTable.put(def.typeRef(), def.definingType());
+        }
     }
 
     private void bindType(TypeNode n) {

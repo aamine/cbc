@@ -119,10 +119,6 @@ public class TypeTable {
         return (IntegerType)table.get(IntegerTypeRef.ulongRef());
     }
 
-    public void define(TypeDefinition t) {
-        t.defineIn(this);
-    }
-
     public PointerType pointerTo(Type baseType) {
         return new PointerType(pointerSize, baseType);
     }

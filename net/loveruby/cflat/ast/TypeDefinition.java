@@ -32,5 +32,5 @@ abstract public class TypeDefinition extends Node {
         return typeNode.type();
     }
 
-    abstract public void defineIn(TypeTable table);
+    abstract public Type definingType();
 }

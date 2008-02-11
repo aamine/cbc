@@ -15,10 +15,9 @@ public class StructNode extends ComplexTypeDefinition {
         return true;
     }
 
-    // #@@range/defineIn{
-    public void defineIn(TypeTable table) {
-        Type type = new StructType(name(), members(), location());
-        table.put(typeRef(), type);
+    // #@@range/definingType{
+    public Type definingType() {
+        return new StructType(name(), members(), location());
     }
     // #@@}
 

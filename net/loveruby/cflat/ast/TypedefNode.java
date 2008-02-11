@@ -25,10 +25,9 @@ public class TypedefNode extends TypeDefinition {
         return real.typeRef();
     }
 
-    // #@@range/defineIn{
-    public void defineIn(TypeTable table) {
-        Type type = new UserType(name(), realTypeNode(), location());
-        table.put(typeRef(), type);
+    // #@@range/definingType{
+    public Type definingType() {
+        return new UserType(name(), realTypeNode(), location());
     }
     // #@@}
 
