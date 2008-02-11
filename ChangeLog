@@ -1,3 +1,15 @@
+Tue Feb 12 00:35:37 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/type/TypeTable.java: remove deftype methods,
+	  use #put instead.
+
+	* net/loveruby/cflat/ast/StructNode.java: define type by myself,
+	  calling TypeTable#put directly.
+
+	* net/loveruby/cflat/ast/UnionNode.java: ditto.
+
+	* net/loveruby/cflat/ast/TypedefNode.java: ditto.
+
 Tue Feb 12 00:26:23 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeResolver.java: resolving

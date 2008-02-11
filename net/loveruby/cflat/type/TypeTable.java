@@ -123,27 +123,6 @@ public class TypeTable {
         t.defineIn(this);
     }
 
-    public void defineStruct(StructNode node) {
-        Type type = new StructType(node.name(),
-                                   node.members(),
-                                   node.location());
-        table.put(node.typeRef(), type);
-    }
-
-    public void defineUnion(UnionNode node) {
-        Type type = new UnionType(node.name(),
-                                  node.members(),
-                                  node.location());
-        table.put(node.typeRef(), type);
-    }
-
-    public void defineUserType(TypedefNode node) {
-        Type type = new UserType(node.name(),
-                                 node.realTypeNode(),
-                                 node.location());
-        table.put(node.typeRef(), type);
-    }
-
     public PointerType pointerTo(Type baseType) {
         return new PointerType(pointerSize, baseType);
     }

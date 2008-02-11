@@ -15,9 +15,12 @@ public class UnionNode extends ComplexTypeDefinition {
         return true;
     }
 
+    // #@@range/defineIn{
     public void defineIn(TypeTable table) {
-        table.defineUnion(this);
+        Type type = new UnionType(name(), members(), location());
+        table.put(typeRef(), type);
     }
+    // #@@}
 
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);

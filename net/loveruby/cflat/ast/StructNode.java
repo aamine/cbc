@@ -15,9 +15,12 @@ public class StructNode extends ComplexTypeDefinition {
         return true;
     }
 
+    // #@@range/defineIn{
     public void defineIn(TypeTable table) {
-        table.defineStruct(this);
+        Type type = new StructType(name(), members(), location());
+        table.put(typeRef(), type);
     }
+    // #@@}
 
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
