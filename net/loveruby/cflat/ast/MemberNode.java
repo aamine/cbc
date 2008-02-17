@@ -37,9 +37,11 @@ public class MemberNode extends ExprNode {
         return baseType().memberOffset(member);
     }
 
+    // #@@range/isAssignable{
     public boolean isAssignable() {
         return true;
     }
+    // #@@}
 
     public boolean isConstant() {
         return expr.isConstantAddress();
