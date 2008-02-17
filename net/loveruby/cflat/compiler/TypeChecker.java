@@ -106,12 +106,12 @@ class TypeChecker extends Visitor {
     }
 
     protected void checkCond(ExprNode cond) {
-        mustBeScalar(cond);
+        mustBeScalarAlike(cond, "condition expression");
     }
 
     public void visit(SwitchNode node) {
         super.visit(node);
-        mustBeScalar(node.cond());
+        mustBeInteger(node.cond(), "condition expression");
     }
 
     public void visit(ReturnNode node) {
@@ -250,13 +250,10 @@ class TypeChecker extends Visitor {
                 || node.operator().equals("%")
                 || node.operator().equals("&")
                 || node.operator().equals("|")
-                || node.operator().equals("^")) {
-            expectsSameInteger(node);
-        }
-        else if (node.operator().equals("<<")
+                || node.operator().equals("^")
+                || node.operator().equals("<<")
                 || node.operator().equals(">>")) {
-            expectsIntegers(node);
-            expectsIntegers(node);
+            expectsSameInteger(node);
         }
         else if (node.operator().equals("==")
                 || node.operator().equals("!=")
@@ -290,11 +287,11 @@ class TypeChecker extends Visitor {
      */
     protected void expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
         if (node.left().type().isPointer()) {
-            mustBeInteger(node.right());
+            mustBeInteger(node.right(), node.operator());
             node.setType(node.left().type());
         }
         else if (node.right().type().isPointer()) {
-            mustBeInteger(node.left());
+            mustBeInteger(node.left(), node.operator());
             node.setType(node.right().type());
         }
         else {
@@ -302,23 +299,17 @@ class TypeChecker extends Visitor {
         }
     }
 
-    // *, /, %, &, |, ^
+    // +, -, *, /, %, &, |, ^, <<, >>
     protected void expectsSameInteger(BinaryOpNode node) {
-        mustBeInteger(node.left());
-        mustBeInteger(node.right());
+        mustBeInteger(node.left(), node.operator());
+        mustBeInteger(node.right(), node.operator());
         insertImplicitCast(node);
-    }
-
-    // <<, >>
-    protected void expectsIntegers(BinaryOpNode node) {
-        mustBeInteger(node.left());
-        mustBeInteger(node.right());
     }
 
     // ==, !=, <, <=, >, >=, &&, ||
     protected void expectsComparableScalars(BinaryOpNode node) {
-        mustBeScalar(node.left());
-        mustBeScalar(node.right());
+        mustBeScalarAlike(node.left(), node.operator());
+        mustBeScalarAlike(node.right(), node.operator());
         insertImplicitCast(node);
     }
 
@@ -344,19 +335,24 @@ class TypeChecker extends Visitor {
     // +, -, !, ~
     public void visit(UnaryOpNode node) {
         super.visit(node);
-        mustBeInteger(node.expr());
+        if (node.operator().equals("!")) {
+            mustBeScalarAlike(node.expr(), node.operator());
+        }
+        else {
+            mustBeInteger(node.expr(), node.operator());
+        }
     }
 
     // ++, --
     public void visit(PrefixOpNode node) {
         super.visit(node);
-        mustBeScalar(node.expr());
+        mustBeScalar(node.expr(), node.operator());
     }
 
     // ++, --
     public void visit(SuffixOpNode node) {
         super.visit(node);
-        mustBeScalar(node.expr());
+        mustBeScalar(node.expr(), node.operator());
     }
 
     /**
@@ -393,7 +389,7 @@ class TypeChecker extends Visitor {
 
     public void visit(ArefNode node) {
         super.visit(node);
-        mustBeInteger(node.index());
+        mustBeInteger(node.index(), "[]");
     }
 
     public void visit(CastNode node) {
@@ -411,27 +407,29 @@ class TypeChecker extends Visitor {
         return new CastNode(new TypeNode(t), n);
     }
 
-    protected void mustBeInteger(ExprNode node) {
+    protected void mustBeInteger(ExprNode node, String op) {
         if (node.type().isInteger()) return;
-        notIntegerError(node, node.type());
+        notIntegerError(node, node.type(), op);
     }
 
-    protected void mustBeScalar(ExprNode node) {
+    protected void mustBeScalar(ExprNode node, String op) {
+        if (node.type().isInteger()) return;
+        if (node.type().isPointer()) return;
+        notIntegerError(node, node.type(), op);
+    }
+
+    protected void mustBeScalarAlike(ExprNode node, String op) {
         if (node.type().isInteger()) return;
         if (node.type().isPointerAlike()) return;
-        notIntegerError(node, node.type());
+        notIntegerError(node, node.type(), op);
     }
 
     protected void incompatibleTypeError(Node n, Type l, Type r) {
         error(n, "incompatible type: " + l + " and " + r);
     }
 
-    protected void notIntegerError(Node n, Type type) {
-        error(n, "non-integer argument for unary op: " + type);
-    }
-
-    protected void undereferableError(Node n, Type type) {
-        error(n, "dereferencing non-pointer expression: " + type);
+    protected void notIntegerError(Node n, Type type, String op) {
+        error(n, "wrong operand type for " + op + ": " + type);
     }
 
     protected void warn(Node n, String msg) {

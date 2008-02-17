@@ -1,3 +1,26 @@
+Mon Feb 18 05:35:14 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (checkCond): cond
+	  expr might be an array.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (SwitchNode): cond
+	  expr should not be pointer.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: <</>> expects same
+	  integer.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: comparison
+	  operators accept arrays.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: "!" accepts a
+	  pointer and an array.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: new method
+	  #mustBeScalarAlike.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (mustBeInteger,
+	  mustBeScalar, mustBeScalarAlike): takes operator name.
+
 Mon Feb 18 04:10:40 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java (mustBeScalar):
