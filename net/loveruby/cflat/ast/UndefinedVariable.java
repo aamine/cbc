@@ -4,7 +4,7 @@ import net.loveruby.cflat.asm.*;
 
 public class UndefinedVariable extends Variable {
     public UndefinedVariable(TypeNode t, String name) {
-        super(true, t, name);
+        super(false, t, name);
     }
 
     public boolean isDefined() { return false; }

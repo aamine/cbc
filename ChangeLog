@@ -1,3 +1,8 @@
+Mon Feb 18 02:33:16 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/UndefinedVariable.java: should always be
+	  NOT private.
+
 Mon Feb 18 02:30:44 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/DereferenceChecker.java: add blanks.
