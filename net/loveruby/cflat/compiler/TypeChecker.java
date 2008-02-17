@@ -418,7 +418,7 @@ class TypeChecker extends Visitor {
 
     protected void mustBeScalar(ExprNode node) {
         if (node.type().isInteger()) return;
-        if (node.type().isPointer()) return;
+        if (node.type().isPointerAlike()) return;
         notIntegerError(node, node.type());
     }
 

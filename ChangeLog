@@ -1,3 +1,8 @@
+Mon Feb 18 04:10:40 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (mustBeScalar):
+	  array is a scalar.
+
 Mon Feb 18 04:08:46 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: check returning
