@@ -106,7 +106,7 @@ class TypeChecker extends Visitor {
     }
 
     protected void checkCond(ExprNode cond) {
-        mustBeScalarAlike(cond, "condition expression");
+        mustBeScalar(cond, "condition expression");
     }
 
     public void visit(SwitchNode node) {
@@ -301,15 +301,27 @@ class TypeChecker extends Visitor {
 
     // +, -, *, /, %, &, |, ^, <<, >>
     protected void expectsSameInteger(BinaryOpNode node) {
-        mustBeInteger(node.left(), node.operator());
-        mustBeInteger(node.right(), node.operator());
+        if (! node.left().type().isInteger()) {
+            wrongTypeError(node.left(), node.operator());
+            return;
+        }
+        if (! node.right().type().isInteger()) {
+            wrongTypeError(node.right(), node.operator());
+            return;
+        }
         insertImplicitCast(node);
     }
 
     // ==, !=, <, <=, >, >=, &&, ||
     protected void expectsComparableScalars(BinaryOpNode node) {
-        mustBeScalarAlike(node.left(), node.operator());
-        mustBeScalarAlike(node.right(), node.operator());
+        if (! node.left().type().isScalar()) {
+            wrongTypeError(node.left(), node.operator());
+            return;
+        }
+        if (! node.right().type().isScalar()) {
+            wrongTypeError(node.right(), node.operator());
+            return;
+        }
         insertImplicitCast(node);
     }
 
@@ -336,7 +348,7 @@ class TypeChecker extends Visitor {
     public void visit(UnaryOpNode node) {
         super.visit(node);
         if (node.operator().equals("!")) {
-            mustBeScalarAlike(node.expr(), node.operator());
+            mustBeScalar(node.expr(), node.operator());
         }
         else {
             mustBeInteger(node.expr(), node.operator());
@@ -346,13 +358,26 @@ class TypeChecker extends Visitor {
     // ++, --
     public void visit(PrefixOpNode node) {
         super.visit(node);
-        mustBeScalar(node.expr(), node.operator());
+        expectsScalarLHS(node.expr(), node.operator());
     }
 
     // ++, --
     public void visit(SuffixOpNode node) {
         super.visit(node);
-        mustBeScalar(node.expr(), node.operator());
+        expectsScalarLHS(node.expr(), node.operator());
+    }
+
+    protected void expectsScalarLHS(ExprNode node, String op) {
+        if (node.isParameter()) {
+            // parameter is always a scalar.
+        }
+        else if (node.type().isArray()) {
+            // We cannot modify non-parameter array.
+            wrongTypeError(node, op);
+        }
+        else {
+            mustBeScalar(node, op);
+        }
     }
 
     /**
@@ -407,29 +432,24 @@ class TypeChecker extends Visitor {
         return new CastNode(new TypeNode(t), n);
     }
 
-    protected void mustBeInteger(ExprNode node, String op) {
-        if (node.type().isInteger()) return;
-        notIntegerError(node, node.type(), op);
+    protected void mustBeInteger(ExprNode expr, String op) {
+        if (! expr.type().isInteger()) {
+            wrongTypeError(expr, op);
+        }
     }
 
-    protected void mustBeScalar(ExprNode node, String op) {
-        if (node.type().isInteger()) return;
-        if (node.type().isPointer()) return;
-        notIntegerError(node, node.type(), op);
-    }
-
-    protected void mustBeScalarAlike(ExprNode node, String op) {
-        if (node.type().isInteger()) return;
-        if (node.type().isPointerAlike()) return;
-        notIntegerError(node, node.type(), op);
+    protected void mustBeScalar(ExprNode expr, String op) {
+        if (! expr.type().isScalar()) {
+            wrongTypeError(expr, op);
+        }
     }
 
     protected void incompatibleTypeError(Node n, Type l, Type r) {
         error(n, "incompatible type: " + l + " and " + r);
     }
 
-    protected void notIntegerError(Node n, Type type, String op) {
-        error(n, "wrong operand type for " + op + ": " + type);
+    protected void wrongTypeError(ExprNode expr, String op) {
+        error(expr, "wrong operand type for " + op + ": " + expr.type());
     }
 
     protected void warn(Node n, String msg) {

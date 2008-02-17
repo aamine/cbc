@@ -14,6 +14,7 @@ public class IntegerType extends Type {
 
     public boolean isInteger() { return true; }
     public boolean isSigned() { return isSigned; }
+    public boolean isScalar() { return true; }
 
     // Use default #equals
     //public boolean equals(Object other)

@@ -21,6 +21,7 @@ public class ArrayType extends Type {
     public boolean isUnallocatedArray() { return !isAllocated(); }
     public boolean isDereferable() { return true; }
     public boolean isPointerAlike() { return isUnallocatedArray(); }
+    public boolean isScalar() { return true; }
 
     public Type baseType() {
         return baseType;

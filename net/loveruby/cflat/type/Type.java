@@ -31,6 +31,7 @@ public abstract class Type {
     // Ability methods (unary)
     public boolean isDereferable() { return false; }
     public boolean isPointerAlike() { return false; }
+    public boolean isScalar() { return false; }
     public boolean isCallable() { return false; }
 
     // Ability methods (binary)

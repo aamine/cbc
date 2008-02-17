@@ -1,3 +1,24 @@
+Mon Feb 18 06:07:13 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (mustBeScalar):
+	  checks if type is an integer, a pointer, or an array (previous
+	  #mustBeScalarAlike definition).
+
+	* net/loveruby/cflat/compiler/TypeChecker.java
+	  (expectsSameInteger, expectsComparableScalars): return immediately
+	  after first error.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (PrefixOpNode,
+	  SuffixOpNode): allow array parameter.
+
+	* net/loveruby/cflat/type/Type.java: new method #isScalar.
+
+	* net/loveruby/cflat/type/IntegerType.java: is a scalar.
+
+	* net/loveruby/cflat/type/ArrayType.java: is a scalar.
+
+	* net/loveruby/cflat/type/PointerType.java: is a scalar.
+
 Mon Feb 18 05:35:14 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java (checkCond): cond
