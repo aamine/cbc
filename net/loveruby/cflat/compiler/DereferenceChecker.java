@@ -26,11 +26,13 @@ class DereferenceChecker extends Visitor {
             DefinedVariable var = (DefinedVariable)vars.next();
             checkVariable(var);
         }
+
         Iterator funcs = ast.functions();
         while (funcs.hasNext()) {
             DefinedFunction f = (DefinedFunction)funcs.next();
             check(f.body());
         }
+
         if (errorHandler.errorOccured()) {
             throw new SemanticException("compile failed.");
         }
@@ -46,11 +48,12 @@ class DereferenceChecker extends Visitor {
             DefinedVariable var = (DefinedVariable)vars.next();
             checkVariable(var);
         }
+
         Iterator stmts = node.stmts();
         while (stmts.hasNext()) {
+            Node stmt = (Node)stmts.next();
             try {
-                Node n = (Node)stmts.next();
-                check(n);
+                check(stmt);
             }
             catch (SemanticError err) {
                 ;
