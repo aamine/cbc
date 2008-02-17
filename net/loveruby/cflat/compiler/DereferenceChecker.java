@@ -97,6 +97,20 @@ class DereferenceChecker extends Visitor {
     // Expressions
     //
 
+    public void visit(PrefixOpNode node) {
+        super.visit(node);
+        if (! node.expr().isAssignable()) {
+            semanticError(node.expr(), "cannot increment/decrement");
+        }
+    }
+
+    public void visit(SuffixOpNode node) {
+        super.visit(node);
+        if (! node.expr().isAssignable()) {
+            semanticError(node.expr(), "cannot increment/decrement");
+        }
+    }
+
     public void visit(FuncallNode node) {
         super.visit(node);
         if (! node.expr().isCallable()) {
@@ -109,7 +123,6 @@ class DereferenceChecker extends Visitor {
         if (! node.expr().isDereferable()) {
             semanticError(node, "indexing non-array/pointer expression");
         }
-        check(node.index());
     }
 
     public void visit(MemberNode node) {

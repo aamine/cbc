@@ -106,11 +106,7 @@ class TypeChecker extends Visitor {
     }
 
     protected void checkCond(ExprNode cond) {
-        Type t = cond.type();
-        if (!t.isInteger() && !t.isPointer()) {
-            notIntegerError(cond, t);
-            return;
-        }
+        mustBeScalar(cond);
     }
 
     public void visit(SwitchNode node) {
@@ -193,11 +189,11 @@ class TypeChecker extends Visitor {
     }
 
     protected boolean isInvalidReturnType(Type t) {
-        return t.isStruct() || t.isUnion() || t.isArray();
+        return isNotScalarType(t);
     }
 
     protected boolean isInvalidParameterType(Type t) {
-        return isInvalidLHSType(t);
+        return isNotScalarType(t);
     }
 
     protected boolean isInvalidVariableType(Type t) {
@@ -205,11 +201,14 @@ class TypeChecker extends Visitor {
     }
 
     protected boolean isInvalidLHSType(Type t) {
-        return t.isStruct() || t.isUnion()
-                || t.isAllocatedArray() || t.isVoid();
+        return isNotScalarType(t);
     }
 
     protected boolean isInvalidRHSType(Type t) {
+        return isNotScalarType(t);
+    }
+
+    protected boolean isNotScalarType(Type t) {
         return t.isStruct() || t.isUnion() || t.isVoid();
     }
 

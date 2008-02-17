@@ -1,3 +1,18 @@
+Mon Feb 18 03:33:12 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (checkCond): cond
+	  expr might be an array, which is a parameter.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java
+	  (isInvalidReturnType): array is returnable.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (isInvalidLHSType):
+	  "unallocated array" means an array which is parameter.  Length
+	  does not matter.
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: should
+	  check an operand of ++/-- is assignable.
+
 Mon Feb 18 02:33:16 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/UndefinedVariable.java: should always be
