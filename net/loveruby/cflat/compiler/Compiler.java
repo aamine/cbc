@@ -297,7 +297,7 @@ public class Compiler {
             ast.dump();
             System.exit(1);
         }
-        TypeChecker.check(ast, opts.typeTable, errorHandler);
+        TypeChecker.check(ast, errorHandler);
     }
 
     protected void assemble(String srcPath,

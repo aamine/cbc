@@ -5,16 +5,14 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 class TypeChecker extends Visitor {
-    static public void check(AST ast, TypeTable typeTable,
-            ErrorHandler handler) throws SemanticException {
-        new TypeChecker(typeTable, handler).visit(ast);
+    static public void check(AST ast, ErrorHandler handler)
+                                        throws SemanticException {
+        new TypeChecker(handler).visit(ast);
     }
 
-    protected TypeTable typeTable;
     protected ErrorHandler errorHandler;
 
-    public TypeChecker(TypeTable typeTable, ErrorHandler errorHandler) {
-        this.typeTable = typeTable;
+    public TypeChecker(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
     }
 
