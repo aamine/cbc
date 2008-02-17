@@ -36,6 +36,10 @@ abstract public class ExprNode extends Node {
         return false;
     }
 
+    public boolean isParameter() {
+        return false;
+    }
+
     public boolean isConstantAddress() {
         throw new Error("ExprNode#isConstantAddress called");
     }

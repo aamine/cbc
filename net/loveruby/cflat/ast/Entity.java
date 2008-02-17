@@ -22,6 +22,8 @@ abstract public class Entity extends Node {
     abstract public boolean isDefined();
     abstract public boolean isInitialized();
 
+    public boolean isParameter() { return false; }
+
     public boolean isPrivate() {
         return isPrivate;
     }

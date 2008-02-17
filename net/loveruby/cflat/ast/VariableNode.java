@@ -44,6 +44,10 @@ public class VariableNode extends ExprNode {
         return true;
     }
 
+    public boolean isParameter() {
+        return entity().isParameter();
+    }
+
     public boolean isConstantAddress() {
         return true;
     }

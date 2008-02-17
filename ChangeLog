@@ -1,3 +1,20 @@
+Mon Feb 18 04:08:46 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: check returning
+	  void value.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: allow array LHS,
+	  only when LHS is a parameter.
+
+	* net/loveruby/cflat/ast/Entity.java: define #isParameter here.
+
+	* net/loveruby/cflat/ast/Variable.java: remove #isVariable,
+	  #isParameter.
+
+	* net/loveruby/cflat/ast/ExprNode.java: new method #isParameter.
+
+	* net/loveruby/cflat/ast/VariableNode.java: override it.
+
 Mon Feb 18 03:33:12 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java (checkCond): cond

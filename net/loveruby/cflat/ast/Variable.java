@@ -15,9 +15,6 @@ abstract public class Variable extends Entity {
         this.sequence = seq;
     }
 
-    public boolean isVariable() { return true; }
-    public boolean isParameter() { return false; }
-
     public String symbol() {
         return (sequence < 0) ? name : (name + "." + sequence);
     }

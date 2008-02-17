@@ -126,6 +126,10 @@ class TypeChecker extends Visitor {
                 error(node, "missing return value");
                 return;
             }
+            if (node.expr().type().isVoid()) {
+                error(node, "returning void");
+                return;
+            }
             insertImplicitCast(node);
         }
     }
@@ -160,7 +164,10 @@ class TypeChecker extends Visitor {
     protected void checkAssignment(AbstractAssignNode node) {
         check(node.lhs());
         check(node.rhs());
-        if (isInvalidLHSType(node.lhs().type())) {
+        if (node.lhs().isParameter()) {
+            // parameter is always assignable.
+        }
+        else if (isInvalidLHSType(node.lhs().type())) {
             error(node, "invalid lhs type");
             return;
         }
@@ -189,11 +196,11 @@ class TypeChecker extends Visitor {
     }
 
     protected boolean isInvalidReturnType(Type t) {
-        return isNotScalarType(t);
+        return t.isStruct() || t.isUnion() || t.isArray();
     }
 
     protected boolean isInvalidParameterType(Type t) {
-        return isNotScalarType(t);
+        return t.isStruct() || t.isUnion() || t.isVoid();
     }
 
     protected boolean isInvalidVariableType(Type t) {
@@ -201,14 +208,11 @@ class TypeChecker extends Visitor {
     }
 
     protected boolean isInvalidLHSType(Type t) {
-        return isNotScalarType(t);
+        // Array is OK if it is declared as a type of parameter.
+        return t.isStruct() || t.isUnion() || t.isVoid() || t.isArray();
     }
 
     protected boolean isInvalidRHSType(Type t) {
-        return isNotScalarType(t);
-    }
-
-    protected boolean isNotScalarType(Type t) {
         return t.isStruct() || t.isUnion() || t.isVoid();
     }
 
