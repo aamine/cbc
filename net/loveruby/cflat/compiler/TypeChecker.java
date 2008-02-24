@@ -8,15 +8,18 @@ class TypeChecker extends Visitor {
     protected TypeTable typeTable;
     protected ErrorHandler errorHandler;
 
+    // #@@range/ctor{
     public TypeChecker(TypeTable typeTable, ErrorHandler errorHandler) {
         this.typeTable = typeTable;
         this.errorHandler = errorHandler;
     }
+    // #@@}
 
     protected void check(Node node) {
         visitNode(node);
     }
 
+    // #@@range/check_AST{
     public void check(AST ast) throws SemanticException {
         Iterator vars = ast.variables();
         while (vars.hasNext()) {
@@ -34,6 +37,7 @@ class TypeChecker extends Visitor {
             throw new SemanticException("compile failed.");
         }
     }
+    // #@@}
 
     protected void checkReturnType(DefinedFunction f) {
         if (isInvalidReturnType(f.returnType())) {
@@ -205,6 +209,7 @@ class TypeChecker extends Visitor {
         }
     }
 
+    // #@@range/BinaryOpNode{
     public void visit(BinaryOpNode node) {
         super.visit(node);
         if (node.operator().equals("+")
@@ -233,6 +238,7 @@ class TypeChecker extends Visitor {
             throw new Error("unknown binary operator: " + node.operator());
         }
     }
+    // #@@}
 
     public void visit(LogicalAndNode node) {
         super.visit(node);
@@ -266,6 +272,7 @@ class TypeChecker extends Visitor {
     }
 
     // +, -, *, /, %, &, |, ^, <<, >>
+    // #@@range/expectsSameInteger{
     protected void expectsSameInteger(BinaryOpNode node) {
         if (! node.left().type().isInteger()) {
             wrongTypeError(node.left(), node.operator());
@@ -277,6 +284,7 @@ class TypeChecker extends Visitor {
         }
         arithmeticImplicitCast(node);
     }
+    // #@@}
 
     // ==, !=, <, <=, >, >=, &&, ||
     protected void expectsComparableScalars(BinaryOpNode node) {
@@ -292,6 +300,7 @@ class TypeChecker extends Visitor {
     }
 
     // Processes usual arithmetic conversion for binary operations.
+    // #@@range/arithmeticImplicitCast{
     protected void arithmeticImplicitCast(BinaryOpNode node) {
         Type r = integralPromotion(node.right().type());
         Type l = integralPromotion(node.left().type());
@@ -306,6 +315,7 @@ class TypeChecker extends Visitor {
         }
         node.setType(target);
     }
+    // #@@}
 
     // +, -, !, ~
     public void visit(UnaryOpNode node) {
@@ -424,6 +434,7 @@ class TypeChecker extends Visitor {
     }
 
     // Process integral promotion (integers only).
+    // #@@range/integralPromotion{
     protected Type integralPromotion(Type t) {
         if (!t.isInteger()) {
             throw new Error("integralPromotion for " + t);
@@ -436,31 +447,34 @@ class TypeChecker extends Visitor {
             return t;
         }
     }
+    // #@@}
 
     // Usual arithmetic conversion for ILP32 platform (integers only).
-    // Size of t1, t2 >= sizeof(int).
-    protected Type usualArithmeticConversion(Type t1, Type t2) {
+    // Size of l, r >= sizeof(int).
+    // #@@range/usualArithmeticConversion{
+    protected Type usualArithmeticConversion(Type l, Type r) {
         Type s_int = typeTable.signedInt();
         Type u_int = typeTable.unsignedInt();
         Type s_long = typeTable.signedLong();
         Type u_long = typeTable.unsignedLong();
-        if (       (t1.isSameType(u_int) && t2.isSameType(s_long))
-                || (t2.isSameType(u_int) && t1.isSameType(s_long))) {
+        if (       (l.isSameType(u_int) && r.isSameType(s_long))
+                || (r.isSameType(u_int) && l.isSameType(s_long))) {
             return u_long;
         }
-        else if (t1.isSameType(u_long) || t2.isSameType(u_long)) {
+        else if (l.isSameType(u_long) || r.isSameType(u_long)) {
             return u_long;
         }
-        else if (t1.isSameType(s_long) || t2.isSameType(s_long)) {
+        else if (l.isSameType(s_long) || r.isSameType(s_long)) {
             return s_long;
         }
-        else if (t1.isSameType(u_int) || t2.isSameType(u_int)) {
+        else if (l.isSameType(u_int)  || r.isSameType(u_int)) {
             return u_int;
         }
         else {
             return s_int;
         }
     }
+    // #@@}
 
     protected CastNode newCastNode(Type t, ExprNode n) {
         return new CastNode(new TypeNode(t), n);
