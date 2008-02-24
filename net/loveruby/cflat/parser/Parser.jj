@@ -273,7 +273,7 @@ PARSER_END(Parser)
 
 // linear-white-spaces
 // #@@range/lex_spaces{
-SPECIAL_TOKEN: { <SPACES: ([" ","\t","\n","\r"])+> }
+SPECIAL_TOKEN: { <SPACES: ([" ", "\t", "\n", "\r", "\f", "\v"])+> }
 // #@@}
 
 // block comment
@@ -286,7 +286,7 @@ MORE: { <"/*"> : IN_BLOCK_COMMENT }
 // line comment
 // #@@range/lex_line_comment{
 SPECIAL_TOKEN: {
-    <LINE_COMMENT: "//" (~["\n","\r"])* ("\n" | "\r\n" | "\r")?>
+    <LINE_COMMENT: "//" (~["\n", "\r"])* ("\n" | "\r\n" | "\r")?>
 }
 // #@@}
 
@@ -325,7 +325,7 @@ TOKEN: {
 // identifier
 // #@@range/lex_ident{
 TOKEN: {
-    <IDENTIFIER: ["a"-"z","A"-"Z","_"] (["a"-"z","A"-"Z","_","0"-"9"])*>
+    <IDENTIFIER: ["a"-"z", "A"-"Z", "_"] (["a"-"z", "A"-"Z", "_", "0"-"9"])*>
 }
 // #@@}
 
@@ -333,7 +333,7 @@ TOKEN: {
 // #@@range/lex_integer{
 TOKEN: {
     <INTEGER: ["1"-"9"] (["0"-"9"])* ("U")? ("L")?
-            | "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])* ("U")? ("L")?
+            | "0" ["x", "X"] (["0"-"9", "a"-"f", "A"-"F"])+ ("U")? ("L")?
             | "0" (["0"-"7"])* ("U")? ("L")?
             >
 }
@@ -343,18 +343,18 @@ TOKEN: {
 // #@@range/lex_char{
 MORE: { <"'"> : IN_CHARACTER }
 <IN_CHARACTER> MORE: {
-      <~["'","\\","\n","\r"]>
-    | <"\\" (["0"-"7"]){3}>
-    | <"\\" ~[]>
+      <~["'", "\\", "\n", "\r"]> : CHARACTER_TERM
+    | <"\\" (["0"-"7"]){3}>      : CHARACTER_TERM
+    | <"\\" ~[]>                 : CHARACTER_TERM
 }
-<IN_CHARACTER> TOKEN: { <CHARACTER: "'"> : DEFAULT }
+<CHARACTER_TERM> TOKEN: { <CHARACTER: "'"> : DEFAULT }
 // #@@}
 
 // string literal
 // #@@range/lex_string{
 MORE: { <"\""> : IN_STRING }
 <IN_STRING> MORE: {
-      <(~["\"","\\","\n","\r"])+>
+      <(~["\"", "\\", "\n", "\r"])+>
     | <"\\" (["0"-"7"]){3}>
     | <"\\" ~[]>
 }
