@@ -1,3 +1,17 @@
+Sun Feb 24 23:40:15 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: implement usual
+	  arithmetic conversion for BinaryOpNode.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: implement usual
+	  arithmetic conversion for OpAssignNode.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: implement usual
+	  arithmetic conversion for ++, --.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: new entry point
+	  TypeTable#check(AST).
+
 Sun Feb 24 19:58:45 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj (SPACES): "\v" is invalid
@@ -11,7 +25,7 @@ Sun Feb 24 15:31:24 2008  Minero Aoki  <aamine@loveruby.net>
 	  invalid.
 
 	* net/loveruby/cflat/parser/Parser.jj: refactoring: insert spaces
-	  after character set comma.
+	  after comma of character class.
 
 Mon Feb 18 06:12:14 2008  Minero Aoki  <aamine@loveruby.net>
 

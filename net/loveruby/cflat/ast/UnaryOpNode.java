@@ -4,6 +4,7 @@ import net.loveruby.cflat.type.Type;
 public class UnaryOpNode extends ExprNode {
     protected String operator;
     protected ExprNode expr;
+    protected Type opType;
 
     public UnaryOpNode(String op, ExprNode expr) {
         this.operator = op;
@@ -16,6 +17,14 @@ public class UnaryOpNode extends ExprNode {
 
     public Type type() {
         return expr.type();
+    }
+
+    public void setOpType(Type t) {
+        this.opType = t;
+    }
+
+    public Type opType() {
+        return opType;
     }
 
     public ExprNode expr() {
