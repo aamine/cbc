@@ -273,7 +273,7 @@ PARSER_END(Parser)
 
 // linear-white-spaces
 // #@@range/lex_spaces{
-SPECIAL_TOKEN: { <SPACES: ([" ", "\t", "\n", "\r", "\f", "\v"])+> }
+SPECIAL_TOKEN: { <SPACES: ([" ", "\t", "\n", "\r", "\f"])+> }
 // #@@}
 
 // block comment
@@ -341,13 +341,13 @@ TOKEN: {
 
 // character literal
 // #@@range/lex_char{
-MORE: { <"'"> : IN_CHARACTER }
+MORE: { <"'"> : IN_CHARACTER }                         // rule1
 <IN_CHARACTER> MORE: {
-      <~["'", "\\", "\n", "\r"]> : CHARACTER_TERM
-    | <"\\" (["0"-"7"]){3}>      : CHARACTER_TERM
-    | <"\\" ~[]>                 : CHARACTER_TERM
+      <~["'", "\\", "\n", "\r"]> : CHARACTER_TERM      // rule2
+    | <"\\" (["0"-"7"]){3}>      : CHARACTER_TERM      // rule3
+    | <"\\" ~[]>                 : CHARACTER_TERM      // rule4
 }
-<CHARACTER_TERM> TOKEN: { <CHARACTER: "'"> : DEFAULT }
+<CHARACTER_TERM> TOKEN: { <CHARACTER: "'"> : DEFAULT } // rule5
 // #@@}
 
 // string literal
