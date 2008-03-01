@@ -6,6 +6,10 @@ public class CastNode extends ExprNode {
     protected TypeNode typeNode;
     protected ExprNode expr;
 
+    public CastNode(Type t, ExprNode expr) {
+        this(new TypeNode(t), expr);
+    }
+
     public CastNode(TypeNode t, ExprNode expr) {
         this.typeNode = t;
         this.expr = expr;

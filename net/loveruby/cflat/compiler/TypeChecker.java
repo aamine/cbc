@@ -154,7 +154,7 @@ class TypeChecker extends Visitor {
                 if (! mustBeInteger(node.rhs(), node.operator())) return;
                 Type t = integralPromotion(node.rhs().type());
                 if (! t.isSameType(node.rhs().type())) {
-                    node.setRHS(newCastNode(t, node.rhs()));
+                    node.setRHS(new CastNode(t, node.rhs()));
                 }
                 return;
             }
@@ -170,7 +170,7 @@ class TypeChecker extends Visitor {
         }
         if (! r.isSameType(opType)) {
             // cast RHS
-            node.setRHS(newCastNode(opType, node.rhs()));
+            node.setRHS(new CastNode(opType, node.rhs()));
         }
     }
 
@@ -199,10 +199,10 @@ class TypeChecker extends Visitor {
             return;
         }
         else if (t.isCompatible(e)) {   // insert cast on thenBody
-            node.setThenExpr(newCastNode(e, node.thenExpr()));
+            node.setThenExpr(new CastNode(e, node.thenExpr()));
         }
         else if (e.isCompatible(t)) {   // insert cast on elseBody
-            node.setElseExpr(newCastNode(t, node.elseExpr()));
+            node.setElseExpr(new CastNode(t, node.elseExpr()));
         }
         else {
             invalidCastError(node.thenExpr(), e, t);
@@ -307,11 +307,11 @@ class TypeChecker extends Visitor {
         Type target = usualArithmeticConversion(l, r);
         if (! l.isSameType(target)) {
             // insert cast on left expr
-            node.setLeft(newCastNode(target, node.left()));
+            node.setLeft(new CastNode(target, node.left()));
         }
         if (! r.isSameType(target)) {
             // insert cast on right expr
-            node.setRight(newCastNode(target, node.right()));
+            node.setRight(new CastNode(target, node.right()));
         }
         node.setType(target);
     }
@@ -425,7 +425,7 @@ class TypeChecker extends Visitor {
                 warn(expr, "incompatible implicit cast from "
                            + expr.type() + " to " + targetType);
             }
-            return newCastNode(targetType, expr);
+            return new CastNode(targetType, expr);
         }
         else {
             invalidCastError(expr, expr.type(), targetType);
@@ -475,10 +475,6 @@ class TypeChecker extends Visitor {
         }
     }
     // #@@}
-
-    protected CastNode newCastNode(Type t, ExprNode n) {
-        return new CastNode(new TypeNode(t), n);
-    }
 
     protected boolean isInvalidReturnType(Type t) {
         return t.isStruct() || t.isUnion() || t.isArray();

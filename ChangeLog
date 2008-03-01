@@ -1,3 +1,10 @@
+Sat Mar  1 20:06:33 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: use (new) CastNode
+	  constructor directly.
+
+	* net/loveruby/cflat/ast/CastNode.java: new constructor.
+
 Sun Feb 24 23:40:15 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: implement usual
