@@ -469,7 +469,7 @@ Declarations top_defs():
     ( LOOKAHEAD(storage() typeref() <IDENTIFIER> "(")
       defun=defun()         { decls.addDefun(defun); }
     | LOOKAHEAD(3)
-      defvars=defvar()      { decls.addDefvars(defvars); }
+      defvars=defvars()     { decls.addDefvars(defvars); }
     | defstruct=defstruct() { decls.addDefstruct(defstruct); }
     | defunion=defunion()   { decls.addDefunion(defunion); }
     | typedef=typedef()     { decls.addTypedef(typedef); }
@@ -480,8 +480,8 @@ Declarations top_defs():
 }
 // #@@}
 
-// #@@range/defvar{
-List defvar():
+// #@@range/defvars{
+List defvars():
 {
     List defs = new ArrayList();
     boolean priv;
@@ -604,7 +604,7 @@ List defvar_list():
     List vars;
 }
 {
-    ( vars=defvar() { result.addAll(vars); } )*
+    ( vars=defvars() { result.addAll(vars); } )*
         {
             return result;
         }

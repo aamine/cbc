@@ -1,3 +1,7 @@
+Mon Mar 24 02:47:41 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: defvar -> defvars (again).
+
 Mon Mar 24 02:39:14 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: top_decls -> top_defs
