@@ -375,7 +375,7 @@ AST compilation_unit():
         {
             t = getToken(1);
         }
-    impdecls=import_stmts() decls=top_decls() <EOF>
+    impdecls=import_stmts() decls=top_defs() <EOF>
         {
             decls.add(impdecls);
             return new AST(sourceName, decls, t);
@@ -455,8 +455,8 @@ String import_stmt():
 }
 // #@@}
 
-// #@@range/top_decls{
-Declarations top_decls():
+// #@@range/top_defs{
+Declarations top_defs():
 {
     Declarations decls = new Declarations();
     DefinedFunction defun;
