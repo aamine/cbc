@@ -6,8 +6,9 @@ import java.util.*;
 
 public class CodeGenerator extends Visitor {
     static public String generate(AST ast, TypeTable typeTable,
-            ErrorHandler errorHandler) {
-        CodeGenerator gen = new CodeGenerator(new Assembler(), errorHandler);
+                                  ErrorHandler errorHandler) {
+        Assembler as = new Assembler(typeTable.unsignedLong());
+        CodeGenerator gen = new CodeGenerator(as, errorHandler);
         return gen.generateAssembly(ast, typeTable);
     }
 
@@ -28,7 +29,7 @@ static public void p(String s) { System.err.println(s); }
         allocateGlobalVariables(ast.globalVariables());
         allocateCommonSymbols(ast.commonSymbols());
 
-        as._file(ast.fileName());
+        _file(ast.fileName());
         // .data
         compileGlobalVariables(ast.globalVariables());
         if (!ast.constantTable().isEmpty()) {
@@ -83,7 +84,7 @@ static public void p(String s) { System.err.println(s); }
 
     /** Generates static variable entries */
     protected void compileGlobalVariables(Iterator vars) {
-        as._data();
+        _data();
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
             dataEntry(var);
@@ -93,12 +94,12 @@ static public void p(String s) { System.err.println(s); }
     /** Generates initialized entries */
     protected void dataEntry(DefinedVariable ent) {
         if (!ent.isPrivate()) {
-            as._globl(csymbol(ent.symbol()));
+            _globl(csymbol(ent.symbol()));
         }
-        as._align(ent.allocSize());
-        as._type(csymbol(ent.symbol()), "@object");
-        as._size(csymbol(ent.symbol()), ent.allocSize());
-        as.label(csymbol(ent.symbol()));
+        _align(ent.allocSize());
+        _type(csymbol(ent.symbol()), "@object");
+        _size(csymbol(ent.symbol()), ent.allocSize());
+        label(csymbol(ent.symbol()));
         compileImmediate(ent.type(), ent.initializer());
     }
 
@@ -107,10 +108,10 @@ static public void p(String s) { System.err.println(s); }
         // FIXME: support other constants
         IntegerLiteralNode expr = (IntegerLiteralNode)n;
         switch ((int)type.allocSize()) {
-        case 1: as._byte(expr.value());    break;
-        case 2: as._value(expr.value());   break;
-        case 4: as._long(expr.value());    break;
-        case 8: as._quad(expr.value());    break;
+        case 1: _byte(expr.value());    break;
+        case 2: _value(expr.value());   break;
+        case 4: _long(expr.value());    break;
+        case 8: _quad(expr.value());    break;
         default:
             throw new Error("entry size is not 1,2,4,8");
         }
@@ -121,26 +122,26 @@ static public void p(String s) { System.err.println(s); }
         while (ents.hasNext()) {
             Variable ent = (Variable)ents.next();
             if (ent.isPrivate()) {
-                as._local(csymbol(ent.symbol()));
+                _local(csymbol(ent.symbol()));
             }
-            as._comm(csymbol(ent.symbol()), ent.allocSize(), ent.alignment());
+            _comm(csymbol(ent.symbol()), ent.allocSize(), ent.alignment());
         }
     }
 
     /** Generates .rodata entry (constant strings) */
     protected void compileConstants(ConstantTable table) {
-        as._section(".rodata");
+        _section(".rodata");
         Iterator ents = table.entries();
         while (ents.hasNext()) {
             ConstantEntry ent = (ConstantEntry)ents.next();
-            as.label(ent.label());
-            as._string(ent.value());
+            label(ent.label());
+            _string(ent.value());
         }
     }
 
     /** Compiles all functions and generates .text section. */
     protected void compileFunctions(Iterator funcs) {
-        as._text();
+        _text();
         while (funcs.hasNext()) {
             DefinedFunction func = (DefinedFunction)funcs.next();
             compileFunction(func);
@@ -151,15 +152,15 @@ static public void p(String s) { System.err.println(s); }
     protected void compileFunction(DefinedFunction func) {
         currentFunction = func;
         String symbol = csymbol(func.name());
-        as._globl(symbol);
-        as._type(symbol, "@function");
-        as.label(symbol);
+        _globl(symbol);
+        _type(symbol, "@function");
+        label(symbol);
         prologue(func);
         allocateParameters(func);
         allocateLocalVariables(func);
         compile(func.body());
         epilogue(func);
-        as._size(symbol, ".-" + symbol);
+        _size(symbol, ".-" + symbol);
     }
 
     protected void compile(Node n) {
@@ -177,19 +178,19 @@ static public void p(String s) { System.err.println(s); }
     }
 
     protected void prologue(DefinedFunction func) {
-        as.pushq(bp());
-        as.movq(sp(), bp());
+        push(bp());
+        mov(sp(), bp());
     }
 
     protected void epilogue(DefinedFunction func) {
-        as.label(epilogueLabel(func));
-        as.movq(bp(), sp());
-        as.popq(bp());
-        as.ret();
+        label(epilogueLabel(func));
+        mov(bp(), sp());
+        pop(bp());
+        ret();
     }
 
     protected void jmpEpilogue() {
-        as.jmp(new Label(epilogueLabel(currentFunction)));
+        jmp(new Label(epilogueLabel(currentFunction)));
     }
 
     protected String epilogueLabel(DefinedFunction func) {
@@ -265,11 +266,11 @@ static public void p(String s) { System.err.println(s); }
     }
 
     protected void extendStack(long len) {
-        as.addq(imm(stackDirection * len), sp());
+        add(imm(stackDirection * len), sp());
     }
 
     protected void shrinkStack(long len) {
-        as.subq(imm(stackDirection * len), sp());
+        sub(imm(stackDirection * len), sp());
     }
 
     protected long align(long n, long alignment) {
@@ -286,23 +287,23 @@ static public void p(String s) { System.err.println(s); }
         while (it.hasPrevious()) {
             ExprNode arg = (ExprNode)it.previous();
             compile(arg);
-            as.pushq(reg("ax"));
+            push(reg("ax"));
         }
         //if (node.function().isVararg()) {
         //    ...
         //}
         if (node.isStaticCall()) {
             if (node.function().isDefined()) {
-                as.call(csymbol(node.function().name()));
+                call(csymbol(node.function().name()));
             }
             else {
-                as.call(tmpsymbol(node.function().name()));
+                call(tmpsymbol(node.function().name()));
             }
         }
         else {  // funcall via pointer
             // FIXME
             compile(node.expr());
-            as.ptrcall(reg("ax"));
+            ptrcall(reg("ax"));
         }
         if (node.numArgs() > 0) {
             // FIXME: >4 size arguments are not supported.
@@ -327,7 +328,7 @@ static public void p(String s) { System.err.println(s); }
             DefinedVariable var = (DefinedVariable)vars.next();
             if (var.initializer() != null) {
                 compile(var.initializer());
-                saveWords(var.type(), "ax", var.address());
+                save(var.type(), "ax", var.address());
             }
         }
         Iterator stmts = node.stmts();
@@ -342,36 +343,36 @@ static public void p(String s) { System.err.println(s); }
     }
 
     private void testCond(Type t, String regname) {
-        as.test(t, reg(regname, t), reg(regname, t));
+        test(t, reg(regname, t), reg(regname, t));
     }
 
     public void visit(IfNode node) {
         compile(node.cond());
         testCond(node.cond().type(), "ax");
         if (node.elseBody() != null) {
-            as.jz(node.elseLabel());
+            jz(node.elseLabel());
             compileStmt(node.thenBody());
-            as.jmp(node.endLabel());
-            as.label(node.elseLabel());
+            jmp(node.endLabel());
+            label(node.elseLabel());
             compileStmt(node.elseBody());
-            as.label(node.endLabel());
+            label(node.endLabel());
         }
         else {
-            as.jz(node.endLabel());
+            jz(node.endLabel());
             compileStmt(node.thenBody());
-            as.label(node.endLabel());
+            label(node.endLabel());
         }
     }
 
     public void visit(CondExprNode node) {
         compile(node.cond());
         testCond(node.cond().type(), "ax");
-        as.jz(node.elseLabel());
+        jz(node.elseLabel());
         compile(node.thenExpr());
-        as.jmp(node.endLabel());
-        as.label(node.elseLabel());
+        jmp(node.endLabel());
+        label(node.elseLabel());
         compile(node.elseExpr());
-        as.label(node.endLabel());
+        label(node.endLabel());
     }
 
     public void visit(SwitchNode node) {
@@ -382,9 +383,9 @@ static public void p(String s) { System.err.println(s); }
             CaseNode caseNode = (CaseNode)cases.next();
             Iterator values = caseNode.values();
             while (values.hasNext()) {
-                as.movq(imm(caseValue((Node)values.next())), reg("cx"));
-                as.cmp(t, reg("cx", t), reg("ax", t));
-                as.je(caseNode.beginLabel());
+                mov(imm(caseValue((Node)values.next())), reg("cx"));
+                cmp(t, reg("cx", t), reg("ax", t));
+                je(caseNode.beginLabel());
             }
         }
         cases = node.cases();
@@ -402,74 +403,74 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(CaseNode node) {
-        as.label(node.beginLabel());
+        label(node.beginLabel());
         compile(node.body());
     }
 
     public void visit(LogicalAndNode node) {
         compile(node.left());
         testCond(node.left().type(), "ax");
-        as.jz(node.endLabel());
+        jz(node.endLabel());
         compile(node.right());
-        as.label(node.endLabel());
+        label(node.endLabel());
     }
 
     public void visit(LogicalOrNode node) {
         compile(node.left());
         testCond(node.left().type(), "ax");
-        as.jnz(node.endLabel());
+        jnz(node.endLabel());
         compile(node.right());
-        as.label(node.endLabel());
+        label(node.endLabel());
     }
 
     public void visit(WhileNode node) {
-        as.label(node.begLabel());
+        label(node.begLabel());
         compile(node.cond());
         testCond(node.cond().type(), "ax");
-        as.jz(node.endLabel());
+        jz(node.endLabel());
         compileStmt(node.body());
-        as.jmp(node.begLabel());
-        as.label(node.endLabel());
+        jmp(node.begLabel());
+        label(node.endLabel());
     }
 
     public void visit(DoWhileNode node) {
-        as.label(node.begLabel());
+        label(node.begLabel());
         compileStmt(node.body());
-        as.label(node.continueLabel());
+        label(node.continueLabel());
         compile(node.cond());
         testCond(node.cond().type(), "ax");
-        as.jnz(node.begLabel());
-        as.label(node.endLabel());
+        jnz(node.begLabel());
+        label(node.endLabel());
     }
 
     public void visit(ForNode node) {
         compileStmt(node.init());
-        as.label(node.begLabel());
+        label(node.begLabel());
         compile(node.cond());
         testCond(node.cond().type(), "ax");
-        as.jz(node.endLabel());
+        jz(node.endLabel());
         compileStmt(node.body());
-        as.label(node.continueLabel());
+        label(node.continueLabel());
         compileStmt(node.incr());
-        as.jmp(node.begLabel());
-        as.label(node.endLabel());
+        jmp(node.begLabel());
+        label(node.endLabel());
     }
 
     public void visit(BreakNode node) {
-        as.jmp(node.targetLabel());
+        jmp(node.targetLabel());
     }
 
     public void visit(ContinueNode node) {
-        as.jmp(node.targetLabel());
+        jmp(node.targetLabel());
     }
 
     public void visit(LabelNode node) {
-        as.label(node.label());
+        label(node.label());
         compileStmt(node.stmt());
     }
 
     public void visit(GotoNode node) {
-        as.jmp(node.targetLabel());
+        jmp(node.targetLabel());
     }
 
     //
@@ -478,59 +479,63 @@ static public void p(String s) { System.err.println(s); }
 
     public void visit(BinaryOpNode node) {
         compile(node.right());
-        as.pushq(reg("ax"));
+        push(reg("ax"));
         compile(node.left());
-        as.popq(reg("cx"));
+        pop(reg("cx"));
         compileBinaryOp(node.operator(), node.type());
     }
 
     protected void compileBinaryOp(String op, Type t) {
         if (op.equals("+")) {
-            as.add(t, reg("cx", t), reg("ax", t));
+            add(t, reg("cx", t), reg("ax", t));
         }
         else if (op.equals("-")) {
-            as.sub(t, reg("cx", t), reg("ax", t));
+            sub(t, reg("cx", t), reg("ax", t));
         }
         else if (op.equals("*")) {
-            as.imul(t, reg("cx", t), reg("ax", t));
+            imul(t, reg("cx", t), reg("ax", t));
         }
-        else if (op.equals("/")) {
-            as.movq(imm(0), reg("dx"));
-            as.idiv(t, reg("cx", t));
-        }
-        else if (op.equals("%")) {
-            as.movq(imm(0), reg("dx"));
-            as.idiv(t, reg("cx", t));
-            as.movq(reg("dx"), reg("ax"));
+        else if (op.equals("/") || op.equals("%")) {
+            if (t.isSigned()) {
+                cltd();
+                idiv(t, reg("cx", t));
+            }
+            else {
+                mov(imm(0), reg("dx"));
+                div(t, reg("cx", t));
+            }
+            if (op.equals("%")) {
+                mov(reg("dx"), reg("ax"));
+            }
         }
         else if (op.equals("&")) {
-            as.and(t, reg("cx", t), reg("ax", t));
+            and(t, reg("cx", t), reg("ax", t));
         }
         else if (op.equals("|")) {
-            as.or(t, reg("cx", t), reg("ax", t));
+            or(t, reg("cx", t), reg("ax", t));
         }
         else if (op.equals("^")) {
-            as.xor(t, reg("cx", t), reg("ax", t));
+            xor(t, reg("cx", t), reg("ax", t));
         }
         else if (op.equals(">>")) {
-            as.sar(t, cl(), reg("ax", t));
+            sar(t, cl(), reg("ax", t));
         }
         else if (op.equals("<<")) {
-            as.sal(t, cl(), reg("ax", t));
+            sal(t, cl(), reg("ax", t));
         }
         else {
             // Comparison operators
-            as.cmp(t, reg("cx", t), reg("ax", t));
-            if      (op.equals("=="))   as.sete (al());
-            else if (op.equals("!="))   as.setne(al());
-            else if (op.equals(">"))    as.setg (al());
-            else if (op.equals(">="))   as.setge(al());
-            else if (op.equals("<"))    as.setl (al());
-            else if (op.equals("<="))   as.setle(al());
+            cmp(t, reg("cx", t), reg("ax", t));
+            if      (op.equals("=="))   sete (al());
+            else if (op.equals("!="))   setne(al());
+            else if (op.equals(">"))    setg (al());
+            else if (op.equals(">="))   setge(al());
+            else if (op.equals("<"))    setl (al());
+            else if (op.equals("<="))   setle(al());
             else {
                 throw new Error("unknown binary operator: " + op);
             }
-            as.movzb(t, al(), reg("ax", t));
+            movzb(t, al(), reg("ax", t));
         }
     }
 
@@ -540,43 +545,43 @@ static public void p(String s) { System.err.println(s); }
             ;
         }
         else if (node.operator().equals("-")) {
-            as.neg(node.expr().type(), reg("ax", node.expr().type()));
+            neg(node.expr().type(), reg("ax", node.expr().type()));
         }
         else if (node.operator().equals("~")) {
-            as.not(node.expr().type(), reg("ax", node.expr().type()));
+            not(node.expr().type(), reg("ax", node.expr().type()));
         }
         else if (node.operator().equals("!")) {
             testCond(node.expr().type(), "ax");
-            as.sete(al());
-            as.movzbl(al(), reg("ax"));
+            sete(al());
+            movzbl(al(), reg("ax"));
         }
     }
 
     public void visit(PrefixOpNode node) {
         compileIncDec(node.operator(), node.expr());
-        loadWords(node.expr().type(), node.expr().address(), "ax");
+        load(node.expr().type(), node.expr().address(), "ax");
     }
 
     public void visit(SuffixOpNode node) {
-        loadWords(node.expr().type(), node.expr().address(), "ax");
+        load(node.expr().type(), node.expr().address(), "ax");
         compileIncDec(node.operator(), node.expr());
     }
 
     protected void compileIncDec(String op, ExprNode e) {
         if (op.equals("++")) {
             if (e.type().isInteger()) {
-                as.inc(e.type(), e.address());
+                inc(e.type(), e.address());
             }
             else {
-                as.addq(imm(e.type().size()), e.address());
+                add(imm(e.type().size()), e.address());
             }
         }
         else if (op.equals("--")) {
             if (e.type().isInteger()) {
-                as.dec(e.type(), e.address());
+                dec(e.type(), e.address());
             }
             else {
-                as.subq(imm(e.type().size()), e.address());
+                sub(imm(e.type().size()), e.address());
             }
         }
         else {
@@ -591,19 +596,19 @@ static public void p(String s) { System.err.println(s); }
 
     public void visit(VariableNode node) {
         if (node.type().isAllocatedArray()) {
-            as.leaq(node.address(), reg("ax"));
+            lea(node.address(), reg("ax"));
         }
         else {
-            loadWords(node.type(), node.address(), "ax");
+            load(node.type(), node.address(), "ax");
         }
     }
 
     public void visit(IntegerLiteralNode node) {
-        as.mov(node.type(), imm(node.value()), reg("ax", node.type()));
+        mov(node.type(), imm(node.value()), reg("ax", node.type()));
     }
 
     public void visit(StringLiteralNode node) {
-        loadWords(node.type(), imm(node.label()), "ax");
+        load(node.type(), imm(node.label()), "ax");
     }
 
     //
@@ -613,129 +618,129 @@ static public void p(String s) { System.err.println(s); }
     public void visit(AssignNode node) {
         if (node.lhs().isConstantAddress()) {
             compile(node.rhs());
-            saveWords(node.type(), "ax", node.lhs().address());
+            save(node.type(), "ax", node.lhs().address());
         }
         else {
             compile(node.rhs());
-            as.pushq(reg("ax"));
+            push(reg("ax"));
             compileLHS(node.lhs());
-            as.popq(reg("ax"));
-            saveWords(node.type(), "ax", addr(PTRREG));
+            pop(reg("ax"));
+            save(node.type(), "ax", addr(PTRREG));
         }
     }
 
     public void visit(OpAssignNode node) {
         compile(node.rhs());
-        as.movq(reg("ax"), reg("cx"));
-        loadWords(node.type(), node.lhs().address(), "ax");
+        mov(reg("ax"), reg("cx"));
+        load(node.type(), node.lhs().address(), "ax");
         compileBinaryOp(node.operator(), node.type());
-        saveWords(node.type(), "ax", node.lhs().address());
+        save(node.type(), "ax", node.lhs().address());
     }
 
     // FIXME: use -4(%edx,%esi,4) addressing
     public void visit(ArefNode node) {
         if (node.expr().type().isPointerAlike()) {
             compile(node.expr());
-            as.pushq(reg("ax"));
+            push(reg("ax"));
         }
         else {
             compileLHS(node.expr());
-            as.pushq(reg(PTRREG));
+            push(reg(PTRREG));
         }
         compile(node.index());
-        as.imulq(imm(node.type().size()), reg("ax"));
-        as.popq(reg(PTRREG));
-        as.addq(reg("ax"), reg(PTRREG));
-        loadWords(node.type(), addr(PTRREG), "ax");
+        imul(imm(node.type().size()), reg("ax"));
+        pop(reg(PTRREG));
+        add(reg("ax"), reg(PTRREG));
+        load(node.type(), addr(PTRREG), "ax");
     }
 
     public void visit(MemberNode node) {
         compileLHS(node.expr());
-        loadWords(node.type(), addr2(node.offset(), PTRREG), "ax");
+        load(node.type(), addr2(node.offset(), PTRREG), "ax");
     }
 
     public void visit(PtrMemberNode node) {
         compileLHS(node.expr());
-        loadWords(node.type(), addr(PTRREG), PTRREG);
-        loadWords(node.type(), addr2(node.offset(), PTRREG), "ax");
+        load(node.type(), addr(PTRREG), PTRREG);
+        load(node.type(), addr2(node.offset(), PTRREG), "ax");
     }
 
     public void visit(DereferenceNode node) {
         compile(node.expr());
-        loadWords(node.type(), addr("ax"), "ax");
+        load(node.type(), addr("ax"), "ax");
     }
 
     public void visit(AddressNode node) {
         compileLHS(node.expr());
-        as.movq(reg(PTRREG), reg("ax"));
+        mov(reg(PTRREG), reg("ax"));
     }
 
     static final String PTRREG = "bx";
 
     protected void compileLHS(Node node) {
-as.comment("compileLHS: " + node.getClass().getName() + " {");
+comment("compileLHS: " + node.getClass().getName() + " {");
         if (node instanceof VariableNode) {
             // FIXME: support static variables
             VariableNode n = (VariableNode)node;
-            as.leaq(n.address(), reg(PTRREG));
+            lea(n.address(), reg(PTRREG));
         }
         else if (node instanceof ArefNode) {
             ArefNode n = (ArefNode)node;
-            as.pushq(reg("ax"));
+            push(reg("ax"));
             compile(n.index());
-            as.imulq(imm(n.type().size()), reg("ax"));
-            as.pushq(reg("ax"));
+            imul(imm(n.type().size()), reg("ax"));
+            push(reg("ax"));
             if (n.expr().type().isPointerAlike()) {
                 compile(n.expr());
-                as.movq(reg("ax"), reg(PTRREG));
+                mov(reg("ax"), reg(PTRREG));
             }
             else {
                 compileLHS(n.expr());
             }
-            as.popq(reg("cx"));
-            as.addq(reg("cx"), reg(PTRREG));
-            as.popq(reg("ax"));
+            pop(reg("cx"));
+            add(reg("cx"), reg(PTRREG));
+            pop(reg("ax"));
         }
         else if (node instanceof MemberNode) {
             MemberNode n = (MemberNode)node;
             compileLHS(n.expr());
-            as.addq(imm(n.offset()), reg(PTRREG));
+            add(imm(n.offset()), reg(PTRREG));
         }
         else if (node instanceof DereferenceNode) {
             DereferenceNode n = (DereferenceNode)node;
-            as.pushq(reg("ax"));
+            push(reg("ax"));
             compile(n.expr());
-            as.movq(reg("ax"), reg(PTRREG));
-            as.popq(reg("ax"));
+            mov(reg("ax"), reg(PTRREG));
+            pop(reg("ax"));
         }
         else if (node instanceof PtrMemberNode) {
             PtrMemberNode n = (PtrMemberNode)node;
-            as.pushq(reg("ax"));
+            push(reg("ax"));
             compile(n.expr());
-            as.addq(imm(n.offset()), reg("ax"));
-            as.movq(reg("ax"), reg(PTRREG));
-            as.popq(reg("ax"));
+            add(imm(n.offset()), reg("ax"));
+            mov(reg("ax"), reg(PTRREG));
+            pop(reg("ax"));
         }
         else if (node instanceof PrefixOpNode) {
             PrefixOpNode n = (PrefixOpNode)node;
             compileLHS(n.expr());
             if (n.operator().equals("++")) {
-                as.addq(imm(n.expr().type().size()), addr(PTRREG));
-                as.addq(imm(n.expr().type().size()), reg(PTRREG));
+                add(imm(n.expr().type().size()), addr(PTRREG));
+                add(imm(n.expr().type().size()), reg(PTRREG));
             }
             else {
-                as.subq(imm(n.expr().type().size()), addr(PTRREG));
-                as.subq(imm(n.expr().type().size()), reg(PTRREG));
+                sub(imm(n.expr().type().size()), addr(PTRREG));
+                sub(imm(n.expr().type().size()), reg(PTRREG));
             }
         }
         else if (node instanceof SuffixOpNode) {
             SuffixOpNode n = (SuffixOpNode)node;
             compileLHS(n.expr());
             if (n.operator().equals("++")) {
-                as.addq(imm(n.expr().type().size()), reg(PTRREG));
+                add(imm(n.expr().type().size()), reg(PTRREG));
             }
             else {
-                as.subq(imm(n.expr().type().size()), reg(PTRREG));
+                sub(imm(n.expr().type().size()), reg(PTRREG));
             }
         }
         else if (node instanceof CastNode) {
@@ -746,7 +751,7 @@ as.comment("compileLHS: " + node.getClass().getName() + " {");
         else {
             throw new Error("wrong type for compileLHS: " + node.getClass().getName());
         }
-as.comment("compileLHS: }");
+comment("compileLHS: }");
     }
 
     /*
@@ -782,7 +787,7 @@ as.comment("compileLHS: }");
         return new Reference(label);
     }
 
-    protected void loadWords(Type type, AsmEntity addr, String reg) {
+    protected void load(Type type, AsmEntity addr, String reg) {
         switch ((int)type.size()) {
         case 1:
             if (type.isSigned()) {  // signed char
@@ -804,7 +809,76 @@ as.comment("compileLHS: }");
         }
     }
 
-    protected void saveWords(Type type, String reg, AsmEntity addr) {
+    protected void save(Type type, String reg, AsmEntity addr) {
         as.mov(type, reg(reg, type), addr);
     }
+
+    public void comment(String str) { as.comment(str); }
+    public void line(String str) { as.line(str); }
+    public void _file(String name) { as._file(name); }
+    public void _text() { as._text(); }
+    public void _data() { as._data(); }
+    public void _section(String name) { as._section(name); }
+    public void _globl(String sym) { as._globl(sym); }
+    public void _local(String sym) { as._local(sym); }
+    public void _comm(String sym, long sz, long a) { as._comm(sym, sz, a); }
+    public void _align(long n) { as._align(n); }
+    public void _type(String sym, String type) { as._type(sym, type); }
+    public void _size(String sym, long size) { as._size(sym, size); }
+    public void _size(String sym, String size) { as._size(sym, size); }
+    public void _byte(long n) { as._byte(n); }
+    public void _value(long n) { as._value(n); }
+    public void _long(long n) { as._long(n); }
+    public void _quad(long n) { as._quad(n); }
+    public void _string(String str) { as._string(str); }
+    public void label(String sym) { as.label(sym); }
+    public void label(Label label) { as.label(label); }
+
+    public void jmp(Label label) { as.jmp(label); }
+    public void jz(Label label) { as.jz(label); }
+    public void jnz(Label label) { as.jnz(label); }
+    public void je(Label label) { as.je(label); }
+    public void jne(Label label) { as.jne(label); }
+    public void cmp(Type t, Register a, Register b) { as.cmp(t, a, b); }
+    public void sete(Register reg) { as.sete(reg); }
+    public void setne(Register reg) { as.setne(reg); }
+    public void setg(Register reg) { as.setg(reg); }
+    public void setl(Register reg) { as.setl(reg); }
+    public void setge(Register reg) { as.setge(reg); }
+    public void setle(Register reg) { as.setle(reg); }
+    public void test(Type type, Register a, Register b) { as.test(type, a, b); }
+    public void push(Register reg) { as.push(reg); }
+    public void pop(Register reg) { as.pop(reg); }
+    public void call(String sym) { as.call(sym); }
+    public void ptrcall(Register reg) { as.ptrcall(reg); }
+    public void ret() { as.ret(); }
+    public void mov(AsmEntity src, AsmEntity dest) { as.mov(src, dest); }
+    public void mov(Type type, AsmEntity src, AsmEntity dest) { as.mov(type, src, dest); }
+    public void movsbl(AsmEntity src, AsmEntity dest) { as.movsbl(src, dest); }
+    public void movswl(AsmEntity src, AsmEntity dest) { as.movswl(src, dest); }
+    public void movzb(Type type, AsmEntity src, AsmEntity dest) { as.movzb(type, src, dest); }
+    public void movzbl(AsmEntity src, AsmEntity dest) { as.movzbl(src, dest); }
+    public void movzwl(AsmEntity src, AsmEntity dest) { as.movzwl(src, dest); }
+    public void lea(AsmEntity src, AsmEntity dest) { as.lea(src, dest); }
+    public void lea(Type type, AsmEntity src, AsmEntity dest) { as.lea(type, src, dest); }
+    public void neg(Type type, Register reg) { as.neg(type, reg); }
+    public void inc(Type type, AsmEntity reg) { as.inc(type, reg); }
+    public void dec(Type type, AsmEntity reg) { as.dec(type, reg); }
+    public void add(AsmEntity diff, AsmEntity base) { as.add(diff, base); }
+    public void add(Type type, AsmEntity diff, AsmEntity base) { as.add(type, diff, base); }
+    public void sub(AsmEntity diff, AsmEntity base) { as.sub(diff, base); }
+    public void sub(Type type, AsmEntity diff, AsmEntity base) { as.sub(type, diff, base); }
+    public void imul(AsmEntity m, Register base) { as.imul(m, base); }
+    public void imul(Type type, AsmEntity m, Register base) { as.imul(type, m, base); }
+    public void cltd() { as.cltd(); }
+    public void div(Type type, Register base) { as.div(type, base); }
+    public void idiv(Type type, Register base) { as.idiv(type, base); }
+    public void not(Type type, Register reg) { as.not(type, reg); }
+    public void and(Type type, Register bits, Register base) { as.and(type, bits, base); }
+    public void or(Type type, Register bits, Register base) { as.or(type, bits, base); }
+    public void xor(Type type, Register bits, Register base) { as.xor(type, bits, base); }
+    public void sar(Type type, Register n, Register base) { as.sar(type, n, base); }
+    public void sal(Type type, Register n, Register base) { as.sal(type, n, base); }
+    public void shr(Type type, Register n, Register base) { as.shr(type, n, base); }
+    public void shl(Type type, Register n, Register base) { as.shl(type, n, base); }
 }

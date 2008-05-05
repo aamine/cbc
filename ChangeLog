@@ -1,3 +1,17 @@
+Tue Apr  8 07:05:48 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: We must use div
+	  instruction for unsigned division.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: We must call
+	  cltd before idiv.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: define facade
+	  methods for Assembler class.
+
+	* net/loveruby/cflat/asm/Assembler.java: remove *q methods such as
+	  movq, addq, etc. by utilizing method overloading.
+
 Mon Mar 24 02:47:41 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: defvar -> defvars (again).

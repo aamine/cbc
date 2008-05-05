@@ -4,10 +4,12 @@ import net.loveruby.cflat.utils.*;
 import java.util.*;
 
 public class Assembler {
-    List list;
+    protected List list;
+    protected Type naturalType;
 
-    public Assembler() {
-        list = new ArrayList();
+    public Assembler(Type naturalType) {
+        this.list = new ArrayList();
+        this.naturalType = naturalType;
     }
 
     public String string() {
@@ -194,11 +196,19 @@ public class Assembler {
         typedOp(type, "test", a, b);
     }
 
-    public void pushq(Register reg) {
-        op("pushl", reg);
+    public void push(Register reg) {
+        push(naturalType, reg);
     }
 
-    public void popq(Register reg) {
+    public void push(Type t, Register reg) {
+        typedOp(t, "push", reg);
+    }
+
+    public void pop(Register reg) {
+        pop(naturalType, reg);
+    }
+
+    public void pop(Type t, Register reg) {
         op("popl", reg);
     }
 
@@ -214,8 +224,8 @@ public class Assembler {
         op("ret");
     }
 
-    public void movq(AsmEntity src, AsmEntity dest) {
-        op("movl", src, dest);
+    public void mov(AsmEntity src, AsmEntity dest) {
+        mov(naturalType, src, dest);
     }
 
     public void mov(Type type, AsmEntity src, AsmEntity dest) {
@@ -242,8 +252,8 @@ public class Assembler {
         op("movzwl", src, dest);
     }
 
-    public void leaq(AsmEntity src, AsmEntity dest) {
-        op("leal", src, dest);
+    public void lea(AsmEntity src, AsmEntity dest) {
+        lea(naturalType, src, dest);
     }
 
     public void lea(Type type, AsmEntity src, AsmEntity dest) {
@@ -262,28 +272,36 @@ public class Assembler {
         typedOp(type, "dec", reg);
     }
 
-    public void addq(AsmEntity diff, AsmEntity base) {
-        op("addl", diff, base);
+    public void add(AsmEntity diff, AsmEntity base) {
+        add(naturalType, diff, base);
     }
 
-    public void add(Type type, AsmEntity diff, Register base) {
+    public void add(Type type, AsmEntity diff, AsmEntity base) {
         typedOp(type, "add", diff, base);
     }
 
-    public void subq(AsmEntity diff, AsmEntity base) {
-        op("subl", diff, base);
+    public void sub(AsmEntity diff, AsmEntity base) {
+        sub(naturalType, diff, base);
     }
 
-    public void sub(Type type, Register diff, Register base) {
+    public void sub(Type type, AsmEntity diff, AsmEntity base) {
         typedOp(type, "sub", diff, base);
     }
 
-    public void imulq(AsmEntity m, Register base) {
-        op("imull", m, base);
+    public void imul(AsmEntity m, Register base) {
+        imul(naturalType, m, base);
     }
 
     public void imul(Type type, AsmEntity m, Register base) {
         typedOp(type, "imul", m, base);
+    }
+
+    public void cltd() {
+        op("cltd");
+    }
+
+    public void div(Type type, Register base) {
+        typedOp(type, "div", base);
     }
 
     public void idiv(Type type, Register base) {
@@ -320,13 +338,5 @@ public class Assembler {
 
     public void shl(Type type, Register bits, Register base) {
         typedOp(type, "shl", bits, base);
-    }
-
-    public void rol(Type type, Register bits, Register base) {
-        typedOp(type, "rol", bits, base);
-    }
-
-    public void ror(Type type, Register bits, Register base) {
-        typedOp(type, "ror", bits, base);
     }
 }

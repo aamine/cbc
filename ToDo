@@ -186,21 +186,11 @@
 - --dump-semantic
 - add standard load path (use -I option)
 - call GNU as and GNU ld instead of gcc.
+- rename asm methods
 * prohibit multi-dimension array without size
 * dump UTF-8 string byte by byte.
-* generate IR
-* --dump-ir
-* control flow graph
-* --dump-cflow
-* semantic check (cflow)
-        * warn unreachable stmt
-        * warn no return
-* data flow graph
-* --dump-dflow
-        * warn unused variable
-        * warn uninitialized use of variables
-* semantic check (dflow)
-* register allocation
-* peephole optimization
-* vararg retrieve
+* lvar overlapped allocation
 * remove all FIXME
+? vararg retrieve
+? peephole optimization
+? PIC generation
