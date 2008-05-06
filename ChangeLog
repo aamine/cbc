@@ -1,3 +1,13 @@
+Tue May  6 20:42:04 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (compileBinaryOp): We must use shr for right-shift of unsigned
+	  value.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (compileBinaryOp): We must use seta/ae/b/be for comparison of
+	  unsigned value.
+
 Tue Apr  8 07:05:48 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: We must use div

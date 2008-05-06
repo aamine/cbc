@@ -176,16 +176,32 @@ public class Assembler {
         op("setne", reg);
     }
 
+    public void seta(Register reg) {
+        op("seta", reg);
+    }
+
+    public void setae(Register reg) {
+        op("setae", reg);
+    }
+
+    public void setb(Register reg) {
+        op("setb", reg);
+    }
+
+    public void setbe(Register reg) {
+        op("setbe", reg);
+    }
+
     public void setg(Register reg) {
         op("setg", reg);
     }
 
-    public void setl(Register reg) {
-        op("setl", reg);
-    }
-
     public void setge(Register reg) {
         op("setge", reg);
+    }
+
+    public void setl(Register reg) {
+        op("setl", reg);
     }
 
     public void setle(Register reg) {
@@ -334,9 +350,5 @@ public class Assembler {
 
     public void shr(Type type, Register bits, Register base) {
         typedOp(type, "shr", bits, base);
-    }
-
-    public void shl(Type type, Register bits, Register base) {
-        typedOp(type, "shl", bits, base);
     }
 }

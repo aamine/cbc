@@ -518,7 +518,12 @@ static public void p(String s) { System.err.println(s); }
             xor(t, reg("cx", t), reg("ax", t));
         }
         else if (op.equals(">>")) {
-            sar(t, cl(), reg("ax", t));
+            if (t.isSigned()) {
+                sar(t, cl(), reg("ax", t));
+            }
+            else {
+                shr(t, cl(), reg("ax", t));
+            }
         }
         else if (op.equals("<<")) {
             sal(t, cl(), reg("ax", t));
@@ -526,14 +531,27 @@ static public void p(String s) { System.err.println(s); }
         else {
             // Comparison operators
             cmp(t, reg("cx", t), reg("ax", t));
-            if      (op.equals("=="))   sete (al());
-            else if (op.equals("!="))   setne(al());
-            else if (op.equals(">"))    setg (al());
-            else if (op.equals(">="))   setge(al());
-            else if (op.equals("<"))    setl (al());
-            else if (op.equals("<="))   setle(al());
+            if (t.isSigned()) {
+                if      (op.equals("=="))   sete (al());
+                else if (op.equals("!="))   setne(al());
+                else if (op.equals(">"))    setg (al());
+                else if (op.equals(">="))   setge(al());
+                else if (op.equals("<"))    setl (al());
+                else if (op.equals("<="))   setle(al());
+                else {
+                    throw new Error("unknown binary operator: " + op);
+                }
+            }
             else {
-                throw new Error("unknown binary operator: " + op);
+                if      (op.equals("=="))   sete (al());
+                else if (op.equals("!="))   setne(al());
+                else if (op.equals(">"))    seta (al());
+                else if (op.equals(">="))   setae(al());
+                else if (op.equals("<"))    setb (al());
+                else if (op.equals("<="))   setbe(al());
+                else {
+                    throw new Error("unknown binary operator: " + op);
+                }
             }
             movzb(t, al(), reg("ax", t));
         }
@@ -842,9 +860,13 @@ comment("compileLHS: }");
     public void cmp(Type t, Register a, Register b) { as.cmp(t, a, b); }
     public void sete(Register reg) { as.sete(reg); }
     public void setne(Register reg) { as.setne(reg); }
+    public void seta(Register reg) { as.seta(reg); }
+    public void setae(Register reg) { as.setae(reg); }
+    public void setb(Register reg) { as.setb(reg); }
+    public void setbe(Register reg) { as.setbe(reg); }
     public void setg(Register reg) { as.setg(reg); }
-    public void setl(Register reg) { as.setl(reg); }
     public void setge(Register reg) { as.setge(reg); }
+    public void setl(Register reg) { as.setl(reg); }
     public void setle(Register reg) { as.setle(reg); }
     public void test(Type type, Register a, Register b) { as.test(type, a, b); }
     public void push(Register reg) { as.push(reg); }
@@ -880,5 +902,4 @@ comment("compileLHS: }");
     public void sar(Type type, Register n, Register base) { as.sar(type, n, base); }
     public void sal(Type type, Register n, Register base) { as.sal(type, n, base); }
     public void shr(Type type, Register n, Register base) { as.shr(type, n, base); }
-    public void shl(Type type, Register n, Register base) { as.shl(type, n, base); }
 }
