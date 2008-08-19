@@ -164,7 +164,8 @@ class TypeChecker extends Visitor {
         Type l = integralPromotion(node.lhs().type());
         Type r = integralPromotion(node.rhs().type());
         Type opType = usualArithmeticConversion(l, r);
-        if (! opType.isCompatible(l)) {
+        if (! opType.isCompatible(l)
+                && ! isSafeIntegerCast(node.rhs(), opType)) {
             warn(node, "incompatible implicit cast from "
                        + opType + " to " + l);
         }
@@ -172,6 +173,20 @@ class TypeChecker extends Visitor {
             // cast RHS
             node.setRHS(new CastNode(opType, node.rhs()));
         }
+    }
+
+    /** allow safe implicit cast from integer literal like:
+     *
+     *    char c = 0;
+     *
+     *  "0" has a type integer, but we can cast (int)0 to (char)0 safely.
+     */
+    protected boolean isSafeIntegerCast(Node node, Type type) {
+        if (! type.isInteger()) return false;
+        IntegerType t = (IntegerType)type;
+        if (! (node instanceof IntegerLiteralNode)) return false;
+        IntegerLiteralNode n = (IntegerLiteralNode)node;
+        return t.isInDomain(n.value());
     }
 
     protected boolean checkLHS(ExprNode lhs) {
@@ -421,7 +436,8 @@ class TypeChecker extends Visitor {
             return expr;
         }
         else if (expr.type().isCastableTo(targetType)) {
-            if (! expr.type().isCompatible(targetType)) {
+            if (! expr.type().isCompatible(targetType)
+                    && ! isSafeIntegerCast(expr, targetType)) {
                 warn(expr, "incompatible implicit cast from "
                            + expr.type() + " to " + targetType);
             }
@@ -457,8 +473,8 @@ class TypeChecker extends Visitor {
         Type u_int = typeTable.unsignedInt();
         Type s_long = typeTable.signedLong();
         Type u_long = typeTable.unsignedLong();
-        if (       (l.isSameType(u_int) && r.isSameType(s_long))
-                || (r.isSameType(u_int) && l.isSameType(s_long))) {
+        if (    (l.isSameType(u_int) && r.isSameType(s_long))
+             || (r.isSameType(u_int) && l.isSameType(s_long))) {
             return u_long;
         }
         else if (l.isSameType(u_long) || r.isSameType(u_long)) {
