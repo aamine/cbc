@@ -228,11 +228,13 @@ public class Assembler {
         op("popl", reg);
     }
 
+    // call function by relative address
     public void call(String sym) {
         op("call", sym);
     }
 
-    public void ptrcall(Register reg) {
+    // call function by absolute address
+    public void callAbsolute(Register reg) {
         op("call", "*" + reg.toString());
     }
 

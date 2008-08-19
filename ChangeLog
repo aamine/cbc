@@ -1,9 +1,27 @@
-Thu May  8 22:00:04 2008  Minero Aoki  <aamine@loveruby.net>
+Tue Aug 19 18:57:52 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: refactoring: all
+	  DSL methods should take a Register argument, not a String.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: refactoring:
+	  PTRREG -> baseptr().
+
+	* net/loveruby/cflat/asm/Register.java: refactoring: a Register
+	  object does not represents size-specified register, it represents
+	  generic register.  So we can get a size-specified register object
+	  by #forType.
+
+	* net/loveruby/cflat/asm/Register.java: new method #forType.
+
+	* net/loveruby/cflat/asm/Assembler.java: refactoring: ptrcall ->
+	  callAbsolute.
+
+Thu Aug 19 17:00:04 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: allow safe
 	  implicit integer cast like "char c = 0" adhocly.
 
-Thu May  8 21:39:49 2008  Minero Aoki  <aamine@loveruby.net>
+Thu Aug 19 16:39:49 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/type/IntegerType.java: new method
 	  #isInDomain, #minValue, #maxValue.

@@ -16,9 +16,9 @@ public class CodeGenerator extends Visitor {
 
     // #@@range/ctor{
     protected Assembler as;
-    protected DefinedFunction currentFunction;
-    protected TypeTable typeTable;
     protected ErrorHandler errorHandler;
+    protected TypeTable typeTable;
+    protected DefinedFunction currentFunction;
 
     public CodeGenerator(Assembler as, ErrorHandler errorHandler) {
         this.as = as;
@@ -338,13 +338,12 @@ static public void p(String s) { System.err.println(s); }
                 call(tmpsymbol(node.function().name()));
             }
         }
-        else {  // funcall via pointer
-            // FIXME
+        else {  // function call via pointer
             compile(node.expr());
-            ptrcall(reg("ax"));
+            callAbsolute(reg("ax"));
         }
         if (node.numArgs() > 0) {
-            // FIXME: >4 size arguments are not supported.
+            // >4 bytes arguments are not supported.
             shrinkStack(node.numArgs() * stackWordSize);
         }
     }
@@ -366,7 +365,7 @@ static public void p(String s) { System.err.println(s); }
             DefinedVariable var = (DefinedVariable)vars.next();
             if (var.initializer() != null) {
                 compile(var.initializer());
-                save(var.type(), "ax", var.address());
+                save(var.type(), reg("ax"), var.address());
             }
         }
         Iterator stmts = node.stmts();
@@ -380,13 +379,13 @@ static public void p(String s) { System.err.println(s); }
         compile(node);
     }
 
-    private void testCond(Type t, String regname) {
-        test(t, reg(regname, t), reg(regname, t));
+    private void testCond(Type t, Register reg) {
+        test(t, reg.forType(t), reg.forType(t));
     }
 
     public void visit(IfNode node) {
         compile(node.cond());
-        testCond(node.cond().type(), "ax");
+        testCond(node.cond().type(), reg("ax"));
         if (node.elseBody() != null) {
             jz(node.elseLabel());
             compileStmt(node.thenBody());
@@ -404,7 +403,7 @@ static public void p(String s) { System.err.println(s); }
 
     public void visit(CondExprNode node) {
         compile(node.cond());
-        testCond(node.cond().type(), "ax");
+        testCond(node.cond().type(), reg("ax"));
         jz(node.elseLabel());
         compile(node.thenExpr());
         jmp(node.endLabel());
@@ -447,7 +446,7 @@ static public void p(String s) { System.err.println(s); }
 
     public void visit(LogicalAndNode node) {
         compile(node.left());
-        testCond(node.left().type(), "ax");
+        testCond(node.left().type(), reg("ax"));
         jz(node.endLabel());
         compile(node.right());
         label(node.endLabel());
@@ -455,7 +454,7 @@ static public void p(String s) { System.err.println(s); }
 
     public void visit(LogicalOrNode node) {
         compile(node.left());
-        testCond(node.left().type(), "ax");
+        testCond(node.left().type(), reg("ax"));
         jnz(node.endLabel());
         compile(node.right());
         label(node.endLabel());
@@ -464,7 +463,7 @@ static public void p(String s) { System.err.println(s); }
     public void visit(WhileNode node) {
         label(node.begLabel());
         compile(node.cond());
-        testCond(node.cond().type(), "ax");
+        testCond(node.cond().type(), reg("ax"));
         jz(node.endLabel());
         compileStmt(node.body());
         jmp(node.begLabel());
@@ -476,7 +475,7 @@ static public void p(String s) { System.err.println(s); }
         compileStmt(node.body());
         label(node.continueLabel());
         compile(node.cond());
-        testCond(node.cond().type(), "ax");
+        testCond(node.cond().type(), reg("ax"));
         jnz(node.begLabel());
         label(node.endLabel());
     }
@@ -485,7 +484,7 @@ static public void p(String s) { System.err.println(s); }
         compileStmt(node.init());
         label(node.begLabel());
         compile(node.cond());
-        testCond(node.cond().type(), "ax");
+        testCond(node.cond().type(), reg("ax"));
         jz(node.endLabel());
         compileStmt(node.body());
         label(node.continueLabel());
@@ -607,7 +606,7 @@ static public void p(String s) { System.err.println(s); }
             not(node.expr().type(), reg("ax", node.expr().type()));
         }
         else if (node.operator().equals("!")) {
-            testCond(node.expr().type(), "ax");
+            testCond(node.expr().type(), reg("ax"));
             sete(al());
             movzbl(al(), reg("ax"));
         }
@@ -615,11 +614,11 @@ static public void p(String s) { System.err.println(s); }
 
     public void visit(PrefixOpNode node) {
         compileIncDec(node.operator(), node.expr());
-        load(node.expr().type(), node.expr().address(), "ax");
+        load(node.expr().type(), node.expr().address(), reg("ax"));
     }
 
     public void visit(SuffixOpNode node) {
-        load(node.expr().type(), node.expr().address(), "ax");
+        load(node.expr().type(), node.expr().address(), reg("ax"));
         compileIncDec(node.operator(), node.expr());
     }
 
@@ -655,7 +654,7 @@ static public void p(String s) { System.err.println(s); }
             lea(node.address(), reg("ax"));
         }
         else {
-            load(node.type(), node.address(), "ax");
+            load(node.type(), node.address(), reg("ax"));
         }
     }
 
@@ -664,7 +663,7 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(StringLiteralNode node) {
-        load(node.type(), imm(node.label()), "ax");
+        load(node.type(), imm(node.label()), reg("ax"));
     }
 
     //
@@ -674,23 +673,23 @@ static public void p(String s) { System.err.println(s); }
     public void visit(AssignNode node) {
         if (node.lhs().isConstantAddress()) {
             compile(node.rhs());
-            save(node.type(), "ax", node.lhs().address());
+            save(node.type(), reg("ax"), node.lhs().address());
         }
         else {
             compile(node.rhs());
             push(reg("ax"));
             compileLHS(node.lhs());
             pop(reg("ax"));
-            save(node.type(), "ax", addr(PTRREG));
+            save(node.type(), reg("ax"), mem(baseptr()));
         }
     }
 
     public void visit(OpAssignNode node) {
         compile(node.rhs());
         mov(reg("ax"), reg("cx"));
-        load(node.type(), node.lhs().address(), "ax");
+        load(node.type(), node.lhs().address(), reg("ax"));
         compileBinaryOp(node.operator(), node.type());
-        save(node.type(), "ax", node.lhs().address());
+        save(node.type(), reg("ax"), node.lhs().address());
     }
 
     // FIXME: use -4(%edx,%esi,4) addressing
@@ -701,44 +700,48 @@ static public void p(String s) { System.err.println(s); }
         }
         else {
             compileLHS(node.expr());
-            push(reg(PTRREG));
+            push(baseptr());
         }
         compile(node.index());
         imul(imm(node.type().size()), reg("ax"));
-        pop(reg(PTRREG));
-        add(reg("ax"), reg(PTRREG));
-        load(node.type(), addr(PTRREG), "ax");
+        pop(baseptr());
+        add(reg("ax"), baseptr());
+        load(node.type(), mem(baseptr()), reg("ax"));
     }
 
     public void visit(MemberNode node) {
         compileLHS(node.expr());
-        load(node.type(), addr2(node.offset(), PTRREG), "ax");
+        load(node.type(), mem(node.offset(), baseptr()), reg("ax"));
     }
 
     public void visit(PtrMemberNode node) {
         compileLHS(node.expr());
-        load(node.type(), addr(PTRREG), PTRREG);
-        load(node.type(), addr2(node.offset(), PTRREG), "ax");
+        load(node.type(), mem(baseptr()), baseptr());
+        load(node.type(), mem(node.offset(), baseptr()), reg("ax"));
     }
 
     public void visit(DereferenceNode node) {
         compile(node.expr());
-        load(node.type(), addr("ax"), "ax");
+        load(node.type(), mem(reg("ax")), reg("ax"));
     }
 
     public void visit(AddressNode node) {
         compileLHS(node.expr());
-        mov(reg(PTRREG), reg("ax"));
+        mov(baseptr(), reg("ax"));
     }
 
-    static final String PTRREG = "bx";
+    static final String BASE_POINTER_REGISTER = "bx";
+
+    protected Register baseptr() {
+        return reg(BASE_POINTER_REGISTER);
+    }
 
     protected void compileLHS(Node node) {
 comment("compileLHS: " + node.getClass().getName() + " {");
         if (node instanceof VariableNode) {
             // FIXME: support static variables
             VariableNode n = (VariableNode)node;
-            lea(n.address(), reg(PTRREG));
+            lea(n.address(), baseptr());
         }
         else if (node instanceof ArefNode) {
             ArefNode n = (ArefNode)node;
@@ -748,25 +751,25 @@ comment("compileLHS: " + node.getClass().getName() + " {");
             push(reg("ax"));
             if (n.expr().type().isPointerAlike()) {
                 compile(n.expr());
-                mov(reg("ax"), reg(PTRREG));
+                mov(reg("ax"), baseptr());
             }
             else {
                 compileLHS(n.expr());
             }
             pop(reg("cx"));
-            add(reg("cx"), reg(PTRREG));
+            add(reg("cx"), baseptr());
             pop(reg("ax"));
         }
         else if (node instanceof MemberNode) {
             MemberNode n = (MemberNode)node;
             compileLHS(n.expr());
-            add(imm(n.offset()), reg(PTRREG));
+            add(imm(n.offset()), baseptr());
         }
         else if (node instanceof DereferenceNode) {
             DereferenceNode n = (DereferenceNode)node;
             push(reg("ax"));
             compile(n.expr());
-            mov(reg("ax"), reg(PTRREG));
+            mov(reg("ax"), baseptr());
             pop(reg("ax"));
         }
         else if (node instanceof PtrMemberNode) {
@@ -774,29 +777,29 @@ comment("compileLHS: " + node.getClass().getName() + " {");
             push(reg("ax"));
             compile(n.expr());
             add(imm(n.offset()), reg("ax"));
-            mov(reg("ax"), reg(PTRREG));
+            mov(reg("ax"), baseptr());
             pop(reg("ax"));
         }
         else if (node instanceof PrefixOpNode) {
             PrefixOpNode n = (PrefixOpNode)node;
             compileLHS(n.expr());
             if (n.operator().equals("++")) {
-                add(imm(n.expr().type().size()), addr(PTRREG));
-                add(imm(n.expr().type().size()), reg(PTRREG));
+                add(imm(n.expr().type().size()), mem(baseptr()));
+                add(imm(n.expr().type().size()), baseptr());
             }
             else {
-                sub(imm(n.expr().type().size()), addr(PTRREG));
-                sub(imm(n.expr().type().size()), reg(PTRREG));
+                sub(imm(n.expr().type().size()), mem(baseptr()));
+                sub(imm(n.expr().type().size()), baseptr());
             }
         }
         else if (node instanceof SuffixOpNode) {
             SuffixOpNode n = (SuffixOpNode)node;
             compileLHS(n.expr());
             if (n.operator().equals("++")) {
-                add(imm(n.expr().type().size()), reg(PTRREG));
+                add(imm(n.expr().type().size()), baseptr());
             }
             else {
-                sub(imm(n.expr().type().size()), reg(PTRREG));
+                sub(imm(n.expr().type().size()), baseptr());
             }
         }
         else if (node instanceof CastNode) {
@@ -820,19 +823,19 @@ comment("compileLHS: }");
     protected Register cl() { return new Register(1, "cx"); }
 
     protected Register reg(String name, Type type) {
-        return Register.forType(type, name);
+        return new Register(name).forType(type);
     }
 
     protected Register reg(String name) {
-        return Register.widestRegister(name);
+        return new Register(name);
     }
 
-    protected SimpleAddress addr(String regname) {
-        return new SimpleAddress(Register.widestRegister(regname));
+    protected SimpleAddress mem(Register reg) {
+        return new SimpleAddress(reg);
     }
 
-    protected CompositeAddress addr2(long offset, String regname) {
-        return new CompositeAddress(offset, Register.widestRegister(regname));
+    protected CompositeAddress mem(long offset, Register reg) {
+        return new CompositeAddress(offset, reg);
     }
 
     protected ImmediateValue imm(long n) {
@@ -843,30 +846,30 @@ comment("compileLHS: }");
         return new Reference(label);
     }
 
-    protected void load(Type type, AsmEntity addr, String reg) {
+    protected void load(Type type, AsmEntity addr, Register reg) {
         switch ((int)type.size()) {
         case 1:
             if (type.isSigned()) {  // signed char
-                as.movsbl(addr, reg(reg));
+                movsbl(addr, reg);
             } else {                // unsigned char
-                as.movzbl(addr, reg(reg));
+                movzbl(addr, reg);
             }
             break;
         case 2:
             if (type.isSigned()) {  // signed short
-                as.movswl(addr, reg(reg));
+                movswl(addr, reg);
             } else {                // unsigned short
-                as.movzwl(addr, reg(reg));
+                movzwl(addr, reg);
             }
             break;
         default:                    // int, long, long_long
-            as.mov(type, addr, reg(reg, type));
+            mov(type, addr, reg.forType(type));
             break;
         }
     }
 
-    protected void save(Type type, String reg, AsmEntity addr) {
-        as.mov(type, reg(reg, type), addr);
+    protected void save(Type type, Register reg, AsmEntity addr) {
+        mov(type, reg.forType(type), addr);
     }
 
     public void comment(String str) { as.comment(str); }
@@ -910,7 +913,7 @@ comment("compileLHS: }");
     public void push(Register reg) { as.push(reg); }
     public void pop(Register reg) { as.pop(reg); }
     public void call(String sym) { as.call(sym); }
-    public void ptrcall(Register reg) { as.ptrcall(reg); }
+    public void callAbsolute(Register reg) { as.callAbsolute(reg); }
     public void ret() { as.ret(); }
     public void mov(AsmEntity src, AsmEntity dest) { as.mov(src, dest); }
     public void mov(Type type, AsmEntity src, AsmEntity dest) { as.mov(type, src, dest); }

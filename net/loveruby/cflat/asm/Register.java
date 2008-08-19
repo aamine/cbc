@@ -2,7 +2,22 @@ package net.loveruby.cflat.asm;
 import net.loveruby.cflat.type.*;
 
 public class Register extends AsmEntity {
-    static public Register forType(Type t, String name) {
+    protected int size;
+    protected String name;
+
+    // platform dependent
+    static final protected int naturalSize = 4;
+
+    public Register(String name) {
+        this(naturalSize, name);
+    }
+
+    public Register(int size, String name) {
+        this.size = size;
+        this.name = name;
+    }
+
+    public Register forType(Type t) {
         switch ((int)t.size()) {
         case 1:
         case 2:
@@ -11,20 +26,6 @@ public class Register extends AsmEntity {
         default:
             throw new Error("invalid register size: " + t.size());
         }
-    }
-
-    static final public int widestRegisterSize = 4;
-
-    static public Register widestRegister(String name) {
-        return new Register(widestRegisterSize, name);
-    }
-
-    protected int size;
-    protected String name;
-
-    public Register(int size, String name) {
-        this.size = size;
-        this.name = name;
     }
 
     public String name() {
