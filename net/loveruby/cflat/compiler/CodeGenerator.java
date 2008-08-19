@@ -5,13 +5,16 @@ import net.loveruby.cflat.asm.*;
 import java.util.*;
 
 public class CodeGenerator extends Visitor {
+    // #@@range/generate
     static public String generate(AST ast, TypeTable typeTable,
                                   ErrorHandler errorHandler) {
         Assembler as = new Assembler(typeTable.unsignedLong());
         CodeGenerator gen = new CodeGenerator(as, errorHandler);
         return gen.generateAssembly(ast, typeTable);
     }
+    // #@@}
 
+    // #@@range/ctor{
     protected Assembler as;
     protected DefinedFunction currentFunction;
     protected TypeTable typeTable;
@@ -21,9 +24,11 @@ public class CodeGenerator extends Visitor {
         this.as = as;
         this.errorHandler = errorHandler;
     }
+    // #@@}
 static public void p(String s) { System.err.println(s); }
 
     /** Compiles "ast" and generates assembly code. */
+    // #@@range/generateAssembly
     public String generateAssembly(AST ast, TypeTable typeTable) {
         typeTable = typeTable;
         allocateGlobalVariables(ast.globalVariables());
@@ -44,6 +49,7 @@ static public void p(String s) { System.err.println(s); }
 
         return as.string();
     }
+    // #@@}
 
     /**
      * Sets address for...
@@ -51,24 +57,28 @@ static public void p(String s) { System.err.println(s); }
      *   * private global variables
      *   * static local variables
      */
+    // #@@range/allocateGlobalVariable
     protected void allocateGlobalVariables(Iterator vars) {
         while (vars.hasNext()) {
             Variable var = (Variable)vars.next();
             var.setAddress(globalVariableAddress(var.symbol()));
         }
     }
+    // #@@}
 
     /**
      * Sets address for...
      *   * public common symbols
      *   * private common symbols
      */
+    // #@@range/allocateCommonSymbols
     protected void allocateCommonSymbols(Iterator comms) {
         while (comms.hasNext()) {
             Variable var = (Variable)comms.next();
             var.setAddress(commonSymbolAddress(var.symbol()));
         }
     }
+    // #@@}
 
     /** Linux/IA-32 dependent */
     // FIXME: PIC
@@ -83,6 +93,7 @@ static public void p(String s) { System.err.println(s); }
     }
 
     /** Generates static variable entries */
+    // #@@range/compileGlobalVariables{
     protected void compileGlobalVariables(Iterator vars) {
         _data();
         while (vars.hasNext()) {
@@ -90,8 +101,10 @@ static public void p(String s) { System.err.println(s); }
             dataEntry(var);
         }
     }
+    // #@@}
 
     /** Generates initialized entries */
+    // #@@range/dataEntry{
     protected void dataEntry(DefinedVariable ent) {
         if (!ent.isPrivate()) {
             _globl(csymbol(ent.symbol()));
@@ -102,8 +115,10 @@ static public void p(String s) { System.err.println(s); }
         label(csymbol(ent.symbol()));
         compileImmediate(ent.type(), ent.initializer());
     }
+    // #@@}
 
     /** Generates immediate values for .data section */
+    // #@@range/compileImmediates{
     protected void compileImmediate(Type type, ExprNode n) {
         // FIXME: support other constants
         IntegerLiteralNode expr = (IntegerLiteralNode)n;
@@ -116,8 +131,10 @@ static public void p(String s) { System.err.println(s); }
             throw new Error("entry size is not 1,2,4,8");
         }
     }
+    // #@@}
 
     /** Generates BSS entries */
+    // #@@range/compileCommonSymbols{
     protected void compileCommonSymbols(Iterator ents) {
         while (ents.hasNext()) {
             Variable ent = (Variable)ents.next();
@@ -127,8 +144,10 @@ static public void p(String s) { System.err.println(s); }
             _comm(csymbol(ent.symbol()), ent.allocSize(), ent.alignment());
         }
     }
+    // #@@}
 
     /** Generates .rodata entry (constant strings) */
+    // #@@range/compileConstants{
     protected void compileConstants(ConstantTable table) {
         _section(".rodata");
         Iterator ents = table.entries();
@@ -138,8 +157,10 @@ static public void p(String s) { System.err.println(s); }
             _string(ent.value());
         }
     }
+    // #@@}
 
     /** Compiles all functions and generates .text section. */
+    // #@@range/compileFunctions{
     protected void compileFunctions(Iterator funcs) {
         _text();
         while (funcs.hasNext()) {
@@ -147,8 +168,10 @@ static public void p(String s) { System.err.println(s); }
             compileFunction(func);
         }
     }
+    // #@@}
 
     /** Compiles a function. */
+    // #@@range/compileFunction{
     protected void compileFunction(DefinedFunction func) {
         currentFunction = func;
         String symbol = csymbol(func.name());
@@ -162,40 +185,55 @@ static public void p(String s) { System.err.println(s); }
         epilogue(func);
         _size(symbol, ".-" + symbol);
     }
+    // #@@}
 
+    // #@@range/compile{
     protected void compile(Node n) {
         n.accept(this);
     }
+    // #@@}
 
+    // #@@range/tmpsymbol{
     // platform dependent
     protected String tmpsymbol(String sym) {
         return sym;
     }
+    // #@@}
 
+    // #@@range/csymbol{
     // platform dependent
     protected String csymbol(String sym) {
         return sym;
     }
+    // #@@}
 
+    // #@@range/prologue{
     protected void prologue(DefinedFunction func) {
         push(bp());
         mov(sp(), bp());
     }
+    // #@@}
 
+    // #@@range/epilogue{
     protected void epilogue(DefinedFunction func) {
         label(epilogueLabel(func));
         mov(bp(), sp());
         pop(bp());
         ret();
     }
+    // #@@}
 
+    // #@@range/jmpEpilogue{
     protected void jmpEpilogue() {
         jmp(new Label(epilogueLabel(currentFunction)));
     }
+    // #@@}
 
+    // #@@range/epilogueLabel{
     protected String epilogueLabel(DefinedFunction func) {
         return ".L" + func.name() + "$epilogue";
     }
+    // #@@}
 
     /* Standard IA-32 stack frame layout (after prologue)
      *
