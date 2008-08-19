@@ -1,3 +1,8 @@
+Thu May  8 21:39:49 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/type/IntegerType.java: new method
+	  #isInDomain, #minValue, #maxValue.
+
 Tue May  6 20:42:04 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java

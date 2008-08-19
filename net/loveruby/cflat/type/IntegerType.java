@@ -16,6 +16,19 @@ public class IntegerType extends Type {
     public boolean isSigned() { return isSigned; }
     public boolean isScalar() { return true; }
 
+    public long minValue() {
+        return isSigned ? (long)-Math.pow(2, size * 8 - 1) : 0;
+    }
+
+    public long maxValue() {
+        return isSigned ? (long)Math.pow(2, size * 8 - 1) - 1
+                        : (long)Math.pow(2, size * 8) - 1;
+    }
+
+    public boolean isInDomain(long i) {
+        return (minValue() <= i && i <= maxValue());
+    }
+
     // Use default #equals
     //public boolean equals(Object other)
 
