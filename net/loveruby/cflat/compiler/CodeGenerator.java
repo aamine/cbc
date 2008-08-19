@@ -30,7 +30,7 @@ static public void p(String s) { System.err.println(s); }
     /** Compiles "ast" and generates assembly code. */
     // #@@range/generateAssembly
     public String generateAssembly(AST ast, TypeTable typeTable) {
-        typeTable = typeTable;
+        this.typeTable = typeTable;
         allocateGlobalVariables(ast.globalVariables());
         allocateCommonSymbols(ast.commonSymbols());
 
