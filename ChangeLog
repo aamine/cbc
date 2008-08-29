@@ -1,3 +1,7 @@
+Fri Aug 29 18:24:43 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* cbc: surround path variables by double quotes.
+
 Fri Aug 29 17:18:03 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java
