@@ -1,3 +1,9 @@
+Fri Aug 29 17:18:03 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java
+	  (allocateLocalVariables): refactoring:
+          stackWordSize -> stackAlignment.
+
 Fri Aug 29 17:11:50 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* build.xml: test entry point is now run.sh.

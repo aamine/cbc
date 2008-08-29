@@ -279,22 +279,23 @@ static public void p(String s) { System.err.println(s); }
      */
     static final protected int stackDirection = -1;   // stack grows lower
     static final protected long stackWordSize = 4;
+    static final protected long stackAlignment = stackWordSize;
     // 1 for return address, 1 for saved bp.
     static final protected long paramStartOffset = 2;
     static final protected long usedStackWords = 0;
 
     protected void allocateParameters(DefinedFunction func) {
         Iterator vars = func.parameters();
-        long i = paramStartOffset;
+        long offset = paramStartOffset;
         while (vars.hasNext()) {
             Parameter var = (Parameter)vars.next();
-            var.setAddress(lvarAddressByWord(i));
-            i++;
+            var.setAddress(lvarAddressByWord(offset));
+            offset++;
         }
     }
 
     protected CompositeAddress lvarAddressByWord(long offset) {
-        return new CompositeAddress(offset * stackWordSize, bp());
+        return mem(offset * stackWordSize, bp());
     }
 
     protected void allocateLocalVariables(DefinedFunction func) {
@@ -303,12 +304,12 @@ static public void p(String s) { System.err.println(s); }
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
             if (stackDirection < 0) {
-                len = align(len + var.allocSize(), stackWordSize);
-                var.setAddress(new CompositeAddress(-len, bp()));
+                len = align(len + var.allocSize(), stackAlignment);
+                var.setAddress(mem(-len, bp()));
             }
             else {
-                var.setAddress(new CompositeAddress(len, bp()));
-                len = align(len + var.allocSize(), stackWordSize);
+                var.setAddress(mem(len, bp()));
+                len = align(len + var.allocSize(), stackAlignment);
             }
         }
         if (len != 0) {
@@ -433,7 +434,8 @@ static public void p(String s) { System.err.println(s); }
             CaseNode caseNode = (CaseNode)cases.next();
             Iterator values = caseNode.values();
             while (values.hasNext()) {
-                mov(imm(caseValue((Node)values.next())), reg("cx"));
+                IntegerLiteralNode ival = (IntegerLiteralNode)values.next();
+                mov(imm(ival.value()), reg("cx"));
                 cmp(t, reg("cx", t), reg("ax", t));
                 je(caseNode.beginLabel());
             }
@@ -442,14 +444,6 @@ static public void p(String s) { System.err.println(s); }
         while (cases.hasNext()) {
             compile((CaseNode)cases.next());
         }
-    }
-
-    protected long caseValue(Node node) {
-        if (!(node instanceof IntegerLiteralNode)) {
-            // FIXME: use exception
-            throw new Error("case accepts only integer literal");
-        }
-        return ((IntegerLiteralNode)node).value();
     }
 
     public void visit(CaseNode node) {
