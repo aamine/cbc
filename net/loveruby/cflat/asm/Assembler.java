@@ -110,8 +110,16 @@ public class Assembler {
         line(".long\t" + n);
     }
 
+    public void _long(Label label) {
+        line(".long\t" + label);
+    }
+
     public void _quad(long n) {
         line(".quad\t" + n);
+    }
+
+    public void _quad(Label label) {
+        line(".quad\t" + label);
     }
 
     public void _string(String str) {

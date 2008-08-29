@@ -119,16 +119,29 @@ static public void p(String s) { System.err.println(s); }
 
     /** Generates immediate values for .data section */
     // #@@range/compileImmediates{
-    protected void compileImmediate(Type type, ExprNode n) {
-        // FIXME: support other constants
-        IntegerLiteralNode expr = (IntegerLiteralNode)n;
-        switch ((int)type.allocSize()) {
-        case 1: _byte(expr.value());    break;
-        case 2: _value(expr.value());   break;
-        case 4: _long(expr.value());    break;
-        case 8: _quad(expr.value());    break;
-        default:
-            throw new Error("entry size is not 1,2,4,8");
+    protected void compileImmediate(Type type, ExprNode node) {
+        if (node instanceof IntegerLiteralNode) {
+            IntegerLiteralNode expr = (IntegerLiteralNode)node;
+            switch ((int)type.allocSize()) {
+            case 1: _byte(expr.value());    break;
+            case 2: _value(expr.value());   break;
+            case 4: _long(expr.value());    break;
+            case 8: _quad(expr.value());    break;
+            default:
+                throw new Error("entry size must be 1,2,4,8");
+            }
+        }
+        else if (node instanceof StringLiteralNode) {
+            StringLiteralNode expr = (StringLiteralNode)node;
+            switch ((int)type.allocSize()) {
+            case 4: _long(expr.label());   break;
+            case 8: _quad(expr.label());   break;
+            default:
+                throw new Error("pointer size must be 4,8");
+            }
+        }
+        else {
+            throw new Error("unknown literal node type" + node.getClass());
         }
     }
     // #@@}
@@ -888,7 +901,9 @@ comment("compileLHS: }");
     public void _byte(long n) { as._byte(n); }
     public void _value(long n) { as._value(n); }
     public void _long(long n) { as._long(n); }
+    public void _long(Label label) { as._long(label); }
     public void _quad(long n) { as._quad(n); }
+    public void _quad(Label label) { as._quad(label); }
     public void _string(String str) { as._string(str); }
     public void label(String sym) { as.label(sym); }
     public void label(Label label) { as.label(label); }

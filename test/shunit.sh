@@ -6,7 +6,7 @@
 
 n_tests=0
 n_failed=0
-test_finished() {
+shunit_report_result() {
     rm -rf tc.*
     echo
     if [ "$n_failed" = "0" ]
@@ -37,7 +37,7 @@ begin_test() {
     n_tests=`expr $n_tests "+" 1`
 }
 
-test_failed() {
+assertion_failed() {
     n_failed=`expr $n_failed "+" 1`
 }
 
@@ -59,7 +59,7 @@ assert_status() {
     if [ "$really" != "$expected" ]
     then
         echo "shunit[$@]: status $expected expected but was: $really"
-        test_failed
+        assertion_failed
         return 1
     fi
     return 0
@@ -73,7 +73,7 @@ assert_error() {
     if [ "$really" = "0" ]
     then
         echo "shunit[$@]: non-zero status expected but was: $really"
-        test_failed
+        assertion_failed
         return 1
     fi
     return 0
@@ -86,7 +86,7 @@ assert_eq() {
     if [ "$really" != "$expected" ]
     then
         echo "shunit: <$expected> expected but is: <$really>"
-        test_failed
+        assertion_failed
         return 1
     fi
     return 0
@@ -118,7 +118,7 @@ assert_equal() {
     fi
     if [ "$_f" = "yes" ]
     then
-        test_failed
+        assertion_failed
         return 1
     fi
     return 0
@@ -138,7 +138,7 @@ assert_equal_stdout() {
         echo "stdout differ: \"$excmd\" and \"$mycmd\""
         diff -u tc.out.expected tc.out.real
         echo "----"
-        test_failed
+        assertion_failed
     fi
     return 0
 }
@@ -155,7 +155,7 @@ assert_stdout() {
         echo "stdout differ: string \"$expected\" and cmd \"$@\""
         diff -u tc.out.expected tc.out.real
         echo "----"
-        test_failed
+        assertion_failed
     fi
     return 0
 }
@@ -167,7 +167,7 @@ assert_not_coredump() {
     then
         echo "core dumped: $mycmd"
         echo "----"
-        test_failed
+        assertion_failed
         return 1
     fi
     rm -f core
@@ -181,7 +181,7 @@ assert_not_exist() {
     then
         echo "exists: $file"
         echo "----"
-        test_failed
+        assertion_failed
         return 1
     fi
     return 0
@@ -194,7 +194,7 @@ assert_directory() {
     then
         echo "not directory: $dir"
         echo "----"
-        test_failed
+        assertion_failed
         return 1
     fi
     return 0

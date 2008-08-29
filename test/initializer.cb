@@ -6,6 +6,9 @@ main(int argc, char **argv)
     int i = 4;
     int x = i * 5 * i;
     int y = (x - x) * x;
-    int z = printf("%d;%d;%d\n", i, x, y);
+    int z = printf("%d;%d;%d", i, x, y);
+    char *s = "local";
+    printf(";%s", s);
+    puts("");
     return 0;
 }

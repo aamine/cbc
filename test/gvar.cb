@@ -1,12 +1,19 @@
 import stdio;
 
-int i = 1;
+int global_int = 1;
+char *global_string = "OK";
 
 int
 main(int argc, char **argv)
 {
-    printf("%d", i);
-    i = 2;
-    printf(";%d\n", i);
+    printf("%d", global_int);
+    global_int = 2;
+    printf(";%d", global_int);
+
+    printf(";%s", global_string);
+    global_string = "NEW";
+    printf(";%s", global_string);
+
+    puts("");
     return 0;
 }

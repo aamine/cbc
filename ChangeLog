@@ -1,3 +1,32 @@
+Fri Aug 29 16:35:39 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: should handle
+	  global string literal.
+
+	* net/loveruby/cflat/asm/Assembler.java (_long, _quad): should
+	  handle label.
+
+	* test/run.sh: new test runner.
+
+	* test/shunit.sh: library function name must not start with
+	  "test_" because they are treated as test case definition.
+
+	* test/test.sh: split tests in to multiple functions.
+
+	* test/initializer.cb: test string initializer.
+
+	* test/comm.cb: ditto.
+
+	* test/scomm.cb: ditto.
+
+	* test/slvar.cb: ditto.
+
+	* test/gvar.cb: ditto.
+
+	* test/sgvar.cb: ditto.
+
+	* test/slcomm.cb: : ditto.
+
 Tue Aug 19 19:18:00 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java
