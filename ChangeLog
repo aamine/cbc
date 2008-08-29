@@ -1,3 +1,7 @@
+Fri Aug 29 17:11:50 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* build.xml: test entry point is now run.sh.
+
 Fri Aug 29 17:04:39 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/Makefile: testing entry point is run.sh.

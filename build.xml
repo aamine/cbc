@@ -22,7 +22,7 @@
     <target name="recompile" depends="clean, compile" />
 
     <target name="test" depends="compile">
-        <exec executable="./test/test.sh" />
+        <exec executable="./test/run.sh" />
     </target>
 
     <target name="comptest" depends="clean, test" />
