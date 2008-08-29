@@ -153,6 +153,7 @@ assert_compile_error array-semcheck2.cb
 
 assert_out "11;22" ./struct
 assert_stat 0 ./struct-semcheck
+assert_status 0 $CBC empstruct.cb
 assert_compile_error struct-semcheck2.cb
 assert_compile_error struct-semcheck3.cb
 assert_compile_error struct-semcheck4.cb

@@ -1,0 +1,13 @@
+import stdio;
+
+struct s {};
+
+int
+main(int argc, char **argv)
+{
+    struct s st;
+    struct s* p = &st;
+
+    printf("%p\n", p);
+    return 0;
+}
