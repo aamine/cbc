@@ -1,5 +1,5 @@
 #
-# test.sh
+# test_cbc.sh
 #
 
 CBC=../cbc
@@ -232,9 +232,9 @@ test_26_funcptr() {
 }
 
 test_28_syntax() {
-    assert_out "1, 2, 0" ./test2
-    assert_status 0 $CBC test3.cb
-    assert_stat 0 ./test4
+    assert_out "1, 2, 0" ./syntax1
+    assert_status 0 $CBC syntax2.cb
+    assert_stat 0 ./syntax3
 }
 
 ###
@@ -280,11 +280,11 @@ assert_private() {
 }
 
 assert_compile_error() {
-    begin_test
+    shunit_begin_test
     if eval "$CBC $@" >tc.out 2>&1
     then
         echo "shunit[$@]: compile error not occured"
-        assertion_failed
+        shunit_test_failed
         return 1
     fi
     assert_not_coredump || return
@@ -292,7 +292,7 @@ assert_compile_error() {
     then
         echo "shunit[$@]: abnormal cbc error; error message is:"
         cat tc.out
-        assertion_failed
+        shunit_test_failed
         return 1
     fi
     return 0

@@ -1,7 +1,7 @@
 ANT = jant
 
 test:
-	./test.sh
+	./run.sh
 
 compile:
 	cd .. && $(ANT) compile

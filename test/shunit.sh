@@ -6,6 +6,29 @@
 
 n_tests=0
 n_failed=0
+
+shunit_begin_test() {
+    shunit_progress
+    n_tests=`expr $n_tests "+" 1`
+}
+
+shunit_test_failed() {
+    n_failed=`expr $n_failed "+" 1`
+}
+
+shunit_progress() {
+    print '.'
+}
+
+shunit_invoke() {
+    if [ "$SHUNIT_VERBOSE" = true ]
+    then
+        "$@"
+    else
+        "$@" >/dev/null 2>&1
+    fi
+}
+
 shunit_report_result() {
     rm -rf tc.*
     echo
@@ -19,81 +42,62 @@ shunit_report_result() {
     fi
 }
 
-print() {
-    if [ `/bin/echo -n x` = "-n" ]
-    then
-        /bin/echo $1'\c'
-    else
-        /bin/echo -n $1
-    fi
+error_exit() {
+    echo "$0: error: $1"
+    exit 1
 }
 
-progress() {
-    print '.'
-}
-
-begin_test() {
-    progress
-    n_tests=`expr $n_tests "+" 1`
-}
-
-assertion_failed() {
-    n_failed=`expr $n_failed "+" 1`
-}
-
-execute_command() {
-    if [ "$SHUNIT_VERBOSE" = true ]
-    then
-        "$@"
-    else
-        "$@" >/dev/null 2>&1
-    fi
-}
+if [ `/bin/echo -n x` = "-n" ]
+then
+    print() { /bin/echo "$1"'\c'; }
+else
+    print() { /bin/echo -n "$1"; }
+fi
 
 assert_status() {
-    begin_test
+    shunit_begin_test
     expected=$1; shift
-    execute_command "$@"
+    shunit_invoke "$@"
     really=$?
     assert_not_coredump || return
     if [ "$really" != "$expected" ]
     then
         echo "shunit[$@]: status $expected expected but was: $really"
-        assertion_failed
+        shunit_test_failed
         return 1
     fi
     return 0
 }
 
 assert_error() {
-    begin_test
-    execute_command "$@"
+    shunit_begin_test
+    shunit_invoke "$@"
     really=$?
     assert_not_coredump || return
     if [ "$really" = "0" ]
     then
         echo "shunit[$@]: non-zero status expected but was: $really"
-        assertion_failed
+        shunit_test_failed
         return 1
     fi
     return 0
 }
 
 assert_eq() {
-    begin_test
+    shunit_begin_test
     expected="$1"
     really="$2"
     if [ "$really" != "$expected" ]
     then
         echo "shunit: <$expected> expected but is: <$really>"
-        assertion_failed
+        shunit_test_failed
         return 1
     fi
     return 0
 }
 
 assert_equal() {
-    begin_test
+    shunit_begin_test
     _f="no"
     excmd=$1
     mycmd=$2
@@ -118,14 +122,14 @@ assert_equal() {
     fi
     if [ "$_f" = "yes" ]
     then
-        assertion_failed
+        shunit_test_failed
         return 1
     fi
     return 0
 }
 
 assert_equal_stdout() {
-    begin_test
+    shunit_begin_test
     _f="no"
     excmd=$1; shift
     mycmd=$1; shift
@@ -138,13 +142,13 @@ assert_equal_stdout() {
         echo "stdout differ: \"$excmd\" and \"$mycmd\""
         diff -u tc.out.expected tc.out.real
         echo "----"
-        assertion_failed
+        shunit_test_failed
     fi
     return 0
 }
 
 assert_stdout() {
-    begin_test
+    shunit_begin_test
     expected=$1; shift
     echo "$expected" > tc.out.expected
     "$@" >tc.out.real 2>/dev/null
@@ -155,19 +159,19 @@ assert_stdout() {
         echo "stdout differ: string \"$expected\" and cmd \"$@\""
         diff -u tc.out.expected tc.out.real
         echo "----"
-        assertion_failed
+        shunit_test_failed
     fi
     return 0
 }
 
 rm -f core
 assert_not_coredump() {
-    begin_test
+    shunit_begin_test
     if [ -f core ]
     then
         echo "core dumped: $mycmd"
         echo "----"
-        assertion_failed
+        shunit_test_failed
         return 1
     fi
     rm -f core
@@ -175,26 +179,26 @@ assert_not_coredump() {
 }
 
 assert_not_exist() {
-    begin_test
+    shunit_begin_test
     file=$1; shift
     if [ -f $file ]
     then
         echo "exists: $file"
         echo "----"
-        assertion_failed
+        shunit_test_failed
         return 1
     fi
     return 0
 }
 
 assert_directory() {
-    begin_test
+    shunit_begin_test
     dir=$1; shift
     if [ ! -d $dir ]
     then
         echo "not directory: $dir"
         echo "----"
-        assertion_failed
+        shunit_test_failed
         return 1
     fi
     return 0

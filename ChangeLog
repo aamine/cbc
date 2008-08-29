@@ -1,3 +1,21 @@
+Fri Aug 29 17:04:39 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test/Makefile: testing entry point is run.sh.
+
+	* test/shunit.sh: add "shunit_" prefix for all internal functions.
+
+	* test/run.sh: load test_*.sh to support multiple test case files.
+
+	* test/run.sh: accept command line arguments as test case files.
+
+	* test/test.sh -> test/test_cbc.sh
+
+	* test/test2.cb -> test/syntax1.cb
+
+	* test/test3.cb -> test/syntax2.cb
+
+	* test/test4.cb -> test/syntax3.cb
+
 Fri Aug 29 16:35:39 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: should handle
