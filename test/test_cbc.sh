@@ -213,7 +213,7 @@ test_24_cast() {
 }
 
 test_25_block() {
-    assert_out "2" ./block
+    assert_out "1;2;3;1;OK" ./block
     assert_out "1;2;3" ./defvar
 }
 
