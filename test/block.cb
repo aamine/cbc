@@ -19,7 +19,7 @@ main(int argc, char **argv)
         addr2 = &i;
     }
     printf(";%d", i);
-    printf(";%s", (unsigned long)addr1 == (unsigned long)addr2 ? "OK" : "NG");
+    printf(";%s", addr1 == addr2 ? "OK" : "NG");
 
     puts("");
     return 0;

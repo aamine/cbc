@@ -1,3 +1,18 @@
+Sat Aug 30 20:07:18 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ptr==ptr should
+	  work.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ptr&&ptr should
+	  work.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: any==any should
+	  always returns int.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: ditto.
+
+	* test: test it.
+
 Sat Aug 30 18:00:17 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/test_cbc.sh: test overrapped lvar.

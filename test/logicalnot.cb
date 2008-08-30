@@ -4,6 +4,8 @@ int
 main(int argc, char **argv)
 {
     printf("%d;%d;%d", !0, !1, !2);
+    printf(";%d", !"str");
+    printf(";%d", !(void*)0);
     puts("");
     return 0;
 }

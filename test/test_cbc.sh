@@ -85,8 +85,8 @@ test_08_bitop() {
 }
 
 test_09_cmp() {
-    assert_out "0;1;0" ./eq
-    assert_out "1;0;1" ./neq
+    assert_out "0;1;0;0;1;0" ./eq
+    assert_out "1;0;1;1;0;1" ./neq
     assert_out "1;0;0" ./gt
     assert_out "0;0;1" ./lt
     assert_out "1;1;0" ./gteq
@@ -106,10 +106,10 @@ test_12_if() {
 }
 
 test_13_logical() {
-    assert_out "1;0;0" ./logicalnot
-    assert_out "OK;OK;OK;OK" ./condexpr
-    assert_out "0;0;0;2" ./logicaland
-    assert_out "0;1;1;1" ./logicalor
+    assert_out "1;0;0;0;1" ./logicalnot
+    assert_out "OK;OK;OK;OK;OK" ./condexpr
+    assert_out "0;0;0;2;OK" ./logicaland
+    assert_out "0;1;1;1;OK" ./logicalor
 }
 
 test_14_while() {

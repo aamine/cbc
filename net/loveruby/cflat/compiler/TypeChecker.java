@@ -229,7 +229,8 @@ class TypeChecker extends Visitor {
         super.visit(node);
         if (node.operator().equals("+")
                 || node.operator().equals("-")) {
-            expectsSameIntegerOrPointerDiff(node);
+            Type t = expectsSameIntegerOrPointerDiff(node);
+            if (t != null) node.setType(t);
         }
         else if (node.operator().equals("*")
                 || node.operator().equals("/")
@@ -239,7 +240,8 @@ class TypeChecker extends Visitor {
                 || node.operator().equals("^")
                 || node.operator().equals("<<")
                 || node.operator().equals(">>")) {
-            expectsSameInteger(node);
+            Type t = expectsSameInteger(node);
+            if (t != null) node.setType(t);
         }
         else if (node.operator().equals("==")
                 || node.operator().equals("!=")
@@ -247,7 +249,8 @@ class TypeChecker extends Visitor {
                 || node.operator().equals("<=")
                 || node.operator().equals(">")
                 || node.operator().equals(">=")) {
-            expectsComparableScalars(node);
+            Type t = expectsComparableScalars(node);
+            if (t != null) node.setType(t);
         }
         else {
             throw new Error("unknown binary operator: " + node.operator());
@@ -257,12 +260,14 @@ class TypeChecker extends Visitor {
 
     public void visit(LogicalAndNode node) {
         super.visit(node);
-        expectsComparableScalars(node);
+        Type t = expectsComparableScalars(node);
+        if (t != null) node.setType(t);
     }
 
     public void visit(LogicalOrNode node) {
         super.visit(node);
-        expectsComparableScalars(node);
+        Type t = expectsComparableScalars(node);
+        if (t != null) node.setType(t);
     }
 
     /**
@@ -272,51 +277,62 @@ class TypeChecker extends Visitor {
      *   * pointer + integer
      *   * integer + pointer
      */
-    protected void expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
+    protected Type expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
         if (node.left().type().isPointer()) {
             mustBeInteger(node.right(), node.operator());
-            node.setType(node.left().type());
+            return node.left().type();
         }
         else if (node.right().type().isPointer()) {
             mustBeInteger(node.left(), node.operator());
-            node.setType(node.right().type());
+            return node.right().type();
         }
         else {
-            expectsSameInteger(node);
+            return expectsSameInteger(node);
         }
     }
 
     // +, -, *, /, %, &, |, ^, <<, >>
     // #@@range/expectsSameInteger{
-    protected void expectsSameInteger(BinaryOpNode node) {
-        if (! node.left().type().isInteger()) {
-            wrongTypeError(node.left(), node.operator());
-            return;
-        }
-        if (! node.right().type().isInteger()) {
-            wrongTypeError(node.right(), node.operator());
-            return;
-        }
-        arithmeticImplicitCast(node);
+    protected Type expectsSameInteger(BinaryOpNode node) {
+        if (! mustBeInteger(node.left(), node.operator())) return null;
+        if (! mustBeInteger(node.right(), node.operator())) return null;
+        return arithmeticImplicitCast(node);
     }
     // #@@}
 
-    // ==, !=, <, <=, >, >=, &&, ||
-    protected void expectsComparableScalars(BinaryOpNode node) {
-        if (! node.left().type().isScalar()) {
-            wrongTypeError(node.left(), node.operator());
-            return;
+    // ==, !=, >, >=, <, <=, &&, ||
+    protected Type expectsComparableScalars(BinaryOpNode node) {
+        if (! mustBeScalar(node.left(), node.operator())) return null;
+        if (! mustBeScalar(node.right(), node.operator())) return null;
+        if (node.left().type().isPointer()) {
+            ExprNode right = forcePointerType(node.left(), node.right());
+            node.setRight(right);
+            return node.left().type();
         }
-        if (! node.right().type().isScalar()) {
-            wrongTypeError(node.right(), node.operator());
-            return;
+        if (node.right().type().isPointer()) {
+            ExprNode left = forcePointerType(node.right(), node.left());
+            node.setLeft(left);
+            return node.right().type();
         }
-        arithmeticImplicitCast(node);
+        return arithmeticImplicitCast(node);
+    }
+
+    // cast slave node to master node.
+    protected ExprNode forcePointerType(ExprNode master, ExprNode slave) {
+        if (master.type().isCompatible(slave.type())) {
+            // needs no cast
+            return slave;
+        }
+        else {
+            warn(slave, "incompatible implicit cast from "
+                       + slave.type() + " to " + master.type());
+            return new CastNode(master.type(), slave);
+        }
     }
 
     // Processes usual arithmetic conversion for binary operations.
     // #@@range/arithmeticImplicitCast{
-    protected void arithmeticImplicitCast(BinaryOpNode node) {
+    protected Type arithmeticImplicitCast(BinaryOpNode node) {
         Type r = integralPromotion(node.right().type());
         Type l = integralPromotion(node.left().type());
         Type target = usualArithmeticConversion(l, r);
@@ -328,7 +344,7 @@ class TypeChecker extends Visitor {
             // insert cast on right expr
             node.setRight(new CastNode(target, node.right()));
         }
-        node.setType(target);
+        return target;
     }
     // #@@}
 

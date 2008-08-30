@@ -598,7 +598,7 @@ static public void p(String s) { System.err.println(s); }
         else {
             // Comparison operators
             cmp(t, reg("cx", t), reg("ax", t));
-            if (t.isSigned()) {
+            if (!t.isPointer() && t.isSigned()) {
                 if      (op.equals("=="))   sete (al());
                 else if (op.equals("!="))   setne(al());
                 else if (op.equals(">"))    setg (al());
