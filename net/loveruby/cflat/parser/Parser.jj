@@ -319,6 +319,7 @@ TOKEN: {
     | <GOTO     : "goto">
     | <TYPEDEF  : "typedef">
     | <IMPORT   : "import">
+    | <NULL     : "NULL">
 }
 // #@@}
 
@@ -1296,6 +1297,11 @@ ExprNode primary():
     | t=<IDENTIFIER>
         {
             return new VariableNode(location(t), t.image);
+        }
+    | t=<NULL>
+        {
+            TypeRef ref = new PointerTypeRef(new VoidTypeRef());
+            return new IntegerLiteralNode(location(t), ref, 0);
         }
     | "(" n=expr() ")"
         {

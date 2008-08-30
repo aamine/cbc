@@ -1,3 +1,9 @@
+Sat Aug 30 20:03:36 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: implement NULL.
+
+	* test: use it.
+
 Sat Aug 30 20:07:18 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: ptr==ptr should

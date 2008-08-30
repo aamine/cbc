@@ -4,7 +4,7 @@ int
 main(int argc, char **argv)
 {
     printf("%d;%d;%d;%d", 0||0, 1||0, 0||1, 1||2);
-    printf(";%s", (void*)0 || "OK");
+    printf(";%s", NULL || "OK");
     puts("");
     return 0;
 }

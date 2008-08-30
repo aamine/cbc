@@ -7,7 +7,7 @@ main(int argc, char **argv)
     printf(";%s", 0 ? "NG" : "OK");
     printf(";%s", 0==0 ? "OK" : "NG");
     printf(";%s", 0==1 ? "NG" : "OK");
-    printf(";%s", 0==1 ? (void*)0 : "OK");
+    printf(";%s", 0==1 ? NULL : "OK");
     puts("");
     return 0;
 }
