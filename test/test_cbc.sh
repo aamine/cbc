@@ -94,7 +94,7 @@ test_09_cmp() {
 }
 
 test_10_assign() {
-    assert_out "2;2;3;4;5;6;7;8;9;10;11;777" ./assign
+    assert_out "2;2;3;4;5;6;7;8;8;9;10;11;777" ./assign
     assert_out "3;4;3;12;4;1;1;7;5;1;4" ./opassign
     assert_out "0;1;2;2;3;3;4" ./inc
     assert_out "4;3;2;2;1;1;0" ./dec
@@ -116,26 +116,27 @@ test_14_while() {
     assert_ok ./while1
     assert_ok ./while2
     assert_out "3;3;2;1;0" ./while3
-    assert_ok ./while-break
-    assert_ok ./while-continue
 }
 
 test_15_dowhile() {
     assert_ok ./dowhile1
     assert_ok ./dowhile2
     assert_out "3;3;2;1;0" ./dowhile3
-    assert_ok ./dowhile-break
-    assert_ok ./dowhile-continue
 }
 
 test_16_for() {
     assert_out "3;3;2;1;0" ./for1
-    assert_ok ./for-break
-    assert_ok ./for-continue
 }
 
 test_17_jump() {
+    assert_ok ./while-break
+    assert_ok ./dowhile-break
+    assert_ok ./for-break
     assert_compile_error break-semcheck.cb
+
+    assert_ok ./while-continue
+    assert_ok ./dowhile-continue
+    assert_ok ./for-continue
     assert_compile_error continue-semcheck.cb
 }
 
@@ -229,6 +230,10 @@ test_26_funcptr() {
     assert_compile_error defun-semcheck8.cb
     assert_compile_error funcall-semcheck.cb
     assert_compile_error funcall-semcheck2.cb
+}
+
+test_27_switch() {
+    : FIXME
 }
 
 test_28_syntax() {

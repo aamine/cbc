@@ -18,31 +18,48 @@ main(int argc, char **argv)
     int* ptr;
     int[8] integers;
 
+    // local variable
     x = 1;
     y = 1;
     x = y = 2;
     printf("%d;%d", x, y);
+
+    // parameter
     argc = 3;
     printf(";%d", argc);
+
+    // global variable, common symbol
     global_x = 4;
     common_x = 5;
     printf(";%d;%d", global_x, common_x);
+
+    // static global variable, static common symbol
     static_x = 6;
     scomm_x = 7;
     printf(";%d;%d", static_x, scomm_x);
+
+    // local array with pointer
+    ptrs[0] = &x;
     *ptrs[0] = 8;
-    printf(";%d", *ptrs[0]);
+    printf(";%d;%d", *ptrs[0], x);
+
+    // local struct with pointer
     s.ptr = &x;
     x = 9;
     printf(";%d", *s.ptr);
+
+    // local pointer
     ptr = &x;
     *ptr++ = 10;
     ptr--;
     printf(";%d", *ptr);
+
+    // local array
     integers[0] = integers[1] = integers[2] = integers[3] = 777;
     ptr = integers;
     *ptr++ = 11;
     printf(";%d;%d", integers[0], integers[1]);
+
     puts("");
     return 0;
 }
