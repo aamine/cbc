@@ -21,6 +21,10 @@ public class DefinedFunction extends Function {
         this.jumpMap = new HashMap();
     }
 
+    public boolean isDefined() {
+        return true;
+    }
+
     /** Returns an iterator to the list of parameter slots (Slot). */
     public Iterator parameters() {
         return params.parameters();
@@ -41,10 +45,6 @@ public class DefinedFunction extends Function {
      */
     public Iterator localVariables() {
         return scope.allVariables();
-    }
-
-    public boolean isDefined() {
-        return true;
     }
 
     class JumpEntry {

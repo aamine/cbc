@@ -15,6 +15,10 @@ public class LocalScope extends Scope {
         return false;
     }
 
+    public Iterator children() {
+        return children.iterator();
+    }
+
     // Returns local variables defined in this scope.
     // Does includes all nested local variables.
     // Does NOT include static local variables.

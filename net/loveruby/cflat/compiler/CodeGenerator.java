@@ -186,16 +186,17 @@ static public void p(String s) { System.err.println(s); }
     /** Compiles a function. */
     // #@@range/compileFunction{
     protected void compileFunction(DefinedFunction func) {
+        allocateParameters(func);
+        long lvarBytes = allocateLocalVariables(func);
+
         currentFunction = func;
         String symbol = csymbol(func.name());
         _globl(symbol);
         _type(symbol, "@function");
         label(symbol);
-        prologue(func);
-        allocateParameters(func);
-        allocateLocalVariables(func);
+        prologue(func, lvarBytes);
         compile(func.body());
-        epilogue(func);
+        epilogue(func, lvarBytes);
         _size(symbol, ".-" + symbol);
     }
     // #@@}
@@ -221,15 +222,23 @@ static public void p(String s) { System.err.println(s); }
     // #@@}
 
     // #@@range/prologue{
-    protected void prologue(DefinedFunction func) {
+    protected void prologue(DefinedFunction func, long lvarBytes) {
         push(bp());
         mov(sp(), bp());
+        push(baseptr());
+        if (lvarBytes > 0) {
+            extendStack(lvarBytes);
+        }
     }
     // #@@}
 
     // #@@range/epilogue{
-    protected void epilogue(DefinedFunction func) {
+    protected void epilogue(DefinedFunction func, long lvarBytes) {
         label(epilogueLabel(func));
+        if (lvarBytes > 0) {
+            shrinkStack(lvarBytes);
+        }
+        pop(baseptr());
         mov(bp(), sp());
         pop(bp());
         ret();
@@ -277,33 +286,43 @@ static public void p(String s) { System.err.println(s); }
     /*
      * Platform Dependent Stack Parameters
      */
-    static final protected int stackDirection = -1;   // stack grows lower
+    static final protected boolean stackGrowsLower = true;
     static final protected long stackWordSize = 4;
     static final protected long stackAlignment = stackWordSize;
-    // 1 for return address, 1 for saved bp.
-    static final protected long paramStartOffset = 2;
-    static final protected long usedStackWords = 0;
+    // +1 for return address, +1 for saved bp
+    static final protected long paramStartWord = 2;
+    // +1 for saved bx
+    static final protected long lvarStartWord = 1;
 
     protected void allocateParameters(DefinedFunction func) {
         Iterator vars = func.parameters();
-        long offset = paramStartOffset;
+        long word = paramStartWord;
         while (vars.hasNext()) {
             Parameter var = (Parameter)vars.next();
-            var.setAddress(lvarAddressByWord(offset));
-            offset++;
+            if (stackGrowsLower) {
+                var.setAddress(mem(word * stackWordSize, bp()));
+            }
+            else {
+                throw new Error("unsupported stack layout");
+            }
+            word++;
         }
     }
 
-    protected CompositeAddress lvarAddressByWord(long offset) {
-        return mem(offset * stackWordSize, bp());
+    // Fixes addresses of local variables.
+    // Returns byte-length of the local variable area.
+    protected long allocateLocalVariables(DefinedFunction func) {
+        long initLen = lvarStartWord * stackWordSize;
+        long maxLen = allocateScope(func.body().scope(), initLen);
+        return maxLen - initLen;
     }
 
-    protected void allocateLocalVariables(DefinedFunction func) {
-        Iterator vars = func.localVariables();
-        long len = usedStackWords * stackWordSize;
+    protected long allocateScope(LocalScope scope, long parentStackLen) {
+        long len = parentStackLen;
+        Iterator vars = scope.variables();
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
-            if (stackDirection < 0) {
+            if (stackGrowsLower) {
                 len = align(len + var.allocSize(), stackAlignment);
                 var.setAddress(mem(-len, bp()));
             }
@@ -312,17 +331,24 @@ static public void p(String s) { System.err.println(s); }
                 len = align(len + var.allocSize(), stackAlignment);
             }
         }
-        if (len != 0) {
-            extendStack(len);
+        // Allocate local variables in child scopes.
+        // We allocate child scopes in the same area (overrapped).
+        long maxLen = len;
+        Iterator scopes = scope.children();
+        while (scopes.hasNext()) {
+            LocalScope s = (LocalScope)scopes.next();
+            long childLen = allocateScope(s, len);
+            maxLen = Math.max(maxLen, childLen);
         }
+        return maxLen;
     }
 
     protected void extendStack(long len) {
-        add(imm(stackDirection * len), sp());
+        add(imm(len * (stackGrowsLower ? -1 : 1)), sp());
     }
 
     protected void shrinkStack(long len) {
-        sub(imm(stackDirection * len), sp());
+        add(imm(len * (stackGrowsLower ? 1 : -1)), sp());
     }
 
     protected long align(long n, long alignment) {
@@ -341,9 +367,6 @@ static public void p(String s) { System.err.println(s); }
             compile(arg);
             push(reg("ax"));
         }
-        //if (node.function().isVararg()) {
-        //    ...
-        //}
         if (node.isStaticCall()) {
             if (node.function().isDefined()) {
                 call(csymbol(node.function().name()));
