@@ -187,10 +187,10 @@
 - add standard load path (use -I option)
 - call GNU as and GNU ld instead of gcc.
 - rename asm methods
+- lvar overlapped allocation
 * prohibit multi-dimension array without size
 * dump UTF-8 string byte by byte.
-* lvar overlapped allocation
+* simple vararg retrieve
+* easy peephole optimization
+* PIC generation
 * remove all FIXME
-? vararg retrieve
-? peephole optimization
-? PIC generation
