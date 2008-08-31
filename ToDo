@@ -2,7 +2,6 @@
 
 == Current
 
-* test switch stmt
 * remove FIXME from Entity.java
 * prohibit multi-dimension array without size
 * dump UTF-8 string byte by byte.
@@ -210,3 +209,4 @@
 - implement NULL as reserved word
 - duplicated import did not propagate symbols
 - test if static function is really static
+- test switch stmt
