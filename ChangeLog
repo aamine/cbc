@@ -1,3 +1,20 @@
+Mon Sep  1 01:49:23 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: pass location node to the
+	  CaseNode explicitly.
+
+	* net/loveruby/cflat/ast/CaseNode.java: default clause does not
+	  have value, we cannot extract location node from values.  Receive
+	  a location node as a first argument explicitly.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: must define end
+	  label.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: implement
+	  default clause.
+
+	* test: test switch stmt.
+
 Mon Sep  1 01:26:20 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: static function

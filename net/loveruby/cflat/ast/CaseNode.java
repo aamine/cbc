@@ -8,8 +8,8 @@ public class CaseNode extends StmtNode {
     protected List values;      // List<Node>
     protected BlockNode body;
 
-    public CaseNode(LabelPool pool, List values, BlockNode body) {
-        super(((Node)values.get(0)).location());
+    public CaseNode(Location loc, LabelPool pool, List values, BlockNode body) {
+        super(loc);
         this.pool = pool;
         this.values = values;
         this.body = body;
@@ -18,6 +18,10 @@ public class CaseNode extends StmtNode {
 
     public Iterator values() {
         return values.iterator();
+    }
+
+    public boolean isDefault() {
+        return values.isEmpty();
     }
 
     public BlockNode body() {

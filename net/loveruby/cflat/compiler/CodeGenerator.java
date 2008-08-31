@@ -457,18 +457,25 @@ static public void p(String s) { System.err.println(s); }
         Iterator cases = node.cases();
         while (cases.hasNext()) {
             CaseNode caseNode = (CaseNode)cases.next();
-            Iterator values = caseNode.values();
-            while (values.hasNext()) {
-                IntegerLiteralNode ival = (IntegerLiteralNode)values.next();
-                mov(imm(ival.value()), reg("cx"));
-                cmp(t, reg("cx", t), reg("ax", t));
-                je(caseNode.beginLabel());
+            if (! caseNode.isDefault()) {
+                Iterator values = caseNode.values();
+                while (values.hasNext()) {
+                    IntegerLiteralNode ival = (IntegerLiteralNode)values.next();
+                    mov(imm(ival.value()), reg("cx"));
+                    cmp(t, reg("cx", t), reg("ax", t));
+                    je(caseNode.beginLabel());
+                }
+            }
+            else {
+                jmp(caseNode.beginLabel());
             }
         }
+        jmp(node.endLabel());
         cases = node.cases();
         while (cases.hasNext()) {
             compile((CaseNode)cases.next());
         }
+        label(node.endLabel());
     }
 
     public void visit(CaseNode node) {

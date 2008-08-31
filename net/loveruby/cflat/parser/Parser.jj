@@ -955,7 +955,7 @@ CaseNode case_clause():
 {
     values=cases() body=case_body()
         {
-            return new CaseNode(labelPool, values, body);
+            return new CaseNode(body.location(), labelPool, values, body);
         }
 }
 
@@ -976,7 +976,8 @@ CaseNode default_clause():
 {
     <DEFAULT_> ":" body=case_body()
         {
-            return new CaseNode(labelPool, new ArrayList(), body);
+            return new CaseNode(body.location(), labelPool,
+                                new ArrayList(), body);
         }
 }
 
