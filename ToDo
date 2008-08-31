@@ -1,3 +1,19 @@
+= ToDo
+
+== Current
+
+* test if static function is really static
+* test switch stmt
+* remove FIXME from Entity.java
+* prohibit multi-dimension array without size
+* dump UTF-8 string byte by byte.
+* simple vararg retrieve (get vararg address)
+* easy peephole optimization
+* PIC generation
+* remove all FIXME
+
+== Done
+
 - generate resolved AST
         - constant table
         - types
@@ -194,9 +210,3 @@
         - !ptr should work
 - implement NULL as reserved word
 - duplicated import did not propagate symbols
-* prohibit multi-dimension array without size
-* dump UTF-8 string byte by byte.
-* simple vararg retrieve (get vararg address)
-* easy peephole optimization
-* PIC generation
-* remove all FIXME
