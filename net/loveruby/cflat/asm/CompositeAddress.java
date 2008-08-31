@@ -20,8 +20,4 @@ public class CompositeAddress extends Address {
     public String toString() {
         return "" + offset + "(" + base.toString() + ")";
     }
-
-    public AsmEntity add(long n) {
-        return new CompositeAddress(offset + n, base);
-    }
 }

@@ -148,6 +148,7 @@ test_18_array() {
 
 test_19_struct() {
     assert_out "11;22" ./struct
+    assert_out "701;702;703;704" ./struct2
     assert_stat 0 ./struct-semcheck
     assert_compile_success empstruct.cb
     assert_compile_error struct-semcheck2.cb

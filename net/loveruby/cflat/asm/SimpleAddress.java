@@ -14,8 +14,4 @@ public class SimpleAddress extends Address {
     public String toString() {
         return "(" + base.toString() + ")";
     }
-
-    public AsmEntity add(long n) {
-        return new CompositeAddress(n, base);
-    }
 }

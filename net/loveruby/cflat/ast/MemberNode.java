@@ -44,15 +44,15 @@ public class MemberNode extends ExprNode {
     // #@@}
 
     public boolean isConstant() {
-        return expr.isConstantAddress();
+        return false;
     }
 
     public boolean isConstantAddress() {
-        return expr.isConstantAddress();
+        return false;
     }
 
     public AsmEntity address() {
-        return expr.address().add(offset());
+        throw new Error("must not happen: MemberNode#address");
     }
 
     public Location location() {

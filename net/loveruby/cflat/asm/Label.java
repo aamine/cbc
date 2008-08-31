@@ -25,8 +25,4 @@ public class Label extends AsmEntity {
     public String toString() {
         return name;
     }
-
-    public AsmEntity add(long offset) {
-        throw new Error("Label#add");  // FIXME
-    }
 }

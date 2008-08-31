@@ -46,8 +46,4 @@ public class Register extends AsmEntity {
     public String toString() {
         return "%" + name();
     }
-
-    public AsmEntity add(long i) {
-        return new CompositeAddress(i, this);
-    }
 }

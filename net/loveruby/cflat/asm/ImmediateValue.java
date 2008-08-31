@@ -14,8 +14,4 @@ public class ImmediateValue extends AsmEntity {
     public String toString() {
         return "$" + value;
     }
-
-    public AsmEntity add(long n) {
-        return new ImmediateValue(value + n);
-    }
 }
