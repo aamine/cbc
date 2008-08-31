@@ -2,7 +2,6 @@
 
 == Current
 
-* test if static function is really static
 * test switch stmt
 * remove FIXME from Entity.java
 * prohibit multi-dimension array without size
@@ -210,3 +209,4 @@
         - !ptr should work
 - implement NULL as reserved word
 - duplicated import did not propagate symbols
+- test if static function is really static
