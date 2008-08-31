@@ -231,7 +231,17 @@ test_26_funcptr() {
 }
 
 test_27_switch() {
-    : FIXME
+    if assert_compile_success switch.cb
+    then
+        assert_stdout "1 or 2" ./switch
+        assert_stdout "1 or 2" ./switch x
+        assert_stdout "3 or 4" ./switch x x
+        assert_stdout "3 or 4" ./switch x x x
+        assert_stdout "5 or 6" ./switch x x x x
+        assert_stdout "5 or 6" ./switch x x x x x
+        assert_stdout "other"  ./switch x x x x x x
+        assert_stdout "other"  ./switch x x x x x x x
+    fi
 }
 
 test_28_syntax() {
