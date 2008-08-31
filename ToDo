@@ -124,7 +124,7 @@
 - function pointer
         - refer
         - call ptr(arg)
-* complex LHS
+- complex LHS
         - local variable
         - parameter
         - global variables / common symbols
@@ -132,9 +132,8 @@
         - *arr[0] = ...
         - *st.memb = ...
         - *ptr++ = ...
-        - *(int*)ptr = ...
-        * *(ptr + N) = ...     should implement ptr+int
-        * their combination
+        - *(ptr + N) = ...
+        - their combination
 - bare block ({...})
 - cast
 - semantic check (control)
