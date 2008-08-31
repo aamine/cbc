@@ -191,7 +191,9 @@ static public void p(String s) { System.err.println(s); }
 
         currentFunction = func;
         String symbol = csymbol(func.name());
-        _globl(symbol);
+        if (! func.isPrivate()) {
+            _globl(symbol);
+        }
         _type(symbol, "@function");
         label(symbol);
         prologue(func, lvarBytes);

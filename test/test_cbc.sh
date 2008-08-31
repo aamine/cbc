@@ -244,6 +244,11 @@ test_29_import() {
     assert_compile_success duplicated-import.cb
 }
 
+test_30_staticfunction() {
+    assert_compile_success staticfunc.cb
+    assert_private staticfunc private_function
+}
+
 ###
 ### Local Assertions
 ###
