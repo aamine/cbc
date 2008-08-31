@@ -26,7 +26,6 @@ abstract public class Function extends Entity {
     }
 
     public AsmEntity address() {
-        // FIXME: use Immediate
-        return new Label("$" + name());
+        return new Reference(name());
     }
 }
