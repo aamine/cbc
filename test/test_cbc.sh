@@ -2,8 +2,6 @@
 # test_cbc.sh
 #
 
-CBC=../cbc
-
 test_01_exec() {
     assert_stat 0 ./zero
     assert_stat 1 ./one
@@ -94,7 +92,7 @@ test_09_cmp() {
 }
 
 test_10_assign() {
-    assert_out "2;2;3;4;5;6;7;8;8;9;10;11;777" ./assign
+    assert_out "2;2;3;4;5;6;7;8;8;9;10;11;777;S" ./assign
     assert_out "3;4;3;12;4;1;1;7;5;1;4" ./opassign
     assert_out "0;1;2;2;3;3;4" ./inc
     assert_out "4;3;2;2;1;1;0" ./dec
@@ -151,7 +149,7 @@ test_18_array() {
 test_19_struct() {
     assert_out "11;22" ./struct
     assert_stat 0 ./struct-semcheck
-    assert_status 0 $CBC empstruct.cb
+    assert_compile_success empstruct.cb
     assert_compile_error struct-semcheck2.cb
     assert_compile_error struct-semcheck3.cb
     assert_compile_error struct-semcheck4.cb
@@ -238,27 +236,27 @@ test_27_switch() {
 
 test_28_syntax() {
     assert_out "1, 2, 0" ./syntax1
-    assert_status 0 $CBC syntax2.cb
+    assert_compile_success syntax2.cb
     assert_stat 0 ./syntax3
+}
+
+test_29_import() {
+    assert_compile_success duplicated-import.cb
 }
 
 ###
 ### Local Assertions
 ###
 
-assert_compile() {
-    assert_status 0 $CBC "$@"
-}
-
 assert_stat() {
     st=$1; shift
-    assert_compile "$1.cb" &&
+    assert_compile_success "$1.cb" &&
     assert_status $st "$@"
 }
 
 assert_out() {
     msg="$1"; shift
-    assert_compile "$1.cb" &&
+    assert_compile_success "$1.cb" &&
     assert_stdout "$msg" "$@"
 }
 
@@ -282,6 +280,12 @@ assert_public() {
 
 assert_private() {
     assert_eq "private" `symbol_visibility $1 $2`
+}
+
+CBC=../cbc
+
+assert_compile_success() {
+    assert_status 0 $CBC "$@"
 }
 
 assert_compile_error() {

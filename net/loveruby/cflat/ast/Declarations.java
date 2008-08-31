@@ -2,25 +2,32 @@ package net.loveruby.cflat.ast;
 import java.util.*;
 
 public class Declarations {
-    protected List defvars, vardecls, defuns, funcdecls;
-    protected List defstructs, defunions, typedefs;
+    protected Set defvars, vardecls, defuns, funcdecls;
+    protected Set defstructs, defunions, typedefs;
 
     public Declarations() {
-        defvars = new ArrayList();
-        vardecls = new ArrayList();
-        defuns = new ArrayList();
-        funcdecls = new ArrayList();
-        defstructs = new ArrayList();
-        defunions = new ArrayList();
-        typedefs = new ArrayList();
+        defvars = new LinkedHashSet();
+        vardecls = new LinkedHashSet();
+        defuns = new LinkedHashSet();
+        funcdecls = new LinkedHashSet();
+        defstructs = new LinkedHashSet();
+        defunions = new LinkedHashSet();
+        typedefs = new LinkedHashSet();
     }
 
     public void add(Declarations decls) {
-        vardecls.addAll(decls.vardecls());
-        funcdecls.addAll(decls.funcdecls());
-        defstructs.addAll(decls.defstructs());
-        defunions.addAll(decls.defunions());
-        typedefs.addAll(decls.typedefs());
+        updateSet(vardecls, decls.vardecls());
+        updateSet(funcdecls, decls.funcdecls());
+        updateSet(defstructs, decls.defstructs());
+        updateSet(defunions, decls.defunions());
+        updateSet(typedefs, decls.typedefs());
+    }
+
+    protected void updateSet(Set s, List items) {
+        Iterator i = items.iterator();
+        while (i.hasNext()) {
+            s.add(i.next());
+        }
     }
 
     public void addDefvar(DefinedVariable var) {
@@ -28,11 +35,11 @@ public class Declarations {
     }
 
     public void addDefvars(List vars) {
-        defvars.addAll(vars);
+        updateSet(defvars, vars);
     }
 
     public List defvars() {
-        return defvars;
+        return new ArrayList(defvars);
     }
 
     public void addVardecl(UndefinedVariable var) {
@@ -40,7 +47,7 @@ public class Declarations {
     }
 
     public List vardecls() {
-        return vardecls;
+        return new ArrayList(vardecls);
     }
 
     public void addDefun(Function func) {
@@ -48,7 +55,7 @@ public class Declarations {
     }
 
     public List defuns() {
-        return defuns;
+        return new ArrayList(defuns);
     }
 
     public void addFuncdecl(UndefinedFunction func) {
@@ -56,7 +63,7 @@ public class Declarations {
     }
 
     public List funcdecls() {
-        return funcdecls;
+        return new ArrayList(funcdecls);
     }
 
     public void addDefstruct(StructNode n) {
@@ -64,7 +71,7 @@ public class Declarations {
     }
 
     public List defstructs() {
-        return defstructs;
+        return new ArrayList(defstructs);
     }
 
     public void addDefunion(UnionNode n) {
@@ -72,7 +79,7 @@ public class Declarations {
     }
 
     public List defunions() {
-        return defunions;
+        return new ArrayList(defunions);
     }
 
     public void addTypedef(TypedefNode n) {
@@ -80,6 +87,6 @@ public class Declarations {
     }
 
     public List typedefs() {
-        return typedefs;
+        return new ArrayList(typedefs);
     }
 }

@@ -22,8 +22,8 @@ public class LibraryLoader {
 
     public LibraryLoader(List loadPath) {
         this.loadPath = loadPath;
-        loadingLibraries = new LinkedList();
-        loadedLibraries = new HashMap();
+        this.loadingLibraries = new LinkedList();
+        this.loadedLibraries = new HashMap();
     }
 
     public void addLoadPath(String path) {
@@ -38,12 +38,12 @@ public class LibraryLoader {
                                         + ": " + libid);
         }
         loadingLibraries.addLast(libid);   // stop recursive import
-        if (loadedLibraries.containsKey(libid)) {
-            // Already loaded import file.  Do nothing.
-            return null;
+        Declarations decls = (Declarations)loadedLibraries.get(libid);
+        if (decls != null) {
+            // Already loaded import file.  Returns cached declarations.
+            return decls;
         }
-        Declarations decls =
-            Parser.parseDeclFile(searchLibrary(libid), this, handler);
+        decls = Parser.parseDeclFile(searchLibrary(libid), this, handler);
         loadedLibraries.put(libid, decls);
         loadingLibraries.removeLast();
         return decls;

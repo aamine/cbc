@@ -188,9 +188,16 @@
 - call GNU as and GNU ld instead of gcc.
 - rename asm methods
 - lvar overlapped allocation
+- pointer comparison
+        - ptr==ptr should work
+        - ptr&&ptr should work
+        - cond?ptr:ptr should work
+        - !ptr should work
+- implement NULL as reserved word
+- duplicated import did not propagate symbols
 * prohibit multi-dimension array without size
 * dump UTF-8 string byte by byte.
-* simple vararg retrieve
+* simple vararg retrieve (get vararg address)
 * easy peephole optimization
 * PIC generation
 * remove all FIXME
