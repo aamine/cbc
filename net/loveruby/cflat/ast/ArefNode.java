@@ -27,12 +27,10 @@ public class ArefNode extends ExprNode {
     }
 
     public boolean isConstantAddress() {
-        // FIXME
         return false;
     }
 
     public AsmEntity address() {
-        // FIXME
         throw new Error("ArefNode#address");
     }
 
