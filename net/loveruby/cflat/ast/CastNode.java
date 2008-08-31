@@ -15,10 +15,6 @@ public class CastNode extends ExprNode {
         this.expr = expr;
     }
 
-    public void resolve(TypeTable table) {
-        System.err.println("FIXME: CastNode#resolve not implemented");
-    }
-
     public Type type() {
         return typeNode.type();
     }
