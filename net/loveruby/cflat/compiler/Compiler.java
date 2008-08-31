@@ -134,14 +134,14 @@ public class Compiler {
     protected void printUsage(PrintStream out) {
         // --dump-reference is hidden option
         out.println("Usage: cbc [option] file");
-        out.println("  --check-syntax   Syntax check only.");
-        out.println("  --debug-parser   Dump parsing process.");
+        out.println("  --check-syntax   Checks syntax.");
+        out.println("  --debug-parser   Dumps parsing process.");
         out.println("  --dump-tokens    Parses source file and dumps tokens.");
         out.println("  --dump-ast       Parses source file and dumps AST.");
-        out.println("  --dump-semantic  Check semantics and dumps AST.");
-        out.println("  -S               Generate assembly source only.");
-        out.println("  -c               Compile, Assemble and stop.");
-        out.println("  -I PATH          Add import file loading path.");
+        out.println("  --dump-semantic  Checks semantics and dumps AST.");
+        out.println("  -S               Generates an assembly source.");
+        out.println("  -c               Generates an object file.");
+        out.println("  -I PATH          Adds import file loading path.");
         out.println("  --help           Prints this message and quit.");
     }
 
