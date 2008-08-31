@@ -35,10 +35,6 @@ public class CastNode extends ExprNode {
         return expr.isConstant();
     }
 
-    public boolean isAssignable() {
-        return expr.isAssignable();
-    }
-
     public boolean isConstantAddress() {
         return expr.isConstantAddress();
     }

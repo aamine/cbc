@@ -3,16 +3,17 @@ package net.loveruby.cflat.type;
 public class ArrayType extends Type {
     protected Type baseType;
     protected long length;
+    protected long pointerSize;
     static final protected long undefined = -1;
 
-    public ArrayType(Type baseType) {
-        this.baseType = baseType;
-        length = undefined;
+    public ArrayType(Type baseType, long pointerSize) {
+        this(baseType, undefined, pointerSize);
     }
 
-    public ArrayType(Type baseType, long length) {
+    public ArrayType(Type baseType, long length, long pointerSize) {
         this.baseType = baseType;
         this.length = length;
+        this.pointerSize = pointerSize;
     }
 
     public boolean isArray() { return true; }
@@ -32,7 +33,7 @@ public class ArrayType extends Type {
     }
 
     public long size() {
-        return 4;       // FIXME: get from TypeTable
+        return pointerSize;
     }
 
     public long allocSize() {
@@ -59,6 +60,9 @@ public class ArrayType extends Type {
 
     public boolean isCompatible(Type target) {
         if (! target.isDereferable()) return false;
+        if (target.baseType().isVoid()) {
+            return true;
+        }
         return baseType.isCompatible(target.baseType())
                 && baseType.size() == target.baseType().size();
     }

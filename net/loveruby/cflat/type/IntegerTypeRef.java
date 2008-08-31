@@ -84,7 +84,7 @@ public class IntegerTypeRef extends TypeRef {
     public boolean equals(Object other) {
         if (! (other instanceof IntegerTypeRef)) return false;
         IntegerTypeRef ref = (IntegerTypeRef)other;
-        return name == ref.name;
+        return name.equals(ref.name);
     }
 
     public String toString() {

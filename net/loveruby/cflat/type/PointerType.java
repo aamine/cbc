@@ -35,7 +35,10 @@ public class PointerType extends Type {
 
     public boolean isCompatible(Type other) {
         if (! other.isDereferable()) return false;
-        if (baseType.isVoid() && ! other.baseType().isPointer()) {
+        if (baseType.isVoid()) {
+            return true;
+        }
+        if (other.baseType().isVoid()) {
             return true;
         }
         return baseType.isCompatible(other.baseType());

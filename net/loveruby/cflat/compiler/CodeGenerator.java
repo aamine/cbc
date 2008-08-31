@@ -643,34 +643,38 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(PrefixOpNode node) {
-        compileIncDec(node.operator(), node.expr());
-        load(node.expr().type(), node.expr().address(), reg("ax"));
+        AsmEntity dest = compileLHS2(node.expr());
+        load(node.expr().type(), dest, reg("ax"));
+        compileUnaryArithmetic(node, reg("ax"));
+        save(node.expr().type(), reg("ax"), dest);
     }
 
     public void visit(SuffixOpNode node) {
-        load(node.expr().type(), node.expr().address(), reg("ax"));
-        compileIncDec(node.operator(), node.expr());
+        AsmEntity dest = compileLHS2(node.expr());
+        load(node.expr().type(), dest, reg("ax"));
+        compileUnaryArithmetic(node, dest);
     }
 
-    protected void compileIncDec(String op, ExprNode e) {
-        if (op.equals("++")) {
-            if (e.type().isInteger()) {
-                inc(e.type(), e.address());
-            }
-            else {
-                add(imm(e.type().size()), e.address());
-            }
-        }
-        else if (op.equals("--")) {
-            if (e.type().isInteger()) {
-                dec(e.type(), e.address());
-            }
-            else {
-                sub(imm(e.type().size()), e.address());
-            }
+    protected AsmEntity compileLHS2(ExprNode expr) {
+        if (expr.isConstantAddress()) {
+            return expr.address();
         }
         else {
-            throw new Error("unknown unary operator: " + op);
+            compileLHS(expr);
+            return baseptr();
+        }
+    }
+
+    protected void compileUnaryArithmetic(UnaryArithmeticOpNode node,
+                                          AsmEntity dest) {
+        if (node.operator().equals("++")) {
+            add(imm(node.amount()), dest);
+        }
+        else if (node.operator().equals("--")) {
+            sub(imm(node.amount()), dest);
+        }
+        else {
+            throw new Error("unknown unary operator: " + node.operator());
         }
     }
 
@@ -722,7 +726,6 @@ static public void p(String s) { System.err.println(s); }
         save(node.type(), reg("ax"), node.lhs().address());
     }
 
-    // FIXME: use -4(%edx,%esi,4) addressing
     public void visit(ArefNode node) {
         if (node.expr().type().isPointerAlike()) {
             compile(node.expr());
@@ -767,9 +770,8 @@ static public void p(String s) { System.err.println(s); }
     }
 
     protected void compileLHS(Node node) {
-comment("compileLHS: " + node.getClass().getName() + " {");
+comment("compileLHS: " + node.getClass().getSimpleName() + " {");
         if (node instanceof VariableNode) {
-            // FIXME: support static variables
             VariableNode n = (VariableNode)node;
             lea(n.address(), baseptr());
         }
@@ -809,33 +811,6 @@ comment("compileLHS: " + node.getClass().getName() + " {");
             add(imm(n.offset()), reg("ax"));
             mov(reg("ax"), baseptr());
             pop(reg("ax"));
-        }
-        else if (node instanceof PrefixOpNode) {
-            PrefixOpNode n = (PrefixOpNode)node;
-            compileLHS(n.expr());
-            if (n.operator().equals("++")) {
-                add(imm(n.expr().type().size()), mem(baseptr()));
-                add(imm(n.expr().type().size()), baseptr());
-            }
-            else {
-                sub(imm(n.expr().type().size()), mem(baseptr()));
-                sub(imm(n.expr().type().size()), baseptr());
-            }
-        }
-        else if (node instanceof SuffixOpNode) {
-            SuffixOpNode n = (SuffixOpNode)node;
-            compileLHS(n.expr());
-            if (n.operator().equals("++")) {
-                add(imm(n.expr().type().size()), baseptr());
-            }
-            else {
-                sub(imm(n.expr().type().size()), baseptr());
-            }
-        }
-        else if (node instanceof CastNode) {
-            CastNode n = (CastNode)node;
-            compileLHS(n.expr());
-            // FIXME: cast here
         }
         else {
             throw new Error("wrong type for compileLHS: " + node.getClass().getName());

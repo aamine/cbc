@@ -152,10 +152,7 @@ class TypeChecker extends Visitor {
                 || node.operator().equals("-")) {
             if (node.lhs().type().isPointer()) {
                 if (! mustBeInteger(node.rhs(), node.operator())) return;
-                Type t = integralPromotion(node.rhs().type());
-                if (! t.isSameType(node.rhs().type())) {
-                    node.setRHS(new CastNode(t, node.rhs()));
-                }
+                node.setRHS(multiplyPtrBaseSize(node.rhs(), node.lhs()));
                 return;
             }
         }
@@ -276,19 +273,65 @@ class TypeChecker extends Visitor {
      *   * integer + integer
      *   * pointer + integer
      *   * integer + pointer
+     *   * integer - integer
+     *   * pointer - integer
      */
     protected Type expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
-        if (node.left().type().isPointer()) {
+        if (node.left().type().isDereferable()) {
+            if (node.left().type().baseType().isVoid()) {
+                wrongTypeError(node.left(), node.operator());
+                return null;
+            }
             mustBeInteger(node.right(), node.operator());
+            node.setRight(multiplyPtrBaseSize(node.right(), node.left()));
             return node.left().type();
         }
-        else if (node.right().type().isPointer()) {
+        else if (node.right().type().isDereferable()) {
+            if (node.operator().equals("-")) {
+                error(node, "invalid operation integer-pointer");
+                return null;
+            }
+            if (node.right().type().baseType().isVoid()) {
+                wrongTypeError(node.right(), node.operator());
+                return null;
+            }
             mustBeInteger(node.left(), node.operator());
+            node.setLeft(multiplyPtrBaseSize(node.left(), node.right()));
             return node.right().type();
         }
         else {
             return expectsSameInteger(node);
         }
+    }
+
+    protected BinaryOpNode multiplyPtrBaseSize(ExprNode expr, ExprNode ptr) {
+        return new BinaryOpNode(integralPromotedExpr(expr), "*", ptrBaseSize(ptr));
+    }
+
+    protected ExprNode integralPromotedExpr(ExprNode expr) {
+        Type t = integralPromotion(expr.type());
+        if (t.isSameType(expr.type())) {
+            return expr;
+        }
+        else {
+            return new CastNode(t, expr);
+        }
+    }
+
+    protected IntegerLiteralNode ptrBaseSize(ExprNode ptr) {
+        return integerLiteral(ptr.location(),
+                              typeTable.ptrDiffTypeRef(),
+                              ptr.type().baseType().size());
+    }
+
+    protected IntegerLiteralNode integerLiteral(Location loc, TypeRef ref, long n) {
+        IntegerLiteralNode node = new IntegerLiteralNode(loc, ref, n);
+        bindType(node.typeNode());
+        return node;
+    }
+
+    protected void bindType(TypeNode t) {
+        t.setType(typeTable.get(t.typeRef()));
     }
 
     // +, -, *, /, %, &, |, ^, <<, >>
@@ -304,12 +347,12 @@ class TypeChecker extends Visitor {
     protected Type expectsComparableScalars(BinaryOpNode node) {
         if (! mustBeScalar(node.left(), node.operator())) return null;
         if (! mustBeScalar(node.right(), node.operator())) return null;
-        if (node.left().type().isPointer()) {
+        if (node.left().type().isDereferable()) {
             ExprNode right = forcePointerType(node.left(), node.right());
             node.setRight(right);
             return node.left().type();
         }
-        if (node.right().type().isPointer()) {
+        if (node.right().type().isDereferable()) {
             ExprNode left = forcePointerType(node.right(), node.left());
             node.setLeft(left);
             return node.right().type();
@@ -371,7 +414,7 @@ class TypeChecker extends Visitor {
         expectsScalarLHS(node);
     }
 
-    protected void expectsScalarLHS(UnaryOpNode node) {
+    protected void expectsScalarLHS(UnaryArithmeticOpNode node) {
         if (node.expr().isParameter()) {
             // parameter is always a scalar.
         }
@@ -388,6 +431,18 @@ class TypeChecker extends Visitor {
             if (! node.expr().type().isSameType(opType)) {
                 node.setOpType(opType);
             }
+            node.setAmount(1);
+        }
+        else if (node.expr().type().isDereferable()) {
+            if (node.expr().type().baseType().isVoid()) {
+                // We cannot increment/decrement void*
+                wrongTypeError(node.expr(), node.operator());
+                return;
+            }
+            node.setAmount(node.expr().type().baseType().size());
+        }
+        else {
+            throw new Error("must not happen");
         }
     }
 

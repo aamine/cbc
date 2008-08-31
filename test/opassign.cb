@@ -26,7 +26,38 @@ main(int argc, char **argv)
     printf(";%d", i);   // 1
     i <<= 2;
     printf(";%d", i);   // 4
-    puts("");
 
+    // pointer diff arithmetic (size=1)
+    {
+        char *string = "Hello, World!";
+        char *p;
+
+        p = string;
+        p += 1;
+        printf(";%c", *p);
+
+        p -= 1;
+        printf(";%c", *p);
+    }
+
+    // pointer diff arithmetic (size=4)
+    {
+        int[4] xs;
+        int* p;
+
+        xs[0] = 75;
+        xs[1] = 76;
+        xs[2] = 77;
+        xs[3] = 78;
+
+        p = xs;
+        p += 1;
+        printf(";%d", *p);
+
+        p -= 1;
+        printf(";%d", *p);
+    }
+
+    puts("");
     return 0;
 }

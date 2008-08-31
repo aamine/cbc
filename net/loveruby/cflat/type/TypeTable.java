@@ -70,7 +70,9 @@ public class TypeTable {
             }
             else if (ref instanceof ArrayTypeRef) {
                 ArrayTypeRef aref = (ArrayTypeRef)ref;
-                Type t = new ArrayType(get(aref.baseType()), aref.length());
+                Type t = new ArrayType(get(aref.baseType()),
+                                       aref.length(),
+                                       pointerSize);
                 table.put(aref, t);
                 return t;
             }
@@ -84,6 +86,22 @@ public class TypeTable {
             throw new Error("unregistered type: " + ref.toString());
         }
         return type;
+    }
+
+    public long pointerSize() {
+        return this.pointerSize;
+    }
+
+    // returns a IntegerTypeRef whose size is equals to pointer.
+    public TypeRef ptrDiffTypeRef() {
+        return new IntegerTypeRef(ptrDiffTypeName());
+    }
+
+    protected String ptrDiffTypeName() {
+        if (signedLong().size == pointerSize) return "long";
+        if (signedInt().size == pointerSize) return "int";
+        if (signedShort().size == pointerSize) return "short";
+        throw new Error("must not happen: integer.size != pointer.size");
     }
 
     public Iterator types() {

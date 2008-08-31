@@ -1,4 +1,5 @@
 import stdio;
+import string;
 
 int global_x = 0;
 int common_x;
@@ -13,16 +14,22 @@ main(int argc, char **argv)
     int x, y;
     static int static_x = 0;
     static int scomm_x;
-    int*[1] ptrs;
+    int*[2] ptrs;
     struct s s;
     int* ptr;
     int[8] integers;
+    char[8] buf;
+    char *p = buf;
+    memcpy(buf, "Hello", 8);
 
     // local variable
     x = 1;
-    y = 1;
+    printf("%d", x);
+
+    x = 77;
+    y = 77;
     x = y = 2;
-    printf("%d;%d", x, y);
+    printf(";%d;%d", x, y);
 
     // parameter
     argc = 3;
@@ -59,6 +66,16 @@ main(int argc, char **argv)
     ptr = integers;
     *ptr++ = 11;
     printf(";%d;%d", integers[0], integers[1]);
+
+    // local array with pointer arighmetic
+    *(p + 1) = 'S';
+    printf(";%c", p[1]);
+
+    // local array with pointer arighmetic
+    ptrs[0] = NULL;
+    ptrs[1] = &x;
+    **(ptrs + 1) = 12;
+    printf(";%d", *ptrs[1]);
 
     puts("");
     return 0;

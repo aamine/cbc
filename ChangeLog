@@ -1,3 +1,45 @@
+Sun Aug 31 19:24:30 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: transform pointer
+	  arithmetic to normal arithmetic (e.g. ptr+7 =>
+	  ptr+(7*sizeof(*ptr))).
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: int-ptr is
+	  invalid.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: implement
+	  pointer arithmetic correctly (e.g. *(ptr+1) for various types work
+	  now).
+
+	* net/loveruby/cflat/ast/PrefixOpNode.java: inherit
+	  UnaryArithmeticOpNode.
+
+	* net/loveruby/cflat/ast/SuffixOpNode.java: ditto.
+
+	* net/loveruby/cflat/ast/UnaryArithmeticOpNode.java: new file.
+
+	* net/loveruby/cflat/ast/CastNode.java: is not assignable.
+
+	* net/loveruby/cflat/type/TypeTable.java: new method #pointerSize,
+	  #ptrDiffTypeRef.
+
+	* net/loveruby/cflat/type/ArrayType.java: fetch pointer size from
+	  a TypeTable.
+
+	* net/loveruby/cflat/type/ArrayType.java: we can cast any pointers
+	  to void*.
+
+	* net/loveruby/cflat/type/PointerType.java: ditto.
+
+	* net/loveruby/cflat/type/IntegerTypeRef.java (equals): check name
+	  equality by #equals, not ==.
+
+	* test: test pointer arithmetic.
+
+	* test: CastNode does not becomes LHS, do not check it.
+
+	* import/string.hb: add mem* functions.
+
 Sun Aug 31 15:17:05 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/Declarations.java: reject duplicated
