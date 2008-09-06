@@ -4,7 +4,7 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 import java.util.*;
 
-public class CodeGenerator extends Visitor {
+public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     // #@@range/generate
     static public String generate(AST ast, TypeTable typeTable,
                                   ErrorHandler errorHandler) {
@@ -801,43 +801,41 @@ public class CodeGenerator extends Visitor {
     }
 
     protected void compileLHS(Node node) {
-comment("compileLHS: " + node.getClass().getSimpleName() + " {");
-        if (node instanceof VariableNode) {
-            VariableNode n = (VariableNode)node;
-            lea(n.address(), reg("ax"));
-        }
-        else if (node instanceof ArefNode) {
-            ArefNode n = (ArefNode)node;
-            compile(n.index());
-            imul(imm(n.type().size()), reg("ax"));
-            push(reg("ax"));
-            if (n.expr().type().isPointerAlike()) {
-                compile(n.expr());
-            }
-            else {
-                compileLHS(n.expr());
-            }
-            pop(reg("cx"));
-            add(reg("cx"), reg("ax"));
-        }
-        else if (node instanceof MemberNode) {
-            MemberNode n = (MemberNode)node;
-            compileLHS(n.expr());
-            add(imm(n.offset()), reg("ax"));
-        }
-        else if (node instanceof DereferenceNode) {
-            DereferenceNode n = (DereferenceNode)node;
-            compile(n.expr());
-        }
-        else if (node instanceof PtrMemberNode) {
-            PtrMemberNode n = (PtrMemberNode)node;
-            compile(n.expr());
-            add(imm(n.offset()), reg("ax"));
+        comment("compileLHS: " + node.getClass().getSimpleName() + " {");
+        node.acceptLHS(this);
+        comment("compileLHS: }");
+    }
+
+    public void visitLHS(VariableNode node) {
+        lea(node.address(), reg("ax"));
+    }
+
+    public void visitLHS(ArefNode node) {
+        compile(node.index());
+        imul(imm(node.type().size()), reg("ax"));
+        push(reg("ax"));
+        if (node.expr().type().isPointerAlike()) {
+            compile(node.expr());
         }
         else {
-            throw new Error("wrong type for compileLHS: " + node.getClass().getName());
+            compileLHS(node.expr());
         }
-comment("compileLHS: }");
+        pop(reg("cx"));
+        add(reg("cx"), reg("ax"));
+    }
+
+    public void visitLHS(MemberNode node) {
+        compileLHS(node.expr());
+        add(imm(node.offset()), reg("ax"));
+    }
+
+    public void visitLHS(DereferenceNode node) {
+        compile(node.expr());
+    }
+
+    public void visitLHS(PtrMemberNode node) {
+        compile(node.expr());
+        add(imm(node.offset()), reg("ax"));
     }
 
     /*

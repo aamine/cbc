@@ -4,7 +4,20 @@
 
 * prohibit multi-dimension array without size
 * simple vararg retrieve (get vararg address)
-* easy peephole optimization
+* peephole optimization
+        * movl $0, %eax => xorl %eax, %eax
+        * addl $1, %eax  => incl %eax
+        * addl $-1, %eax => decl %eax
+        * subl $1, %eax  => decl %eax
+        * subl $-1, %eax => incl %eax
+        * addl $0, %eax => NONE
+        * subl $0, %eax => NONE
+        * imull $0, %eax => xorl %eax, %eax
+        * imull $1, %eax => NONE
+        * duplicated push => single
+        * duplicated pop => single
+        * label renaming
+        * remove useless jump
 * PIC generation
 * remove all FIXME
 

@@ -46,4 +46,8 @@ public class ArefNode extends ExprNode {
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
+
+    public void acceptLHS(ASTLHSVisitor visitor) {
+        visitor.visitLHS(this);
+    }
 }

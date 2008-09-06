@@ -1,3 +1,23 @@
+Sun Sep  7 08:06:38 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: split compileLHS
+	  by using visitor pattern.
+
+	* net/loveruby/cflat/ast/ASTLHSVisitor.java: new interface.
+
+	* net/loveruby/cflat/ast/DereferenceNode.java: implement
+	  #acceptLHS.
+
+	* net/loveruby/cflat/ast/ArefNode.java: ditto.
+
+	* net/loveruby/cflat/ast/PtrMemberNode.java: ditto.
+
+	* net/loveruby/cflat/ast/MemberNode.java: ditto.
+
+	* net/loveruby/cflat/ast/Node.java: ditto.
+
+	* net/loveruby/cflat/ast/VariableNode.java: ditto.
+
 Sun Sep  7 07:37:34 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: opassign should
