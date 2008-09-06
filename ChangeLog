@@ -40,7 +40,7 @@ Sun Sep  7 05:10:46 2008  Minero Aoki  <aamine@loveruby.net>
 	* net/loveruby/cflat/asm/Assembler.java: new method #align (moved
 	  from CodeGenerator).
 
-	* test
+	* test: test sizeof.
 
 Sun Sep  7 02:57:24 2008  Minero Aoki  <aamine@loveruby.net>
 
