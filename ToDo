@@ -5,6 +5,7 @@
 * use %rax for address calculation
 * prohibit multi-dimension array without size
 * dump UTF-8 string byte by byte.
+* sizeof
 * simple vararg retrieve (get vararg address)
 * easy peephole optimization
 * PIC generation

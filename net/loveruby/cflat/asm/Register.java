@@ -39,8 +39,18 @@ public class Register extends AsmEntity {
     }
 
     protected String lowerByteRegister(String baseName) {
-        // FIXME: check basename.
+        if (! hasLowerByteRegister(baseName)) {
+            throw new Error("does not have lower-byte register: " + baseName);
+        }
         return baseName.substring(0, 1) + "l";
+    }
+
+    protected boolean hasLowerByteRegister(String baseName) {
+        if (baseName.equals("ax")) return true;
+        if (baseName.equals("bx")) return true;
+        if (baseName.equals("cx")) return true;
+        if (baseName.equals("dx")) return true;
+        return false;
     }
 
     public String toString() {
