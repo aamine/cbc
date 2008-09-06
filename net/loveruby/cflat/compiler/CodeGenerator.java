@@ -25,7 +25,6 @@ public class CodeGenerator extends Visitor {
         this.errorHandler = errorHandler;
     }
     // #@@}
-static public void p(String s) { System.err.println(s); }
 
     /** Compiles "ast" and generates assembly code. */
     // #@@range/generateAssembly
@@ -186,8 +185,9 @@ static public void p(String s) { System.err.println(s); }
     /** Compiles a function. */
     // #@@range/compileFunction{
     protected void compileFunction(DefinedFunction func) {
+        long numSavedRegs = 0;  // 1 for PIC
         allocateParameters(func);
-        long lvarBytes = allocateLocalVariables(func);
+        long lvarBytes = allocateLocalVariables(func, numSavedRegs);
 
         currentFunction = func;
         String symbol = csymbol(func.name());
@@ -227,7 +227,6 @@ static public void p(String s) { System.err.println(s); }
     protected void prologue(DefinedFunction func, long lvarBytes) {
         push(bp());
         mov(sp(), bp());
-        push(baseptr());
         if (lvarBytes > 0) {
             extendStack(lvarBytes);
         }
@@ -240,7 +239,6 @@ static public void p(String s) { System.err.println(s); }
         if (lvarBytes > 0) {
             shrinkStack(lvarBytes);
         }
-        pop(baseptr());
         mov(bp(), sp());
         pop(bp());
         ret();
@@ -293,8 +291,6 @@ static public void p(String s) { System.err.println(s); }
     static final protected long stackAlignment = stackWordSize;
     // +1 for return address, +1 for saved bp
     static final protected long paramStartWord = 2;
-    // +1 for saved bx
-    static final protected long lvarStartWord = 1;
 
     protected void allocateParameters(DefinedFunction func) {
         Iterator vars = func.parameters();
@@ -313,8 +309,9 @@ static public void p(String s) { System.err.println(s); }
 
     // Fixes addresses of local variables.
     // Returns byte-length of the local variable area.
-    protected long allocateLocalVariables(DefinedFunction func) {
-        long initLen = lvarStartWord * stackWordSize;
+    protected long allocateLocalVariables(DefinedFunction func,
+                                          long numSavedRegs) {
+        long initLen = numSavedRegs * stackWordSize;
         long maxLen = allocateScope(func.body().scope(), initLen);
         return maxLen - initLen;
     }
@@ -557,6 +554,7 @@ static public void p(String s) { System.err.println(s); }
         compileBinaryOp(node.operator(), node.type());
     }
 
+    // spills: dx
     protected void compileBinaryOp(String op, Type t) {
         if (op.equals("+")) {
             add(t, reg("cx", t), reg("ax", t));
@@ -648,28 +646,38 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(PrefixOpNode node) {
-        AsmEntity dest = compileLHS2(node.expr());
-        load(node.expr().type(), dest, reg("ax"));
-        compileUnaryArithmetic(node, reg("ax"));
-        save(node.expr().type(), reg("ax"), dest);
+        if (node.expr().isConstantAddress()) {
+            load(node.expr().type(), node.expr().address(), reg("ax"));
+            compileUnaryArithmetic(node, reg("ax"));
+            save(node.expr().type(), reg("ax"), node.expr().address());
+        }
+        else {
+            compileLHS(node.expr());
+            mov(reg("ax"), reg("cx"));
+            load(node.expr().type(), mem(reg("cx")), reg("ax"));
+            compileUnaryArithmetic(node, reg("ax"));
+            save(node.expr().type(), reg("ax"), mem(reg("cx")));
+        }
     }
 
     public void visit(SuffixOpNode node) {
-        AsmEntity dest = compileLHS2(node.expr());
-        load(node.expr().type(), dest, reg("ax"));
-        compileUnaryArithmetic(node, dest);
-    }
-
-    protected AsmEntity compileLHS2(ExprNode expr) {
-        if (expr.isConstantAddress()) {
-            return expr.address();
+        if (node.expr().isConstantAddress()) {
+            load(node.expr().type(), node.expr().address(), reg("ax"));
+            mov(reg("ax"), reg("cx"));
+            compileUnaryArithmetic(node, reg("cx"));
+            save(node.expr().type(), reg("cx"), node.expr().address());
         }
         else {
-            compileLHS(expr);
-            return baseptr();
+            compileLHS(node.expr());
+            mov(reg("ax"), reg("cx"));
+            load(node.expr().type(), mem(reg("cx")), reg("ax"));
+            mov(reg("ax"), reg("dx"));
+            compileUnaryArithmetic(node, reg("dx"));
+            save(node.expr().type(), reg("dx"), mem(reg("cx")));
         }
     }
 
+    // spills: (none)
     protected void compileUnaryArithmetic(UnaryArithmeticOpNode node,
                                           AsmEntity dest) {
         if (node.operator().equals("++")) {
@@ -741,44 +749,45 @@ static public void p(String s) { System.err.println(s); }
             compile(node.rhs());
             push(reg("ax"));
             compileLHS(node.lhs());
+            mov(reg("ax"), reg("cx"));
             pop(reg("ax"));
-            save(node.type(), reg("ax"), mem(baseptr()));
+            save(node.type(), reg("ax"), mem(reg("cx")));
         }
     }
 
     public void visit(OpAssignNode node) {
         compile(node.rhs());
-        mov(reg("ax"), reg("cx"));
-        load(node.type(), node.lhs().address(), reg("ax"));
-        compileBinaryOp(node.operator(), node.type());
-        save(node.type(), reg("ax"), node.lhs().address());
+        if (node.lhs().isConstantAddress()) {
+            mov(reg("ax"), reg("cx"));
+            load(node.type(), node.lhs().address(), reg("ax"));
+            compileBinaryOp(node.operator(), node.type());
+            save(node.type(), reg("ax"), node.lhs().address());
+        }
+        else {
+            push(reg("ax"));
+            compileLHS(node.lhs());
+//FIXME: DANGER
+            mov(reg("ax"), reg("dx"));
+            load(node.type(), mem(reg("dx")), reg("ax"));
+            pop(reg("cx"));
+            compileBinaryOp(node.operator(), node.type());
+            save(node.type(), reg("ax"), mem(reg("dx")));
+        }
     }
 
     public void visit(ArefNode node) {
-        if (node.expr().type().isPointerAlike()) {
-            compile(node.expr());
-            push(reg("ax"));
-        }
-        else {
-            compileLHS(node.expr());
-            push(baseptr());
-        }
-        compile(node.index());
-        imul(imm(node.type().size()), reg("ax"));
-        pop(baseptr());
-        add(reg("ax"), baseptr());
-        load(node.type(), mem(baseptr()), reg("ax"));
+        compileLHS(node);
+        load(node.type(), mem(reg("ax")), reg("ax"));
     }
 
     public void visit(MemberNode node) {
         compileLHS(node.expr());
-        load(node.type(), mem(node.offset(), baseptr()), reg("ax"));
+        load(node.type(), mem(node.offset(), reg("ax")), reg("ax"));
     }
 
     public void visit(PtrMemberNode node) {
-        compileLHS(node.expr());
-        load(node.type(), mem(baseptr()), baseptr());
-        load(node.type(), mem(node.offset(), baseptr()), reg("ax"));
+        compile(node.expr());
+        load(node.type(), mem(node.offset(), reg("ax")), reg("ax"));
     }
 
     public void visit(DereferenceNode node) {
@@ -788,57 +797,41 @@ static public void p(String s) { System.err.println(s); }
 
     public void visit(AddressNode node) {
         compileLHS(node.expr());
-        mov(baseptr(), reg("ax"));
-    }
-
-    static final String BASE_POINTER_REGISTER = "bx";
-
-    protected Register baseptr() {
-        return reg(BASE_POINTER_REGISTER);
     }
 
     protected void compileLHS(Node node) {
 comment("compileLHS: " + node.getClass().getSimpleName() + " {");
         if (node instanceof VariableNode) {
             VariableNode n = (VariableNode)node;
-            lea(n.address(), baseptr());
+            lea(n.address(), reg("ax"));
         }
         else if (node instanceof ArefNode) {
             ArefNode n = (ArefNode)node;
-            push(reg("ax"));
             compile(n.index());
             imul(imm(n.type().size()), reg("ax"));
             push(reg("ax"));
             if (n.expr().type().isPointerAlike()) {
                 compile(n.expr());
-                mov(reg("ax"), baseptr());
             }
             else {
                 compileLHS(n.expr());
             }
             pop(reg("cx"));
-            add(reg("cx"), baseptr());
-            pop(reg("ax"));
+            add(reg("cx"), reg("ax"));
         }
         else if (node instanceof MemberNode) {
             MemberNode n = (MemberNode)node;
             compileLHS(n.expr());
-            add(imm(n.offset()), baseptr());
+            add(imm(n.offset()), reg("ax"));
         }
         else if (node instanceof DereferenceNode) {
             DereferenceNode n = (DereferenceNode)node;
-            push(reg("ax"));
             compile(n.expr());
-            mov(reg("ax"), baseptr());
-            pop(reg("ax"));
         }
         else if (node instanceof PtrMemberNode) {
             PtrMemberNode n = (PtrMemberNode)node;
-            push(reg("ax"));
             compile(n.expr());
             add(imm(n.offset()), reg("ax"));
-            mov(reg("ax"), baseptr());
-            pop(reg("ax"));
         }
         else {
             throw new Error("wrong type for compileLHS: " + node.getClass().getName());

@@ -2,9 +2,7 @@
 
 == Current
 
-* use %rax for address calculation
 * prohibit multi-dimension array without size
-* sizeof
 * simple vararg retrieve (get vararg address)
 * easy peephole optimization
 * PIC generation
@@ -213,3 +211,5 @@
 - remove FIXME from Entity.java
 - implement cast
 - dump UTF-8 string byte by byte.
+- sizeof
+- calculate address on AX register.

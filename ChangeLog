@@ -1,3 +1,8 @@
+Sun Sep  7 06:50:56 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: calculate LHS
+	  value on AX, not BX.
+
 Sun Sep  7 05:10:46 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: parse sizeof expr.
