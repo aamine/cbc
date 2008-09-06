@@ -32,7 +32,20 @@ main(int argc, char **argv)
     (*uptr).x = 6;
     printf(";%d", (*uptr).y);
 
+    printf(";%d", f()->x);
+    printf(";%d", f()->y);
+
     puts("");
 
     return 0;
+}
+
+static struct s ss;
+
+struct s *
+f(void)
+{
+    ss.x = 77;
+    ss.y = 78;
+    return &ss;
 }

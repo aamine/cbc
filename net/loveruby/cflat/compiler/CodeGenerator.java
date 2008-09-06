@@ -766,11 +766,12 @@ public class CodeGenerator extends Visitor {
         else {
             push(reg("ax"));
             compileLHS(node.lhs());
-//FIXME: DANGER
             mov(reg("ax"), reg("dx"));
             load(node.type(), mem(reg("dx")), reg("ax"));
             pop(reg("cx"));
+            push(reg("dx"));
             compileBinaryOp(node.operator(), node.type());
+            pop(reg("dx"));
             save(node.type(), reg("ax"), mem(reg("dx")));
         }
     }

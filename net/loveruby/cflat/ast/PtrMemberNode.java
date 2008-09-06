@@ -13,13 +13,23 @@ public class PtrMemberNode extends ExprNode {
     }
 
     public Type type() {
-        return dereferedType().memberType(member);
+        return dereferedComplexType().memberType(member);
     }
 
-    public ComplexType dereferedType() {
+    public ComplexType dereferedComplexType() {
         try {
             PointerType pt = expr.type().getPointerType();
             return pt.baseType().getComplexType();
+        }
+        catch (ClassCastException err) {
+            throw new SemanticError(err.getMessage());
+        }
+    }
+
+    public Type dereferedType() {
+        try {
+            PointerType pt = expr.type().getPointerType();
+            return pt.baseType();
         }
         catch (ClassCastException err) {
             throw new SemanticError(err.getMessage());
@@ -47,7 +57,7 @@ public class PtrMemberNode extends ExprNode {
     }
 
     public long offset() {
-        return dereferedType().memberOffset(member);
+        return dereferedComplexType().memberOffset(member);
     }
 
     public Location location() {

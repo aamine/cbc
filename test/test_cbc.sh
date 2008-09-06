@@ -93,7 +93,7 @@ test_09_cmp() {
 
 test_10_assign() {
     assert_out "1;2;2;3;4;5;6;7;8;8;9;10;11;777;S;12" ./assign
-    assert_out "3;4;3;12;4;1;1;7;5;1;4;e;H;76;75" ./opassign
+    assert_out "3;4;3;12;4;1;1;7;5;1;4;e;H;76;75;1;3;6;82;81" ./opassign
     assert_out "0;1;2;2;3;3;4" ./inc
     assert_out "4;3;2;2;1;1;0" ./dec
 }
@@ -186,7 +186,7 @@ test_22_pointer() {
     assert_out "777" ./pointer2
     assert_out "1;777;3;4;1;777;3;4" ./pointer3
     assert_out "777" ./pointer4
-    assert_out "1;2;3;4;5;6" ./ptrmemb
+    assert_out "1;2;3;4;5;6;77;78" ./ptrmemb
     assert_compile_error deref-semcheck1.cb
     assert_compile_error deref-semcheck2.cb
     assert_compile_error deref-semcheck3.cb
