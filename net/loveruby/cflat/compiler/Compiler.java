@@ -49,12 +49,14 @@ public class Compiler {
     class Options {
         public String mode;
         public String inputFile;
-        //public String outputFile;
+        public String outputFile;
         public boolean verbose;
         public boolean debugParser;
         //public boolean debugBuild;
         public TypeTable typeTable;
         public LibraryLoader loader;
+        //public List asOpts;   // List<String>
+        //public List ldOpts;   // List<String>
         //public List ldArgs;   // List<LdArg>
 
         public boolean isMode(String m) {
@@ -90,11 +92,10 @@ public class Compiler {
                 else if (arg.equals("--debug-parser")) {
                     opts.debugParser = true;
                 }
-                // FIXME: generic options
-                //else if (arg.startsWith("-o"))
-                //else if (arg.equals("--type-model"))
+                else if (arg.startsWith("-o")) {
+                    opts.outputFile = getOptArg(arg, it);
+                }
                 // FIXME: compile options
-                //else if (arg.equals("-g"))
                 //else if (arg.equals("-fPIC"))
                 //else if (arg.startsWith("-O"))
                 // FIXME: assemble options
@@ -142,6 +143,7 @@ public class Compiler {
         out.println("  -S               Generates an assembly source.");
         out.println("  -c               Generates an object file.");
         out.println("  -I PATH          Adds import file loading path.");
+        out.println("  -o PATH          Places output in file PATH.");
         out.println("  --help           Prints this message and quit.");
     }
 
@@ -206,19 +208,15 @@ public class Compiler {
             return;
         }
         String asm = CodeGenerator.generate(ast, opts.typeTable, errorHandler);
-        writeFile(asmFileName(opts.inputFile), asm);
+        writeFile(asmFileName(opts), asm);
         if (opts.isMode("-S")) {
             return;
         }
-        assemble(asmFileName(opts.inputFile),
-                 objFileName(opts.inputFile),
-                 opts);
+        assemble(asmFileName(opts), objFileName(opts), opts);
         if (opts.isMode("-c")) {
             return;
         }
-        link(objFileName(opts.inputFile),
-             exeFileName(opts.inputFile),
-             opts);
+        link(objFileName(opts), exeFileName(opts), opts);
     }
 
     protected void dumpTokenList(Token t, PrintStream s) {
@@ -392,16 +390,22 @@ public class Compiler {
         }
     }
 
-    protected String asmFileName(String orgPath) {
-        return baseName(orgPath, true) + ".s";
+    protected String asmFileName(Options opts) {
+        return opts.isMode("-S") && opts.outputFile != null
+                ? opts.outputFile
+                : baseName(opts.inputFile, true) + ".s";
     }
 
-    protected String objFileName(String orgPath) {
-        return baseName(orgPath, true) + ".o";
+    protected String objFileName(Options opts) {
+        return opts.isMode("-c") && opts.outputFile != null
+                ? opts.outputFile
+                : baseName(opts.inputFile, true) + ".o";
     }
 
-    protected String exeFileName(String orgPath) {
-        return baseName(orgPath, true);
+    protected String exeFileName(Options opts) {
+        return opts.outputFile != null
+                ? opts.outputFile
+                : baseName(opts.inputFile, true);
     }
 
     protected String baseName(String path) {
