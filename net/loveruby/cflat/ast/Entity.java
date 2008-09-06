@@ -41,7 +41,7 @@ abstract public class Entity extends Node {
     }
 
     public long alignment() {
-        return 4;  // FIXME: platform dependent
+        return type().alignment();
     }
 
     public void refered() {

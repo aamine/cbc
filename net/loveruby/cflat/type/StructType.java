@@ -17,9 +17,10 @@ public class StructType extends ComplexType {
 
     public long alignment() {
         if (members.isEmpty()) {
-            return 0;
+            return 1;
         } else {
-            return ((Type)members.get(0)).alignment();
+            Slot s = (Slot)members.get(0);
+            return s.type().alignment();
         }
     }
 

@@ -37,9 +37,8 @@ public class ArrayType extends Type {
     }
 
     public long allocSize() {
-        // platform dependent: take alignment into account
         if (isAllocated()) {
-            return baseType.size() * length;
+            return baseType.allocSize() * length;
         }
         else {
             return size();

@@ -1,3 +1,14 @@
+Sat Sep  6 23:19:48 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/Entity.java (alignment): fetch value from
+	  its type.
+
+	* net/loveruby/cflat/type/ArrayType.java: should compute allocated
+	  size from member's #allocSize, not #size.
+
+	* net/loveruby/cflat/type/StructType.java (alignment): do not
+	  depend on Entity#size.
+
 Mon Sep  1 01:53:52 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/test_cbc.sh: run tests for switch stmt.
