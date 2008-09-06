@@ -1,6 +1,7 @@
 package net.loveruby.cflat.type;
 import net.loveruby.cflat.ast.Slot;
 import net.loveruby.cflat.ast.Location;
+import net.loveruby.cflat.asm.Assembler;
 import java.util.*;
 
 public class UnionType extends ComplexType {
@@ -15,22 +16,18 @@ public class UnionType extends ComplexType {
         return equals(other.getUnionType());
     }
 
-    public long alignmemt() {
-        // platform depedent
-        return 1;
-    }
-
     protected void computeOffsets() {
-        long max = 0;
+        long maxSize = 0;
+        long maxAlign = 1;
         Iterator membs = members.iterator();
         while (membs.hasNext()) {
             Slot s = (Slot)membs.next();
             s.setOffset(0);
-            if (align(s.size()) > max) {
-                max = align(s.size());
-            }
+            maxSize = Math.max(maxSize, s.allocSize());
+            maxAlign = Math.max(maxAlign, s.alignment());
         }
-        size = max;
+        cachedSize = Assembler.align(maxSize, maxAlign);
+        cachedAlign = maxAlign;
     }
 
     public String toString() {

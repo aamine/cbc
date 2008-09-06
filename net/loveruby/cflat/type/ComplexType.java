@@ -7,13 +7,15 @@ import java.lang.reflect.*;
 
 abstract public class ComplexType extends NamedType {
     protected List members;     // List<Slot>
-    protected long size;
+    protected long cachedSize;
+    protected long cachedAlign;
     protected boolean isRecursiveChecked;
 
     public ComplexType(String name, List membs, Location loc) {
         super(name, loc);
         this.members = membs;
-        this.size = Type.sizeUnknown;
+        this.cachedSize = Type.sizeUnknown;
+        this.cachedAlign = Type.sizeUnknown;
         this.isRecursiveChecked = false;
     }
 
@@ -69,10 +71,17 @@ abstract public class ComplexType extends NamedType {
     }
 
     public long size() {
-        if (size == Type.sizeUnknown) {
+        if (cachedSize == Type.sizeUnknown) {
             computeOffsets();
         }
-        return size;
+        return cachedSize;
+    }
+
+    public long alignmemt() {
+        if (cachedAlign == Type.sizeUnknown) {
+            computeOffsets();
+        }
+        return cachedAlign;
     }
 
     /** Returns a List<Slot> of members. */
@@ -107,11 +116,6 @@ abstract public class ComplexType extends NamedType {
     }
 
     abstract protected void computeOffsets();
-
-    protected long align(long n) {
-        // platform dependent
-        return n;
-    }
 
     protected Slot fetch(String name) {
         Slot s = get(name);

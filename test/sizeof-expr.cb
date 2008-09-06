@@ -1,0 +1,45 @@
+import stdio;
+
+struct s {
+    int x;
+    int y;
+    int z;
+};
+
+union u {
+    char c;
+    short s;
+    int i;
+    long l;
+    int* p;
+    int[4] a;
+};
+
+typedef struct s mytype;
+
+int
+main(int argc, char **argv)
+{
+    char c;
+    short s;
+    int i;
+    long l;
+    int *p;
+    int[2] a;
+    struct s st;
+    union u u;
+    mytype m;
+
+    printf("%ld", sizeof c);
+    printf(";%ld", sizeof s);
+    printf(";%ld", sizeof i);
+    printf(";%ld", sizeof l);
+    printf(";%ld", sizeof p);
+    printf(";%ld", sizeof a);
+    printf(";%ld", sizeof st);
+    printf(";%ld", sizeof u);
+    printf(";%ld", sizeof m);
+
+    puts("");
+    return 0;
+}

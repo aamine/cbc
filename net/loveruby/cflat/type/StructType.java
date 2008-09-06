@@ -1,6 +1,7 @@
 package net.loveruby.cflat.type;
 import net.loveruby.cflat.ast.Slot;
 import net.loveruby.cflat.ast.Location;
+import net.loveruby.cflat.asm.Assembler;
 import java.util.*;
 
 public class StructType extends ComplexType {
@@ -15,24 +16,19 @@ public class StructType extends ComplexType {
         return equals(other.getStructType());
     }
 
-    public long alignment() {
-        if (members.isEmpty()) {
-            return 1;
-        } else {
-            Slot s = (Slot)members.get(0);
-            return s.type().alignment();
-        }
-    }
-
     protected void computeOffsets() {
         long offset = 0;
+        long maxAlign = 1;
         Iterator membs = members();
         while (membs.hasNext()) {
             Slot s = (Slot)membs.next();
+            offset = Assembler.align(offset, s.allocSize());
             s.setOffset(offset);
-            offset = align(offset + s.size());
+            offset += s.allocSize();
+            maxAlign = Math.max(maxAlign, s.alignment());
         }
-        size = offset;
+        cachedSize = Assembler.align(offset, maxAlign);
+        cachedAlign = maxAlign;
     }
 
     public String toString() {

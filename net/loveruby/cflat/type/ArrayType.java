@@ -46,6 +46,10 @@ public class ArrayType extends Type {
         }
     }
 
+    public long alignment() {
+        return baseType.alignment();
+    }
+
     public boolean equals(Object other) {
         if (! (other instanceof ArrayType)) return false;
         ArrayType type = (ArrayType)other;

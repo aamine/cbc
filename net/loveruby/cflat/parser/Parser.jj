@@ -219,6 +219,10 @@ public class Parser {
     }
     // #@@}
 
+    private TypeRef size_t() {
+        return IntegerTypeRef.ulongRef();
+    }
+
     // #@@range/unescapeOctal{
     private static final int charMax = 255;
 
@@ -317,6 +321,7 @@ TOKEN: {
     | <GOTO     : "goto">
     | <TYPEDEF  : "typedef">
     | <IMPORT   : "import">
+    | <SIZEOF   : "sizeof">
     | <NULL     : "NULL">
 }
 // #@@}
@@ -1211,6 +1216,7 @@ ExprNode term():
 ExprNode unary():
 {
     ExprNode n;
+    TypeNode t;
 }
 {
       "++" n=unary()    { return new PrefixOpNode("++", n); }
@@ -1221,6 +1227,14 @@ ExprNode unary():
     | "~" n=term()      { return new UnaryOpNode("~", n); }
     | "*" n=term()      { return new DereferenceNode(n); }
     | "&" n=term()      { return new AddressNode(n); }
+    | LOOKAHEAD(2) <SIZEOF> "(" t=type() ")"
+        {
+            return new SizeofTypeNode(t, size_t());
+        }
+    | <SIZEOF> n=unary()
+        {
+            return new SizeofExprNode(n, size_t());
+        }
     | n=postfix()       { return n; }
 }
 // #@@}

@@ -141,6 +141,17 @@ public class TypeResolver extends Visitor {
         super.visit(node);
     }
 
+    public void visit(SizeofExprNode node) {
+        bindType(node.typeNode());
+        super.visit(node);
+    }
+
+    public void visit(SizeofTypeNode node) {
+        bindType(node.operandTypeNode());
+        bindType(node.typeNode());
+        super.visit(node);
+    }
+
     public void visit(IntegerLiteralNode node) {
         bindType(node.typeNode());
     }

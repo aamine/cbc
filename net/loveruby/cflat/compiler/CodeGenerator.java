@@ -109,7 +109,7 @@ static public void p(String s) { System.err.println(s); }
         if (!ent.isPrivate()) {
             _globl(csymbol(ent.symbol()));
         }
-        _align(ent.allocSize());
+        _align(ent.alignment());
         _type(csymbol(ent.symbol()), "@object");
         _size(csymbol(ent.symbol()), ent.allocSize());
         label(csymbol(ent.symbol()));
@@ -325,12 +325,12 @@ static public void p(String s) { System.err.println(s); }
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
             if (stackGrowsLower) {
-                len = align(len + var.allocSize(), stackAlignment);
+                len = Assembler.align(len + var.allocSize(), stackAlignment);
                 var.setAddress(mem(-len, bp()));
             }
             else {
                 var.setAddress(mem(len, bp()));
-                len = align(len + var.allocSize(), stackAlignment);
+                len = Assembler.align(len + var.allocSize(), stackAlignment);
             }
         }
         // Allocate local variables in child scopes.
@@ -351,10 +351,6 @@ static public void p(String s) { System.err.println(s); }
 
     protected void shrinkStack(long len) {
         add(imm(len * (stackGrowsLower ? 1 : -1)), sp());
-    }
-
-    protected long align(long n, long alignment) {
-        return (n + alignment - 1) / alignment * alignment;
     }
 
     /** cdecl call
@@ -703,6 +699,16 @@ static public void p(String s) { System.err.println(s); }
                       reg("ax").forType(src), reg("ax").forType(dest));
             }
         }
+    }
+
+    public void visit(SizeofExprNode node) {
+        long val = node.expr().type().allocSize();
+        mov(node.type(), imm(val), reg("ax", node.type()));
+    }
+
+    public void visit(SizeofTypeNode node) {
+        long val = node.operand().allocSize();
+        mov(node.type(), imm(val), reg("ax", node.type()));
     }
 
     public void visit(VariableNode node) {

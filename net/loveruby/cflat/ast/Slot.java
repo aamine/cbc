@@ -32,6 +32,14 @@ public class Slot extends Node {
         return type().size();
     }
 
+    public long allocSize() {
+        return type().allocSize();
+    }
+
+    public long alignment() {
+        return type().alignment();
+    }
+
     public long offset() {
         return offset;
     }

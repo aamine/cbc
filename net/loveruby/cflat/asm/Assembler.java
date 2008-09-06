@@ -7,6 +7,10 @@ public class Assembler {
     protected List list;
     protected Type naturalType;
 
+    static public long align(long n, long alignment) {
+        return (n + alignment - 1) / alignment * alignment;
+    }
+
     public Assembler(Type naturalType) {
         this.list = new ArrayList();
         this.naturalType = naturalType;

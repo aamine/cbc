@@ -1,3 +1,47 @@
+Sun Sep  7 05:10:46 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: parse sizeof expr.
+
+	* net/loveruby/cflat/compiler/Visitor.java: support
+	  SizeofTypeNode, SizeofExprNode.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/ast/ASTVisitor.java: ditto.
+
+	* net/loveruby/cflat/ast/SizeofTypeNode.java: new file.
+
+	* net/loveruby/cflat/ast/SizeofExprNode.java: new file.
+
+	* net/loveruby/cflat/type/Type.java: default alignment equals to
+	  size, not allocSize (e.g. int[4] should be aligned on 4, not 16).
+
+	* net/loveruby/cflat/type/StructType.java: element offset
+	  calculation was wrong. Elements should be aligned on its own
+	  alignment.
+
+	* net/loveruby/cflat/type/StructType.java: size calculation was
+	  wrong.  Struct size is align(last-offset, max-element-alignment).
+
+	* net/loveruby/cflat/type/UnionType.java: union's alignment equals
+	  to element's max alignment.
+
+	* net/loveruby/cflat/type/ComplexType.java: cache computed
+	  alignment.
+
+	* net/loveruby/cflat/type/ArrayType.java: array's alignment equals
+	  to elements' alignment.
+
+	* net/loveruby/cflat/ast/Slot.java: new method #allocSize,
+	  #alignment.
+
+	* net/loveruby/cflat/asm/Assembler.java: new method #align (moved
+	  from CodeGenerator).
+
+	* test
+
 Sun Sep  7 02:57:24 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/utils/TextUtils.java (toUnsigned): simplify.

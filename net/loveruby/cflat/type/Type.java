@@ -6,10 +6,7 @@ public abstract class Type {
 
     abstract public long size();
     public long allocSize() { return size(); }
-
-    public long alignment() {
-        return size();
-    }
+    public long alignment() { return allocSize(); }
 
     abstract public boolean isSameType(Type other);
 

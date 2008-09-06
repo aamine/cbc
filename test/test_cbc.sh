@@ -263,6 +263,13 @@ test_30_staticfunction() {
     assert_private staticfunc private_function
 }
 
+test_31_sizeof() {
+    assert_out "1;1;2;2;4;4;4;4;4;4;4;16;12;16;12" ./sizeof-type
+    assert_out "12;20;1;2;6;3" ./sizeof-struct
+    assert_out "1;1;4;8" ./sizeof-union
+    assert_out "1;2;4;4;4;8;12;16;12" ./sizeof-expr
+}
+
 ###
 ### Local Assertions
 ###

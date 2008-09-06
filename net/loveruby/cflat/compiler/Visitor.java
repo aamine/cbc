@@ -191,6 +191,13 @@ abstract public class Visitor implements ASTVisitor {
         visitNode(node.expr());
     }
 
+    public void visit(SizeofExprNode node) {
+        visitNode(node.expr());
+    }
+
+    public void visit(SizeofTypeNode node) {
+    }
+
     public void visit(VariableNode node) {
     }
 
