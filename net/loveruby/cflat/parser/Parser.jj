@@ -50,8 +50,6 @@ public class Parser {
     }
 
     // #@@range/newFileParser{
-    static final protected String sourceEncoding = "UTF-8";
-
     static public Parser newFileParser(File file,
                                        LibraryLoader loader,
                                        ErrorHandler errorHandler,
@@ -61,14 +59,14 @@ public class Parser {
             BufferedReader r =
                 new BufferedReader(
                     new InputStreamReader(new FileInputStream(file),
-                                          sourceEncoding));
+                                          Constants.sourceEncoding));
             return new Parser(r, file.getPath(), loader, errorHandler, debug);
         }
         catch (FileNotFoundException ex) {
             throw new FileException(ex.getMessage());
         }
         catch (UnsupportedEncodingException ex) {
-            throw new Error("must not happen: " + ex.getMessage());
+            throw new Error("UTF-8 is not supported??: " + ex.getMessage());
         }
     }
     // #@@}

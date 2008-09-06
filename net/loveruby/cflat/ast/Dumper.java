@@ -59,7 +59,7 @@ public class Dumper {
     }
 
     public void printMember(String name, String str, boolean isResolved) {
-        printPair(name, TextUtils.escapeString(str)
+        printPair(name, TextUtils.dumpString(str)
                         + (isResolved ? " (resolved)" : ""));
     }
 

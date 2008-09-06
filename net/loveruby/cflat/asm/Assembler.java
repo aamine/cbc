@@ -55,7 +55,7 @@ public class Assembler {
     }
 
     public void _file(String name) {
-        line("\t.file\t" + TextUtils.escapeString(name));
+        line("\t.file\t" + TextUtils.dumpString(name));
     }
 
     public void _text() {
@@ -123,7 +123,7 @@ public class Assembler {
     }
 
     public void _string(String str) {
-        line("\t.string\t" + TextUtils.escapeString(str));
+        line("\t.string\t" + TextUtils.dumpString(str));
     }
 
     public void label(String label) {

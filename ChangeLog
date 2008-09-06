@@ -1,3 +1,24 @@
+Sun Sep  7 02:46:14 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: use #dumpString.
+
+	* net/loveruby/cflat/compiler/Constants.java: new class.
+
+	* net/loveruby/cflat/compiler/Constants.java: define constant
+	  sourceEncoding.
+
+	* net/loveruby/cflat/parser/Parser.jj: get source encoding from
+	  Constant class.
+
+	* net/loveruby/cflat/ast/Dumper.java: use #dumpString.
+
+	* net/loveruby/cflat/asm/Assembler.java: use #dumpString.
+
+	* net/loveruby/cflat/utils/TextUtils.java: new method #dumpString,
+	  which dumps UTF-8 string correctly.
+
+	* test: test UTF-8 string literal.
+
 Sun Sep  7 01:21:38 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm/Register.java (lowerByteRegister): check

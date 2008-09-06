@@ -248,7 +248,7 @@ public class Compiler {
 
     protected void dumpToken(Token t, PrintStream s) {
         ljustPrint(s, typeLen, tokenType(t));
-        s.println(TextUtils.escapeString(t.image));
+        s.println(TextUtils.dumpString(t.image));
     }
 
     protected String tokenType(Token t) {

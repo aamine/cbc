@@ -29,7 +29,7 @@ test_04_funcall() {
 
 test_05_string() {
     assert_out "$(/bin/echo -e ';;a;aa;b;";'\'';\a\b\0033\f\n\r\t\v;ABCabc')" ./string
-    # assert_out "..." ./mbc   # FIXME
+    assert_out "$(cat utf.out)" ./utf
 }
 
 test_06_variables() {
