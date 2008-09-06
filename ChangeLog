@@ -1,3 +1,19 @@
+Sun Sep  7 00:58:49 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: implement cast.
+
+	* net/loveruby/cflat/asm/Assembler.java: new method #movsx,
+	  #movzx.
+
+	* net/loveruby/cflat/type/PointerType.java: provide #isSigned for
+	  cast.
+
+	* net/loveruby/cflat/type/ArrayType.java: ditto.
+
+	* net/loveruby/cflat/type/UserType.java: ditto.
+
+	* test: test cast operation.
+
 Sat Sep  6 23:19:48 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/Entity.java (alignment): fetch value from

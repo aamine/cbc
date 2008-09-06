@@ -163,10 +163,14 @@ public class Assembler {
     }
 
     protected String addSuffix(String op, Type t) {
+        return op + typeSuffix(t);
+    }
+
+    protected String typeSuffix(Type t) {
         switch ((int)t.size()) {
-        case 1: return op + "b";
-        case 2: return op + "w";
-        case 4: return op + "l";
+        case 1: return "b";
+        case 2: return "w";
+        case 4: return "l";
         default:
             throw new Error("unknown type size: " + t.size());
         }
@@ -258,12 +262,20 @@ public class Assembler {
         typedOp(type, "mov", src, dest);
     }
 
+    public void movsx(Type from, Type to, AsmEntity src, AsmEntity dest) {
+        op("movs" + typeSuffix(from) + typeSuffix(to), src, dest);
+    }
+
     public void movsbl(AsmEntity src, AsmEntity dest) {
         op("movsbl", src, dest);
     }
 
     public void movswl(AsmEntity src, AsmEntity dest) {
         op("movswl", src, dest);
+    }
+
+    public void movzx(Type from, Type to, AsmEntity src, AsmEntity dest) {
+        op("movz" + typeSuffix(from) + typeSuffix(to), src, dest);
     }
 
     public void movzb(Type type, AsmEntity src, AsmEntity dest) {

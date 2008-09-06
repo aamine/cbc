@@ -688,8 +688,21 @@ static public void p(String s) { System.err.println(s); }
     }
 
     public void visit(CastNode node) {
-        // FIXME: insert cast op here
         compile(node.expr());
+        Type src = node.expr().type();
+        Type dest = node.type();
+        // We need not execute downcast because we can cast big value
+        // to small value by just cutting off higer bits.
+        if (dest.size() > src.size()) {
+            if (src.isSigned()) {
+                movsx(src, dest,
+                      reg("ax").forType(src), reg("ax").forType(dest));
+            }
+            else {
+                movzx(src, dest,
+                      reg("ax").forType(src), reg("ax").forType(dest));
+            }
+        }
     }
 
     public void visit(VariableNode node) {
@@ -933,6 +946,8 @@ comment("compileLHS: }");
     public void ret() { as.ret(); }
     public void mov(AsmEntity src, AsmEntity dest) { as.mov(src, dest); }
     public void mov(Type type, AsmEntity src, AsmEntity dest) { as.mov(type, src, dest); }
+    public void movsx(Type from, Type to, AsmEntity src, AsmEntity dest) { as.movsx(from, to, src, dest); }
+    public void movzx(Type from, Type to, AsmEntity src, AsmEntity dest) { as.movzx(from, to, src, dest); }
     public void movsbl(AsmEntity src, AsmEntity dest) { as.movsbl(src, dest); }
     public void movswl(AsmEntity src, AsmEntity dest) { as.movswl(src, dest); }
     public void movzb(Type type, AsmEntity src, AsmEntity dest) { as.movzb(type, src, dest); }

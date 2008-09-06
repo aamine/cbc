@@ -4,12 +4,12 @@ import net.loveruby.cflat.exception.*;
 public abstract class Type {
     static final public long sizeUnknown = -1;
 
+    abstract public long size();
+    public long allocSize() { return size(); }
+
     public long alignment() {
         return size();
     }
-
-    abstract public long size();
-    public long allocSize() { return size(); }
 
     abstract public boolean isSameType(Type other);
 
@@ -22,9 +22,9 @@ public abstract class Type {
     public boolean isArray() { return false; }
     public boolean isAllocatedArray() { return false; }
     public boolean isUnallocatedArray() { return false; }
+    public boolean isComplexType() { return false; }
     public boolean isStruct() { return false; }
     public boolean isUnion() { return false; }
-    public boolean isComplexType() { return false; }
     public boolean isUserType() { return false; }
     public boolean isFunction() { return false; }
 

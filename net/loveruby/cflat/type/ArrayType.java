@@ -23,6 +23,7 @@ public class ArrayType extends Type {
     public boolean isDereferable() { return true; }
     public boolean isPointerAlike() { return isUnallocatedArray(); }
     public boolean isScalar() { return true; }
+    public boolean isSigned() { return false; }
 
     public Type baseType() {
         return baseType;

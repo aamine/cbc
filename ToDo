@@ -2,7 +2,7 @@
 
 == Current
 
-* remove FIXME from Entity.java
+* use %rax for address calculation
 * prohibit multi-dimension array without size
 * dump UTF-8 string byte by byte.
 * simple vararg retrieve (get vararg address)
@@ -210,3 +210,5 @@
 - duplicated import did not propagate symbols
 - test if static function is really static
 - test switch stmt
+- remove FIXME from Entity.java
+- implement cast

@@ -22,13 +22,18 @@ public class UserType extends NamedType {
     // Forward methods to real type.
     //
 
-    public long alignment() { return realType().alignment(); }
     public long size() { return realType().size(); }
+    public long allocSize() { return realType().allocSize(); }
+    public long alignment() { return realType().alignment(); }
 
+    public boolean isVoid() { return realType().isVoid(); }
     public boolean isInt() { return realType().isInt(); }
     public boolean isInteger() { return realType().isInteger(); }
+    public boolean isSigned() { return realType().isSigned(); }
     public boolean isPointer() { return realType().isPointer(); }
     public boolean isArray() { return realType().isArray(); }
+    public boolean isAllocatedArray() { return realType().isAllocatedArray(); }
+    public boolean isUnallocatedArray() { return realType().isUnallocatedArray(); }
     public boolean isComplexType() { return realType().isComplexType(); }
     public boolean isStruct() { return realType().isStruct(); }
     public boolean isUnion() { return realType().isUnion(); }
@@ -36,7 +41,9 @@ public class UserType extends NamedType {
     public boolean isFunction() { return realType().isFunction(); }
 
     public boolean isDereferable() { return realType().isDereferable(); }
+    public boolean isPointerAlike() { return realType().isPointerAlike(); }
     public boolean isCallable() { return realType().isCallable(); }
+    public boolean isScalar() { return realType().isScalar(); }
 
     public Type baseType() { return realType().baseType(); }
 

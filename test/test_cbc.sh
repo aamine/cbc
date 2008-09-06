@@ -196,9 +196,13 @@ test_22_pointer() {
 
 test_23_limits() {
     assert_out "2;64;-128;0" ./charops
+    assert_out "-2;-64;-128;0" ./charops2
     assert_out "2;64;128;0" ./ucharops
+    assert_out "254;192;128;0" ./ucharops2
     assert_out "2;16384;-32768;0" ./shortops
+    assert_out "-2;-16384;-32768;0" ./shortops2
     assert_out "2;16384;32768;0" ./ushortops
+    assert_out "65534;49152;32768;0" ./ushortops2
     assert_out "2;1073741824;-2147483648;0" ./intops
     assert_out "2;1073741824;2147483648;0" ./uintops
     assert_out "1;2;1073741824;-2147483648;0" ./longops  # 32bit
@@ -206,7 +210,7 @@ test_23_limits() {
 }
 
 test_24_cast() {
-    assert_out "25000000" ./cast
+    assert_out "25000000;1;1;-1;-1;1;1;-1;-1" ./cast
     assert_out "777;666" ./cast2
 }
 
