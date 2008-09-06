@@ -1,3 +1,7 @@
+Sun Sep  7 02:57:24 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/utils/TextUtils.java (toUnsigned): simplify.
+
 Sun Sep  7 02:46:14 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: use #dumpString.

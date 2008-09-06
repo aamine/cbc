@@ -39,7 +39,7 @@ public class TextUtils {
     }
 
     static protected int toUnsigned(byte b) {
-        return (b >= 0) ? (int)b : 256 + (int)b;
+        return b >= 0 ? b : 256 + b;
     }
 
     static public boolean isPrintable(int c) {
