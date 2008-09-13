@@ -1,3 +1,7 @@
+Sun Sep 14 00:13:37 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* cbci: new command.  Simple Cflat interpriter.
+
 Sat Sep 13 22:15:34 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java (arefNode):
