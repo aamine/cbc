@@ -2,8 +2,11 @@
 
 == Current
 
-* extern gvar access
-* simple vararg retrieve (get vararg address)
+* handle multiple arguments (source files, assembly files, object files)
+* -l
+* -L
+* -Wl, -Xlinker
+* va_list
 * -Wa, -Xassembler
 * -O (peephole optimization)
         * movl $0, %eax => xorl %eax, %eax
@@ -17,9 +20,6 @@
         * imull $1, %eax => NONE
         * label renaming
         * remove useless jump
-* -Wl, -Xlinker
-* -l
-* -L
 * -fPIC (PIC generation)
 * -shared
 * remove all FIXME
@@ -230,3 +230,4 @@
 - sizeof
 - calculate address on AX register.
 - prohibit multi-dimension array without size
+- extern gvar access

@@ -2,6 +2,7 @@
 // stdio.hb
 
 import stddef;  // for size_t
+import stdarg;
 
 typedef unsigned long FILE;   // dummy
 
@@ -36,3 +37,7 @@ extern int ferror(FILE* stream);
 extern int fileno(FILE* stream);
 extern void clearerr(FILE* stream);
 extern void perror(char* param);
+extern int vprintf(char* fmt, va_list ap);
+extern int vfprintf(FILE* s, char* fmt, va_list ap);
+extern int vsprintf(char *buf, char* fmt, va_list ap);
+extern int vsnprintf(char *buf, size_t size, char* fmt, va_list ap);

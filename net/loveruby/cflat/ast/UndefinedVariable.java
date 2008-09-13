@@ -20,7 +20,7 @@ public class UndefinedVariable extends Variable {
     }
 
     public AsmEntity address() {
-        return new Reference(symbol());
+        return new Label(symbol());
     }
 
     protected void _dump(Dumper d) {
