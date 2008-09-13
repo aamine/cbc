@@ -2,7 +2,6 @@
 
 == Current
 
-* prohibit multi-dimension array without size
 * simple vararg retrieve (get vararg address)
 * -Wa, -Xassembler
 * -O (peephole optimization)
@@ -229,3 +228,4 @@
 - dump UTF-8 string byte by byte.
 - sizeof
 - calculate address on AX register.
+- prohibit multi-dimension array without size
