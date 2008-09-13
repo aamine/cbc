@@ -2,6 +2,7 @@
 
 == Current
 
+* extern gvar access
 * simple vararg retrieve (get vararg address)
 * -Wa, -Xassembler
 * -O (peephole optimization)
