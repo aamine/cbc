@@ -270,6 +270,10 @@ test_31_sizeof() {
     assert_out "1;2;4;4;4;8;12;16;12" ./sizeof-expr
 }
 
+test_32_noreturn() {
+    assert_stat 0 ./noreturn
+}
+
 ###
 ### Local Assertions
 ###
