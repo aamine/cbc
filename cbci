@@ -10,6 +10,7 @@ def main
   libs = []
   expr = stmt = nil
   auto_print = false
+  dump_asm = false
   verbose = false
 
   parser = OptionParser.new
@@ -22,6 +23,9 @@ def main
   }
   parser.on('-p', '--print', 'Auto-print mode.') {
     auto_print = true
+  }
+  parser.on('--dump-asm', 'Dump assembly source.') {
+    dump_asm = true
   }
   parser.on('-s', '--statement=STMT', 'Evaluate Cflat statement. STMT') {|str|
     stmt = str
@@ -40,9 +44,8 @@ def main
     $stderr.puts parser.help
     exit 1
   end
-  if not expr or stmt or not ARGV.empty?
-    # expr mode
-    error_exit "auto print mode works only with -e/--expr." if auto_print
+  if auto_print and (not expr or stmt or not ARGV.empty?)
+    error_exit "auto print mode works only with -e/--expr."
   end
   error_exit "too many arguments" if ARGV.size > 1
   num_src = [ARGV[0], expr, stmt].compact.size
@@ -56,10 +59,10 @@ def main
     using_tmpfile("#{TMPDIR}/cflatexp#{Process.pid}.cb") {|path|
       generate_source path, libs, stmt || build_stmt(expr, auto_print)
       print_source path if verbose
-      interprit path, verbose
+      interprit path, verbose, dump_asm
     }
   else
-    interprit File.expand_path(ARGV[0]), verbose
+    interprit File.expand_path(ARGV[0]), verbose, dump_asm
   end
 end
 
@@ -110,11 +113,13 @@ main(int argc, char** argv)
   }
 end
 
-def interprit(path, verbose)
+def interprit(path, verbose, dump_asm)
   cbc = Pathname.new($PROGRAM_NAME).realpath.dirname + 'cbc'
   Dir.chdir TMPDIR
-  system "#{cbc} #{path} #{verbose ? '' : ' >/dev/null'}"
-  exit 1 unless $? == 0
+  opt = dump_asm ? ' --dump-asm' : ''
+  devnull = (verbose || dump_asm) ? '' : ' >/dev/null'
+  invoke "#{cbc}#{opt} #{path} #{devnull}", verbose
+  exit 0 if dump_asm
   begin
     exe = File.basename(path, '.cb')
     invoke "./#{exe}", verbose
@@ -128,7 +133,7 @@ def interprit(path, verbose)
   end
 end
 
-def invoke(cmd, verbose)
+def invoke(cmd, verbose = false)
   $stderr.puts cmd if verbose
   system cmd
   st = $?
