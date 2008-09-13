@@ -67,11 +67,11 @@ main(int argc, char **argv)
     *ptr++ = 11;
     printf(";%d;%d", integers[0], integers[1]);
 
-    // local array with pointer arighmetic
+    // local array with pointer arithmetic
     *(p + 1) = 'S';
     printf(";%c", p[1]);
 
-    // local array with pointer arighmetic
+    // local array with pointer arithmetic
     ptrs[0] = NULL;
     ptrs[1] = &x;
     **(ptrs + 1) = 12;
