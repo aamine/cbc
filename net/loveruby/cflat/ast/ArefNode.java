@@ -26,6 +26,29 @@ public class ArefNode extends ExprNode {
         return true;
     }
 
+    // isMultiDimension a[x][y][z] = true.
+    // isMultiDimension a[x][y] = true.
+    // isMultiDimension a[x] = false.
+    public boolean isMultiDimension() {
+        return (expr instanceof ArefNode) && !expr.type().isPointerAlike();
+    }
+
+    // Returns base expression of (multi-dimension) array.
+    // e.g.  baseExpr of a[x][y][z] is a.
+    public ExprNode baseExpr() {
+        return isMultiDimension() ? ((ArefNode)expr).baseExpr() : expr;
+    }
+
+    // element size of this (multi-dimension) array
+    public long elementSize() {
+        //return baseExpr().type().baseType().allocSize();
+        return type().allocSize();
+    }
+
+    public long length() {
+        return ((ArrayType)expr.type()).length();
+    }
+
     public boolean isConstantAddress() {
         return false;
     }

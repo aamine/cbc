@@ -33,10 +33,12 @@ public class ArrayType extends Type {
         return length;
     }
 
+    // Value size as pointer
     public long size() {
         return pointerSize;
     }
 
+    // Value size as allocated array
     public long allocSize() {
         if (isAllocated()) {
             return baseType.allocSize() * length;

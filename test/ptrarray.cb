@@ -1,0 +1,25 @@
+import stdio;
+
+int
+main(int argc, char **argv)
+{
+    int[4] ary;
+    int* ptr = ary;
+
+    ptr[0] = 775;
+    ptr[1] = 776;
+    ptr[2] = 777;
+    ptr[3] = 778;
+    printf("%d;%d;%d;%d;", ary[0], ary[1], ary[2], ary[3]);
+    printf("%d;%d;%d;%d;", ptr[0], ptr[1], ptr[2], ptr[3]);
+
+    ary[0] = 775;
+    ary[1] = 776;
+    ary[2] = 777;
+    ary[3] = 778;
+    printf("%d;%d;%d;%d;", ary[0], ary[1], ary[2], ary[3]);
+    printf("%d;%d;%d;%d;", ptr[0], ptr[1], ptr[2], ptr[3]);
+
+    puts("");
+    return 0;
+}

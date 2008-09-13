@@ -1,3 +1,24 @@
+Sat Sep 13 22:15:34 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (arefNode):
+	  calculate element address of multi-dimension array correctly.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (compileStmt):
+	  output statement number and line number as comment.
+
+	* net/loveruby/cflat/ast/ArefNode.java: new method
+	  #isMultiDimension.
+
+	* net/loveruby/cflat/ast/ArefNode.java: new method #baseExpr.
+
+	* net/loveruby/cflat/ast/ArefNode.java: new method #elementSize.
+
+	* net/loveruby/cflat/ast/ArefNode.java: new method #length.
+
+	* net/loveruby/cflat/type/ArrayType.java: add comment.
+
+	* test: test multi-dimension array access.
+
 Sat Sep 13 21:34:45 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test: test void function without return.

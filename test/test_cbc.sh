@@ -141,9 +141,24 @@ test_17_jump() {
 test_18_array() {
     assert_out "1;5;9" ./array
     assert_out "0;0;0" ./array2
+    assert_out "3;4;5;6;7;8;9;10;11;" ./mdarray
+    assert_compile_success mdarray2.cb
+    if ruby_exists
+    then
+        local offsets=$(./mdarray2 | ruby -e '
+            addrs = $stdin.read.split.map {|n| n.hex }
+            puts addrs.map {|a| a - addrs.first }.join(";")
+        ')
+        assert_eq "0;4;8;12;16;20;24;28;32" "$offsets"
+    fi
+    assert_out "775;776;777;778;775;776;777;778;775;776;777;778;775;776;777;778;" ./ptrarray
     assert_compile_error aref-semcheck.cb
     assert_compile_error array-semcheck1.cb
     assert_compile_error array-semcheck2.cb
+}
+
+ruby_exists() {
+    ruby -e "" 2>/dev/null
 }
 
 test_19_struct() {

@@ -19,10 +19,12 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     protected ErrorHandler errorHandler;
     protected TypeTable typeTable;
     protected DefinedFunction currentFunction;
+    protected int stmtSeq;
 
     public CodeGenerator(Assembler as, ErrorHandler errorHandler) {
         this.as = as;
         this.errorHandler = errorHandler;
+        this.stmtSeq = 1;
     }
     // #@@}
 
@@ -406,8 +408,9 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         }
     }
 
-    // needed?
     protected void compileStmt(Node node) {
+        comment("stmt " + stmtSeq + " (line " + node.location().line() + ")");
+        stmtSeq++;
         compile(node);
     }
 
@@ -811,17 +814,28 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     public void visitLHS(ArefNode node) {
-        compile(node.index());
-        imul(imm(node.type().size()), reg("ax"));
+        compileArrayIndex(node);
+        imul(imm(node.elementSize()), reg("ax"));
         push(reg("ax"));
-        if (node.expr().type().isPointerAlike()) {
-            compile(node.expr());
+        if (node.baseExpr().type().isPointerAlike()) {
+            compile(node.baseExpr());
         }
         else {
-            compileLHS(node.expr());
+            compileLHS(node.baseExpr());
         }
         pop(reg("cx"));
         add(reg("cx"), reg("ax"));
+    }
+
+    protected void compileArrayIndex(ArefNode node) {
+        compile(node.index());
+        if (node.isMultiDimension()) {
+            push(reg("ax"));
+            compileArrayIndex((ArefNode)node.expr());
+            imul(imm(node.length()), reg("ax"));
+            pop(reg("cx"));
+            add(reg("cx"), reg("ax"));
+        }
     }
 
     public void visitLHS(MemberNode node) {
