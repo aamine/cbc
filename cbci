@@ -117,9 +117,7 @@ def interprit(path, verbose)
   exit 1 unless $? == 0
   begin
     exe = File.basename(path, '.cb')
-    system "./#{exe}"
-    st = $?
-    $stderr.puts "status: #{st}"
+    invoke "./#{exe}", verbose
     exit 0
   rescue SystemCallError => err
     error_exit err.message
@@ -127,6 +125,33 @@ def interprit(path, verbose)
     FileUtils.rm_f "#{exe}.s"
     FileUtils.rm_f "#{exe}.o"
     FileUtils.rm_f exe
+  end
+end
+
+def invoke(cmd, verbose)
+  $stderr.puts cmd if verbose
+  system cmd
+  st = $?
+  show_status st if st.exitstatus != 0 or verbose
+  st
+end
+
+module Signal   # reopen
+  NAMES = Signal.list.invert
+
+  def Signal.name(num)
+    NAMES[num] or raise ArgumentError, "undefined signal number"
+  end
+end
+
+def show_status(st)
+  case
+  when st.coredump?
+    $stderr.puts "core dumped (SIG#{Signal.name(st.termsig)})"
+  when st.signaled?
+    $stderr.puts "terminated by signal (SIG#{Signal.name(st.termsig)})"
+  else
+    $stderr.puts "status: #{st.exitstatus}"
   end
 end
 

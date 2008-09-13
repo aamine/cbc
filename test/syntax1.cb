@@ -28,20 +28,18 @@ int*** ppp;
 int**** pppp;
 int***** ppppp;
 
-int[] a;
-int[][] aa;
-int[][][] aaa;
-int[][][][] aaaa;
-int[][][][][] aaaaa;
+int[1] a;
+int[1][1] aa;
+int[1][1][1] aaa;
 
-int*[] pa;
+int*[1] pa;
 int[]* ap;
-int**[] ppa;
+int**[1] ppa;
 int*[]* pap;
 int[]** app;
-int[][]* aap;
-int[]*[] apa;
-int*[][] paa;
+int[1][1]* aap;
+int[]*[1] apa;
+int*[1][1] paa;
 
 struct file {
     int fd;
@@ -66,7 +64,7 @@ union node {
 typedef int myint;
 
 int
-main(int argc, char[][] argv)
+main(int argc, char** argv)
 {
     ff();
     return f(1, 2, 3);

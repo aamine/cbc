@@ -1,3 +1,36 @@
+Sun Sep 14 02:27:56 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: reject incomplete
+	  multi-dimension array for function parameters.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: reject array
+	  variable definition without length.
+
+	* net/loveruby/cflat/type/Type.java: remove #isAllocated.
+
+	* net/loveruby/cflat/type/UserType.java: ditto.
+
+	* net/loveruby/cflat/type/ArrayType.java: change #isAllocatedArray
+	  semantics.  isAllocatedArray requires the all consecutive array
+	  types have its length, recursively.
+
+	* net/loveruby/cflat/type/ArrayType.java: new method
+	  #isIncompleteArray.
+
+	* net/loveruby/cflat/compiler/Compiler.java: new option
+	  --dump-asm.
+
+	* net/loveruby/cflat/compiler/Compiler.java: handle "--" on
+	  command line.
+
+	* test/run.sh: use bash.
+
+	* test/shunit.sh: show program name on core dump.
+
+	* test/syntax1.cb: int[][] is now invalid.
+
+	* cbci: print coredump and signal.
+
 Sun Sep 14 00:13:37 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* cbci: new command.  Simple Cflat interpriter.

@@ -33,7 +33,6 @@ public class UserType extends NamedType {
     public boolean isPointer() { return realType().isPointer(); }
     public boolean isArray() { return realType().isArray(); }
     public boolean isAllocatedArray() { return realType().isAllocatedArray(); }
-    public boolean isUnallocatedArray() { return realType().isUnallocatedArray(); }
     public boolean isComplexType() { return realType().isComplexType(); }
     public boolean isStruct() { return realType().isStruct(); }
     public boolean isUnion() { return realType().isUnion(); }

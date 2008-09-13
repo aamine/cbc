@@ -71,7 +71,16 @@ public class Compiler {
         opts.loader = new LibraryLoader();
         while (it.hasNext()) {
             String arg = (String)it.next();
-            if (arg.startsWith("-")) {
+            if (arg.equals("-")) {
+                System.err.println("FIXME: stdin is not supported yet");
+                System.exit(1);
+            }
+            else if (arg.equals("--")) {
+                // "--" Stops command line processing
+                it.remove();
+                break;
+            }
+            else if (arg.startsWith("-")) {
                 if (arg.equals("--check-syntax")
                         || arg.equals("--dump-tokens")
                         || arg.equals("--dump-ast")
@@ -79,6 +88,7 @@ public class Compiler {
                         || arg.equals("--dump-reference")
                         || arg.equals("--dump-semantic")
                         || arg.equals("-S")
+                        || arg.equals("--dump-asm")
                         || arg.equals("-c")) {
                     if (opts.mode != null) {
                         errorExit(opts.mode + " option and "
@@ -141,6 +151,7 @@ public class Compiler {
         out.println("  --dump-ast       Parses source file and dumps AST.");
         out.println("  --dump-semantic  Checks semantics and dumps AST.");
         out.println("  -S               Generates an assembly source.");
+        out.println("  --dump-asm       Dumps an assembly source.");
         out.println("  -c               Generates an object file.");
         out.println("  -I PATH          Adds import file loading path.");
         out.println("  -o PATH          Places output in file PATH.");
@@ -208,6 +219,10 @@ public class Compiler {
             return;
         }
         String asm = CodeGenerator.generate(ast, opts.typeTable, errorHandler);
+        if (opts.isMode("--dump-asm")) {
+            System.out.println(asm);
+            return;
+        }
         writeFile(asmFileName(opts), asm);
         if (opts.isMode("-S")) {
             return;

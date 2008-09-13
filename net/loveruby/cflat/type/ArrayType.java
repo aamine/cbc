@@ -17,13 +17,20 @@ public class ArrayType extends Type {
     }
 
     public boolean isArray() { return true; }
-    public boolean isAllocated() { return length != undefined; }
-    public boolean isAllocatedArray() { return isAllocated(); }
-    public boolean isUnallocatedArray() { return !isAllocated(); }
     public boolean isDereferable() { return true; }
-    public boolean isPointerAlike() { return isUnallocatedArray(); }
+    public boolean isPointerAlike() { return length == undefined; }
     public boolean isScalar() { return true; }
     public boolean isSigned() { return false; }
+
+    public boolean isAllocatedArray() {
+        return length != undefined &&
+            (!baseType.isArray() || baseType.isAllocatedArray());
+    }
+
+    public boolean isIncompleteArray() {
+        if (! baseType.isArray()) return false;
+        return !baseType.isAllocatedArray();
+    }
 
     public Type baseType() {
         return baseType;
@@ -40,11 +47,11 @@ public class ArrayType extends Type {
 
     // Value size as allocated array
     public long allocSize() {
-        if (isAllocated()) {
-            return baseType.allocSize() * length;
+        if (length == undefined) {
+            return size();
         }
         else {
-            return size();
+            return baseType.allocSize() * length;
         }
     }
 

@@ -568,11 +568,12 @@ class TypeChecker extends Visitor {
     }
 
     protected boolean isInvalidParameterType(Type t) {
-        return t.isStruct() || t.isUnion() || t.isVoid();
+        return t.isStruct() || t.isUnion() || t.isVoid()
+                || t.isIncompleteArray();
     }
 
     protected boolean isInvalidVariableType(Type t) {
-        return t.isVoid();
+        return t.isVoid() || (t.isArray() && ! t.isAllocatedArray());
     }
 
     protected boolean isInvalidLHSType(Type t) {

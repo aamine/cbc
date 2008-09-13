@@ -1,4 +1,4 @@
-#!/usr/bin/ksh
+#!/bin/bash
 
 main() {
     local pattern="."

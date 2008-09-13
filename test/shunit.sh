@@ -59,7 +59,7 @@ assert_status() {
     expected=$1; shift
     shunit_invoke "$@"
     really=$?
-    assert_not_coredump || return
+    assert_not_coredump "$1" || return
     if [ "$really" != "$expected" ]
     then
         echo "shunit[$@]: status $expected expected but was: $really"
@@ -73,7 +73,7 @@ assert_error() {
     shunit_begin_test
     shunit_invoke "$@"
     really=$?
-    assert_not_coredump || return
+    assert_not_coredump "$1" || return
     if [ "$really" = "0" ]
     then
         echo "shunit[$@]: non-zero status expected but was: $really"
@@ -103,7 +103,7 @@ assert_equal() {
     mycmd=$2
     eval "$excmd" >tc.out.expected 2>tc.err.expected
     eval "$mycmd" >tc.out.real     2>tc.err.real
-    assert_not_coredump || return
+    assert_not_coredump "$mycmd" || return
     cmp tc.out.real tc.out.expected >/dev/null 2>&1
     if [ "$?" != "0" ]
     then
@@ -135,7 +135,7 @@ assert_equal_stdout() {
     mycmd=$1; shift
     eval "$excmd" >tc.out.expected 2>/dev/null
     eval "$mycmd" >tc.out.real     2>/dev/null
-    assert_not_coredump || return
+    assert_not_coredump "$mycmd" || return
     cmp tc.out.real tc.out.expected >/dev/null 2>&1
     if [ "$?" != "0" ]
     then
@@ -152,7 +152,7 @@ assert_stdout() {
     expected=$1; shift
     echo "$expected" > tc.out.expected
     "$@" >tc.out.real 2>/dev/null
-    assert_not_coredump || return
+    assert_not_coredump "$1" || return
     cmp tc.out.expected tc.out.real >/dev/null 2>&1
     if [ "$?" != "0" ]
     then
@@ -166,22 +166,25 @@ assert_stdout() {
 
 rm -f core
 assert_not_coredump() {
+    local cmd="$1"
+
     shunit_begin_test
     if [ -f core ]
     then
-        echo "core dumped: $mycmd"
+        echo "core dumped: $cmd"
         echo "----"
         shunit_test_failed
+        rm -f core
         return 1
     fi
-    rm -f core
     return 0
 }
 
 assert_not_exist() {
+    local file="$1"; shift
+
     shunit_begin_test
-    file=$1; shift
-    if [ -f $file ]
+    if [ -f "$file" ]
     then
         echo "exists: $file"
         echo "----"
@@ -192,9 +195,10 @@ assert_not_exist() {
 }
 
 assert_directory() {
+    local dir="$1"; shift
+
     shunit_begin_test
-    dir=$1; shift
-    if [ ! -d $dir ]
+    if [ ! -d "$dir" ]
     then
         echo "not directory: $dir"
         echo "----"
