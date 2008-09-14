@@ -1,3 +1,22 @@
+Mon Sep 15 00:43:29 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: handle multiple
+	  source files.
+
+	* net/loveruby/cflat/compiler/Options.java: new class forked from
+	  Compiler.java.  Command option parser.
+
+	* net/loveruby/cflat/compiler/SourceFile.java: new class.
+
+	* net/loveruby/cflat/compiler/LdOption.java: new class.
+
+	* net/loveruby/cflat/compiler/LdArg.java: new interface.
+
+	* net/loveruby/cflat/exception/OptionParseError.java: new error
+	  class.
+
+	* test: test multiple input.
+
 Sun Sep 14 20:08:19 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: use CflatToken to

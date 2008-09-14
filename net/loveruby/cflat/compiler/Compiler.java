@@ -8,10 +8,11 @@ import java.util.*;
 import java.io.*;
 
 public class Compiler {
-    static final private String programId = "cbc";
+    static final public String ProgramID = "cbc";
+    static final public String Version = "1.0.0";
 
     static public void main(String[] args) {
-        new Compiler(programId).commandMain(args);
+        new Compiler(ProgramID).commandMain(args);
     }
 
     protected ErrorHandler errorHandler;
@@ -25,19 +26,41 @@ public class Compiler {
     }
 
     public void commandMain(String[] origArgs) {
-        Options opts = parseOptions(listFromArray(origArgs));
+        Options opts = new Options(defaultTypeTable(), new LibraryLoader());
+        List srcs = null;
+        try {
+            srcs = opts.parse(Arrays.asList(origArgs));
+        }
+        catch (OptionParseError err) {
+            errorHandler.error(err.getMessage());
+            errorHandler.error("Try cbc --help for option usage");
+            System.exit(1);
+        }
         if (opts.isMode("--check-syntax")) {
-            if (isValidSyntax(opts)) {
-                System.out.println("Syntax OK");
-                System.exit(0);
+            Iterator inputs = srcs.iterator();
+            boolean failed = false;
+            while (inputs.hasNext()) {
+                SourceFile src = (SourceFile)inputs.next();
+                if (isValidSyntax(src, opts)) {
+                    System.out.println(src.name() + ": Syntax OK");
+                }
+                else {
+                    System.out.println(src.name() + ": Syntax Error");
+                    failed = true;
+                }
             }
-            else {
-                System.exit(1);
-            }
+            System.exit(failed ? 1 : 0);
         }
         else {
             try {
-                compileFile(opts);
+                Iterator inputs = srcs.iterator();
+                while (inputs.hasNext()) {
+                    SourceFile src = (SourceFile)inputs.next();
+                    compileFile(src, opts);
+                }
+                if (! opts.isLinkRequired()) System.exit(0);
+                generateExecutable(opts);
+                System.exit(0);
             }
             catch (CompileException ex) {
                 errorHandler.error(ex.getMessage());
@@ -46,148 +69,14 @@ public class Compiler {
         }
     }
 
-    class Options {
-        public String mode;
-        public String inputFile;
-        public String outputFile;
-        public boolean verbose;
-        public boolean debugParser;
-        //public boolean debugBuild;
-        public TypeTable typeTable;
-        public LibraryLoader loader;
-        //public List asOpts;   // List<String>
-        //public List ldOpts;   // List<String>
-        //public List ldArgs;   // List<LdArg>
-
-        public boolean isMode(String m) {
-            return mode == null ? false : mode.equals(m);
-        }
-    }
-
-    protected Options parseOptions(List args) {
-        ListIterator it = args.listIterator();
-        Options opts = new Options();
-        opts.typeTable = defaultTypeTable();
-        opts.loader = new LibraryLoader();
-        while (it.hasNext()) {
-            String arg = (String)it.next();
-            if (arg.equals("-")) {
-                System.err.println("FIXME: stdin is not supported yet");
-                System.exit(1);
-            }
-            else if (arg.equals("--")) {
-                // "--" Stops command line processing
-                it.remove();
-                break;
-            }
-            else if (arg.startsWith("-")) {
-                if (arg.equals("--check-syntax")
-                        || arg.equals("--dump-tokens")
-                        || arg.equals("--dump-ast")
-                        || arg.equals("--dump-stmt")
-                        || arg.equals("--dump-reference")
-                        || arg.equals("--dump-semantic")
-                        || arg.equals("-S")
-                        || arg.equals("--dump-asm")
-                        || arg.equals("-c")) {
-                    if (opts.mode != null) {
-                        errorExit(opts.mode + " option and "
-                                  + arg + " option is exclusive");
-                    }
-                    opts.mode = arg;
-                }
-                else if (arg.startsWith("-I")) {
-                    opts.loader.addLoadPath(getOptArg(arg, it));
-                }
-                else if (arg.equals("--debug-parser")) {
-                    opts.debugParser = true;
-                }
-                else if (arg.startsWith("-o")) {
-                    opts.outputFile = getOptArg(arg, it);
-                }
-                // FIXME: compile options
-                //else if (arg.equals("-fPIC"))
-                //else if (arg.startsWith("-O"))
-                // FIXME: assemble options
-                //else if (arg.startsWith("-Wa,"))
-                //else if (arg.equals("-Xassembler"))
-                // FIXME: link options
-                //else if (arg.equals("-static"))
-                //else if (arg.equals("-shared"))
-                //else if (arg.startsWith("-L"))
-                //else if (arg.startsWith("-l"))
-                //else if (arg.startsWith("-Wl,"))
-                //else if (arg.equals("-Xlinker"))
-                else if (arg.equals("-v")) {
-                    opts.verbose = true;
-                }
-                else if (arg.equals("--help")) {
-                    printUsage(System.out);
-                    System.exit(0);
-                }
-                else {
-                    System.err.println("unknown option: " + arg);
-                    printUsage(System.err);
-                    System.exit(1);
-                }
-                it.remove();
-            }
-        }
-
-        // FIXME: handle many input files
-        if (args.size() == 0) errorExit("no input file");
-        if (args.size() > 1) errorExit("too many input files");
-        opts.inputFile = (String)args.get(0);
-
-        return opts;
-    }
-
-    protected void printUsage(PrintStream out) {
-        // --dump-reference is hidden option
-        out.println("Usage: cbc [option] file");
-        out.println("  --check-syntax   Checks syntax.");
-        out.println("  --debug-parser   Dumps parsing process.");
-        out.println("  --dump-tokens    Parses source file and dumps tokens.");
-        out.println("  --dump-ast       Parses source file and dumps AST.");
-        out.println("  --dump-semantic  Checks semantics and dumps AST.");
-        out.println("  -S               Generates an assembly source.");
-        out.println("  --dump-asm       Dumps an assembly source.");
-        out.println("  -c               Generates an object file.");
-        out.println("  -I PATH          Adds import file loading path.");
-        out.println("  -o PATH          Places output in file PATH.");
-        out.println("  --help           Prints this message and quit.");
-    }
-
-    private List listFromArray(Object[] a) {
-        List list = new ArrayList();
-        for (int i = 0; i < a.length; i++) {
-            list.add(a[i]);
-        }
-        return list;
-    }
-
-    private String getOptArg(String arg, ListIterator it) {
-        String path = arg.substring(2);
-        if (path.length() != 0) {       // -Ipath
-            return path;
-        }
-        else {                          // -I path
-            if (! it.hasNext()) {
-                errorExit("-I option missing argument");
-            }
-            it.remove();
-            return (String)it.next();
-        }
-    }
-
     private void errorExit(String msg) {
         errorHandler.error(msg);
         System.exit(1);
     }
 
-    protected boolean isValidSyntax(Options opts) {
+    protected boolean isValidSyntax(SourceFile src, Options opts) {
         try {
-            parseFile(opts);
+            parseFile(src, opts);
             return true;
         }
         catch (SyntaxException ex) {
@@ -199,39 +88,44 @@ public class Compiler {
         }
     }
 
-    protected void compileFile(Options opts) throws CompileException {
-        AST ast = parseFile(opts);
-        if (opts.isMode("--dump-tokens")) {
-            dumpTokens(ast.sourceTokens(), System.out);
-            return;
+    protected void compileFile(SourceFile src, Options opts)
+                                        throws CompileException {
+        if (src.isCflatSource()) {
+            AST ast = parseFile(src, opts);
+            if (opts.isMode("--dump-tokens")) {
+                dumpTokens(ast.sourceTokens(), System.out);
+                return;
+            }
+            if (opts.isMode("--dump-ast")) {
+                ast.dump();
+                return;
+            }
+            if (opts.isMode("--dump-stmt")) {
+                findStmt(ast).dump();
+                return;
+            }
+            semanticAnalysis(ast, opts);
+            if (opts.isMode("--dump-reference")) return;
+            if (opts.isMode("--dump-semantic")) {
+                ast.dump();
+                return;
+            }
+            String asm = generateAssembly(ast, opts);
+            if (opts.isMode("--dump-asm")) {
+                System.out.println(asm);
+                return;
+            }
+            writeFile(src.asmFileName(opts), asm);
+            src.setCurrentName(src.asmFileName(opts));
+            if (opts.isMode("-S")) {
+                return;
+            }
         }
-        if (opts.isMode("--dump-ast")) {
-            ast.dump();
-            return;
+        if (! opts.isAssembleRequired()) return;
+        if (src.isAssemblySource()) {
+            assemble(src.asmFileName(opts), src.objFileName(opts), opts);
+            src.setCurrentName(src.objFileName(opts));
         }
-        if (opts.isMode("--dump-stmt")) {
-            findStmt(ast).dump();
-            return;
-        }
-        semanticAnalysis(ast, opts);
-        if (opts.isMode("--dump-semantic")) {
-            ast.dump();
-            return;
-        }
-        String asm = CodeGenerator.generate(ast, opts.typeTable, errorHandler);
-        if (opts.isMode("--dump-asm")) {
-            System.out.println(asm);
-            return;
-        }
-        writeFile(asmFileName(opts), asm);
-        if (opts.isMode("-S")) {
-            return;
-        }
-        assemble(asmFileName(opts), objFileName(opts), opts);
-        if (opts.isMode("-c")) {
-            return;
-        }
-        link(objFileName(opts), exeFileName(opts), opts);
     }
 
     protected void dumpTokens(Iterator tokens, PrintStream s) {
@@ -267,61 +161,66 @@ public class Compiler {
         return null;   // never reach
     }
 
-    protected AST parseFile(Options opts)
+    protected AST parseFile(SourceFile src, Options opts)
                             throws SyntaxException, FileException {
-        return Parser.parseFile(new File(opts.inputFile),
-                                opts.loader,
+        return Parser.parseFile(new File(src.currentName()),
+                                opts.loader(),
                                 errorHandler,
-                                opts.debugParser);
+                                opts.doesDebugParser());
     }
 
     protected void semanticAnalysis(AST ast, Options opts)
                                         throws SemanticException {
         JumpResolver.resolve(ast, errorHandler);
         LocalReferenceResolver.resolve(ast, errorHandler);
-        TypeResolver.resolve(ast, opts.typeTable, errorHandler);
-        opts.typeTable.semanticCheck(errorHandler);
+        TypeResolver.resolve(ast, opts.typeTable(), errorHandler);
+        opts.typeTable().semanticCheck(errorHandler);
         DereferenceChecker.check(ast, errorHandler);
         if (opts.isMode("--dump-reference")) {
             ast.dump();
-            System.exit(1);
+            return;
         }
-        new TypeChecker(opts.typeTable, errorHandler).check(ast);
+        new TypeChecker(opts.typeTable(), errorHandler).check(ast);
+    }
+
+    protected String generateAssembly(AST ast, Options opts) {
+        return CodeGenerator.generate(ast, opts.typeTable(), errorHandler);
     }
 
     protected void assemble(String srcPath,
                             String destPath,
                             Options opts) throws IPCException {
-        String[] cmd = {
-            "as",
-            "-o", destPath,
-            srcPath
-        };
-        invoke(cmd, opts.verbose);
+        List cmd = new ArrayList();
+        cmd.add("as");
+        cmd.addAll(opts.asOptions());
+        cmd.add("-o");
+        cmd.add(destPath);
+        cmd.add(srcPath);
+        invoke(cmd, opts.isVerboseMode());
     }
 
-    protected void link(String srcPath,
-                        String destPath,
-                        Options opts) throws IPCException {
-        String[] cmd = {
-            "ld",
-            "-dynamic-linker", "/lib/ld-linux.so.2",
-            "/usr/lib/crt1.o",
-            "/usr/lib/crti.o",
-            srcPath,
-            "/usr/lib/libc_nonshared.a",
-            "-lc",
-            "/usr/lib/crtn.o",
-            "-o", destPath
-        };
-        invoke(cmd, opts.verbose);
+    protected void generateExecutable(Options opts) throws IPCException {
+        List cmd = new ArrayList();
+        cmd.add("ld");
+        // FIXME: -dynamic-linker required only on dynamic linking
+        cmd.add("-dynamic-linker");
+        cmd.add("/lib/ld-linux.so.2");
+        if (! opts.noStartFiles()) cmd.add("/usr/lib/crt1.o");
+        if (! opts.noStartFiles()) cmd.add("/usr/lib/crti.o");
+        cmd.addAll(opts.ldArgs());
+        if (! opts.noDefaultLibs()) cmd.add("-lc");
+        if (! opts.noStartFiles()) cmd.add("/usr/lib/crtn.o");
+        cmd.add("-o");
+        cmd.add(opts.exeFileName());
+        invoke(cmd, opts.isVerboseMode());
     }
 
-    public void invoke(String[] cmd, boolean debug) throws IPCException {
+    protected void invoke(List cmdArgs, boolean debug) throws IPCException {
         if (debug) {
-            dumpCommand(cmd);
+            dumpCommand(cmdArgs.iterator());
         }
         try {
+            String[] cmd = stringListToArray(cmdArgs);
             Process proc = Runtime.getRuntime().exec(cmd);
             proc.waitFor();
             passThrough(proc.getInputStream());
@@ -342,11 +241,23 @@ public class Compiler {
         }
     }
 
-    protected void dumpCommand(String[] cmd) {
+    protected String[] stringListToArray(List list) {
+        String[] a = new String[list.size()];
+        int idx = 0;
+        Iterator it = list.iterator();
+        while (it.hasNext()) {
+            Object o = it.next();
+            a[idx++] = o.toString();
+        }
+        return a;
+    }
+
+    protected void dumpCommand(Iterator args) {
         String sep = "";
-        for (int i = 0; i < cmd.length; i++) {
+        while (args.hasNext()) {
+            String arg = args.next().toString();
             System.out.print(sep); sep = " ";
-            System.out.print(cmd[i]);
+            System.out.print(arg);
         }
         System.out.println("");
     }
@@ -378,37 +289,6 @@ public class Compiler {
         catch (IOException ex) {
             errorHandler.error("IO error" + ex.getMessage());
             throw new FileException("file error");
-        }
-    }
-
-    protected String asmFileName(Options opts) {
-        return opts.isMode("-S") && opts.outputFile != null
-                ? opts.outputFile
-                : baseName(opts.inputFile, true) + ".s";
-    }
-
-    protected String objFileName(Options opts) {
-        return opts.isMode("-c") && opts.outputFile != null
-                ? opts.outputFile
-                : baseName(opts.inputFile, true) + ".o";
-    }
-
-    protected String exeFileName(Options opts) {
-        return opts.outputFile != null
-                ? opts.outputFile
-                : baseName(opts.inputFile, true);
-    }
-
-    protected String baseName(String path) {
-        return new File(path).getName();
-    }
-
-    protected String baseName(String path, boolean stripExt) {
-        if (stripExt) {
-            return new File(path).getName().replaceFirst("\\.[^.]*$", "");
-        }
-        else {
-            return baseName(path);
         }
     }
 }

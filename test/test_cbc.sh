@@ -289,6 +289,11 @@ test_32_noreturn() {
     assert_stat 0 ./noreturn
 }
 
+test_33_multipleinput() {
+    assert_compile_success src1.cb src2.cb -o src
+    assert_status 4 ./src
+}
+
 ###
 ### Local Assertions
 ###

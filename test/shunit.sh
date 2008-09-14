@@ -180,6 +180,20 @@ assert_not_coredump() {
     return 0
 }
 
+assert_file() {
+    local path="$1"; shift
+
+    shunit_begin_test
+    if [ ! -f "$path" ]
+    then
+        echo "not exist or not a file: $file"
+        echo "----"
+        shunit_test_failed
+        return 1
+    fi
+    return 0
+}
+
 assert_not_exist() {
     local file="$1"; shift
 
