@@ -1,7 +1,11 @@
-#!/bin/sh
+#!/bin/bash
+# cbc -- cflat compiler
 
-basedir=`dirname "$0"`
-java -classpath "$basedir/cbc.jar" \
+JAVA=java
+
+srcdir_root="$(dirname "$(dirname "$0")")"
+"$JAVA" -classpath "$srcdir_root/lib/cbc.jar" \
         net.loveruby.cflat.compiler.Compiler \
-        -I"$basedir/import" \
-        ${@+"$@"}
+        -I"$srcdir_root/import" \
+        -L"$srcdir_root/lib" \
+        "$@"

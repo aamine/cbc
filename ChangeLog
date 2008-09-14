@@ -1,3 +1,9 @@
+Mon Sep 15 01:24:57 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* bin/cbc: follow last directory tree change.
+
+	* test/test_cbc.sh: ditto.
+
 Mon Sep 15 01:19:36 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* cbc -> bin/cbc

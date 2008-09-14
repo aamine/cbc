@@ -332,7 +332,7 @@ assert_private() {
     assert_eq "private" `symbol_visibility $1 $2`
 }
 
-CBC=../cbc
+CBC=../bin/cbc
 
 assert_compile_success() {
     assert_status 0 $CBC "$@"
