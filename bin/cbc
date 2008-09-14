@@ -1,7 +1,7 @@
 #!/bin/bash
 # cbc -- cflat compiler
 
-JAVA=java
+JAVA=${JAVA:-java}
 
 srcdir_root="$(dirname "$(dirname "$0")")"
 "$JAVA" -classpath "$srcdir_root/lib/cbc.jar" \
