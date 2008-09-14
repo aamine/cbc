@@ -2,12 +2,7 @@
 
 == Current
 
-* handle multiple arguments (source files, assembly files, object files)
-* -l
-* -L
-* -Wl, -Xlinker
 * va_list
-* -Wa, -Xassembler
 * -O (peephole optimization)
         * movl $0, %eax => xorl %eax, %eax
         * addl $1, %eax  => incl %eax
@@ -23,6 +18,7 @@
 * -fPIC (PIC generation)
 * -shared
 * remove all FIXME
+? -fPIE, -pie
 
 == Done
 
@@ -232,3 +228,8 @@
 - prohibit multi-dimension array without size
 - extern gvar access
 - implement source repository
+- handle multiple arguments (source files, assembly files, object files)
+- -l
+- -L
+- -Wl, -Xlinker
+- -Wa, -Xassembler
