@@ -3,28 +3,25 @@ import net.loveruby.cflat.parser.Token;
 import java.util.*;
 
 public class AST extends Node {
-    protected String fileName;
+    protected Location source;
     protected Declarations declarations;
-    protected Token firstToken;
-
     protected ToplevelScope scope;
     protected ConstantTable constantTable;
 
-    public AST(String fname, Declarations decls, Token t) {
+    public AST(Location source, Declarations declarations) {
         super();
-        fileName = fname;
-        declarations = decls;
-        firstToken = t;
-        scope = new ToplevelScope();
-        constantTable = new ConstantTable();
+        this.source = source;
+        this.declarations = declarations;
+        this.scope = new ToplevelScope();
+        this.constantTable = new ConstantTable();
     }
 
     public String fileName() {
-        return fileName;
+        return source.sourceName();
     }
 
-    public Token firstToken() {
-        return firstToken;
+    public Iterator sourceTokens() {
+        return source.token().iterator();
     }
 
     public Iterator types() {
@@ -78,7 +75,7 @@ public class AST extends Node {
     }
 
     public Location location() {
-        return new Location(fileName, 0, 0);
+        return source;
     }
 
     protected void _dump(Dumper d) {

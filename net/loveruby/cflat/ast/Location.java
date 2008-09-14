@@ -1,25 +1,48 @@
 package net.loveruby.cflat.ast;
+import net.loveruby.cflat.parser.Token;
+import net.loveruby.cflat.parser.ParserConstants;
+import net.loveruby.cflat.utils.TextUtils;
+import java.util.*;
 
 public class Location {
-    protected String source;
-    protected int line;
-    protected int column;
+    protected String sourceName;
+    protected CflatToken token;
 
-    public Location(String source, int line, int column) {
-        this.source = source;
-        this.line = line;
-        this.column = column;
+    public Location(String sourceName, Token token) {
+        this(sourceName, new CflatToken(token));
     }
 
-    public String source() {
-        return source;
+    public Location(String sourceName, CflatToken token) {
+        this.sourceName = sourceName;
+        this.token = token;
     }
 
-    public int line() {
-        return line;
+    public String sourceName() {
+        return sourceName;
+    }
+
+    public CflatToken token() {
+        return token;
+    }
+
+    /** line number */
+    public int lineno() {
+        return token.lineno();
+    }
+
+    public int column() {
+        return token.column();
+    }
+
+    public String line() {
+        return token.includedLine();
+    }
+
+    public String numberedLine() {
+        return "line " + token.lineno() + ": " + line();
     }
 
     public String toString() {
-        return source + ":" + line;
+        return sourceName + ":" + token.lineno();
     }
 }

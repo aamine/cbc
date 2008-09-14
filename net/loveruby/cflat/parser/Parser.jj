@@ -263,7 +263,7 @@ public class Parser {
 
     // #@@range/location{
     protected Location location(Token t) {
-        return new Location(sourceName, t.beginLine, t.beginColumn);
+        return new Location(sourceName, t);
     }
     // #@@}
 }
@@ -382,7 +382,7 @@ AST compilation_unit():
     impdecls=import_stmts() decls=top_defs() <EOF>
         {
             decls.add(impdecls);
-            return new AST(sourceName, decls, t);
+            return new AST(location(t), decls);
         }
 }
 // #@@}

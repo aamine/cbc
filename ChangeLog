@@ -1,3 +1,20 @@
+Sun Sep 14 20:08:19 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: use CflatToken to
+	  dump token list.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: show stmt line
+	  in assembly.
+
+	* net/loveruby/cflat/parser/Parser.jj: pass a Token to the
+	  Location.
+
+	* net/loveruby/cflat/ast/AST.java: use CflatToken.
+
+	* net/loveruby/cflat/ast/Location.java: use CflatToken.
+
+	* net/loveruby/cflat/ast/CflatToken.java: new file.
+
 Sun Sep 14 05:36:30 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/UndefinedVariable.java: should not append

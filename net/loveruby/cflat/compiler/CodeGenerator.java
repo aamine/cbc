@@ -19,12 +19,10 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     protected ErrorHandler errorHandler;
     protected TypeTable typeTable;
     protected DefinedFunction currentFunction;
-    protected int stmtSeq;
 
     public CodeGenerator(Assembler as, ErrorHandler errorHandler) {
         this.as = as;
         this.errorHandler = errorHandler;
-        this.stmtSeq = 1;
     }
     // #@@}
 
@@ -409,8 +407,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     protected void compileStmt(Node node) {
-        comment("stmt " + stmtSeq + " (line " + node.location().line() + ")");
-        stmtSeq++;
+        comment(node.location().numberedLine());
         compile(node);
     }
 

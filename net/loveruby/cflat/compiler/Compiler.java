@@ -202,7 +202,7 @@ public class Compiler {
     protected void compileFile(Options opts) throws CompileException {
         AST ast = parseFile(opts);
         if (opts.isMode("--dump-tokens")) {
-            dumpTokenList(ast.firstToken(), System.out);
+            dumpTokens(ast.sourceTokens(), System.out);
             return;
         }
         if (opts.isMode("--dump-ast")) {
@@ -234,45 +234,21 @@ public class Compiler {
         link(objFileName(opts), exeFileName(opts), opts);
     }
 
-    protected void dumpTokenList(Token t, PrintStream s) {
-        for (; t != null; t = t.next) {
-            if (t.specialToken != null) {
-                dumpSpecialTokenList(t.specialToken, s);
-            }
-            dumpToken(t, s);
+    protected void dumpTokens(Iterator tokens, PrintStream s) {
+        while (tokens.hasNext()) {
+            CflatToken t = (CflatToken)tokens.next();
+            printPair(t.kindName(), t.dumpedImage(), s);
         }
     }
 
-    protected void dumpSpecialTokenList(Token tok, PrintStream s) {
-        for (Token t = specialTokenHead(tok); t != null; t = t.next) {
-            dumpToken(t, s);
-        }
-    }
+    static final protected int numLeftColumns = 24;
 
-    protected Token specialTokenHead(Token tok) {
-        Token t = tok;
-        while (t.specialToken != null) {
-            t = t.specialToken;
-        }
-        return t;
-    }
-
-    static final protected int typeLen = 24;
-
-    protected void dumpToken(Token t, PrintStream s) {
-        ljustPrint(s, typeLen, tokenType(t));
-        s.println(TextUtils.dumpString(t.image));
-    }
-
-    protected String tokenType(Token t) {
-        return ParserConstants.tokenImage[t.kind];
-    }
-
-    protected void ljustPrint(PrintStream s, int width, String value) {
-        s.print(value);
-        for (int n = width - value.length(); n > 0; n--) {
+    protected void printPair(String key, String value, PrintStream s) {
+        s.print(key);
+        for (int n = numLeftColumns - key.length(); n > 0; n--) {
             s.print(" ");
         }
+        s.println(value);
     }
 
     protected Node findStmt(AST ast) {
