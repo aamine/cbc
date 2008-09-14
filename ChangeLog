@@ -1,3 +1,17 @@
+Mon Sep 15 01:19:36 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* cbc -> bin/cbc
+
+	* cbci -> bin/cbci.rb
+
+	* bin/cbci.sh: new file.
+
+	* lib/libcbc.cb: new file.
+
+	* build.properties: create jar file in lib/.
+
+	* install.sh: new file.
+
 Mon Sep 15 00:43:29 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: handle multiple
