@@ -56,7 +56,7 @@ public class VariableNode extends ExprNode {
         return entity.address();
     }
 
-    public Address memref() {
+    public MemoryReference memref() {
         return entity.memref();
     }
 

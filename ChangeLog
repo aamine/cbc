@@ -1,3 +1,36 @@
+Tue Sep 16 02:37:46 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/Address.java -> MemoryReference.java
+
+	* net/loveruby/cflat/asm/DirectAddress.java ->
+	  DirectMemoryReference.java
+
+	* net/loveruby/cflat/asm/IndirectAddress.java ->
+	  IndirectMemoryReference.java
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: Address ->
+	  MemoryReference.
+
+	* net/loveruby/cflat/asm/AsmEntity.java: ditto.
+
+	* net/loveruby/cflat/asm/AbsoluteAddress.java: ditto.
+
+	* net/loveruby/cflat/ast/Entity.java: ditto.
+
+	* net/loveruby/cflat/ast/Variable.java: ditto.
+
+	* net/loveruby/cflat/ast/DefinedVariable.java: ditto.
+
+	* net/loveruby/cflat/ast/UndefinedVariable.java: ditto.
+
+	* net/loveruby/cflat/ast/Function.java: ditto.
+
+	* net/loveruby/cflat/ast/ExprNode.java: ditto.
+
+	* net/loveruby/cflat/ast/VariableNode.java: ditto.
+
+	* net/loveruby/cflat/ast/CastNode.java: ditto.
+
 Tue Sep 16 02:18:06 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: both of "puts"

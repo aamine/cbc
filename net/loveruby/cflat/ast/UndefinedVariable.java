@@ -15,12 +15,12 @@ public class UndefinedVariable extends Variable {
         return name();
     }
 
-    public void setMemref(Address addr) {
+    public void setMemref(MemoryReference mem) {
         throw new Error("UndefinedVariable#Memref");
     }
 
-    public Address memref() {
-        return new DirectAddress(new Label(symbol()));
+    public MemoryReference memref() {
+        return new DirectMemoryReference(new Label(symbol()));
     }
 
     public AsmEntity address() {

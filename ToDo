@@ -2,6 +2,8 @@
 
 == Current
 
+* AsmEntity -> AsmOperand
+* reject struct/union/array on stmt context
 * -O (peephole optimization)
         * movl $0, %eax => xorl %eax, %eax
         * addl $1, %eax  => incl %eax
@@ -236,3 +238,4 @@
 - write install.sh
 - va_list
 - objectify instruction
+- fix &puts

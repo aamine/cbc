@@ -35,7 +35,7 @@ public class CastNode extends ExprNode {
         return expr.isConstantAddress();
     }
 
-    public Address memref() {
+    public MemoryReference memref() {
         return expr.memref();
     }
 

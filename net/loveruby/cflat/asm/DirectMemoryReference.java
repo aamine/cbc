@@ -1,13 +1,13 @@
 package net.loveruby.cflat.asm;
 
-public class DirectAddress extends Address {
+public class DirectMemoryReference extends MemoryReference {
     protected Literal value;
 
-    public DirectAddress(Label label) {
+    public DirectMemoryReference(Label label) {
         this.value = new Symbol(label);
     }
 
-    public DirectAddress(IntegerLiteral n) {
+    public DirectMemoryReference(IntegerLiteral n) {
         this.value = n;
     }
 

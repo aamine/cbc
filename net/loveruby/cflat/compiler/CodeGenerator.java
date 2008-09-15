@@ -81,14 +81,14 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
 
     /** Linux/IA-32 dependent */
     // FIXME: PIC
-    protected Address globalVariableAddress(String sym) {
-        return new DirectAddress(new Label(csymbol(sym)));
+    protected MemoryReference globalVariableAddress(String sym) {
+        return new DirectMemoryReference(new Label(csymbol(sym)));
     }
 
     /** Linux/IA-32 dependent */
     // FIXME: PIC
-    protected Address commonSymbolAddress(String sym) {
-        return new DirectAddress(new Label(csymbol(sym)));
+    protected MemoryReference commonSymbolAddress(String sym) {
+        return new DirectMemoryReference(new Label(csymbol(sym)));
     }
 
     /** Generates static variable entries */
@@ -877,12 +877,12 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         return new Register(name);
     }
 
-    protected IndirectAddress mem(Register reg) {
-        return new IndirectAddress(reg);
+    protected IndirectMemoryReference mem(Register reg) {
+        return new IndirectMemoryReference(reg);
     }
 
-    protected IndirectAddress mem(long offset, Register reg) {
-        return new IndirectAddress(offset, reg);
+    protected IndirectMemoryReference mem(long offset, Register reg) {
+        return new IndirectMemoryReference(offset, reg);
     }
 
     protected ImmediateValue imm(long n) {
@@ -893,30 +893,30 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         return new ImmediateValue(label);
     }
 
-    protected void load(Type type, Address addr, Register reg) {
+    protected void load(Type type, MemoryReference mem, Register reg) {
         switch ((int)type.size()) {
         case 1:
             if (type.isSigned()) {  // signed char
-                movsbl(addr, reg);
+                movsbl(mem, reg);
             } else {                // unsigned char
-                movzbl(addr, reg);
+                movzbl(mem, reg);
             }
             break;
         case 2:
             if (type.isSigned()) {  // signed short
-                movswl(addr, reg);
+                movswl(mem, reg);
             } else {                // unsigned short
-                movzwl(addr, reg);
+                movzwl(mem, reg);
             }
             break;
         default:                    // int, long, long_long
-            mov(type, addr, reg.forType(type));
+            mov(type, mem, reg.forType(type));
             break;
         }
     }
 
-    protected void save(Type type, Register reg, Address addr) {
-        mov(type, reg.forType(type), addr);
+    protected void save(Type type, Register reg, MemoryReference mem) {
+        mov(type, reg.forType(type), mem);
     }
 
     public void comment(String str) { as.comment(str); }

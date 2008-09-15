@@ -1,14 +1,14 @@
 package net.loveruby.cflat.asm;
 
-public class IndirectAddress extends Address {
+public class IndirectMemoryReference extends MemoryReference {
     protected long offset;
     protected Register base;
 
-    public IndirectAddress(Register base) {
+    public IndirectMemoryReference(Register base) {
         this(0, base);
     }
 
-    public IndirectAddress(long offset, Register base) {
+    public IndirectMemoryReference(long offset, Register base) {
         this.offset = offset;
         this.base = base;
     }

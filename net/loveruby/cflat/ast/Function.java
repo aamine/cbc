@@ -25,7 +25,7 @@ abstract public class Function extends Entity {
         return returnType().isVoid();
     }
 
-    public Address memref() {
+    public MemoryReference memref() {
         return null;
     }
 

@@ -52,7 +52,7 @@ abstract public class Entity extends Node {
         return (nRefered > 0);
     }
 
-    abstract public Address memref();
+    abstract public MemoryReference memref();
     abstract public AsmEntity address();
 
     public Location location() {

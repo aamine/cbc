@@ -48,7 +48,7 @@ abstract public class ExprNode extends Node {
         throw new Error("ExprNode#address called");
     }
 
-    public Address memref() {
+    public MemoryReference memref() {
         throw new Error("ExprNode#memref called");
     }
 }

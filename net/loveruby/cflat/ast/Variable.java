@@ -18,5 +18,5 @@ abstract public class Variable extends Entity {
         return (sequence < 0) ? name : (name + "." + sequence);
     }
 
-    abstract public void setMemref(Address addr);
+    abstract public void setMemref(MemoryReference addr);
 }

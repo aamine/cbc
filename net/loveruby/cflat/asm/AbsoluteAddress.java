@@ -1,6 +1,6 @@
 package net.loveruby.cflat.asm;
 
-public class AbsoluteAddress extends Address {
+public class AbsoluteAddress extends AsmEntity {
     protected Register register;
 
     public AbsoluteAddress(Register reg) {
