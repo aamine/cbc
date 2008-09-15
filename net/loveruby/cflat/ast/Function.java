@@ -29,7 +29,7 @@ abstract public class Function extends Entity {
         return null;
     }
 
-    public AsmEntity address() {
+    public AsmOperand address() {
         return new ImmediateValue(new Label(name()));
     }
 }

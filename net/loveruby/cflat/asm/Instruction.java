@@ -4,22 +4,22 @@ import net.loveruby.cflat.type.Type;
 public class Instruction extends Assembly {
     protected String mnemonic;
     protected String suffix;
-    protected AsmEntity[] operands;
+    protected AsmOperand[] operands;
 
     public Instruction(String mnemonic) {
-        this(mnemonic, "", new AsmEntity[0]);
+        this(mnemonic, "", new AsmOperand[0]);
     }
 
-    public Instruction(String mnemonic, String suffix, AsmEntity a1) {
-        this(mnemonic, suffix, new AsmEntity[] { a1 });
+    public Instruction(String mnemonic, String suffix, AsmOperand a1) {
+        this(mnemonic, suffix, new AsmOperand[] { a1 });
     }
 
     public Instruction(String mnemonic, String suffix,
-                       AsmEntity a1, AsmEntity a2) {
-        this(mnemonic, suffix, new AsmEntity[] { a1, a2 });
+                       AsmOperand a1, AsmOperand a2) {
+        this(mnemonic, suffix, new AsmOperand[] { a1, a2 });
     }
 
-    public Instruction(String mnemonic, String suffix, AsmEntity[] operands) {
+    public Instruction(String mnemonic, String suffix, AsmOperand[] operands) {
         this.mnemonic = mnemonic;
         this.suffix = suffix;
         this.operands = operands;
@@ -37,11 +37,11 @@ public class Instruction extends Assembly {
         return this.operands.length;
     }
 
-    public AsmEntity operand1() {
+    public AsmOperand operand1() {
         return this.operands[0];
     }
 
-    public AsmEntity operand2() {
+    public AsmOperand operand2() {
         return this.operands[1];
     }
 

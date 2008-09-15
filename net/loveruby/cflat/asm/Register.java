@@ -1,7 +1,7 @@
 package net.loveruby.cflat.asm;
 import net.loveruby.cflat.type.*;
 
-public class Register extends AsmEntity {
+public class Register extends AsmOperand {
     protected int size;
     protected String name;
 

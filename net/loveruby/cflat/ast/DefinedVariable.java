@@ -43,7 +43,7 @@ public class DefinedVariable extends Variable {
         return memref;
     }
 
-    public AsmEntity address() {
+    public AsmOperand address() {
         return null;
     }
 

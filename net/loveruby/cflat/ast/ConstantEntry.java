@@ -1,5 +1,5 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.AsmEntity;
+import net.loveruby.cflat.asm.AsmOperand;
 import net.loveruby.cflat.asm.Label;
 
 public class ConstantEntry

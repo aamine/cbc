@@ -52,7 +52,7 @@ public class VariableNode extends ExprNode {
         return true;
     }
 
-    public AsmEntity address() {
+    public AsmOperand address() {
         return entity.address();
     }
 

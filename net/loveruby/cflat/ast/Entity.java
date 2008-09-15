@@ -53,7 +53,7 @@ abstract public class Entity extends Node {
     }
 
     abstract public MemoryReference memref();
-    abstract public AsmEntity address();
+    abstract public AsmOperand address();
 
     public Location location() {
         return typeNode.location();

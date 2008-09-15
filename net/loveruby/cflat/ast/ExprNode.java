@@ -44,7 +44,7 @@ abstract public class ExprNode extends Node {
         throw new Error("ExprNode#isConstantAddress called");
     }
 
-    public AsmEntity address() {
+    public AsmOperand address() {
         throw new Error("ExprNode#address called");
     }
 

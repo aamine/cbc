@@ -39,7 +39,7 @@ public class CastNode extends ExprNode {
         return expr.memref();
     }
 
-    public AsmEntity address() {
+    public AsmOperand address() {
         return expr.address();
     }
 

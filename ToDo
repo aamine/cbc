@@ -3,6 +3,7 @@
 == Current
 
 * AsmEntity -> AsmOperand
+* Symbol -> LabelRef
 * reject struct/union/array on stmt context
 * -O (peephole optimization)
         * movl $0, %eax => xorl %eax, %eax

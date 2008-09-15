@@ -23,7 +23,7 @@ public class UndefinedVariable extends Variable {
         return new DirectMemoryReference(new Label(symbol()));
     }
 
-    public AsmEntity address() {
+    public AsmOperand address() {
         return new ImmediateValue(new Label(symbol()));
     }
 

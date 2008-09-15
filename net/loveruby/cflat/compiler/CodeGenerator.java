@@ -679,7 +679,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
 
     // spills: (none)
     protected void compileUnaryArithmetic(UnaryArithmeticOpNode node,
-                                          AsmEntity dest) {
+                                          AsmOperand dest) {
         if (node.operator().equals("++")) {
             add(imm(node.amount()), dest);
         }
@@ -963,26 +963,26 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     public void call(String sym) { as.call(sym); }
     public void callAbsolute(Register reg) { as.callAbsolute(reg); }
     public void ret() { as.ret(); }
-    public void mov(AsmEntity src, AsmEntity dest) { as.mov(src, dest); }
-    public void mov(Type type, AsmEntity src, AsmEntity dest) { as.mov(type, src, dest); }
-    public void movsx(Type from, Type to, AsmEntity src, AsmEntity dest) { as.movsx(from, to, src, dest); }
-    public void movzx(Type from, Type to, AsmEntity src, AsmEntity dest) { as.movzx(from, to, src, dest); }
-    public void movsbl(AsmEntity src, AsmEntity dest) { as.movsbl(src, dest); }
-    public void movswl(AsmEntity src, AsmEntity dest) { as.movswl(src, dest); }
-    public void movzb(Type type, AsmEntity src, AsmEntity dest) { as.movzb(type, src, dest); }
-    public void movzbl(AsmEntity src, AsmEntity dest) { as.movzbl(src, dest); }
-    public void movzwl(AsmEntity src, AsmEntity dest) { as.movzwl(src, dest); }
-    public void lea(AsmEntity src, AsmEntity dest) { as.lea(src, dest); }
-    public void lea(Type type, AsmEntity src, AsmEntity dest) { as.lea(type, src, dest); }
+    public void mov(AsmOperand src, AsmOperand dest) { as.mov(src, dest); }
+    public void mov(Type type, AsmOperand src, AsmOperand dest) { as.mov(type, src, dest); }
+    public void movsx(Type from, Type to, AsmOperand src, AsmOperand dest) { as.movsx(from, to, src, dest); }
+    public void movzx(Type from, Type to, AsmOperand src, AsmOperand dest) { as.movzx(from, to, src, dest); }
+    public void movsbl(AsmOperand src, AsmOperand dest) { as.movsbl(src, dest); }
+    public void movswl(AsmOperand src, AsmOperand dest) { as.movswl(src, dest); }
+    public void movzb(Type type, AsmOperand src, AsmOperand dest) { as.movzb(type, src, dest); }
+    public void movzbl(AsmOperand src, AsmOperand dest) { as.movzbl(src, dest); }
+    public void movzwl(AsmOperand src, AsmOperand dest) { as.movzwl(src, dest); }
+    public void lea(AsmOperand src, AsmOperand dest) { as.lea(src, dest); }
+    public void lea(Type type, AsmOperand src, AsmOperand dest) { as.lea(type, src, dest); }
     public void neg(Type type, Register reg) { as.neg(type, reg); }
-    public void inc(Type type, AsmEntity reg) { as.inc(type, reg); }
-    public void dec(Type type, AsmEntity reg) { as.dec(type, reg); }
-    public void add(AsmEntity diff, AsmEntity base) { as.add(diff, base); }
-    public void add(Type type, AsmEntity diff, AsmEntity base) { as.add(type, diff, base); }
-    public void sub(AsmEntity diff, AsmEntity base) { as.sub(diff, base); }
-    public void sub(Type type, AsmEntity diff, AsmEntity base) { as.sub(type, diff, base); }
-    public void imul(AsmEntity m, Register base) { as.imul(m, base); }
-    public void imul(Type type, AsmEntity m, Register base) { as.imul(type, m, base); }
+    public void inc(Type type, AsmOperand reg) { as.inc(type, reg); }
+    public void dec(Type type, AsmOperand reg) { as.dec(type, reg); }
+    public void add(AsmOperand diff, AsmOperand base) { as.add(diff, base); }
+    public void add(Type type, AsmOperand diff, AsmOperand base) { as.add(type, diff, base); }
+    public void sub(AsmOperand diff, AsmOperand base) { as.sub(diff, base); }
+    public void sub(Type type, AsmOperand diff, AsmOperand base) { as.sub(type, diff, base); }
+    public void imul(AsmOperand m, Register base) { as.imul(m, base); }
+    public void imul(Type type, AsmOperand m, Register base) { as.imul(type, m, base); }
     public void cltd() { as.cltd(); }
     public void div(Type type, Register base) { as.div(type, base); }
     public void idiv(Type type, Register base) { as.idiv(type, base); }

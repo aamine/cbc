@@ -47,23 +47,23 @@ public class Assembler {
         list.add(new Instruction(op));
     }
 
-    protected void insn(String op, AsmEntity a) {
+    protected void insn(String op, AsmOperand a) {
         list.add(new Instruction(op, "", a));
     }
 
-    protected void insn(String op, String suffix, AsmEntity a) {
+    protected void insn(String op, String suffix, AsmOperand a) {
         list.add(new Instruction(op, suffix, a));
     }
 
-    protected void insn(Type t, String op, AsmEntity a) {
+    protected void insn(Type t, String op, AsmOperand a) {
         list.add(new Instruction(op, typeSuffix(t), a));
     }
 
-    protected void insn(String op, String suffix, AsmEntity a, AsmEntity b) {
+    protected void insn(String op, String suffix, AsmOperand a, AsmOperand b) {
         list.add(new Instruction(op, suffix, a, b));
     }
 
-    protected void insn(Type t, String op, AsmEntity a, AsmEntity b) {
+    protected void insn(Type t, String op, AsmOperand a, AsmOperand b) {
         list.add(new Instruction(op, typeSuffix(t), a, b));
     }
 
@@ -251,47 +251,47 @@ public class Assembler {
         insn("ret");
     }
 
-    public void mov(AsmEntity src, AsmEntity dest) {
+    public void mov(AsmOperand src, AsmOperand dest) {
         mov(naturalType, src, dest);
     }
 
-    public void mov(Type type, AsmEntity src, AsmEntity dest) {
+    public void mov(Type type, AsmOperand src, AsmOperand dest) {
         insn(type, "mov", src, dest);
     }
 
-    public void movsx(Type t1, Type t2, AsmEntity src, AsmEntity dest) {
+    public void movsx(Type t1, Type t2, AsmOperand src, AsmOperand dest) {
         insn("movs", typeSuffix(t1, t2), src, dest);
     }
 
-    public void movsbl(AsmEntity src, AsmEntity dest) {
+    public void movsbl(AsmOperand src, AsmOperand dest) {
         insn("movs", "bl", src, dest);
     }
 
-    public void movswl(AsmEntity src, AsmEntity dest) {
+    public void movswl(AsmOperand src, AsmOperand dest) {
         insn("movs", "wl", src, dest);
     }
 
-    public void movzx(Type t1, Type t2, AsmEntity src, AsmEntity dest) {
+    public void movzx(Type t1, Type t2, AsmOperand src, AsmOperand dest) {
         insn("movz", typeSuffix(t1, t2), src, dest);
     }
 
-    public void movzb(Type t, AsmEntity src, AsmEntity dest) {
+    public void movzb(Type t, AsmOperand src, AsmOperand dest) {
         insn("movz", "b" + typeSuffix(t), src, dest);
     }
 
-    public void movzbl(AsmEntity src, AsmEntity dest) {
+    public void movzbl(AsmOperand src, AsmOperand dest) {
         insn("movz", "bl", src, dest);
     }
 
-    public void movzwl(AsmEntity src, AsmEntity dest) {
+    public void movzwl(AsmOperand src, AsmOperand dest) {
         insn("movz", "wl", src, dest);
     }
 
-    public void lea(AsmEntity src, AsmEntity dest) {
+    public void lea(AsmOperand src, AsmOperand dest) {
         lea(naturalType, src, dest);
     }
 
-    public void lea(Type type, AsmEntity src, AsmEntity dest) {
+    public void lea(Type type, AsmOperand src, AsmOperand dest) {
         insn(type, "lea", src, dest);
     }
 
@@ -299,35 +299,35 @@ public class Assembler {
         insn(type, "neg", reg);
     }
 
-    public void inc(Type type, AsmEntity reg) {
+    public void inc(Type type, AsmOperand reg) {
         insn(type, "inc", reg);
     }
 
-    public void dec(Type type, AsmEntity reg) {
+    public void dec(Type type, AsmOperand reg) {
         insn(type, "dec", reg);
     }
 
-    public void add(AsmEntity diff, AsmEntity base) {
+    public void add(AsmOperand diff, AsmOperand base) {
         add(naturalType, diff, base);
     }
 
-    public void add(Type type, AsmEntity diff, AsmEntity base) {
+    public void add(Type type, AsmOperand diff, AsmOperand base) {
         insn(type, "add", diff, base);
     }
 
-    public void sub(AsmEntity diff, AsmEntity base) {
+    public void sub(AsmOperand diff, AsmOperand base) {
         sub(naturalType, diff, base);
     }
 
-    public void sub(Type type, AsmEntity diff, AsmEntity base) {
+    public void sub(Type type, AsmOperand diff, AsmOperand base) {
         insn(type, "sub", diff, base);
     }
 
-    public void imul(AsmEntity m, Register base) {
+    public void imul(AsmOperand m, Register base) {
         imul(naturalType, m, base);
     }
 
-    public void imul(Type type, AsmEntity m, Register base) {
+    public void imul(Type type, AsmOperand m, Register base) {
         insn(type, "imul", m, base);
     }
 

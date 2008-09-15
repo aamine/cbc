@@ -1,6 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.AsmEntity;
+import net.loveruby.cflat.asm.AsmOperand;
 import net.loveruby.cflat.exception.*;
 
 public class MemberNode extends ExprNode {
