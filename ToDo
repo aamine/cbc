@@ -2,8 +2,6 @@
 
 == Current
 
-* write install.sh
-* va_list
 * -O (peephole optimization)
         * movl $0, %eax => xorl %eax, %eax
         * addl $1, %eax  => incl %eax
@@ -234,3 +232,5 @@
 - -L
 - -Wl, -Xlinker
 - -Wa, -Xassembler
+- write install.sh
+- va_list

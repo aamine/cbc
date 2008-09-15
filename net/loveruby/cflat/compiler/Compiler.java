@@ -205,11 +205,18 @@ public class Compiler {
         // FIXME: -dynamic-linker required only on dynamic linking
         cmd.add("-dynamic-linker");
         cmd.add("/lib/ld-linux.so.2");
-        if (! opts.noStartFiles()) cmd.add("/usr/lib/crt1.o");
-        if (! opts.noStartFiles()) cmd.add("/usr/lib/crti.o");
+        if (! opts.noStartFiles()) {
+            cmd.add("/usr/lib/crt1.o");
+            cmd.add("/usr/lib/crti.o");
+        }
         cmd.addAll(opts.ldArgs());
-        if (! opts.noDefaultLibs()) cmd.add("-lc");
-        if (! opts.noStartFiles()) cmd.add("/usr/lib/crtn.o");
+        if (! opts.noDefaultLibs()) {
+            cmd.add("-lc");
+            cmd.add("-lcbc");
+        }
+        if (! opts.noStartFiles()) {
+            cmd.add("/usr/lib/crtn.o");
+        }
         cmd.add("-o");
         cmd.add(opts.exeFileName());
         invoke(cmd, opts.isVerboseMode());

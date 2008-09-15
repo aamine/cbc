@@ -294,6 +294,10 @@ test_33_multipleinput() {
     assert_status 4 ./src
 }
 
+test_34_varargs() {
+    assert_out "1;2;3" ./varargs
+}
+
 ###
 ### Local Assertions
 ###

@@ -10,13 +10,15 @@ Requirements
 
     * Java SDK 1.4 or later
     * JavaCC 4.0 or later
+    * ant
+    * make
 
     To run cbc and compiled program:
 
     * Linux 2.4 or later
+    * util-linux (ld-linux.so.2)
     * GNU libc 2.3 or later
     * GNU binutils (as, ld)
-    * util-linux (ld-linux.so.2)
 
 
 Installation
@@ -26,13 +28,14 @@ Installation
 
         or
 
-    $ prefix=$HOME/local ./install.sh
+    $ ./install.sh $HOME/local/cbc
 
 
 Build
 -----
 
     $ ant compile
+    $ make
 
 
 Test

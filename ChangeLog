@@ -1,3 +1,18 @@
+Mon Sep 15 21:19:05 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: link libcbc on making
+	  executables.
+
+	* Makefile: new file.
+
+	* lib/Makefile: new file to build libcbc.a.
+
+	* test: test varargs.
+
+	* install.sh: new file.
+
+	* README: change install.sh usage.
+
 Mon Sep 15 01:31:28 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* bin/cbc: allow overriding java runtime by setting JAVA

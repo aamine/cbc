@@ -15,7 +15,7 @@ invoke() {
 echo "version=$version"
 echo "prefix=$prefix"
 invoke mkdir -p "$prefix/bin"
-invoke cp bin/cbc bin/cbci "$prefix/bin
+invoke cp bin/cbc "$prefix/bin
 invoke mkdir -p "$prefix/lib"
 invoke cp cbc.jar lib/libcbc.o "$prefix/lib"
 echo "cbc successfully installed as $prefix/bin/cbc"
