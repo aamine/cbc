@@ -4,7 +4,7 @@ import net.loveruby.cflat.asm.*;
 
 public class DefinedVariable extends Variable {
     protected ExprNode initializer;
-    protected AsmEntity address;
+    protected Address memref;
 
     public DefinedVariable(boolean priv, TypeNode type,
                            String name, ExprNode init) {
@@ -31,6 +31,20 @@ public class DefinedVariable extends Variable {
 
     public void setInitializer(ExprNode expr) {
         this.initializer = expr;
+    }
+
+    public void setMemref(Address addr) {
+        this.memref = addr;
+    }
+
+    public Address memref() {
+        if (memref == null)
+            throw new Error("unresolved variable address");
+        return memref;
+    }
+
+    public AsmEntity address() {
+        return null;
     }
 
     protected void _dump(Dumper d) {

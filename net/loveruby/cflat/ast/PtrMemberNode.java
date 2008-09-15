@@ -52,10 +52,6 @@ public class PtrMemberNode extends ExprNode {
         return false;
     }
 
-    public AsmEntity address() {
-        throw new Error("PtrMemberNode#address");
-    }
-
     public long offset() {
         return dereferedComplexType().memberOffset(member);
     }

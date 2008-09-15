@@ -56,6 +56,10 @@ public class VariableNode extends ExprNode {
         return entity.address();
     }
 
+    public Address memref() {
+        return entity.memref();
+    }
+
     public Location location() {
         return location;
     }

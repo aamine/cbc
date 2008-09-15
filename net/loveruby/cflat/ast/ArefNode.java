@@ -53,10 +53,6 @@ public class ArefNode extends ExprNode {
         return false;
     }
 
-    public AsmEntity address() {
-        throw new Error("ArefNode#address");
-    }
-
     public Location location() {
         return expr.location();
     }

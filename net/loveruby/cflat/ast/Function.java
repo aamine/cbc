@@ -25,6 +25,10 @@ abstract public class Function extends Entity {
         return returnType().isVoid();
     }
 
+    public Address memref() {
+        return null;
+    }
+
     public AsmEntity address() {
         return new ImmediateValue(new Label(name()));
     }

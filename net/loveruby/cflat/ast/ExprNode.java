@@ -47,4 +47,8 @@ abstract public class ExprNode extends Node {
     public AsmEntity address() {
         throw new Error("ExprNode#address called");
     }
+
+    public Address memref() {
+        throw new Error("ExprNode#memref called");
+    }
 }

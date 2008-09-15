@@ -51,7 +51,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     // #@@}
 
     /**
-     * Sets address for...
+     * Sets memory reference for...
      *   * public global variables
      *   * private global variables
      *   * static local variables
@@ -60,7 +60,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     protected void allocateGlobalVariables(Iterator vars) {
         while (vars.hasNext()) {
             Variable var = (Variable)vars.next();
-            var.setAddress(globalVariableAddress(var.symbol()));
+            var.setMemref(globalVariableAddress(var.symbol()));
         }
     }
     // #@@}
@@ -74,21 +74,21 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     protected void allocateCommonSymbols(Iterator comms) {
         while (comms.hasNext()) {
             Variable var = (Variable)comms.next();
-            var.setAddress(commonSymbolAddress(var.symbol()));
+            var.setMemref(commonSymbolAddress(var.symbol()));
         }
     }
     // #@@}
 
     /** Linux/IA-32 dependent */
     // FIXME: PIC
-    protected AsmEntity globalVariableAddress(String sym) {
-        return new Symbol(new Label(csymbol(sym)));
+    protected Address globalVariableAddress(String sym) {
+        return new DirectAddress(new Label(csymbol(sym)));
     }
 
     /** Linux/IA-32 dependent */
     // FIXME: PIC
-    protected AsmEntity commonSymbolAddress(String sym) {
-        return new Symbol(new Label(csymbol(sym)));
+    protected Address commonSymbolAddress(String sym) {
+        return new DirectAddress(new Label(csymbol(sym)));
     }
 
     /** Generates static variable entries */
@@ -298,7 +298,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         while (vars.hasNext()) {
             Parameter var = (Parameter)vars.next();
             if (stackGrowsLower) {
-                var.setAddress(mem(word * stackWordSize, bp()));
+                var.setMemref(mem(word * stackWordSize, bp()));
             }
             else {
                 throw new Error("unsupported stack layout");
@@ -323,10 +323,10 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
             DefinedVariable var = (DefinedVariable)vars.next();
             if (stackGrowsLower) {
                 len = Assembler.align(len + var.allocSize(), stackAlignment);
-                var.setAddress(mem(-len, bp()));
+                var.setMemref(mem(-len, bp()));
             }
             else {
-                var.setAddress(mem(len, bp()));
+                var.setMemref(mem(len, bp()));
                 len = Assembler.align(len + var.allocSize(), stackAlignment);
             }
         }
@@ -397,7 +397,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
             DefinedVariable var = (DefinedVariable)vars.next();
             if (var.initializer() != null) {
                 compile(var.initializer());
-                save(var.type(), reg("ax"), var.address());
+                save(var.type(), reg("ax"), var.memref());
             }
         }
         Iterator stmts = node.stmts();
@@ -647,9 +647,9 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
 
     public void visit(PrefixOpNode node) {
         if (node.expr().isConstantAddress()) {
-            load(node.expr().type(), node.expr().address(), reg("ax"));
+            load(node.expr().type(), node.expr().memref(), reg("ax"));
             compileUnaryArithmetic(node, reg("ax"));
-            save(node.expr().type(), reg("ax"), node.expr().address());
+            save(node.expr().type(), reg("ax"), node.expr().memref());
         }
         else {
             compileLHS(node.expr());
@@ -662,10 +662,10 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
 
     public void visit(SuffixOpNode node) {
         if (node.expr().isConstantAddress()) {
-            load(node.expr().type(), node.expr().address(), reg("ax"));
+            load(node.expr().type(), node.expr().memref(), reg("ax"));
             mov(reg("ax"), reg("cx"));
             compileUnaryArithmetic(node, reg("cx"));
-            save(node.expr().type(), reg("cx"), node.expr().address());
+            save(node.expr().type(), reg("cx"), node.expr().memref());
         }
         else {
             compileLHS(node.expr());
@@ -721,10 +721,16 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
 
     public void visit(VariableNode node) {
         if (node.type().isAllocatedArray()) {
-            lea(node.address(), reg("ax"));
+            // int[4] a; a implies &a
+            compileLHS(node);
+        }
+        else if (node.memref() == null) {
+            // "puts" equivalent to "&ptr"
+            mov(node.address(), reg("ax"));
         }
         else {
-            load(node.type(), node.address(), reg("ax"));
+            // regular variable
+            load(node.type(), node.memref(), reg("ax"));
         }
     }
 
@@ -733,7 +739,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     public void visit(StringLiteralNode node) {
-        load(node.type(), imm(node.label()), reg("ax"));
+        mov(imm(node.label()), reg("ax"));
     }
 
     //
@@ -743,7 +749,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     public void visit(AssignNode node) {
         if (node.lhs().isConstantAddress()) {
             compile(node.rhs());
-            save(node.type(), reg("ax"), node.lhs().address());
+            save(node.type(), reg("ax"), node.lhs().memref());
         }
         else {
             compile(node.rhs());
@@ -759,9 +765,9 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         compile(node.rhs());
         if (node.lhs().isConstantAddress()) {
             mov(reg("ax"), reg("cx"));
-            load(node.type(), node.lhs().address(), reg("ax"));
+            load(node.type(), node.lhs().memref(), reg("ax"));
             compileBinaryOp(node.operator(), node.type());
-            save(node.type(), reg("ax"), node.lhs().address());
+            save(node.type(), reg("ax"), node.lhs().memref());
         }
         else {
             push(reg("ax"));
@@ -807,7 +813,12 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     public void visitLHS(VariableNode node) {
-        lea(node.address(), reg("ax"));
+        if (node.address() != null) {
+            mov(node.address(), reg("ax"));
+        }
+        else {
+            lea(node.memref(), reg("ax"));
+        }
     }
 
     public void visitLHS(ArefNode node) {
@@ -882,7 +893,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         return new ImmediateValue(label);
     }
 
-    protected void load(Type type, AsmEntity addr, Register reg) {
+    protected void load(Type type, Address addr, Register reg) {
         switch ((int)type.size()) {
         case 1:
             if (type.isSigned()) {  // signed char
@@ -904,7 +915,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         }
     }
 
-    protected void save(Type type, Register reg, AsmEntity addr) {
+    protected void save(Type type, Register reg, Address addr) {
         mov(type, reg.forType(type), addr);
     }
 

@@ -1,3 +1,35 @@
+Tue Sep 16 02:18:06 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: both of "puts"
+	  and "&puts" should be evaluated to its address.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: address ->
+	  memref.
+
+	* net/loveruby/cflat/ast/Entity.java: ditto.
+
+	* net/loveruby/cflat/ast/Function.java: ditto.
+
+	* net/loveruby/cflat/ast/Variable.java: ditto.
+
+	* net/loveruby/cflat/ast/UndefinedVariable.java: ditto.
+
+	* net/loveruby/cflat/ast/DefinedVariable.java: ditto.
+
+	* net/loveruby/cflat/ast/ExprNode.java: ditto.: ditto.
+
+	* net/loveruby/cflat/ast/ArefNode.java: ditto.
+
+	* net/loveruby/cflat/ast/MemberNode.java: ditto.
+
+	* net/loveruby/cflat/ast/PtrMemberNode.java: ditto.
+
+	* net/loveruby/cflat/ast/VariableNode.java: ditto.
+
+	* net/loveruby/cflat/ast/CastNode.java: ditto.
+
+	* test: test "puts", "&puts", "myputs", "&myputs".
+
 Tue Sep 16 00:59:55 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/Function.java (address): should return

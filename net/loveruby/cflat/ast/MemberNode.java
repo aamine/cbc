@@ -51,10 +51,6 @@ public class MemberNode extends ExprNode {
         return false;
     }
 
-    public AsmEntity address() {
-        throw new Error("must not happen: MemberNode#address");
-    }
-
     public Location location() {
         return expr.location();
     }
