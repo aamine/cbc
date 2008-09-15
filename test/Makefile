@@ -1,4 +1,11 @@
 ANT = jant
+CBC = ../bin/cbc
+
+.SUFFIXES:
+.SUFFIXES: .cb .
+
+.cb:
+	$(CBC) $<
 
 test:
 	./run.sh
