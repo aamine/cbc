@@ -34,7 +34,6 @@ Installation
 Build
 -----
 
-    $ ant compile
     $ make
 
 
