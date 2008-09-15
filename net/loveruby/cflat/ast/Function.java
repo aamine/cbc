@@ -26,6 +26,6 @@ abstract public class Function extends Entity {
     }
 
     public AsmEntity address() {
-        return new DirectAddress(new Label(name()));
+        return new ImmediateValue(new Label(name()));
     }
 }

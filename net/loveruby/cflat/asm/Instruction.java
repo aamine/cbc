@@ -47,6 +47,7 @@ public class Instruction extends Assembly {
 
     public String toSource() {
         StringBuffer buf = new StringBuffer();
+        buf.append("\t");
         buf.append(mnemonic + suffix);
         String sep = "\t";
         for (int i = 0; i < operands.length; i++) {
