@@ -15,7 +15,7 @@ public class ImmediateValue extends AsmOperand {
         return this.expr;
     }
 
-    public String toString() {
-        return "$" + expr.toString();
+    public String toSource() {
+        return "$" + expr.toSource();
     }
 }

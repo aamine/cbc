@@ -52,7 +52,7 @@ public class Instruction extends Assembly {
         String sep = "\t";
         for (int i = 0; i < operands.length; i++) {
             buf.append(sep); sep = ", ";
-            buf.append(operands[i]);
+            buf.append(operands[i].toSource());
         }
         return buf.toString();
     }

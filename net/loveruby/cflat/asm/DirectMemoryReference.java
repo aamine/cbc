@@ -15,7 +15,7 @@ public class DirectMemoryReference extends MemoryReference {
         return this.value;
     }
 
-    public String toString() {
-        return this.value.toString();
+    public String toSource() {
+        return this.value.toSource();
     }
 }

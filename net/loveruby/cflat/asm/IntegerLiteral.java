@@ -11,7 +11,7 @@ public class IntegerLiteral extends Literal {
         return this.value;
     }
 
-    public String toString() {
+    public String toSource() {
         return new Long(value).toString();
     }
 }

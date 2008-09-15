@@ -11,7 +11,7 @@ public class LabelRef extends Literal {
         return label.name();
     }
 
-    public String toString() {
+    public String toSource() {
         return symbol();
     }
 }

@@ -28,6 +28,10 @@ public class Register extends AsmOperand {
         }
     }
 
+    public String baseName() {
+        return name;
+    }
+
     public String name() {
         switch (size) {
         case 1: return lowerByteRegister(name);
@@ -53,7 +57,7 @@ public class Register extends AsmOperand {
         return false;
     }
 
-    public String toString() {
+    public String toSource() {
         return "%" + name();
     }
 }

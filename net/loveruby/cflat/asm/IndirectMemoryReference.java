@@ -21,7 +21,7 @@ public class IndirectMemoryReference extends MemoryReference {
         return base;
     }
 
-    public String toString() {
-        return (offset == 0 ? "" : "" + offset) + "(" + base.toString() + ")";
+    public String toSource() {
+        return (offset == 0 ? "" : "" + offset) + "(" + base.toSource() + ")";
     }
 }

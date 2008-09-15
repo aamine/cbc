@@ -11,7 +11,7 @@ public class AbsoluteAddress extends AsmOperand {
         return this.register;
     }
 
-    public String toString() {
-        return "*" + register.toString();
+    public String toSource() {
+        return "*" + register.toSource();
     }
 }
