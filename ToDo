@@ -241,3 +241,4 @@
 - AsmEntity -> AsmOperand
 - Symbol -> LabelRef
 - Literal should not inherit AsmEntity
+- toString -> toSource
