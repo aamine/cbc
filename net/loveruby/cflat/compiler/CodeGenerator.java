@@ -82,13 +82,13 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     /** Linux/IA-32 dependent */
     // FIXME: PIC
     protected AsmEntity globalVariableAddress(String sym) {
-        return new Label(csymbol(sym));
+        return new Symbol(new Label(csymbol(sym)));
     }
 
     /** Linux/IA-32 dependent */
     // FIXME: PIC
     protected AsmEntity commonSymbolAddress(String sym) {
-        return new Label(csymbol(sym));
+        return new Symbol(new Label(csymbol(sym)));
     }
 
     /** Generates static variable entries */
@@ -866,20 +866,20 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         return new Register(name);
     }
 
-    protected SimpleAddress mem(Register reg) {
-        return new SimpleAddress(reg);
+    protected IndirectAddress mem(Register reg) {
+        return new IndirectAddress(reg);
     }
 
-    protected CompositeAddress mem(long offset, Register reg) {
-        return new CompositeAddress(offset, reg);
+    protected IndirectAddress mem(long offset, Register reg) {
+        return new IndirectAddress(offset, reg);
     }
 
     protected ImmediateValue imm(long n) {
         return new ImmediateValue(n);
     }
 
-    protected Reference imm(Label label) {
-        return new Reference(label);
+    protected ImmediateValue imm(Label label) {
+        return new ImmediateValue(label);
     }
 
     protected void load(Type type, AsmEntity addr, Register reg) {
@@ -909,7 +909,6 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     public void comment(String str) { as.comment(str); }
-    public void line(String str) { as.line(str); }
     public void _file(String name) { as._file(name); }
     public void _text() { as._text(); }
     public void _data() { as._data(); }

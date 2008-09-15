@@ -1,3 +1,44 @@
+Tue Sep 16 00:21:10 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/Assembler.java: objectify instructions,
+	  directives, comments and labels.
+
+	* net/loveruby/cflat/asm/Label.java: inherits Assembly instead of
+	  AsmEntity.
+
+	* net/loveruby/cflat/asm/Address.java: new method #isAddress.
+
+	* net/loveruby/cflat/asm/ImmediateValue.java: accept Literals.
+
+	* net/loveruby/cflat/asm/AbsoluteAddress.java: new file.
+
+	* net/loveruby/cflat/asm/AsmComment.java: new file.
+
+	* net/loveruby/cflat/asm/Assembly.java: new file.
+
+	* net/loveruby/cflat/asm/Directive.java: new file.
+
+	* net/loveruby/cflat/asm/Reference.java -> DirectAddress.java: new
+	  file.
+
+	* net/loveruby/cflat/asm/SimpleAddress.java, CompositeAddress.java
+	  -> IndirectAddress.java
+
+	* net/loveruby/cflat/asm/Instruction.java: new file.
+
+	* net/loveruby/cflat/asm/IntegerLiteral.java: new file.
+
+	* net/loveruby/cflat/asm/Literal.java: new file.
+
+	* net/loveruby/cflat/asm/Symbol.java: new file.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: follow asm
+	  changes.
+
+	* net/loveruby/cflat/ast/UndefinedVariable.java:
+
+	* net/loveruby/cflat/ast/Function.java
+
 Mon Sep 15 21:19:05 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: link libcbc on making
