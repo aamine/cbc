@@ -8,40 +8,57 @@ Requirements
 
     To compile cbc itself:
 
-    * Java SDK 1.4 or later
-    * JavaCC 4.0 or later
-    * ant
-    * make
+        * Java SDK 1.4 or later
+        * JavaCC 4.0 or later
+        * ant
+        * make
 
     To run cbc and compiled program:
 
-    * Linux 2.4 or later
-    * util-linux (ld-linux.so.2)
-    * GNU libc 2.3 or later
-    * GNU binutils (as, ld)
+        * Linux 2.4 or later
+        * util-linux (ld-linux.so.2)
+        * GNU libc 2.3 or later
+        * GNU binutils (as, ld)
 
 
 Installation
 ------------
 
-    # sudo ./install.sh
+    To install all files under /usr/local/cbc:
 
-        or
+        # sudo ./install.sh
+        # sudo ln -s ../cbc/bin/cbc /usr/local/bin/cbc
 
-    $ ./install.sh $HOME/local/cbc
+    To install all files under $HOME/cbc:
+
+        $ ./install.sh $HOME/cbc
+        $ ln -s ../cbc/bin/cbc $HOME/bin/cbc
 
 
 Build
 -----
 
-    $ make
+    Edit build.properties for your environment and invoke make:
+
+        $ vi build.properties
+        $ make
 
 
 Test
 ----
 
-    $ cd test
-    $ make test
+    Invoke "make test":
+
+        $ make test
+
+    Note that you need bash (not bourne sh) to run test scripts.
+    ksh or zsh may work.
+
+
+Usage
+-----
+
+    $ cbc --help
 
 
 License
