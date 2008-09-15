@@ -1,3 +1,9 @@
+Tue Sep 16 02:53:07 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/Symbol.java -> LabelRef.java
+
+	* net/loveruby/cflat/asm/*.java: Symbol -> LabelRef.
+
 Tue Sep 16 02:49:21 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm/AsmEntity.java -> AsmOperand.java

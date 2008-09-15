@@ -162,23 +162,23 @@ public class Assembler {
     //
 
     public void jmp(Label label) {
-        insn("jmp", new Symbol(label));
+        insn("jmp", new LabelRef(label));
     }
 
     public void jz(Label label) {
-        insn("jz", new Symbol(label));
+        insn("jz", new LabelRef(label));
     }
 
     public void jnz(Label label) {
-        insn("jnz", new Symbol(label));
+        insn("jnz", new LabelRef(label));
     }
 
     public void je(Label label) {
-        insn("je", new Symbol(label));
+        insn("je", new LabelRef(label));
     }
 
     public void jne(Label label) {
-        insn("jne", new Symbol(label));
+        insn("jne", new LabelRef(label));
     }
 
     public void cmp(Type t, Register a, Register b) {
@@ -239,7 +239,7 @@ public class Assembler {
 
     // call function by relative address
     public void call(String sym) {
-        insn("call", new Symbol(new Label(sym)));
+        insn("call", new LabelRef(new Label(sym)));
     }
 
     // call function by absolute address

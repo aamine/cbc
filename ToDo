@@ -2,7 +2,6 @@
 
 == Current
 
-* AsmEntity -> AsmOperand
 * Symbol -> LabelRef
 * reject struct/union/array on stmt context
 * -O (peephole optimization)
@@ -240,3 +239,4 @@
 - va_list
 - objectify instruction
 - fix &puts
+- AsmEntity -> AsmOperand

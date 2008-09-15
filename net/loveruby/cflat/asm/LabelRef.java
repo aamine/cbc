@@ -1,9 +1,9 @@
 package net.loveruby.cflat.asm;
 
-public class Symbol extends Literal {
+public class LabelRef extends Literal {
     protected Label label;
 
-    public Symbol(Label label) {
+    public LabelRef(Label label) {
         this.label = label;
     }
 

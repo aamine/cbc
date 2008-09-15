@@ -4,7 +4,7 @@ public class DirectMemoryReference extends MemoryReference {
     protected Literal value;
 
     public DirectMemoryReference(Label label) {
-        this.value = new Symbol(label);
+        this.value = new LabelRef(label);
     }
 
     public DirectMemoryReference(IntegerLiteral n) {

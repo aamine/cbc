@@ -8,7 +8,7 @@ public class ImmediateValue extends AsmOperand {
     }
 
     public ImmediateValue(Label label) {
-        this(new Symbol(label));
+        this(new LabelRef(label));
     }
 
     public ImmediateValue(AsmOperand entity) {
