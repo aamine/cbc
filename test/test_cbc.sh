@@ -300,6 +300,12 @@ test_34_varargs() {
     assert_out "1;2;3" ./varargs
 }
 
+test_35_invalidstmt() {
+    assert_compile_error invalidstmt1.cb
+    assert_compile_error invalidstmt2.cb
+    assert_compile_error invalidstmt3.cb
+}
+
 ###
 ### Local Assertions
 ###

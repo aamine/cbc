@@ -69,6 +69,13 @@ class TypeChecker extends Visitor {
         Iterator stmts = node.stmts();
         while (stmts.hasNext()) {
             Node n = (Node)stmts.next();
+            if (n instanceof ExprNode) {
+                ExprNode expr = (ExprNode)n;
+                if (isInvalidStatementType(expr.type())) {
+                    error(expr, "invalid statement type: " + expr.type());
+                    return;
+                }
+            }
             check(n);
         }
     }
@@ -562,6 +569,10 @@ class TypeChecker extends Visitor {
         }
     }
     // #@@}
+
+    protected boolean isInvalidStatementType(Type t) {
+        return t.isStruct() || t.isUnion() || t.isAllocatedArray();
+    }
 
     protected boolean isInvalidReturnType(Type t) {
         return t.isStruct() || t.isUnion() || t.isArray();

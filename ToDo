@@ -2,7 +2,7 @@
 
 == Current
 
-* reject struct/union/array on stmt context
+* ComplexType -> CompositeType
 * -O (peephole optimization)
         * movl $0, %eax => xorl %eax, %eax
         * addl $1, %eax  => incl %eax
@@ -242,3 +242,4 @@
 - Symbol -> LabelRef
 - Literal should not inherit AsmEntity
 - toString -> toSource
+- reject struct/union/array on stmt context
