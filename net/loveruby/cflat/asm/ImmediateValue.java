@@ -1,25 +1,21 @@
 package net.loveruby.cflat.asm;
 
 public class ImmediateValue extends AsmOperand {
-    protected AsmOperand entity;
+    protected Literal expr;
 
     public ImmediateValue(long n) {
-        this(new IntegerLiteral(n));
+        this.expr = new IntegerLiteral(n);
     }
 
     public ImmediateValue(Label label) {
-        this(new LabelRef(label));
+        this.expr = new LabelRef(label);
     }
 
-    public ImmediateValue(AsmOperand entity) {
-        this.entity = entity;
-    }
-
-    public AsmOperand entity() {
-        return this.entity;
+    public Literal expr() {
+        return this.expr;
     }
 
     public String toString() {
-        return "$" + entity.toString();
+        return "$" + expr.toString();
     }
 }

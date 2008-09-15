@@ -1,4 +1,4 @@
 package net.loveruby.cflat.asm;
 
-abstract public class Literal extends AsmOperand {
+abstract public class Literal {
 }

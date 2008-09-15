@@ -2,7 +2,6 @@
 
 == Current
 
-* Symbol -> LabelRef
 * reject struct/union/array on stmt context
 * -O (peephole optimization)
         * movl $0, %eax => xorl %eax, %eax
@@ -240,3 +239,5 @@
 - objectify instruction
 - fix &puts
 - AsmEntity -> AsmOperand
+- Symbol -> LabelRef
+- Literal should not inherit AsmEntity

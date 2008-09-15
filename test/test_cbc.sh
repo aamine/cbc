@@ -237,6 +237,8 @@ test_25_block() {
 test_26_funcptr() {
     assert_out "OK" ./funcptr
     assert_out "OK" ./funcptr2
+    assert_out "OK" ./funcptr3
+    assert_out "OK" ./funcptr4
     assert_compile_error defun-semcheck.cb
     assert_compile_error defun-semcheck2.cb
     assert_compile_error defun-semcheck3.cb
