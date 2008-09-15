@@ -18,6 +18,7 @@
 * generate prologue/epilogue after function body.
 * -fPIC (PIC generation)
 * -shared
+* bin/cbc: resolve symbolic link
 * remove all FIXME
 ? -fPIE, -pie
 
