@@ -9,8 +9,7 @@ class TypeChecker extends Visitor {
     protected ErrorHandler errorHandler;
 
     // #@@range/ctor{
-    public TypeChecker(TypeTable typeTable, ErrorHandler errorHandler) {
-        this.typeTable = typeTable;
+    public TypeChecker(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
     }
     // #@@}
@@ -21,6 +20,7 @@ class TypeChecker extends Visitor {
 
     // #@@range/check_AST{
     public void check(AST ast) throws SemanticException {
+        this.typeTable = ast.typeTable();
         Iterator vars = ast.variables();
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();

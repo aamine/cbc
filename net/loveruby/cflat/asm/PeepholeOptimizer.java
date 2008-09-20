@@ -1,8 +1,7 @@
-package net.loveruby.cflat.compiler;
-import net.loveruby.cflat.asm.*;
+package net.loveruby.cflat.asm;
 import java.util.*;
 
-public class PeepholeOptimizer {
+public class PeepholeOptimizer implements AsmOptimizer {
     protected List filters;
 
     public PeepholeOptimizer() {

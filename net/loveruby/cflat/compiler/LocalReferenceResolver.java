@@ -4,11 +4,6 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class LocalReferenceResolver extends Visitor {
-    static public void resolve(AST ast, ErrorHandler handler)
-                                    throws SemanticException {
-        new LocalReferenceResolver(handler).resolve(ast);
-    }
-
     // #@@range/ctor{
     protected ErrorHandler errorHandler;
     protected ToplevelScope toplevel;

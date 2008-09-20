@@ -5,33 +5,28 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class TypeResolver extends Visitor {
-    static public void resolve(AST ast, TypeTable typeTable,
-                               ErrorHandler errorHandler) {
-        new TypeResolver(typeTable, errorHandler).resolveProgram(ast);
-    }
-
     // #@@range/ctor{
     protected TypeTable typeTable;
     protected ErrorHandler errorHandler;
 
-    public TypeResolver(TypeTable typeTable, ErrorHandler errorHandler) {
-        this.typeTable = typeTable;
+    public TypeResolver(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
+    }
+    // #@@}
+
+    // #@@range/resolveProgram{
+    public void resolve(AST ast) {
+        this.typeTable = ast.typeTable();
+        defineTypes(ast.types());
+        resolveNodeList(ast.types());
+        resolveNodeList(ast.declarations());
+        resolveNodeList(ast.entities());
     }
     // #@@}
 
     // #@@range/resolveNodeList{
     protected void resolveNodeList(Iterator nodes) {
         visitNodeList(nodes);
-    }
-    // #@@}
-
-    // #@@range/resolveProgram{
-    public void resolveProgram(AST ast) {
-        defineTypes(ast.types());
-        resolveNodeList(ast.types());
-        resolveNodeList(ast.declarations());
-        resolveNodeList(ast.entities());
     }
     // #@@}
 

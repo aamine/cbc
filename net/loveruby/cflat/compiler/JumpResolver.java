@@ -5,11 +5,6 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class JumpResolver extends Visitor {
-    static public void resolve(AST ast, ErrorHandler h)
-                                    throws SemanticException {
-        new JumpResolver(h).resolve(ast);
-    }
-
     // #@@range/ctor{
     protected ErrorHandler errorHandler;
     protected LinkedList breakTargetStack;

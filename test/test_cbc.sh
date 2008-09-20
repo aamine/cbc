@@ -319,6 +319,8 @@ assert_stat() {
 assert_out() {
     msg="$1"; shift
     assert_compile_success "$1.cb" &&
+    assert_stdout "$msg" "$@" &&
+    assert_compile_success -O "$1.cb" &&
     assert_stdout "$msg" "$@"
 }
 

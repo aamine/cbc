@@ -5,35 +5,33 @@ import net.loveruby.cflat.asm.*;
 import java.util.*;
 
 public class CodeGenerator extends Visitor implements ASTLHSVisitor {
-    // #@@range/generate
-    static public String generate(AST ast, TypeTable typeTable,
-                                  ErrorHandler errorHandler) {
-        CodeGenerator gen = new CodeGenerator(errorHandler);
-        return gen.generateAssembly(ast, typeTable);
-    }
-    // #@@}
-
     // #@@range/ctor{
+    protected AsmOptimizer optimizer;
     protected ErrorHandler errorHandler;
     protected Assembler assembler;
     protected Assembler as;
     protected TypeTable typeTable;
     protected DefinedFunction currentFunction;
 
-    public CodeGenerator(ErrorHandler errorHandler) {
+    public CodeGenerator(AsmOptimizer optimizer, ErrorHandler errorHandler) {
+        this.optimizer = optimizer;
         this.errorHandler = errorHandler;
     }
     // #@@}
 
     /** Compiles "ast" and generates assembly code. */
-    // #@@range/generateAssembly
-    public String generateAssembly(AST ast, TypeTable typeTable) {
-        this.typeTable = typeTable;
+    // #@@range/generate
+    public String generate(AST ast) {
+        this.typeTable = ast.typeTable();
         this.assembler = newAssembler();
         this.as = this.assembler;
         allocateGlobalVariables(ast.globalVariables());
         allocateCommonSymbols(ast.commonSymbols());
+        compileAST(ast);
+        return as.string();
+    }
 
+    public void compileAST(AST ast) {
         _file(ast.fileName());
         // .data
         _data();
@@ -49,13 +47,11 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         }
         // .bss
         compileCommonSymbols(ast.commonSymbols());
-
-        return as.string();
     }
     // #@@}
 
     protected Assembler newAssembler() {
-        return new Assembler(this.typeTable.unsignedLong());
+        return new Assembler(typeTable.unsignedLong());
     }
 
     /**
@@ -212,11 +208,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         compile(body);
         List assemblies = this.as.assemblies();
         this.as = this.assembler;
-        this.as.addAll(optimize(assemblies));
-    }
-
-    protected List optimize(List assemblies) {
-        return new PeepholeOptimizer().optimize(assemblies);
+        this.as.addAll(optimizer.optimize(assemblies));
     }
 
     // #@@range/compile{
@@ -243,18 +235,14 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     protected void prologue(DefinedFunction func, long lvarBytes) {
         push(bp());
         mov(sp(), bp());
-        if (lvarBytes > 0) {
-            extendStack(lvarBytes);
-        }
+        extendStack(lvarBytes);
     }
     // #@@}
 
     // #@@range/epilogue{
     protected void epilogue(DefinedFunction func, long lvarBytes) {
         label(epilogueLabel(func));
-        if (lvarBytes > 0) {
-            shrinkStack(lvarBytes);
-        }
+        shrinkStack(lvarBytes);
         mov(bp(), sp());
         pop(bp());
         ret();
@@ -359,11 +347,15 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     protected void extendStack(long len) {
-        add(imm(len * (stackGrowsLower ? -1 : 1)), sp());
+        if (len > 0) {
+            add(imm(len * (stackGrowsLower ? -1 : 1)), sp());
+        }
     }
 
     protected void shrinkStack(long len) {
-        add(imm(len * (stackGrowsLower ? 1 : -1)), sp());
+        if (len > 0) {
+            add(imm(len * (stackGrowsLower ? 1 : -1)), sp());
+        }
     }
 
     /** cdecl call

@@ -1,3 +1,31 @@
+Sat Sep 20 23:48:31 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Options.java: new option -O0, -O,
+	  -O1, -O2, -Os.
+
+	* net/loveruby/cflat/asm/AsmOptimizer.java: new interface to
+	  switch optimizer dynamicly.
+
+	* net/loveruby/cflat/compiler/PeepholeOptimizer.java ->
+	  asm/PeepholeOptimizer.java
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: parameterize
+	  AsmOptimizer.
+
+	* net/loveruby/cflat/ast/AST.java: holds a typeTable.
+
+	* net/loveruby/cflat/compiler/Compiler.java: follow AST change.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/LocalReferenceResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/JumpResolver.java: ditto.
+
 Sat Sep 20 22:53:31 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: apply peep-hole

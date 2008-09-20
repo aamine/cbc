@@ -1,5 +1,6 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.type.TypeTable;
+import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 import java.io.*;
@@ -12,6 +13,7 @@ class Options {
     protected String outputFileName;
     protected boolean verbose;
     protected boolean debugParser;
+    protected int optimizeLevel = 0;
     protected List asOptions;     // List<String>
     protected List ldArgs;        // List<LdArg>
     protected boolean noStartFiles = false;
@@ -111,6 +113,19 @@ class Options {
         return this.debugParser;
     }
 
+    public AsmOptimizer optimizer() {
+        if (optimizeLevel == 0) {
+            return new NullAsmOptimizer();
+        }
+        else {
+            return new PeepholeOptimizer();
+        }
+    }
+
+    class NullAsmOptimizer implements AsmOptimizer {
+        public List optimize(List assemblies) { return assemblies; }
+    }
+
     // List<String>
     public List asOptions() {
         return this.asOptions;
@@ -169,13 +184,21 @@ class Options {
                 else if (arg.startsWith("-o")) {
                     outputFileName = getOptArg(arg, args);
                 }
-                // FIXME: PIC, PIE
-                //else if (arg.equals("-fpie"))
+                // FIXME: PIC
+                //else if (arg.equals("-fpic"))
                 //else if (arg.equals("-fPIC"))
+                //      -shared ??
+                // FIXME: PIE
                 //else if (arg.equals("-fpie"))
                 //else if (arg.equals("-fPIE"))
-                // FIXME: optimization
-                //else if (arg.startsWith("-O"))
+                //else if (arg.equals("-pie"))
+                else if (arg.startsWith("-O")) {
+                    String type = arg.substring(2);
+                    if (! type.matches("^([0123s]|)$")) {
+                        parseError("unknown optimization switch: " + arg);
+                    }
+                    optimizeLevel = type.equals("0") ? 0 : 1;
+                }
                 else if (arg.startsWith("-Wa,")) {
                     asOptions.addAll(parseCommaSeparatedOptions(arg));
                 }
@@ -214,8 +237,6 @@ class Options {
                 else if (arg.equals("-Xlinker")) {
                     ldArgs.add(new LdOption(nextArg(arg, args)));
                 }
-                // FIXME: -pie
-                //else if (arg.equals("-pie"))
                 else if (arg.equals("-v")) {
                     verbose = true;
                 }
@@ -319,10 +340,10 @@ class Options {
         out.println("");
         out.println("Compiler Options:");
         out.println("  -I PATH          Adds PATH as import file directory.");
-        //out.println("  -O               Enables optimization.");
-        //out.println("  -O1, -O2, -O3    Equivalent to -O.");
-        //out.println("  -Os              Equivalent to -O.");
-        //out.println("  -O0              Disables optimization.");
+        out.println("  -O               Enables optimization.");
+        out.println("  -O1, -O2, -O3    Equivalent to -O.");
+        out.println("  -Os              Equivalent to -O.");
+        out.println("  -O0              Disables optimization (default).");
         //out.println("  -fPIC            Generates PIC assembly.");
         //out.println("  -fPIE            Generates PIE assembly.");
         out.println("");

@@ -1,5 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.parser.Token;
+import net.loveruby.cflat.type.TypeTable;
 import java.util.*;
 
 public class AST extends Node {
@@ -7,6 +8,7 @@ public class AST extends Node {
     protected Declarations declarations;
     protected ToplevelScope scope;
     protected ConstantTable constantTable;
+    protected TypeTable typeTable;
 
     public AST(Location source, Declarations declarations) {
         super();
@@ -22,6 +24,17 @@ public class AST extends Node {
 
     public Iterator sourceTokens() {
         return source.token().iterator();
+    }
+
+    public void setTypeTable(TypeTable table) {
+        if (typeTable != null) {
+            throw new Error("must not happen: typeTable != null");
+        }
+        this.typeTable = table;
+    }
+
+    public TypeTable typeTable() {
+        return this.typeTable;
     }
 
     public Iterator types() {
@@ -84,6 +97,6 @@ public class AST extends Node {
     }
 
     public void accept(ASTVisitor visitor) {
-        throw new Error("AST#accept");
+        throw new Error("must not happen: AST#accept called");
     }
 }

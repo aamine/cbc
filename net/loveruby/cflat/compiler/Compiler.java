@@ -104,6 +104,7 @@ public class Compiler {
                 findStmt(ast).dump();
                 return;
             }
+            ast.setTypeTable(opts.typeTable);
             semanticAnalysis(ast, opts);
             if (opts.isMode("--dump-reference")) return;
             if (opts.isMode("--dump-semantic")) {
@@ -171,20 +172,20 @@ public class Compiler {
 
     protected void semanticAnalysis(AST ast, Options opts)
                                         throws SemanticException {
-        JumpResolver.resolve(ast, errorHandler);
-        LocalReferenceResolver.resolve(ast, errorHandler);
-        TypeResolver.resolve(ast, opts.typeTable(), errorHandler);
-        opts.typeTable().semanticCheck(errorHandler);
-        DereferenceChecker.check(ast, errorHandler);
+        new JumpResolver(errorHandler).resolve(ast);
+        new LocalReferenceResolver(errorHandler).resolve(ast);
+        new TypeResolver(errorHandler).resolve(ast);
+        ast.typeTable().semanticCheck(errorHandler);
+        new DereferenceChecker(errorHandler).check(ast);
         if (opts.isMode("--dump-reference")) {
             ast.dump();
             return;
         }
-        new TypeChecker(opts.typeTable(), errorHandler).check(ast);
+        new TypeChecker(errorHandler).check(ast);
     }
 
     protected String generateAssembly(AST ast, Options opts) {
-        return CodeGenerator.generate(ast, opts.typeTable(), errorHandler);
+        return new CodeGenerator(opts.optimizer(), errorHandler).generate(ast);
     }
 
     protected void assemble(String srcPath,

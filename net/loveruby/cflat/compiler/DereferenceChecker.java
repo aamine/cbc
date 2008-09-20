@@ -5,22 +5,13 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 class DereferenceChecker extends Visitor {
-    static public void check(AST ast, ErrorHandler h)
-                            throws SemanticException {
-        new DereferenceChecker(h).visit(ast);
-    }
-
     protected ErrorHandler errorHandler;
 
     public DereferenceChecker(ErrorHandler h) {
         this.errorHandler = h;
     }
 
-    protected void check(Node node) {
-        visitNode(node);
-    }
-
-    public void visit(AST ast) throws SemanticException {
+    public void check(AST ast) throws SemanticException {
         Iterator vars = ast.variables();
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
@@ -36,6 +27,10 @@ class DereferenceChecker extends Visitor {
         if (errorHandler.errorOccured()) {
             throw new SemanticException("compile failed.");
         }
+    }
+
+    protected void check(Node node) {
+        visitNode(node);
     }
 
     //
