@@ -37,20 +37,19 @@ abstract public class Scope {
         children.add(s);
     }
 
-    // Returns a list of all child scopes.
-    // Does NOT include myself.
-    protected Iterator allChildren() {
+    // Returns a list of all child scopes including this scope.
+    protected List allScopes() {
         List result = new ArrayList();
-        collectChildren(result);
-        return result.iterator();
+        collectScope(result);
+        return result;
     }
 
-    protected void collectChildren(List buf) {
+    protected void collectScope(List buf) {
+        buf.add(this);
         Iterator cs = children.iterator();
         while (cs.hasNext()) {
             Scope c = (Scope)cs.next();
-            buf.add(c);
-            c.collectChildren(buf);
+            c.collectScope(buf);
         }
     }
 

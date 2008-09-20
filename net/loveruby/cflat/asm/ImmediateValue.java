@@ -21,6 +21,10 @@ public class ImmediateValue extends AsmOperand {
         return this.expr;
     }
 
+    public void collectStatistics(AsmStatistics stats) {
+        // does nothing
+    }
+
     public String toSource() {
         return "$" + expr.toSource();
     }

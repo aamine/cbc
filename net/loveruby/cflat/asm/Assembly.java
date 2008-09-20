@@ -10,4 +10,8 @@ abstract public class Assembly {
     public boolean isLabel() {
         return false;
     }
+
+    public void collectStatistics(AsmStatistics stats) {
+        // does nothing by default.
+    }
 }

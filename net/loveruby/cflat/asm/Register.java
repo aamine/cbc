@@ -61,6 +61,10 @@ public class Register extends AsmOperand {
         return false;
     }
 
+    public void collectStatistics(AsmStatistics stats) {
+        stats.registerUsed(name);
+    }
+
     public String toSource() {
         return "%" + name();
     }

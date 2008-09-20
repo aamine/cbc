@@ -38,8 +38,9 @@ public class DefinedVariable extends Variable {
     }
 
     public MemoryReference memref() {
-        if (memref == null)
+        if (memref == null) {
             throw new Error("unresolved variable address");
+        }
         return memref;
     }
 

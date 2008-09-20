@@ -44,7 +44,7 @@ public class DefinedFunction extends Function {
      * Does NOT include static local variables.
      */
     public Iterator localVariables() {
-        return scope.allVariables();
+        return scope.allLocalVariables();
     }
 
     class JumpEntry {

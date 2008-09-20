@@ -1,3 +1,43 @@
+Sun Sep 21 03:04:16 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: fix local
+	  variables offset after compiling function body, to allow saving
+	  really-used callee-saved registers only.
+
+	* net/loveruby/cflat/asm/IndirectMemoryReference.java: allow
+	  fixing offset out of consructor.
+
+	* net/loveruby/cflat/asm/AsmStatistics.java: new class.
+
+	* net/loveruby/cflat/asm/Assembly.java: support
+	  #collectStatistics.
+
+	* net/loveruby/cflat/asm/Instruction.java: ditto.
+
+	* net/loveruby/cflat/asm/AsmOperand.java: ditto.
+
+	* net/loveruby/cflat/asm/Register.java: ditto.
+
+	* net/loveruby/cflat/asm/AbsoluteAddress.java: ditto.
+
+	* net/loveruby/cflat/asm/DirectMemoryReference.java: ditto.
+
+	* net/loveruby/cflat/asm/ImmediateValue.java: ditto.
+
+	* net/loveruby/cflat/ast/Scope.java: refactoring: rename method:
+	  #allChildren -> #allScopes.
+
+	* net/loveruby/cflat/ast/Scope.java (allScopes): should include
+	  receiver scope itself.
+
+	* net/loveruby/cflat/ast/LocalScope.java (allVariables): did not
+	  wrongly included current scope's variables.
+
+	* net/loveruby/cflat/ast/LocalScope.java: refactoring: rename
+	  method: allVariables -> allLocalVariables.
+
+	* net/loveruby/cflat/ast/DefinedFunction.java: ditto.
+
 Sat Sep 20 23:48:31 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Options.java: new option -O0, -O,

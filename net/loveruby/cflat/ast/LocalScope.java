@@ -19,14 +19,21 @@ public class LocalScope extends Scope {
         return children.iterator();
     }
 
-    // Returns local variables defined in this scope.
-    // Does includes all nested local variables.
-    // Does NOT include static local variables.
+    /**
+     * Returns local variables defined in this scope.
+     * Does NOT includes children's local variables.
+     * Does NOT include static local variables.
+     */
     public Iterator variables() {
-        return variablesList().iterator();
+        return lvarList().iterator();
     }
 
-    protected List variablesList() {
+    /**
+     * Returns local variables defined in this scope.
+     * Does NOT includes children's local variables.
+     * Does NOT include static local variables.
+     */
+    protected List lvarList() {
         List result = new ArrayList();
         Iterator ents = entities.values().iterator();
         while (ents.hasNext()) {
@@ -41,9 +48,13 @@ public class LocalScope extends Scope {
         return result;
     }
 
+    /**
+     * Returns the number of all entities in this scope.
+     * Result includes the number of children's entities.
+     */
     public long numAllEntities() {
         if (numAllEntities < 0) {
-            Iterator cs = allChildren();
+            Iterator cs = allScopes().iterator();
             long n = 0;
             while (cs.hasNext()) {
                 Scope c = (Scope)cs.next();
@@ -54,26 +65,32 @@ public class LocalScope extends Scope {
         return numAllEntities;
     }
 
-    // Returns all function local variables defined in this scope.
-    // Does includes all nested local variables.
-    // Does NOT include static local variables.
-    public Iterator allVariables() {
-        return allEntities().iterator();
+    /**
+     * Returns all local variables in this scope.
+     * The result DOES includes all nested local variables,
+     * while it does NOT include static local variables.
+     */
+    public Iterator allLocalVariables() {
+        return allLocalVariablesList().iterator();
     }
 
-    protected List allEntities() {
+    // List<DefinedVariable>
+    protected List allLocalVariablesList() {
         List result = new ArrayList();
-        Iterator scopes = allChildren();
+        Iterator scopes = allScopes().iterator();
         while (scopes.hasNext()) {
             LocalScope s = (LocalScope)scopes.next();
-            result.addAll(s.variablesList());
+            result.addAll(s.lvarList());
         }
         return result;
     }
 
+    /**
+     * Returns all static local variables defined in this scope.
+     */
     public List staticLocalVariables() {
         List result = new ArrayList();
-        Iterator scopes = allChildren();
+        Iterator scopes = allScopes().iterator();
         while (scopes.hasNext()) {
             LocalScope s = (LocalScope)scopes.next();
             Iterator vars = s.entities.values().iterator();

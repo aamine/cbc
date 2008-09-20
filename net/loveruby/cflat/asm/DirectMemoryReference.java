@@ -15,6 +15,10 @@ public class DirectMemoryReference extends MemoryReference {
         return this.value;
     }
 
+    public void collectStatistics(AsmStatistics stats) {
+        // does nothing
+    }
+
     public String toSource() {
         return this.value.toSource();
     }

@@ -187,28 +187,35 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     protected void compileFunction(DefinedFunction func) {
         long numSavedRegs = 0;  // 1 for PIC
         allocateParameters(func);
-        long lvarBytes = allocateLocalVariables(func, numSavedRegs);
+        allocateLocalVariablesTemp(func.body().scope());
 
-        currentFunction = func;
+        List bodyAsms = compileFunctionBody(func);
+        AsmStatistics stats = AsmStatistics.collect(bodyAsms);
+        List usedCalleeSavedRegs = usedCalleeSavedRegs(stats);
+        long lvarBytes = allocateLocalVariables(func.body().scope(),
+                                                usedCalleeSavedRegs.size());
+
         String symbol = csymbol(func.name());
         if (! func.isPrivate()) {
             _globl(symbol);
         }
         _type(symbol, "@function");
         label(symbol);
-        prologue(func, lvarBytes);
-        compileFunctionBody(func.body());
-        epilogue(func, lvarBytes);
+        prologue(func, usedCalleeSavedRegs, lvarBytes);
+        as.addAll(bodyAsms);
+        epilogue(func, usedCalleeSavedRegs, lvarBytes);
         _size(symbol, ".-" + symbol);
     }
     // #@@}
 
-    protected void compileFunctionBody(Node body) {
+    protected List compileFunctionBody(DefinedFunction func) {
+        currentFunction = func;
         this.as = newAssembler();
-        compile(body);
+        compile(func.body());
         List assemblies = this.as.assemblies();
         this.as = this.assembler;
-        this.as.addAll(optimizer.optimize(assemblies));
+        currentFunction = null;
+        return optimizer.optimize(assemblies);
     }
 
     // #@@range/compile{
@@ -231,47 +238,45 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
     // #@@}
 
-    // #@@range/prologue{
-    protected void prologue(DefinedFunction func, long lvarBytes) {
-        push(bp());
-        mov(sp(), bp());
-        extendStack(lvarBytes);
+    protected List usedCalleeSavedRegs(AsmStatistics stats) {
+        List result = new ArrayList();
+        Iterator regs = calleeSavedRegisters().iterator();
+        while (regs.hasNext()) {
+            Register reg = (Register)regs.next();
+            if (stats.numRegisterUsage(reg.baseName()) > 0) {
+                result.add(reg);
+            }
+        }
+        return result;
     }
-    // #@@}
 
-    // #@@range/epilogue{
-    protected void epilogue(DefinedFunction func, long lvarBytes) {
-        label(epilogueLabel(func));
-        shrinkStack(lvarBytes);
-        mov(bp(), sp());
-        pop(bp());
-        ret();
-    }
-    // #@@}
+    protected List calleeSavedRegistersCache = null;
 
-    // #@@range/jmpEpilogue{
-    protected void jmpEpilogue() {
-        jmp(new Label(epilogueLabel(currentFunction)));
+    protected List calleeSavedRegisters() {
+        if (calleeSavedRegistersCache == null) {
+            ArrayList regs = new ArrayList();
+            regs.add(reg("bx"));
+            regs.add(reg("si"));
+            regs.add(reg("di"));
+            regs.add(reg("bp"));
+            calleeSavedRegistersCache = regs;
+        }
+        return calleeSavedRegistersCache;
     }
-    // #@@}
-
-    // #@@range/epilogueLabel{
-    protected String epilogueLabel(DefinedFunction func) {
-        return ".L" + func.name() + "$epilogue";
-    }
-    // #@@}
 
     /* Standard IA-32 stack frame layout (after prologue)
      *
      * ======================= esp (stack top)
      * temporary
      * variables...
-     * ---------------------   ebp-(4*3)
+     * ---------------------   ebp-(4*4)
      * lvar 3
-     * ---------------------   ebp-(4*2)
+     * ---------------------   ebp-(4*3)
      * lvar 2
-     * ---------------------   ebp-(4*1)
+     * ---------------------   ebp-(4*2)
      * lvar 1
+     * ---------------------   ebp-(4*1)
+     * callee-saved register
      * ======================= ebp
      * saved ebp
      * ---------------------   ebp+(4*1)
@@ -296,6 +301,59 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     // +1 for return address, +1 for saved bp
     static final protected long paramStartWord = 2;
 
+    // #@@range/prologue{
+    protected void prologue(DefinedFunction func,
+                            List saveRegs, long lvarBytes) {
+        push(bp());
+        mov(sp(), bp());
+        Iterator regs = saveRegs.iterator();
+        while (regs.hasNext()) {
+            Register reg = (Register)regs.next();
+            // bp is already saved
+            if (! reg.baseName().equals("bp")) {
+                push(reg);
+            }
+        }
+        extendStack(lvarBytes);
+
+        Iterator vars = func.localVariables();
+        while (vars.hasNext()) {
+            DefinedVariable var = (DefinedVariable)vars.next();
+            comment("mem " + var.memref().toSource() + ": " + var.name());
+        }
+    }
+    // #@@}
+
+    // #@@range/epilogue{
+    protected void epilogue(DefinedFunction func,
+                            List savedRegs, long lvarBytes) {
+        label(epilogueLabel(func));
+        shrinkStack(lvarBytes);
+        Iterator regs = savedRegs.iterator();
+        while (regs.hasNext()) {
+            Register reg = (Register)regs.next();
+            if (! reg.baseName().equals("bp")) {
+                pop(reg);
+            }
+        }
+        mov(bp(), sp());
+        pop(bp());
+        ret();
+    }
+    // #@@}
+
+    // #@@range/jmpEpilogue{
+    protected void jmpEpilogue() {
+        jmp(new Label(epilogueLabel(currentFunction)));
+    }
+    // #@@}
+
+    // #@@range/epilogueLabel{
+    protected String epilogueLabel(DefinedFunction func) {
+        return ".L" + func.name() + "$epilogue";
+    }
+    // #@@}
+
     protected void allocateParameters(DefinedFunction func) {
         Iterator vars = func.parameters();
         long word = paramStartWord;
@@ -311,12 +369,26 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         }
     }
 
-    // Fixes addresses of local variables.
-    // Returns byte-length of the local variable area.
-    protected long allocateLocalVariables(DefinedFunction func,
-                                          long numSavedRegs) {
-        long initLen = numSavedRegs * stackWordSize;
-        long maxLen = allocateScope(func.body().scope(), initLen);
+    /**
+     * Allocates addresses of local variables, but offset is still
+     * not determined, assign unfixed IndirectMemoryReference.
+     */
+    protected void allocateLocalVariablesTemp(LocalScope scope) {
+        Iterator vars = scope.allLocalVariables();
+        while (vars.hasNext()) {
+            DefinedVariable var = (DefinedVariable)vars.next();
+            var.setMemref(new IndirectMemoryReference(bp()));
+        }
+    }
+
+    /**
+     * Fixes addresses of local variables.
+     * Returns byte-length of the local variable area.
+     * Note that numSavedRegs includes bp.
+     */
+    protected long allocateLocalVariables(LocalScope scope, long numSavedRegs) {
+        long initLen = (numSavedRegs - 1) * stackWordSize;
+        long maxLen = allocateScope(scope, initLen);
         return maxLen - initLen;
     }
 
@@ -327,10 +399,10 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
             DefinedVariable var = (DefinedVariable)vars.next();
             if (stackGrowsLower) {
                 len = Assembler.align(len + var.allocSize(), stackAlignment);
-                var.setMemref(mem(-len, bp()));
+                fixMemref((IndirectMemoryReference)var.memref(), -len);
             }
             else {
-                var.setMemref(mem(len, bp()));
+                fixMemref((IndirectMemoryReference)var.memref(), len);
                 len = Assembler.align(len + var.allocSize(), stackAlignment);
             }
         }
@@ -344,6 +416,10 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
             maxLen = Math.max(maxLen, childLen);
         }
         return maxLen;
+    }
+
+    protected void fixMemref(IndirectMemoryReference memref, long offset) {
+        memref.fixOffset(offset);
     }
 
     protected void extendStack(long len) {
@@ -886,7 +962,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     protected IndirectMemoryReference mem(Register reg) {
-        return new IndirectMemoryReference(reg);
+        return new IndirectMemoryReference(0, reg);
     }
 
     protected IndirectMemoryReference mem(long offset, Register reg) {

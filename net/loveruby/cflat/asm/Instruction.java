@@ -53,6 +53,13 @@ public class Instruction extends Assembly {
         return this.operands[1];
     }
 
+    public void collectStatistics(AsmStatistics stats) {
+        stats.instructionUsed(mnemonic);
+        for (int i = 0; i < operands.length; i++) {
+            operands[i].collectStatistics(stats);
+        }
+    }
+
     public String toSource() {
         StringBuffer buf = new StringBuffer();
         buf.append("\t");

@@ -15,6 +15,8 @@ abstract public class AsmOperand implements OperandPattern {
         return null;
     }
 
+    abstract public void collectStatistics(AsmStatistics stats);
+
     // default implementation
     public boolean match(AsmOperand operand) {
         return equals(operand);

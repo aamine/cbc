@@ -11,6 +11,10 @@ public class AbsoluteAddress extends AsmOperand {
         return this.register;
     }
 
+    public void collectStatistics(AsmStatistics stats) {
+        register.collectStatistics(stats);
+    }
+
     public String toSource() {
         return "*" + register.toSource();
     }
