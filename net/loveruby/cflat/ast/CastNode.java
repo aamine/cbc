@@ -31,8 +31,16 @@ public class CastNode extends ExprNode {
         return expr.isConstant();
     }
 
+    public Literal asmLiteral() {
+        return expr.asmLiteral();
+    }
+
+    public boolean isEffectiveCast() {
+        return type().size() > expr.type().size();
+    }
+
     public boolean isConstantAddress() {
-        return expr.isConstantAddress();
+        return expr.isConstantAddress() && !isEffectiveCast();
     }
 
     public MemoryReference memref() {

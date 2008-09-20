@@ -8,14 +8,18 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     // #@@range/ctor{
     protected AsmOptimizer optimizer;
     protected ErrorHandler errorHandler;
+    protected boolean verboseAsm;
     protected Assembler assembler;
     protected Assembler as;
     protected TypeTable typeTable;
     protected DefinedFunction currentFunction;
 
-    public CodeGenerator(AsmOptimizer optimizer, ErrorHandler errorHandler) {
+    public CodeGenerator(AsmOptimizer optimizer,
+                         ErrorHandler errorHandler,
+                         boolean verboseAsm) {
         this.optimizer = optimizer;
         this.errorHandler = errorHandler;
+        this.verboseAsm = verboseAsm;
     }
     // #@@}
 
@@ -220,7 +224,15 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
 
     // #@@range/compile{
     protected void compile(Node n) {
+        if (verboseAsm) {
+            comment(n.getClass().getSimpleName() + " {");
+            as.indentComment();
+        }
         n.accept(this);
+        if (verboseAsm) {
+            as.unindentComment();
+            comment("}");
+        }
     }
     // #@@}
 
@@ -319,7 +331,9 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         Iterator vars = func.localVariables();
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
-            comment("mem " + var.memref().toSource() + ": " + var.name());
+            if (verboseAsm) {
+                comment("mem " + var.memref().toSource() + ": " + var.name());
+            }
         }
     }
     // #@@}
@@ -491,7 +505,9 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     protected void compileStmt(Node node) {
-        comment(node.location().numberedLine());
+        if (verboseAsm) {
+            comment(node.location().numberedLine());
+        }
         compile(node);
     }
 
@@ -631,23 +647,47 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     //
 
     public void visit(BinaryOpNode node) {
-        compile(node.right());
-        push(reg("ax"));
-        compile(node.left());
-        pop(reg("cx"));
-        compileBinaryOp(node.operator(), node.type());
+        AsmOperand right = null;
+        if (!doesRequireRegister(node.operator()) && node.right().isConstant()){
+            compile(node.left());
+            right = imm(node.right().asmLiteral());
+        }
+        else if (node.right().isConstantAddress()) {
+            compile(node.left());
+            loadVariable(node.right(), reg("cx"));
+            right = reg("cx", node.type());
+        }
+        else {
+            compile(node.right());
+            push(reg("ax"));
+            compile(node.left());
+            pop(reg("cx"));
+            right = reg("cx", node.type());
+        }
+        compileBinaryOp(node.operator(), node.type(), right);
+    }
+
+    protected boolean doesRequireRegister(String op) {
+        return op.equals("/")
+                || op.equals("%")
+                || op.equals(">>")
+                || op.equals("<<");
+    }
+
+    protected boolean doesSpillDX(String op) {
+        return op.equals("/") || op.equals("%");
     }
 
     // spills: dx
-    protected void compileBinaryOp(String op, Type t) {
+    protected void compileBinaryOp(String op, Type t, AsmOperand right) {
         if (op.equals("+")) {
-            add(t, reg("cx", t), reg("ax", t));
+            add(t, right, reg("ax", t));
         }
         else if (op.equals("-")) {
-            sub(t, reg("cx", t), reg("ax", t));
+            sub(t, right, reg("ax", t));
         }
         else if (op.equals("*")) {
-            imul(t, reg("cx", t), reg("ax", t));
+            imul(t, right, reg("ax", t));
         }
         else if (op.equals("/") || op.equals("%")) {
             if (t.isSigned()) {
@@ -663,13 +703,13 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
             }
         }
         else if (op.equals("&")) {
-            and(t, reg("cx", t), reg("ax", t));
+            and(t, right, reg("ax", t));
         }
         else if (op.equals("|")) {
-            or(t, reg("cx", t), reg("ax", t));
+            or(t, right, reg("ax", t));
         }
         else if (op.equals("^")) {
-            xor(t, reg("cx", t), reg("ax", t));
+            xor(t, right, reg("ax", t));
         }
         else if (op.equals(">>")) {
             if (t.isSigned()) {
@@ -684,7 +724,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         }
         else {
             // Comparison operators
-            cmp(t, reg("cx", t), reg("ax", t));
+            cmp(t, right, reg("ax", t));
             if (!t.isPointer() && t.isSigned()) {
                 if      (op.equals("=="))   sete (al());
                 else if (op.equals("!="))   setne(al());
@@ -777,11 +817,11 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
 
     public void visit(CastNode node) {
         compile(node.expr());
-        Type src = node.expr().type();
-        Type dest = node.type();
         // We need not execute downcast because we can cast big value
         // to small value by just cutting off higer bits.
-        if (dest.size() > src.size()) {
+        if (node.isEffectiveCast()) {
+            Type src = node.expr().type();
+            Type dest = node.type();
             if (src.isSigned()) {
                 movsx(src, dest,
                       reg("ax").forType(src), reg("ax").forType(dest));
@@ -804,26 +844,15 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     public void visit(VariableNode node) {
-        if (node.type().isAllocatedArray()) {
-            // int[4] a; a implies &a
-            compileLHS(node);
-        }
-        else if (node.memref() == null) {
-            // "puts" equivalent to "&ptr"
-            mov(node.address(), reg("ax"));
-        }
-        else {
-            // regular variable
-            load(node.type(), node.memref(), reg("ax"));
-        }
+        loadVariable(node, reg("ax"));
     }
 
     public void visit(IntegerLiteralNode node) {
-        mov(node.type(), imm(node.value()), reg("ax", node.type()));
+        loadConstant(node, reg("ax"));
     }
 
     public void visit(StringLiteralNode node) {
-        mov(imm(node.label()), reg("ax"));
+        loadConstant(node, reg("ax"));
     }
 
     //
@@ -834,6 +863,12 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         if (node.lhs().isConstantAddress()) {
             compile(node.rhs());
             save(node.type(), reg("ax"), node.lhs().memref());
+        }
+        else if (node.rhs().isConstant()) {
+            compileLHS(node.lhs());
+            mov(reg("ax"), reg("cx"));
+            loadConstant(node.rhs(), reg("ax"));
+            save(node.type(), reg("ax"), mem(reg("cx")));
         }
         else {
             compile(node.rhs());
@@ -846,23 +881,45 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     public void visit(OpAssignNode node) {
-        compile(node.rhs());
         if (node.lhs().isConstantAddress()) {
+            // const += ANY
+            compile(node.rhs());
             mov(reg("ax"), reg("cx"));
             load(node.type(), node.lhs().memref(), reg("ax"));
-            compileBinaryOp(node.operator(), node.type());
+            compileBinaryOp(node.operator(), node.type(), reg("cx"));
             save(node.type(), reg("ax"), node.lhs().memref());
         }
+        else if (node.rhs().isConstant() && !doesRequireRegister(node.operator())) {
+            // ANY += const
+            compileLHS(node.lhs());
+            mov(reg("ax"), reg("cx"));
+            load(node.type(), mem(reg("cx")), reg("ax"));
+            AsmOperand rhs = imm(node.rhs().asmLiteral());
+            compileBinaryOp(node.operator(), node.type(), rhs);
+            save(node.type(), reg("ax"), mem(reg("cx")));
+        }
+        else if (node.rhs().isConstantAddress()) {
+            // ANY += var
+            compileLHS(node.lhs());
+            push(reg("ax"));
+            load(node.type(), mem(reg("ax")), reg("ax"));
+            loadVariable(node.rhs(), reg("cx"));
+            compileBinaryOp(node.operator(), node.type(), reg("cx"));
+            pop(reg("cx"));
+            save(node.type(), reg("ax"), mem(reg("cx")));
+        }
         else {
+            // ANY += ANY
+            // no optimization
+            compile(node.rhs());
             push(reg("ax"));
             compileLHS(node.lhs());
-            mov(reg("ax"), reg("dx"));
-            load(node.type(), mem(reg("dx")), reg("ax"));
+            Register lhs = doesSpillDX(node.operator()) ? reg("si") : reg("dx");
+            mov(reg("ax"), lhs);
+            load(node.type(), mem(lhs), reg("ax"));
             pop(reg("cx"));
-            push(reg("dx"));
-            compileBinaryOp(node.operator(), node.type());
-            pop(reg("dx"));
-            save(node.type(), reg("ax"), mem(reg("dx")));
+            compileBinaryOp(node.operator(), node.type(), reg("cx"));
+            save(node.type(), reg("ax"), mem(lhs));
         }
     }
 
@@ -891,18 +948,19 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     protected void compileLHS(Node node) {
-        comment("compileLHS: " + node.getClass().getSimpleName() + " {");
+        if (verboseAsm) {
+            comment("compileLHS: " + node.getClass().getSimpleName() + " {");
+            as.indentComment();
+        }
         node.acceptLHS(this);
-        comment("compileLHS: }");
+        if (verboseAsm) {
+            as.unindentComment();
+            comment("compileLHS: }");
+        }
     }
 
     public void visitLHS(VariableNode node) {
-        if (node.address() != null) {
-            mov(node.address(), reg("ax"));
-        }
-        else {
-            lea(node.memref(), reg("ax"));
-        }
+        loadVariableAddress(node, reg("ax"));
     }
 
     public void visitLHS(ArefNode node) {
@@ -944,9 +1002,54 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         add(imm(node.offset()), reg("ax"));
     }
 
-    /*
-     *  x86 assembly DSL
+    //
+    // Utilities
+    //
+
+    /**
+     * Loads constant value.  You must check node by #isConstant
+     * before calling this method.
      */
+    protected void loadConstant(ExprNode node, Register reg) {
+        mov(imm(node.asmLiteral()), reg);
+    }
+
+    /**
+     * Loads variable value to the register.  You must check node
+     * by #isConstantAddress before calling this method.
+     */
+    protected void loadVariable(ExprNode node, Register dest) {
+        if (node.type().isAllocatedArray()) {
+            // int[4] a; a implies &a
+            loadVariableAddress(node, dest);
+        }
+        else if (node.memref() == null) {
+            // "puts" equivalent to "&ptr"
+            mov(node.address(), dest);
+        }
+        else {
+            // regular variable
+            load(node.type(), node.memref(), dest);
+        }
+    }
+
+    /**
+     * Loads an address of the variable to the register.
+     * You must check node by #isConstantAddress before
+     * calling this method.
+     */
+    protected void loadVariableAddress(ExprNode node, Register dest) {
+        if (node.address() != null) {
+            mov(node.address(), dest);
+        }
+        else {
+            lea(node.memref(), dest);
+        }
+    }
+
+    //
+    // x86 assembly DSL
+    //
 
     protected Register bp() { return reg("bp"); }
     protected Register sp() { return reg("sp"); }
@@ -975,6 +1078,10 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
 
     protected ImmediateValue imm(Label label) {
         return new ImmediateValue(label);
+    }
+
+    protected ImmediateValue imm(Literal lit) {
+        return new ImmediateValue(lit);
     }
 
     protected void load(Type type, MemoryReference mem, Register reg) {
@@ -1030,7 +1137,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     public void jnz(Label label) { as.jnz(label); }
     public void je(Label label) { as.je(label); }
     public void jne(Label label) { as.jne(label); }
-    public void cmp(Type t, Register a, Register b) { as.cmp(t, a, b); }
+    public void cmp(Type t, AsmOperand a, Register b) { as.cmp(t, a, b); }
     public void sete(Register reg) { as.sete(reg); }
     public void setne(Register reg) { as.setne(reg); }
     public void seta(Register reg) { as.seta(reg); }
@@ -1071,9 +1178,9 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     public void div(Type type, Register base) { as.div(type, base); }
     public void idiv(Type type, Register base) { as.idiv(type, base); }
     public void not(Type type, Register reg) { as.not(type, reg); }
-    public void and(Type type, Register bits, Register base) { as.and(type, bits, base); }
-    public void or(Type type, Register bits, Register base) { as.or(type, bits, base); }
-    public void xor(Type type, Register bits, Register base) { as.xor(type, bits, base); }
+    public void and(Type type, AsmOperand bits, Register base) { as.and(type, bits, base); }
+    public void or(Type type, AsmOperand bits, Register base) { as.or(type, bits, base); }
+    public void xor(Type type, AsmOperand bits, Register base) { as.xor(type, bits, base); }
     public void sar(Type type, Register n, Register base) { as.sar(type, n, base); }
     public void sal(Type type, Register n, Register base) { as.sal(type, n, base); }
     public void shr(Type type, Register n, Register base) { as.shr(type, n, base); }

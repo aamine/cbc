@@ -7,6 +7,8 @@ CBC = ../bin/cbc
 .cb:
 	$(CBC) $<
 
+default: compile
+
 test:
 	./run.sh
 

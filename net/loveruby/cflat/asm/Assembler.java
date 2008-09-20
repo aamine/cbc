@@ -6,6 +6,7 @@ import java.util.*;
 public class Assembler {
     protected List list;        // List<Assembly>
     protected Type naturalType;
+    protected int commentIndentLevel;
 
     static public long align(long n, long alignment) {
         return (n + alignment - 1) / alignment * alignment;
@@ -14,6 +15,7 @@ public class Assembler {
     public Assembler(Type naturalType) {
         this.list = new ArrayList();
         this.naturalType = naturalType;
+        this.commentIndentLevel = 0;
     }
 
     public List assemblies() {
@@ -36,7 +38,15 @@ public class Assembler {
     }
 
     public void comment(String str) {
-        list.add(new AsmComment(str));
+        list.add(new AsmComment(str, commentIndentLevel));
+    }
+
+    public void indentComment() {
+        commentIndentLevel++;
+    }
+
+    public void unindentComment() {
+        commentIndentLevel--;
     }
 
     public void label(String sym) {
@@ -189,7 +199,7 @@ public class Assembler {
         insn("jne", new DirectMemoryReference(label));
     }
 
-    public void cmp(Type t, Register a, Register b) {
+    public void cmp(Type t, AsmOperand a, Register b) {
         insn(t, "cmp", a, b);
     }
 
@@ -355,15 +365,15 @@ public class Assembler {
         insn(type, "not", reg);
     }
 
-    public void and(Type type, Register bits, Register base) {
+    public void and(Type type, AsmOperand bits, Register base) {
         insn(type, "and", bits, base);
     }
 
-    public void or(Type type, Register bits, Register base) {
+    public void or(Type type, AsmOperand bits, Register base) {
         insn(type, "or", bits, base);
     }
 
-    public void xor(Type type, Register bits, Register base) {
+    public void xor(Type type, AsmOperand bits, Register base) {
         insn(type, "xor", bits, base);
     }
 

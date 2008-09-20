@@ -24,6 +24,10 @@ public class StringLiteralNode extends LiteralNode {
         return entry.label();
     }
 
+    public Literal asmLiteral() {
+        return new LabelRef(label());
+    }
+
     protected long id() {
         checkEntry();
         return entry.id();

@@ -4,11 +4,15 @@ public class ImmediateValue extends AsmOperand {
     protected Literal expr;
 
     public ImmediateValue(long n) {
-        this.expr = new IntegerLiteral(n);
+        this(new IntegerLiteral(n));
     }
 
     public ImmediateValue(Label label) {
-        this.expr = new LabelRef(label);
+        this(new LabelRef(label));
+    }
+
+    public ImmediateValue(Literal expr) {
+        this.expr = expr;
     }
 
     public boolean equals(Object other) {

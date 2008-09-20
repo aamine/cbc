@@ -3,8 +3,6 @@
 == Current
 
 * check composite Type#equals, #hashCode (?)
-* generate prologue/epilogue after function body.
-* -O (fast immediate load)
 * -O (jump elimination)
         * label renaming
         * remove useless jump
@@ -251,3 +249,5 @@
         - subl $0, %eax => NONE
         - imull $0, %eax => xorl %eax, %eax
         - imull $1, %eax => NONE
+- generate prologue/epilogue after function body.
+- -O (fast immediate load)

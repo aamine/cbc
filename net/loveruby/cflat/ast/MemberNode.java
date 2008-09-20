@@ -43,10 +43,6 @@ public class MemberNode extends ExprNode {
     }
     // #@@}
 
-    public boolean isConstant() {
-        return false;
-    }
-
     public boolean isConstantAddress() {
         return false;
     }

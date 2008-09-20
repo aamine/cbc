@@ -1,5 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.asm.Literal;
 
 abstract public class LiteralNode extends ExprNode {
     protected Location location;
@@ -26,4 +27,6 @@ abstract public class LiteralNode extends ExprNode {
     public boolean isConstant() {
         return true;
     }
+
+    abstract public Literal asmLiteral();
 }

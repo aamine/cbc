@@ -32,6 +32,10 @@ abstract public class ExprNode extends Node {
         return false;
     }
 
+    public Literal asmLiteral() {
+        throw new Error("ExprNode#asmLiteral called");
+    }
+
     public boolean isAssignable() {
         return false;
     }
@@ -41,7 +45,7 @@ abstract public class ExprNode extends Node {
     }
 
     public boolean isConstantAddress() {
-        throw new Error("ExprNode#isConstantAddress called");
+        return false;
     }
 
     public AsmOperand address() {

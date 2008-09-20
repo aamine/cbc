@@ -1,3 +1,27 @@
+Sun Sep 21 05:43:28 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: optimize
+	  constant load.
+
+	* net/loveruby/cflat/asm/ImmediateValue.java: accept any Literal.
+
+	* net/loveruby/cflat/ast/LiteralNode.java: new method #asmLiteral.
+
+	* net/loveruby/cflat/ast/CastNode.java: is not constant when cast
+	  is effective.
+
+	* net/loveruby/cflat/compiler/Compiler.java: new option
+	  --verbose-asm.
+
+	* net/loveruby/cflat/compiler/Options.java: ditto.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/asm/Assembler.java: new method
+	  #indentComment, #unindentComment.
+
+	* net/loveruby/cflat/asm/AsmComment.java: indent comments.
+
 Sun Sep 21 03:04:16 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: fix local

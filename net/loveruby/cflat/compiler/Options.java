@@ -14,6 +14,7 @@ class Options {
     protected boolean verbose;
     protected boolean debugParser;
     protected int optimizeLevel = 0;
+    protected boolean verboseAsm = false;
     protected List asOptions;     // List<String>
     protected List ldArgs;        // List<LdArg>
     protected boolean noStartFiles = false;
@@ -126,6 +127,10 @@ class Options {
         public List optimize(List assemblies) { return assemblies; }
     }
 
+    public boolean isVerboseAsm() {
+        return verboseAsm;
+    }
+
     // List<String>
     public List asOptions() {
         return this.asOptions;
@@ -198,6 +203,9 @@ class Options {
                         parseError("unknown optimization switch: " + arg);
                     }
                     optimizeLevel = type.equals("0") ? 0 : 1;
+                }
+                else if (arg.equals("--verbose-asm")) {
+                    verboseAsm = true;
                 }
                 else if (arg.startsWith("-Wa,")) {
                     asOptions.addAll(parseCommaSeparatedOptions(arg));
@@ -346,6 +354,7 @@ class Options {
         out.println("  -O0              Disables optimization (default).");
         //out.println("  -fPIC            Generates PIC assembly.");
         //out.println("  -fPIE            Generates PIE assembly.");
+        out.println("  --verbose-asm    Generate assembly with verbose comments.");
         out.println("");
         out.println("Assembler Options:");
         out.println("  -Wa,OPT          Passes OPT to the assembler (as).");

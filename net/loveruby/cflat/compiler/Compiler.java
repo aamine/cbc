@@ -185,7 +185,10 @@ public class Compiler {
     }
 
     protected String generateAssembly(AST ast, Options opts) {
-        return new CodeGenerator(opts.optimizer(), errorHandler).generate(ast);
+        CodeGenerator gen = new CodeGenerator(opts.optimizer(),
+                                              errorHandler,
+                                              opts.isVerboseAsm());
+        return gen.generate(ast);
     }
 
     protected void assemble(String srcPath,
