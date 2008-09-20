@@ -28,6 +28,10 @@ public class Register extends AsmOperand {
         }
     }
 
+    public boolean isRegister() {
+        return true;
+    }
+
     public String baseName() {
         return name;
     }

@@ -16,6 +16,14 @@ public class Assembler {
         this.naturalType = naturalType;
     }
 
+    public List assemblies() {
+        return this.list;
+    }
+
+    public void addAll(List assemblies) {
+        this.list.addAll(assemblies);
+    }
+
     public String string() {
         StringBuffer buf = new StringBuffer();
         Iterator i = list.iterator();

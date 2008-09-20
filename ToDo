@@ -2,22 +2,25 @@
 
 == Current
 
-* ComplexType -> CompositeType
+* check composite Type#equals, #hashCode (?)
+* generate prologue/epilogue after function body.
 * -O (peephole optimization)
-        * movl $0, %eax => xorl %eax, %eax
-        * addl $1, %eax  => incl %eax
-        * addl $-1, %eax => decl %eax
-        * subl $1, %eax  => decl %eax
-        * subl $-1, %eax => incl %eax
-        * addl $0, %eax => NONE
-        * subl $0, %eax => NONE
-        * imull $0, %eax => xorl %eax, %eax
-        * imull $1, %eax => NONE
+        - movl $0, %eax => xorl %eax, %eax
+        - addl $1, %eax  => incl %eax
+        - addl $-1, %eax => decl %eax
+        - subl $1, %eax  => decl %eax
+        - subl $-1, %eax => incl %eax
+        - addl $0, %eax => NONE
+        - subl $0, %eax => NONE
+        - imull $0, %eax => xorl %eax, %eax
+        - imull $1, %eax => NONE
         * label renaming
         * remove useless jump
-* generate prologue/epilogue after function body.
+* named/unnamed Label
+* Label -> Symbol
 * -fPIC (PIC generation)
 * -shared
+* all Labels should be got from objects
 * bin/cbc: resolve symbolic link
 * remove all FIXME
 ? -fPIE, -pie
@@ -244,3 +247,4 @@
 - Literal should not inherit AsmEntity
 - toString -> toSource
 - reject struct/union/array on stmt context
+- ComplexType -> CompositeType

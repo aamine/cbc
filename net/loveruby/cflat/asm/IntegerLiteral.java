@@ -7,8 +7,18 @@ public class IntegerLiteral extends Literal {
         this.value = n;
     }
 
+    public boolean equals(Object other) {
+        if (!(other instanceof IntegerLiteral)) return false;
+        IntegerLiteral lit = (IntegerLiteral)other;
+        return lit.value == this.value;
+    }
+
     public long value() {
         return this.value;
+    }
+
+    public IntegerLiteral integerLiteral() {
+        return this;
     }
 
     public String toSource() {

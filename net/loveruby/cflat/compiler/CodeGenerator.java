@@ -8,20 +8,19 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     // #@@range/generate
     static public String generate(AST ast, TypeTable typeTable,
                                   ErrorHandler errorHandler) {
-        Assembler as = new Assembler(typeTable.unsignedLong());
-        CodeGenerator gen = new CodeGenerator(as, errorHandler);
+        CodeGenerator gen = new CodeGenerator(errorHandler);
         return gen.generateAssembly(ast, typeTable);
     }
     // #@@}
 
     // #@@range/ctor{
-    protected Assembler as;
     protected ErrorHandler errorHandler;
+    protected Assembler assembler;
+    protected Assembler as;
     protected TypeTable typeTable;
     protected DefinedFunction currentFunction;
 
-    public CodeGenerator(Assembler as, ErrorHandler errorHandler) {
-        this.as = as;
+    public CodeGenerator(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
     }
     // #@@}
@@ -30,17 +29,22 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     // #@@range/generateAssembly
     public String generateAssembly(AST ast, TypeTable typeTable) {
         this.typeTable = typeTable;
+        this.assembler = newAssembler();
+        this.as = this.assembler;
         allocateGlobalVariables(ast.globalVariables());
         allocateCommonSymbols(ast.commonSymbols());
 
         _file(ast.fileName());
         // .data
+        _data();
         compileGlobalVariables(ast.globalVariables());
         if (!ast.constantTable().isEmpty()) {
+            _section(".rodata");
             compileConstants(ast.constantTable());
         }
         // .text
         if (ast.functionDefined()) {
+            _text();
             compileFunctions(ast.functions());
         }
         // .bss
@@ -49,6 +53,10 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         return as.string();
     }
     // #@@}
+
+    protected Assembler newAssembler() {
+        return new Assembler(this.typeTable.unsignedLong());
+    }
 
     /**
      * Sets memory reference for...
@@ -94,7 +102,6 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     /** Generates static variable entries */
     // #@@range/compileGlobalVariables{
     protected void compileGlobalVariables(Iterator vars) {
-        _data();
         while (vars.hasNext()) {
             DefinedVariable var = (DefinedVariable)vars.next();
             dataEntry(var);
@@ -161,7 +168,6 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     /** Generates .rodata entry (constant strings) */
     // #@@range/compileConstants{
     protected void compileConstants(ConstantTable table) {
-        _section(".rodata");
         Iterator ents = table.entries();
         while (ents.hasNext()) {
             ConstantEntry ent = (ConstantEntry)ents.next();
@@ -174,10 +180,8 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     /** Compiles all functions and generates .text section. */
     // #@@range/compileFunctions{
     protected void compileFunctions(Iterator funcs) {
-        _text();
         while (funcs.hasNext()) {
-            DefinedFunction func = (DefinedFunction)funcs.next();
-            compileFunction(func);
+            compileFunction((DefinedFunction)funcs.next());
         }
     }
     // #@@}
@@ -197,11 +201,23 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         _type(symbol, "@function");
         label(symbol);
         prologue(func, lvarBytes);
-        compile(func.body());
+        compileFunctionBody(func.body());
         epilogue(func, lvarBytes);
         _size(symbol, ".-" + symbol);
     }
     // #@@}
+
+    protected void compileFunctionBody(Node body) {
+        this.as = newAssembler();
+        compile(body);
+        List assemblies = this.as.assemblies();
+        this.as = this.assembler;
+        this.as.addAll(optimize(assemblies));
+    }
+
+    protected List optimize(List assemblies) {
+        return new PeepholeOptimizer().optimize(assemblies);
+    }
 
     // #@@range/compile{
     protected void compile(Node n) {

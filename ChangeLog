@@ -1,3 +1,28 @@
+Sat Sep 20 22:53:31 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: apply peep-hole
+	  optimization.
+
+	* net/loveruby/cflat/compiler/PeepholeOptimizer.java: new class.
+
+	* net/loveruby/cflat/asm/Assembler.java: export list
+	  (List<Assembly>).
+
+	* net/loveruby/cflat/asm/Instruction.java: new method #build to
+	  build an Instruction from the instruction object.
+
+	* net/loveruby/cflat/asm/OperandPattern.java: new interface.
+
+	* net/loveruby/cflat/asm/AsmOperand.java: impelements
+	  OperandPattern.
+
+	* net/loveruby/cflat/asm/Register.java: implements #isRegister.
+
+	* net/loveruby/cflat/asm/ImmediateValue.java: implement #equals to
+	  allow matching immediate integer value.
+
+	* net/loveruby/cflat/asm/IntegerLiteral.java: implement #equals.
+
 Sat Sep 20 19:30:48 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/type/ComplexType.java -> CompositeType.java

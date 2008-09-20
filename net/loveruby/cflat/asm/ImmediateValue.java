@@ -11,6 +11,12 @@ public class ImmediateValue extends AsmOperand {
         this.expr = new LabelRef(label);
     }
 
+    public boolean equals(Object other) {
+        if (!(other instanceof ImmediateValue)) return false;
+        ImmediateValue imm = (ImmediateValue)other;
+        return expr.equals(imm.expr);
+    }
+
     public Literal expr() {
         return this.expr;
     }

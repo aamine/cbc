@@ -25,6 +25,14 @@ public class Instruction extends Assembly {
         this.operands = operands;
     }
 
+    public Instruction build(String mnemonic, AsmOperand o1) {
+        return new Instruction(mnemonic, this.suffix, new AsmOperand[] { o1 });
+    }
+
+    public Instruction build(String mnemonic, AsmOperand o1, AsmOperand o2) {
+        return new Instruction(mnemonic, this.suffix, new AsmOperand[] { o1, o2 });
+    }
+
     public boolean isInstruction() {
         return true;
     }
