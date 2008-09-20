@@ -2,7 +2,7 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import java.util.*;
 
-public class UnionNode extends ComplexTypeDefinition {
+public class UnionNode extends CompositeTypeDefinition {
     public UnionNode(Location loc, TypeRef ref, String name, List membs) {
         super(loc, ref, name, membs);
     }

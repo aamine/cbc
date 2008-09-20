@@ -155,9 +155,9 @@ public class TypeTable {
             // because the type refered from UserType must be also
             // kept in this table.
             Type t = (Type)types.next();
-            if (t instanceof ComplexType) {
-                checkVoidMembers((ComplexType)t, h);
-                checkDuplicatedMembers((ComplexType)t, h);
+            if (t instanceof CompositeType) {
+                checkVoidMembers((CompositeType)t, h);
+                checkDuplicatedMembers((CompositeType)t, h);
             }
             else if (t instanceof ArrayType) {
                 checkVoidMembers((ArrayType)t, h);
@@ -172,7 +172,7 @@ public class TypeTable {
         }
     }
 
-    protected void checkVoidMembers(ComplexType t, ErrorHandler h) {
+    protected void checkVoidMembers(CompositeType t, ErrorHandler h) {
         Iterator membs = t.members();
         while (membs.hasNext()) {
             Slot memb = (Slot)membs.next();
@@ -182,7 +182,7 @@ public class TypeTable {
         }
     }
 
-    protected void checkDuplicatedMembers(ComplexType t, ErrorHandler h) {
+    protected void checkDuplicatedMembers(CompositeType t, ErrorHandler h) {
         Map seen = new HashMap();
         Iterator membs = t.members();
         while (membs.hasNext()) {
@@ -216,8 +216,8 @@ public class TypeTable {
         }
         else {
             marks.put(t, checking);
-            if (t instanceof ComplexType) {
-                ComplexType ct = (ComplexType)t;
+            if (t instanceof CompositeType) {
+                CompositeType ct = (CompositeType)t;
                 Iterator membs = ct.members();
                 while (membs.hasNext()) {
                     Slot slot = (Slot)membs.next();

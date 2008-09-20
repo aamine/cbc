@@ -16,9 +16,9 @@ public class MemberNode extends ExprNode {
         return baseType().memberType(member);
     }
 
-    public ComplexType baseType() {
+    public CompositeType baseType() {
         try {
-            return expr.type().getComplexType();
+            return expr.type().getCompositeType();
         }
         catch (ClassCastException err) {
             throw new SemanticError(err.getMessage());

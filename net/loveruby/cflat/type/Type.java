@@ -17,7 +17,7 @@ public abstract class Type {
             { throw new Error("#isSigned for non-integer type"); }
     public boolean isPointer() { return false; }
     public boolean isArray() { return false; }
-    public boolean isComplexType() { return false; }
+    public boolean isCompositeType() { return false; }
     public boolean isStruct() { return false; }
     public boolean isUnion() { return false; }
     public boolean isUserType() { return false; }
@@ -45,6 +45,6 @@ public abstract class Type {
     public FunctionType getFunctionType() { return (FunctionType)this; }
     public StructType getStructType() { return (StructType)this; }
     public UnionType getUnionType() { return (UnionType)this; }
-    public ComplexType getComplexType() { return (ComplexType)this; }
+    public CompositeType getCompositeType() { return (CompositeType)this; }
     public ArrayType getArrayType() { return (ArrayType)this; }
 }

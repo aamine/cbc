@@ -4,7 +4,7 @@ import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.asm.Assembler;
 import java.util.*;
 
-public class StructType extends ComplexType {
+public class StructType extends CompositeType {
     public StructType(String name, List membs, Location loc) {
         super(name, membs, loc);
     }

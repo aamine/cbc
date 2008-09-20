@@ -139,11 +139,11 @@ class DereferenceChecker extends Visitor {
     }
 
     protected void checkMemberRef(Node node, Type t, String memb) {
-        if (! t.isComplexType()) {
+        if (! t.isCompositeType()) {
             semanticError(node, "accessing member `" + memb
                                 + "' for non-struct/union: " + t);
         }
-        ComplexType type = t.getComplexType();
+        CompositeType type = t.getCompositeType();
         if (! type.hasMember(memb)) {
             semanticError(node, type.toString()
                                 + " does not have member: " + memb);

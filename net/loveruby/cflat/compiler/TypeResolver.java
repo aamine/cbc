@@ -58,19 +58,19 @@ public class TypeResolver extends Visitor {
 
     // #@@range/StructNode{
     public void visit(StructNode struct) {
-        resolveComplexType(struct);
+        resolveCompositeType(struct);
     }
     // #@@}
 
     // #@@range/UnionNode{
     public void visit(UnionNode union) {
-        resolveComplexType(union);
+        resolveCompositeType(union);
     }
     // #@@}
 
-    // #@@range/resolveComplexType{
-    public void resolveComplexType(ComplexTypeDefinition def) {
-        ComplexType ct = (ComplexType)typeTable.get(def.typeNode().typeRef());
+    // #@@range/resolveCompositeType{
+    public void resolveCompositeType(CompositeTypeDefinition def) {
+        CompositeType ct = (CompositeType)typeTable.get(def.typeNode().typeRef());
         if (ct == null) {
             throw new Error("cannot intern struct/union: " + def.name());
         }

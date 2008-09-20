@@ -5,13 +5,13 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 import java.lang.reflect.*;
 
-abstract public class ComplexType extends NamedType {
+abstract public class CompositeType extends NamedType {
     protected List members;     // List<Slot>
     protected long cachedSize;
     protected long cachedAlign;
     protected boolean isRecursiveChecked;
 
-    public ComplexType(String name, List membs, Location loc) {
+    public CompositeType(String name, List membs, Location loc) {
         super(name, loc);
         this.members = membs;
         this.cachedSize = Type.sizeUnknown;
@@ -19,7 +19,7 @@ abstract public class ComplexType extends NamedType {
         this.isRecursiveChecked = false;
     }
 
-    public boolean isComplexType() {
+    public boolean isCompositeType() {
         return true;
     }
 
@@ -38,7 +38,7 @@ abstract public class ComplexType extends NamedType {
     protected boolean compareMemberTypes(Type other, String cmpMethod) {
         if (isStruct() && !other.isStruct()) return false;
         if (isUnion() && !other.isUnion()) return false;
-        ComplexType otherType = other.getComplexType();
+        CompositeType otherType = other.getCompositeType();
         if (members.size() != other.size()) return false;
         Iterator types = memberTypes();
         Iterator otherTypes = otherType.memberTypes();

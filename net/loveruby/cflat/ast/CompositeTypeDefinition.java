@@ -2,16 +2,16 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import java.util.*;
 
-abstract public class ComplexTypeDefinition extends TypeDefinition {
+abstract public class CompositeTypeDefinition extends TypeDefinition {
     protected List members;     // List<Slot>
 
-    public ComplexTypeDefinition(Location loc,
+    public CompositeTypeDefinition(Location loc,
                                  TypeRef ref, String name, List membs) {
         super(loc, ref, name);
         members = membs;
     }
 
-    public boolean isComplexType() {
+    public boolean isCompositeType() {
         return true;
     }
 

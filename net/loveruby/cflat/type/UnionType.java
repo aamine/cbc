@@ -4,7 +4,7 @@ import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.asm.Assembler;
 import java.util.*;
 
-public class UnionType extends ComplexType {
+public class UnionType extends CompositeType {
     public UnionType(String name, List membs, Location loc) {
         super(name, membs, loc);
     }
