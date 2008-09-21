@@ -67,7 +67,7 @@ test_07_arithmetic() {
     assert_out "1;2;3;4;5;6;7;8;9;10;11" ./add
     assert_out "1;2;3;4;5;6;7;8;9;10;11;12;13" ./sub
     assert_out "1;4;15" ./mul
-    assert_out "1;2;2;2" ./div
+    assert_out "1;2;2;2;4" ./div
     assert_out "0;0;1;4;7" ./mod
 
     assert_out "3" ./assoc
