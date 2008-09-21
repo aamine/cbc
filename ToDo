@@ -251,3 +251,4 @@
         - imull $1, %eax => NONE
 - generate prologue/epilogue after function body.
 - -O (fast immediate load)
+- check "puts = str"

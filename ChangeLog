@@ -1,3 +1,14 @@
+Sun Sep 21 18:14:31 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/Function.java: refactoring: new method
+	  #label.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (prologue): omit
+	  loop when no-verboseAsm.
+
+	* test: check "puts = NULL" and "stdin = NULL" are compilable (of
+	  course "puts = NULL" causes segv).
+
 Sun Sep 21 17:22:45 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: lhs.memref may

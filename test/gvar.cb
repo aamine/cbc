@@ -15,5 +15,8 @@ main(int argc, char **argv)
     printf(";%s", global_string);
 
     puts("");
+
+    stdin = NULL;
+
     return 0;
 }

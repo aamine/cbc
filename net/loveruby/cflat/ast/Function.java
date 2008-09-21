@@ -30,6 +30,11 @@ abstract public class Function extends Entity {
     }
 
     public AsmOperand address() {
-        return new ImmediateValue(new Label(name()));
+        return new ImmediateValue(label());
+    }
+
+    public Label label() {
+        // FIXME: should cache
+        return new Label(name);
     }
 }

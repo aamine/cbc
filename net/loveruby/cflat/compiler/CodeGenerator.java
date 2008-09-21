@@ -328,10 +328,10 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         }
         extendStack(lvarBytes);
 
-        Iterator vars = func.localVariables();
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
-            if (verboseAsm) {
+        if (verboseAsm) {
+            Iterator vars = func.localVariables();
+            while (vars.hasNext()) {
+                DefinedVariable var = (DefinedVariable)vars.next();
                 comment("mem " + var.memref().toSource() + ": " + var.name());
             }
         }

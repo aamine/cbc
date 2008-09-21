@@ -96,6 +96,7 @@ test_10_assign() {
     assert_out "3;4;3;12;4;1;1;7;5;1;4;e;H;76;75;1;3;6;82;81" ./opassign
     assert_out "0;1;2;2;3;3;4" ./inc
     assert_out "4;3;2;2;1;1;0" ./dec
+    assert_compile_success textwrite.cb
 }
 
 test_12_if() {
