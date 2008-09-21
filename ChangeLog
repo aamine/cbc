@@ -1,3 +1,8 @@
+Sun Sep 21 17:22:45 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: lhs.memref may
+	  be null when lhs is extern variable.
+
 Sun Sep 21 05:43:28 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: optimize

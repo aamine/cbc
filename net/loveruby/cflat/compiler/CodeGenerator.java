@@ -860,7 +860,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     //
 
     public void visit(AssignNode node) {
-        if (node.lhs().isConstantAddress()) {
+        if (node.lhs().isConstantAddress() && node.lhs().memref() != null) {
             compile(node.rhs());
             save(node.type(), reg("ax"), node.lhs().memref());
         }
@@ -881,7 +881,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     public void visit(OpAssignNode node) {
-        if (node.lhs().isConstantAddress()) {
+        if (node.lhs().isConstantAddress() && node.lhs().memref() != null) {
             // const += ANY
             compile(node.rhs());
             mov(reg("ax"), reg("cx"));
