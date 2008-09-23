@@ -1,3 +1,7 @@
+Tue Sep 23 20:42:38 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* unit: new unit test suite.
+
 Mon Sep 22 01:45:49 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test/div.cb: test %esi usage.
