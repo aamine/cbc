@@ -1,11 +1,12 @@
 ANT = jant
 CBC = ../bin/cbc
+CBFLAGS =
 
 .SUFFIXES:
 .SUFFIXES: .cb .
 
 .cb:
-	$(CBC) $<
+	$(CBC) $(CBFLAGS) $<
 
 default: compile
 
