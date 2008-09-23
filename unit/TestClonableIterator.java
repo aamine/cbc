@@ -50,4 +50,15 @@ public class TestClonableIterator {
         assertEquals("[1,2].next", 1, it.next());
         assertEquals("[2].next", 2, it.next());
     }
+
+    @Test public void dup() {
+        List<Integer> list = new ArrayList<Integer>();
+        list.add(1);
+        list.add(2);
+        ClonableIterator it = new ClonableIterator(list);
+        it.next();
+        ClonableIterator it2 = it.dup();
+        assertEquals("dup+hasNext #1", true, it2.hasNext());
+        assertEquals("dup+next #1", 2, it2.next());
+    }
 }
