@@ -15,5 +15,9 @@ clean:
 	cd lib; $(MAKE) clean
 	cd test; $(MAKE) clean
 
-test:
+test: check
+check:
 	cd test; $(MAKE) test
+
+unittest:
+	cd unit; $(MAKE) test
