@@ -1,3 +1,7 @@
+Tue Sep 23 22:45:00 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* lib/Makefile: parameterize.
+
 Tue Sep 23 20:42:38 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* unit: new unit test suite.

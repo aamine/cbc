@@ -1,10 +1,16 @@
+CBC = ../bin/cbc
+CBFLAGS = -O
+TARGET = libcbc.a
+OBJS = libcbc.o
+
 .SUFFIXES:
+.SUFFIXES: .cb .o
 
-libcbc.a: libcbc.o
-	ar cr libcbc.a libcbc.o
+.cb.o:
+	$(CBC) $(CBFLAGS) -c $< -o $@
 
-libcbc.o: libcbc.cb
-	../bin/cbc -O -c $< -o $@
+$(TARGET): $(OBJS)
+	ar cr $(TARGET) $(OBJS)
 
 clean:
-	rm -f libcbc.a *.o *.s
+	rm -f $(TARGET) *.o *.s
