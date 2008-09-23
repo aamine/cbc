@@ -3,9 +3,6 @@
 == Current
 
 * check composite Type#equals, #hashCode (?)
-* -O (jump elimination)
-        * label renaming
-        * remove useless jump
 * Label -> Symbol
 * all Symbols should be got from objects
 * named/unnamed Label
@@ -252,3 +249,5 @@
 - generate prologue/epilogue after function body.
 - -O (fast immediate load)
 - check "puts = str"
+- -O (jump elimination)
+- useless label elimination

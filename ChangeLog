@@ -1,3 +1,19 @@
+Wed Sep 24 01:10:36 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: remove unused
+	  labels.
+
+	* net/loveruby/cflat/asm/AsmStatistics.java: collect label usage.
+
+	* net/loveruby/cflat/asm/DirectMemoryReference.java: support
+	  collectStatistics.
+
+	* net/loveruby/cflat/asm/Literal.java: ditto.
+
+	* net/loveruby/cflat/asm/LabelRef.java: ditto.
+
+	* net/loveruby/cflat/asm/IntegerLiteral.java: ditto.
+
 Wed Sep 24 00:48:37 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm/PeepholeOptimizer.java: unify insn

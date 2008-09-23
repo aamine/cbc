@@ -15,6 +15,10 @@ public class LabelRef extends Literal {
         return label.name();
     }
 
+    public void collectStatistics(AsmStatistics stats) {
+        stats.labelUsed(label);
+    }
+
     public String toSource() {
         return symbol();
     }

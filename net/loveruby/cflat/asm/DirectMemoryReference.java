@@ -16,7 +16,7 @@ public class DirectMemoryReference extends MemoryReference {
     }
 
     public void collectStatistics(AsmStatistics stats) {
-        // does nothing
+        value.collectStatistics(stats);
     }
 
     public String toSource() {

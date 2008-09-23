@@ -21,6 +21,10 @@ public class IntegerLiteral extends Literal {
         return this;
     }
 
+    public void collectStatistics(AsmStatistics stats) {
+        // does nothing
+    }
+
     public String toSource() {
         return new Long(value).toString();
     }

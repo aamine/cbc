@@ -217,6 +217,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     protected void compileFunctionBody(DefinedFunction func) {
         List bodyAsms = compileStmts(func);
         AsmStatistics stats = AsmStatistics.collect(bodyAsms);
+        bodyAsms = reduceLabels(bodyAsms, stats);
         List saveRegs = usedCalleeSavedRegisters(stats);
         long lvarBytes = allocateLocalVariables(func.body().scope(),
                                                 saveRegs.size());
@@ -232,6 +233,21 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         label(epilogueLabel(func));
         currentFunction = null;
         return optimizer.optimize(popAssembler().assemblies());
+    }
+
+    protected List reduceLabels(List assemblies, AsmStatistics stats) {
+        List result = new ArrayList();
+        Iterator asms = assemblies.iterator();
+        while (asms.hasNext()) {
+            Assembly asm = (Assembly)asms.next();
+            if (asm.isLabel() && ! stats.doesLabelUsed((Label)asm)) {
+                ;
+            }
+            else {
+                result.add(asm);
+            }
+        }
+        return result;
     }
 
     // #@@range/compile{

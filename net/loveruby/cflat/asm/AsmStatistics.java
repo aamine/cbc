@@ -2,8 +2,9 @@ package net.loveruby.cflat.asm;
 import java.util.*;
 
 public class AsmStatistics {
-    protected Map registerUsage;
-    protected Map insnUsage;
+    protected Map registerUsage;   // Map<Register, Integer>
+    protected Map insnUsage;       // Map<String, Integer>
+    protected Map labelUsage;      // Map<Label, Integer>
 
     static public AsmStatistics collect(List assemblies) {
         AsmStatistics stats = new AsmStatistics();
@@ -18,13 +19,14 @@ public class AsmStatistics {
     public AsmStatistics() {
         registerUsage = new HashMap();
         insnUsage = new HashMap();
+        labelUsage = new HashMap();
     }
 
     public boolean doesRegisterUsed(Register reg) {
-        return numRegisterUsage(reg) > 0;
+        return numRegisterUsed(reg) > 0;
     }
 
-    public int numRegisterUsage(Register reg) {
+    public int numRegisterUsed(Register reg) {
         return fetchCount(registerUsage, reg);
     }
 
@@ -38,6 +40,18 @@ public class AsmStatistics {
 
     public void instructionUsed(String insn) {
         incrementCount(insnUsage, insn);
+    }
+
+    public boolean doesLabelUsed(Label label) {
+        return numLabelUsed(label) > 0;
+    }
+
+    public int numLabelUsed(Label label) {
+        return fetchCount(labelUsage, label);
+    }
+
+    public void labelUsed(Label label) {
+        incrementCount(labelUsage, label);
     }
 
     protected int fetchCount(Map m, Object key) {
