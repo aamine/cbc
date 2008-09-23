@@ -1,3 +1,46 @@
+Tue Sep 23 22:50:52 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: apply jump
+	  elimination.
+
+	* net/loveruby/cflat/asm/PeepholeOptimizer.java: new optimization
+	  method: jump elimination.
+
+	* net/loveruby/cflat/asm/Assembler.java: refactoring: #string ->
+	  #toSource.
+
+	* net/loveruby/cflat/asm/Assembler.java: refactoring: list ->
+	  assemblies.
+
+	* net/loveruby/cflat/asm/Assembly.java: new method #isDirective
+	  and #isComment.
+
+	* net/loveruby/cflat/asm/Directive.java: implement it.
+
+	* net/loveruby/cflat/asm/AsmComment.java: implement it.
+
+	* net/loveruby/cflat/asm/Label.java: implement it.
+
+	* net/loveruby/cflat/asm/Label.java: new method #equals,
+	  #hashCode.
+
+	* net/loveruby/cflat/asm/Instruction.java: add jump related
+	  methods to analyze jump instruction.
+
+	* net/loveruby/cflat/asm/LabelRef.java: new method #label to allow
+	  extracting a Label.
+
+	* net/loveruby/cflat/asm/Register.java: new method #equals,
+	  #hashCode.
+
+	* net/loveruby/cflat/asm/AsmStatistics.java: use Object for map
+	  keys.
+
+	* net/loveruby/cflat/asm/AsmStatistics.java: new method
+	  #doesRegisterUsed.
+
+	* net/loveruby/cflat/utils/ClonableIterator.java: new utility.
+
 Tue Sep 23 22:45:00 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* lib/Makefile: parameterize.

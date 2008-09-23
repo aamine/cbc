@@ -7,6 +7,10 @@ public class LabelRef extends Literal {
         this.label = label;
     }
 
+    public Label label() {
+        return label;
+    }
+
     public String symbol() {
         return label.name();
     }

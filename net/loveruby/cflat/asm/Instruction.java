@@ -41,6 +41,17 @@ public class Instruction extends Assembly {
         return this.mnemonic;
     }
 
+    public boolean isJumpInstruction() {
+        return mnemonic.equals("jmp")
+                || mnemonic.equals("jz")
+                || mnemonic.equals("jne")
+                || mnemonic.equals("je")
+                || mnemonic.equals("jne");
+    }
+
+    /**
+     * Returns the number of operands.
+     */
     public int numOperands() {
         return this.operands.length;
     }
@@ -51,6 +62,14 @@ public class Instruction extends Assembly {
 
     public AsmOperand operand2() {
         return this.operands[1];
+    }
+
+    /**
+     * Extract jump destination label from operands.
+     */
+    public Label jmpDestination() {
+        DirectMemoryReference ref = (DirectMemoryReference)(operands[0]);
+        return ((LabelRef)ref.value()).label();
     }
 
     public void collectStatistics(AsmStatistics stats) {

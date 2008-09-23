@@ -4,7 +4,7 @@ import net.loveruby.cflat.utils.*;
 import java.util.*;
 
 public class Assembler {
-    protected List list;        // List<Assembly>
+    protected List assemblies;        // List<Assembly>
     protected Type naturalType;
     protected int commentIndentLevel;
 
@@ -13,24 +13,24 @@ public class Assembler {
     }
 
     public Assembler(Type naturalType) {
-        this.list = new ArrayList();
+        this.assemblies = new ArrayList();
         this.naturalType = naturalType;
         this.commentIndentLevel = 0;
     }
 
     public List assemblies() {
-        return this.list;
+        return this.assemblies;
     }
 
     public void addAll(List assemblies) {
-        this.list.addAll(assemblies);
+        this.assemblies.addAll(assemblies);
     }
 
-    public String string() {
+    public String toSource() {
         StringBuffer buf = new StringBuffer();
-        Iterator i = list.iterator();
-        while (i.hasNext()) {
-            Assembly asm = (Assembly)i.next();
+        Iterator asms = assemblies.iterator();
+        while (asms.hasNext()) {
+            Assembly asm = (Assembly)asms.next();
             buf.append(asm.toSource());
             buf.append("\n");
         }
@@ -38,7 +38,7 @@ public class Assembler {
     }
 
     public void comment(String str) {
-        list.add(new AsmComment(str, commentIndentLevel));
+        assemblies.add(new AsmComment(str, commentIndentLevel));
     }
 
     public void indentComment() {
@@ -50,39 +50,39 @@ public class Assembler {
     }
 
     public void label(String sym) {
-        list.add(new Label(sym));
+        assemblies.add(new Label(sym));
     }
 
     public void label(Label label) {
-        list.add(label);
+        assemblies.add(label);
     }
 
     protected void directive(String direc) {
-        list.add(new Directive(direc));
+        assemblies.add(new Directive(direc));
     }
 
     protected void insn(String op) {
-        list.add(new Instruction(op));
+        assemblies.add(new Instruction(op));
     }
 
     protected void insn(String op, AsmOperand a) {
-        list.add(new Instruction(op, "", a));
+        assemblies.add(new Instruction(op, "", a));
     }
 
     protected void insn(String op, String suffix, AsmOperand a) {
-        list.add(new Instruction(op, suffix, a));
+        assemblies.add(new Instruction(op, suffix, a));
     }
 
     protected void insn(Type t, String op, AsmOperand a) {
-        list.add(new Instruction(op, typeSuffix(t), a));
+        assemblies.add(new Instruction(op, typeSuffix(t), a));
     }
 
     protected void insn(String op, String suffix, AsmOperand a, AsmOperand b) {
-        list.add(new Instruction(op, suffix, a, b));
+        assemblies.add(new Instruction(op, suffix, a, b));
     }
 
     protected void insn(Type t, String op, AsmOperand a, AsmOperand b) {
-        list.add(new Instruction(op, typeSuffix(t), a, b));
+        assemblies.add(new Instruction(op, typeSuffix(t), a, b));
     }
 
     protected String typeSuffix(Type t1, Type t2) {

@@ -1,4 +1,5 @@
 package net.loveruby.cflat.asm;
+import net.loveruby.cflat.utils.ClonableIterator;
 import java.util.*;
 
 public class PeepholeOptimizer implements AsmOptimizer {
@@ -6,6 +7,10 @@ public class PeepholeOptimizer implements AsmOptimizer {
 
     public PeepholeOptimizer() {
         this.filters = defaultFilterSet();
+    }
+
+    public List optimize(List assemblies) {
+        return jumpElimination(insnOptimization(assemblies));
     }
 
     // List<Filter>
@@ -123,7 +128,7 @@ public class PeepholeOptimizer implements AsmOptimizer {
         return new AnyRegisterPattern();
     }
 
-    public List optimize(List assemblies) {
+    public List insnOptimization(List assemblies) {
         List result = new ArrayList();
         Iterator asms = assemblies.iterator();
         while (asms.hasNext()) {
@@ -204,5 +209,65 @@ public class PeepholeOptimizer implements AsmOptimizer {
 
     interface InsnTemplate {
         abstract public Instruction apply(Instruction insn);
+    }
+
+    //
+    // jumpElimination
+    //
+
+    public List jumpElimination(List assemblies) {
+        List result = new ArrayList();
+        ClonableIterator asms = new ClonableIterator(assemblies);
+        while (asms.hasNext()) {
+            Assembly asm = (Assembly)asms.next();
+            if (isUselessJump(asm, asms)) {
+                ;  // remove useless jump
+            }
+            else {
+                result.add(asm);
+            }
+        }
+        return result;
+    }
+
+    protected boolean isUselessJump(Assembly asm, ClonableIterator asms) {
+        if (! asm.isInstruction()) return false;
+        Instruction insn = (Instruction)asm;
+        if (! insn.isJumpInstruction()) return false;
+        return doesLabelFollows(asms.dup(), insn.jmpDestination());
+    }
+
+    /**
+     * Returns true if jmpDest is found in asms before any instruction
+     * or directives.  For example, this method returns true if contents
+     * of asms are:
+     *
+     *    if_end3:
+     *          # comment
+     *    jmpDest:
+     *          mov
+     *          mov
+     *          add
+     */
+    protected boolean doesLabelFollows(ClonableIterator asms, Label jmpDest) {
+        while (asms.hasNext()) {
+            Assembly asm = (Assembly)asms.next();
+            if (asm.isLabel()) {
+                Label label = (Label)asm;
+                if (label.equals(jmpDest)) {
+                    return true;
+                }
+                else {
+                    continue;
+                }
+            }
+            else if (asm.isComment()) {
+                continue;
+            }
+            else {
+                return false;
+            }
+        }
+        return false;
     }
 }

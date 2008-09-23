@@ -14,12 +14,33 @@ public class Label extends Assembly {
         name = n;
     }
 
+    public boolean isLabel() {
+        return true;
+    }
+
     public long seq() {
         return seq;
     }
 
     public String name() {
         return name;
+    }
+
+    public boolean equals(Object other) {
+        if (other instanceof Label) {
+            return equals((Label)other);
+        }
+        else {
+            return false;
+        }
+    }
+
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public boolean equals(Label label) {
+        return name.equals(label.name());
     }
 
     public String toSource() {

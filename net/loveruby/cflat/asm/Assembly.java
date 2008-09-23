@@ -11,6 +11,14 @@ abstract public class Assembly {
         return false;
     }
 
+    public boolean isDirective() {
+        return false;
+    }
+
+    public boolean isComment() {
+        return false;
+    }
+
     public void collectStatistics(AsmStatistics stats) {
         // does nothing by default.
     }

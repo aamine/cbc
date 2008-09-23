@@ -9,7 +9,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     protected AsmOptimizer optimizer;
     protected ErrorHandler errorHandler;
     protected boolean verboseAsm;
-    protected Assembler assembler;
+    protected LinkedList asStack;
     protected Assembler as;
     protected TypeTable typeTable;
     protected DefinedFunction currentFunction;
@@ -20,6 +20,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         this.optimizer = optimizer;
         this.errorHandler = errorHandler;
         this.verboseAsm = verboseAsm;
+        this.asStack = new LinkedList();
     }
     // #@@}
 
@@ -27,12 +28,26 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     // #@@range/generate
     public String generate(AST ast) {
         this.typeTable = ast.typeTable();
-        this.assembler = newAssembler();
-        this.as = this.assembler;
+        pushAssembler();
         allocateGlobalVariables(ast.globalVariables());
         allocateCommonSymbols(ast.commonSymbols());
         compileAST(ast);
-        return as.string();
+        return popAssembler().toSource();
+    }
+
+    protected void pushAssembler() {
+        asStack.add(newAssembler());
+        this.as = (Assembler)asStack.getLast();
+    }
+
+    protected Assembler popAssembler() {
+        Assembler poped = (Assembler)asStack.removeLast();
+        this.as = asStack.isEmpty() ? null : (Assembler)asStack.getLast();
+        return poped;
+    }
+
+    protected Assembler newAssembler() {
+        return new Assembler(typeTable.unsignedLong());
     }
 
     public void compileAST(AST ast) {
@@ -53,10 +68,6 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         compileCommonSymbols(ast.commonSymbols());
     }
     // #@@}
-
-    protected Assembler newAssembler() {
-        return new Assembler(typeTable.unsignedLong());
-    }
 
     /**
      * Sets memory reference for...
@@ -189,15 +200,8 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     /** Compiles a function. */
     // #@@range/compileFunction{
     protected void compileFunction(DefinedFunction func) {
-        long numSavedRegs = 0;  // 1 for PIC
         allocateParameters(func);
         allocateLocalVariablesTemp(func.body().scope());
-
-        List bodyAsms = compileFunctionBody(func);
-        AsmStatistics stats = AsmStatistics.collect(bodyAsms);
-        List usedCalleeSavedRegs = usedCalleeSavedRegs(stats);
-        long lvarBytes = allocateLocalVariables(func.body().scope(),
-                                                usedCalleeSavedRegs.size());
 
         String symbol = csymbol(func.name());
         if (! func.isPrivate()) {
@@ -205,21 +209,29 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         }
         _type(symbol, "@function");
         label(symbol);
-        prologue(func, usedCalleeSavedRegs, lvarBytes);
-        as.addAll(bodyAsms);
-        epilogue(func, usedCalleeSavedRegs, lvarBytes);
+        compileFunctionBody(func);
         _size(symbol, ".-" + symbol);
     }
     // #@@}
 
-    protected List compileFunctionBody(DefinedFunction func) {
+    protected void compileFunctionBody(DefinedFunction func) {
+        List bodyAsms = compileStmts(func);
+        AsmStatistics stats = AsmStatistics.collect(bodyAsms);
+        List saveRegs = usedCalleeSavedRegisters(stats);
+        long lvarBytes = allocateLocalVariables(func.body().scope(),
+                                                saveRegs.size());
+        prologue(func, saveRegs, lvarBytes);
+        as.addAll(bodyAsms);
+        epilogue(func, saveRegs, lvarBytes);
+    }
+
+    protected List compileStmts(DefinedFunction func) {
+        pushAssembler();
         currentFunction = func;
-        this.as = newAssembler();
         compile(func.body());
-        List assemblies = this.as.assemblies();
-        this.as = this.assembler;
+        label(epilogueLabel(func));
         currentFunction = null;
-        return optimizer.optimize(assemblies);
+        return optimizer.optimize(popAssembler().assemblies());
     }
 
     // #@@range/compile{
@@ -250,12 +262,12 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
     // #@@}
 
-    protected List usedCalleeSavedRegs(AsmStatistics stats) {
+    protected List usedCalleeSavedRegisters(AsmStatistics stats) {
         List result = new ArrayList();
         Iterator regs = calleeSavedRegisters().iterator();
         while (regs.hasNext()) {
             Register reg = (Register)regs.next();
-            if (stats.numRegisterUsage(reg.baseName()) > 0) {
+            if (stats.doesRegisterUsed(reg)) {
                 result.add(reg);
             }
         }
@@ -318,16 +330,8 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
                             List saveRegs, long lvarBytes) {
         push(bp());
         mov(sp(), bp());
-        Iterator regs = saveRegs.iterator();
-        while (regs.hasNext()) {
-            Register reg = (Register)regs.next();
-            // bp is already saved
-            if (! reg.baseName().equals("bp")) {
-                push(reg);
-            }
-        }
+        saveRegisters(saveRegs);
         extendStack(lvarBytes);
-
         if (verboseAsm) {
             Iterator vars = func.localVariables();
             while (vars.hasNext()) {
@@ -341,20 +345,33 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     // #@@range/epilogue{
     protected void epilogue(DefinedFunction func,
                             List savedRegs, long lvarBytes) {
-        label(epilogueLabel(func));
         shrinkStack(lvarBytes);
-        Iterator regs = savedRegs.iterator();
-        while (regs.hasNext()) {
-            Register reg = (Register)regs.next();
-            if (! reg.baseName().equals("bp")) {
-                pop(reg);
-            }
-        }
+        restoreRegisters(savedRegs);
         mov(bp(), sp());
         pop(bp());
         ret();
     }
     // #@@}
+
+    protected void saveRegisters(List saveRegs) {
+        Iterator regs = saveRegs.iterator();
+        while (regs.hasNext()) {
+            Register reg = (Register)regs.next();
+            if (! reg.equals(bp())) {   // bp is already saved.
+                push(reg);
+            }
+        }
+    }
+
+    protected void restoreRegisters(List savedRegs) {
+        Iterator regs = savedRegs.iterator();
+        while (regs.hasNext()) {
+            Register reg = (Register)regs.next();
+            if (! reg.equals(bp())) {   // bp is going to be restored.
+                pop(reg);
+            }
+        }
+    }
 
     // #@@range/jmpEpilogue{
     protected void jmpEpilogue() {

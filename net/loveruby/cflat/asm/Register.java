@@ -32,6 +32,22 @@ public class Register extends AsmOperand {
         return true;
     }
 
+    public boolean equals(Object other) {
+        if (!(other instanceof Register)) return false;
+        return equals((Register)other);
+    }
+
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    /**
+     * size difference does NOT matter.
+     */
+    public boolean equals(Register reg) {
+        return name.equals(reg.baseName());
+    }
+
     public String baseName() {
         return name;
     }
@@ -62,7 +78,7 @@ public class Register extends AsmOperand {
     }
 
     public void collectStatistics(AsmStatistics stats) {
-        stats.registerUsed(name);
+        stats.registerUsed(this);
     }
 
     public String toSource() {

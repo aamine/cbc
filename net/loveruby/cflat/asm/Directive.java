@@ -7,6 +7,10 @@ public class Directive extends Assembly {
         this.content = content;
     }
 
+    public boolean isDirective() {
+        return true;
+    }
+
     public String toSource() {
         return this.content;
     }

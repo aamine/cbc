@@ -20,12 +20,16 @@ public class AsmStatistics {
         insnUsage = new HashMap();
     }
 
-    public int numRegisterUsage(String name) {
-        return fetchCount(registerUsage, name);
+    public boolean doesRegisterUsed(Register reg) {
+        return numRegisterUsage(reg) > 0;
     }
 
-    public void registerUsed(String name) {
-        incrementCount(registerUsage, name);
+    public int numRegisterUsage(Register reg) {
+        return fetchCount(registerUsage, reg);
+    }
+
+    public void registerUsed(Register reg) {
+        incrementCount(registerUsage, reg);
     }
 
     public int numInstructionUsage(String insn) {
@@ -36,8 +40,8 @@ public class AsmStatistics {
         incrementCount(insnUsage, insn);
     }
 
-    protected int fetchCount(Map m, String name) {
-        Integer n = (Integer)m.get(name);
+    protected int fetchCount(Map m, Object key) {
+        Integer n = (Integer)m.get(key);
         if (n == null) {
             return 0;
         }
@@ -46,7 +50,7 @@ public class AsmStatistics {
         }
     }
 
-    protected void incrementCount(Map m, String name) {
-        m.put(name, new Integer(fetchCount(m, name) + 1));
+    protected void incrementCount(Map m, Object key) {
+        m.put(key, new Integer(fetchCount(m, key) + 1));
     }
 }

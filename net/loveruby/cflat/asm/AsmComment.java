@@ -13,6 +13,10 @@ public class AsmComment extends Assembly {
         this.indentLevel = indentLevel;
     }
 
+    public boolean isComment() {
+        return true;
+    }
+
     public String toSource() {
         return "\t" + indent() + "# " + string;
     }
