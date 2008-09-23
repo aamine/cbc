@@ -1,26 +1,75 @@
 package net.loveruby.cflat.asm;
-import net.loveruby.cflat.utils.ClonableIterator;
+import net.loveruby.cflat.utils.Cursor;
 import java.util.*;
 
 public class PeepholeOptimizer implements AsmOptimizer {
-    protected List filters;
+    protected Map filterSet;   // Map<String, List<Filter>>
 
     public PeepholeOptimizer() {
-        this.filters = defaultFilterSet();
+        this.filterSet = new HashMap();
+    }
+
+    public void add(Filter filter) {
+        String[] heads = filter.patternHeads();
+        for (int i = 0; i < heads.length; i++) {
+            String head = heads[i];
+            List list = (List)filterSet.get(head);
+            if (list == null) {
+                list = new ArrayList();
+                list.add(filter);
+                filterSet.put(head, list);
+            }
+            else {
+                list.add(filter);
+            }
+        }
     }
 
     public List optimize(List assemblies) {
-        return jumpElimination(insnOptimization(assemblies));
+        List result = new ArrayList();
+        Cursor cursor = new Cursor(assemblies);
+        while (cursor.hasNext()) {
+            Assembly asm = (Assembly)cursor.next();
+            if (asm.isInstruction()) {
+                Filter matched = matchFilter(cursor);
+                if (matched != null) {
+                    matched.optimize(cursor, result);
+                    continue;
+                }
+            }
+            result.add(asm);
+        }
+        return result;
     }
 
-    // List<Filter>
-    protected List defaultFilterSet() {
-        List set = new ArrayList();
+    protected Filter matchFilter(Cursor asms) {
+        Instruction insn = (Instruction)asms.current();
+        List filters = (List)filterSet.get(insn.mnemonic());
+        if (filters == null) return null;
+        if (filters.isEmpty()) return null;
+        Iterator it = filters.iterator();
+        while (it.hasNext()) {
+            Filter filter = (Filter)it.next();
+            if (filter.match(asms)) {
+                return filter;
+            }
+        }
+        return null;
+    }
+
+    static public PeepholeOptimizer defaultSet() {
+        PeepholeOptimizer set = new PeepholeOptimizer();
+        set.loadDefaultFilters();
+        return set;
+    }
+
+    protected void loadDefaultFilters() {
+        PeepholeOptimizer set = this;
 
         // mov
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("mov", imm(0), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("xor", insn.operand2(), insn.operand2());
                 }
@@ -28,21 +77,21 @@ public class PeepholeOptimizer implements AsmOptimizer {
         ));
 
         // add
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("add", imm(-1), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("dec", insn.operand2());
                 }
             }
         ));
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("add", imm(0), reg()),
             null
         ));
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("add", imm(1), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("inc", insn.operand2());
                 }
@@ -50,21 +99,21 @@ public class PeepholeOptimizer implements AsmOptimizer {
         ));
 
         // sub
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("sub", imm(-1), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("inc", insn.operand2());
                 }
             }
         ));
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("sub", imm(0), reg()),
             null
         ));
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("sub", imm(1), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("dec", insn.operand2());
                 }
@@ -72,52 +121,53 @@ public class PeepholeOptimizer implements AsmOptimizer {
         ));
 
         // imul
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("imul", imm(0), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("xorl", insn.operand2(), insn.operand2());
                 }
             }
         ));
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("imul", imm(1), reg()),
             null
         ));
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("imul", imm(2), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("sal", imm(1), insn.operand2());
                 }
             }
         ));
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("imul", imm(4), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("sal", imm(2), insn.operand2());
                 }
             }
         ));
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("imul", imm(8), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("sal", imm(3), insn.operand2());
                 }
             }
         ));
-        set.add(new Filter(
+        set.add(new SingleInsnFilter(
             new InsnPattern("imul", imm(16), reg()),
-            new InsnTemplate() {
+            new InsnTransform() {
                 public Instruction apply(Instruction insn) {
                     return insn.build("sal", imm(4), insn.operand2());
                 }
             }
         ));
 
-        return set;
+        // jmp
+        set.add(new JumpEliminationFilter());
     }
 
     protected ImmediateValue imm(long n) {
@@ -128,57 +178,40 @@ public class PeepholeOptimizer implements AsmOptimizer {
         return new AnyRegisterPattern();
     }
 
-    public List insnOptimization(List assemblies) {
-        List result = new ArrayList();
-        Iterator asms = assemblies.iterator();
-        while (asms.hasNext()) {
-            Assembly asm = (Assembly)asms.next();
-            if (! asm.isInstruction()) {
-                result.add(asm);
-            }
-            else {
-                Assembly optAsm = optimizeInstruction((Instruction)asm);
-                if (optAsm == null) {
-                    // remove instruction
-                }
-                else {
-                    result.add(optAsm);
-                }
-            }
-        }
-        return result;
+    abstract class Filter {
+        abstract public String[] patternHeads();
+        abstract public boolean match(Cursor asms);
+        abstract public void optimize(Cursor src, List dest);
     }
 
-    protected Assembly optimizeInstruction(Instruction insn) {
-        Iterator it = filters.iterator();
-        while (it.hasNext()) {
-            Filter filter = (Filter)it.next();
-            if (filter.match(insn)) {
-                return filter.optimize(insn);
-            }
-        }
-        return insn;
-    }
+    //
+    // single instruction optimization
+    //
 
-    class Filter {
+    class SingleInsnFilter extends Filter {
         protected InsnPattern pattern;
-        protected InsnTemplate template;
+        protected InsnTransform transform;
 
-        public Filter(InsnPattern pattern, InsnTemplate template) {
+        public SingleInsnFilter(InsnPattern pattern, InsnTransform transform) {
             this.pattern = pattern;
-            this.template = template;
+            this.transform = transform;
         }
 
-        public boolean match(Instruction insn) {
-            return pattern.match(insn);
+        /** Matching mnemonic of InstructionPattern */
+        public String[] patternHeads() {
+            return new String[] { pattern.name };
         }
 
-        public Instruction optimize(Instruction insn) {
-            if (template == null) {
-                return null;
+        public boolean match(Cursor asms) {
+            return pattern.match((Instruction)asms.current());
+        }
+
+        public void optimize(Cursor src, List dest) {
+            if (transform == null) {
+                ;   // remove instruction
             }
             else {
-                return template.apply(insn);
+                dest.add(transform.apply((Instruction)src.current()));
             }
         }
     }
@@ -207,7 +240,7 @@ public class PeepholeOptimizer implements AsmOptimizer {
         }
     }
 
-    interface InsnTemplate {
+    interface InsnTransform {
         abstract public Instruction apply(Instruction insn);
     }
 
@@ -215,59 +248,60 @@ public class PeepholeOptimizer implements AsmOptimizer {
     // jumpElimination
     //
 
-    public List jumpElimination(List assemblies) {
-        List result = new ArrayList();
-        ClonableIterator asms = new ClonableIterator(assemblies);
-        while (asms.hasNext()) {
-            Assembly asm = (Assembly)asms.next();
-            if (isUselessJump(asm, asms)) {
-                ;  // remove useless jump
-            }
-            else {
-                result.add(asm);
-            }
+    class JumpEliminationFilter extends Filter {
+        public JumpEliminationFilter() {
         }
-        return result;
-    }
 
-    protected boolean isUselessJump(Assembly asm, ClonableIterator asms) {
-        if (! asm.isInstruction()) return false;
-        Instruction insn = (Instruction)asm;
-        if (! insn.isJumpInstruction()) return false;
-        return doesLabelFollows(asms.dup(), insn.jmpDestination());
-    }
+        protected String[] jmpInsns() {
+            return new String[] { "jmp", "jz", "jne", "je", "jne" };
+        }
 
-    /**
-     * Returns true if jmpDest is found in asms before any instruction
-     * or directives.  For example, this method returns true if contents
-     * of asms are:
-     *
-     *    if_end3:
-     *          # comment
-     *    jmpDest:
-     *          mov
-     *          mov
-     *          add
-     */
-    protected boolean doesLabelFollows(ClonableIterator asms, Label jmpDest) {
-        while (asms.hasNext()) {
-            Assembly asm = (Assembly)asms.next();
-            if (asm.isLabel()) {
-                Label label = (Label)asm;
-                if (label.equals(jmpDest)) {
-                    return true;
+        public String[] patternHeads() {
+            return jmpInsns();
+        }
+
+        public void optimize(Cursor src, List dest) {
+            ;   // remove jump
+        }
+
+        public boolean match(Cursor asms) {
+            Instruction insn = (Instruction)asms.current();
+            return doesLabelFollows(asms.dup(), insn.jmpDestination());
+        }
+
+        /**
+         * Returns true if jmpDest is found in asms before any instruction
+         * or directives.  For example, this method returns true if contents
+         * of asms are:
+         *
+         *    if_end3:
+         *          # comment
+         *    jmpDest:
+         *          mov
+         *          mov
+         *          add
+         */
+        protected boolean doesLabelFollows(Cursor asms, Label jmpDest) {
+            while (asms.hasNext()) {
+                Assembly asm = (Assembly)asms.next();
+                if (asm.isLabel()) {
+                    Label label = (Label)asm;
+                    if (label.equals(jmpDest)) {
+                        return true;
+                    }
+                    else {
+                        continue;
+                    }
                 }
-                else {
+                else if (asm.isComment()) {
                     continue;
                 }
+                else {
+                    // instructions or directives
+                    return false;
+                }
             }
-            else if (asm.isComment()) {
-                continue;
-            }
-            else {
-                return false;
-            }
+            return false;
         }
-        return false;
     }
 }

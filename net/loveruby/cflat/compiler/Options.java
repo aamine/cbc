@@ -119,7 +119,7 @@ class Options {
             return new NullAsmOptimizer();
         }
         else {
-            return new PeepholeOptimizer();
+            return PeepholeOptimizer.defaultSet();
         }
     }
 

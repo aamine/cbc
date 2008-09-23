@@ -1,3 +1,13 @@
+Wed Sep 24 00:48:37 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/PeepholeOptimizer.java: unify insn
+	  optimization and jump elimination.
+
+	* net/loveruby/cflat/utils/ClonableIterator.java -> Cursor.java
+
+	* net/loveruby/cflat/compiler/Options.java: use default
+	  optimization rule set for -O.
+
 Tue Sep 23 22:50:52 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: apply jump

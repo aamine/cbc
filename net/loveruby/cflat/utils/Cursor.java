@@ -1,25 +1,25 @@
 package net.loveruby.cflat.utils;
 import java.util.*;
 
-public class ClonableIterator implements Iterator {
+public class Cursor implements Iterator {
     protected List list;
     protected int index;
 
-    public ClonableIterator(List list) {
+    public Cursor(List list) {
         this(list, 0);
     }
 
-    protected ClonableIterator(List list, int index) {
+    protected Cursor(List list, int index) {
         this.list = list;
         this.index = index;
     }
 
     public Object clone() {
-        return new ClonableIterator(list, index);
+        return new Cursor(list, index);
     }
 
-    public ClonableIterator dup() {
-        return new ClonableIterator(list, index);
+    public Cursor dup() {
+        return new Cursor(list, index);
     }
 
     public boolean hasNext() {
@@ -30,11 +30,18 @@ public class ClonableIterator implements Iterator {
         return list.get(index++);
     }
 
+    public Object current() {
+        if (index == 0) {
+            throw new Error("must not happen: Cursor#current");
+        }
+        return list.get(index - 1);
+    }
+
     public void remove() {
         list.remove(index);
     }
 
     public String toString() {
-        return "#<ClonableIterator list=" + list + " index=" + index + ">";
+        return "#<Cursor list=" + list + " index=" + index + ">";
     }
 }
