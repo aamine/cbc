@@ -83,6 +83,9 @@ class Options {
     }
 
     protected String getOutputFileName(String newExt) {
+        if (outputFileName != null) {
+            return outputFileName;
+        }
         List srcs = sourceFiles();
         if (srcs.size() == 1) {
             SourceFile src = (SourceFile)srcs.get(0);
@@ -136,6 +139,10 @@ class Options {
 
     public boolean isGeneratingSharedLibrary() {
         return this.generatingSharedLibrary;
+    }
+
+    public boolean isGeneratingPIE() {
+        return this.generatingPIE;
     }
 
     // List<ldArg>
@@ -219,6 +226,8 @@ class Options {
                 else if (arg.equals("-pie")) {
                     generatingPIE = true;
                 }
+                // FIXME: -z combreloc -z now -z relro
+                //else if (arg.equals("--readonly-plt"))
                 else if (arg.startsWith("-L")) {
                     ldArgs.add(new LdOption("-L" + getOptArg(arg, args)));
                 }
@@ -366,6 +375,7 @@ class Options {
         out.println("  -shared          Generates shared library rather than executable.");
         out.println("  -static          Linkes only with static libraries.");
         out.println("  -pie             Generates PIE.");
+        //out.println("  --readonly-plt   Generates read-only PLT.");
         out.println("  -nostartfiles    Do not link startup files.");
         out.println("  -nodefaultlibs   Do not link default libraries.");
         out.println("  -nostdlib        Enables -nostartfiles and -nodefaultlibs.");

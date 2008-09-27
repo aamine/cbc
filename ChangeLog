@@ -1,3 +1,12 @@
+Sun Sep 28 07:19:43 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Options.java (getOutputFileName):
+	  should use outputFileName always when linking, output file of
+	  linking is always 1 file.
+
+	* net/loveruby/cflat/compiler/Options.java: fixes compile error:
+	  new method #isGeneratingPIE.
+
 Sun Sep 28 07:06:37 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: implement -shared.
