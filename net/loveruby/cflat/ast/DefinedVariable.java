@@ -3,8 +3,8 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
 public class DefinedVariable extends Variable {
+    protected long sequence;
     protected ExprNode initializer;
-    protected MemoryReference memref;
 
     public DefinedVariable(boolean priv, TypeNode type,
                            String name, ExprNode init) {
@@ -15,6 +15,14 @@ public class DefinedVariable extends Variable {
 
     public boolean isDefined() {
         return true;
+    }
+
+    public void setSequence(long seq) {
+        this.sequence = seq;
+    }
+
+    public String symbol() {
+        return (sequence < 0) ? name : (name + "." + sequence);
     }
 
     public boolean hasInitializer() {
@@ -31,21 +39,6 @@ public class DefinedVariable extends Variable {
 
     public void setInitializer(ExprNode expr) {
         this.initializer = expr;
-    }
-
-    public void setMemref(MemoryReference mem) {
-        this.memref = mem;
-    }
-
-    public MemoryReference memref() {
-        if (memref == null) {
-            throw new Error("unresolved variable address");
-        }
-        return memref;
-    }
-
-    public AsmOperand address() {
-        return null;
     }
 
     protected void _dump(Dumper d) {

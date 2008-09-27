@@ -15,6 +15,10 @@ public class LabelRef extends Literal {
         return label.name();
     }
 
+    public boolean isZero() {
+        return false;
+    }
+
     public void collectStatistics(AsmStatistics stats) {
         stats.labelUsed(label);
     }

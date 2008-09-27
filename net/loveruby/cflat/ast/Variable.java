@@ -3,20 +3,38 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 
 abstract public class Variable extends Entity {
-    protected long sequence;
+    protected MemoryReference memref;
+    protected MemoryReference address;
 
     public Variable(boolean priv, TypeNode type, String name) {
         super(priv, type, name);
-        sequence = -1;
     }
 
-    public void setSequence(long seq) {
-        this.sequence = seq;
+    public boolean cannotLoad() {
+        return type().isAllocatedArray();
     }
 
-    public String symbol() {
-        return (sequence < 0) ? name : (name + "." + sequence);
+    public void setMemref(MemoryReference mem) {
+        this.memref = mem;
     }
 
-    abstract public void setMemref(MemoryReference addr);
+    public MemoryReference memref() {
+        checkAddress();
+        return memref;
+    }
+
+    public void setAddress(MemoryReference mem) {
+        this.address = mem;
+    }
+
+    public AsmOperand address() {
+        checkAddress();
+        return address;
+    }
+
+    protected void checkAddress() {
+        if (memref == null && address == null) {
+            throw new Error("address did not resolved: " + name);
+        }
+    }
 }

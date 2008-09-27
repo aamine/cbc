@@ -13,8 +13,7 @@ class Options {
     protected String outputFileName;
     protected boolean verbose;
     protected boolean debugParser;
-    protected int optimizeLevel = 0;
-    protected boolean verboseAsm = false;
+    protected CodeGeneratorOptions genOptions;
     protected List asOptions;     // List<String>
     protected List ldArgs;        // List<LdArg>
     protected boolean noStartFiles = false;
@@ -23,6 +22,7 @@ class Options {
     public Options(TypeTable typeTable, LibraryLoader loader) {
         this.typeTable = typeTable;
         this.loader = loader;
+        this.genOptions = new CodeGeneratorOptions();
         this.asOptions = new ArrayList();
         this.ldArgs = new ArrayList();
     }
@@ -114,21 +114,8 @@ class Options {
         return this.debugParser;
     }
 
-    public AsmOptimizer optimizer() {
-        if (optimizeLevel == 0) {
-            return new NullAsmOptimizer();
-        }
-        else {
-            return PeepholeOptimizer.defaultSet();
-        }
-    }
-
-    class NullAsmOptimizer implements AsmOptimizer {
-        public List optimize(List assemblies) { return assemblies; }
-    }
-
-    public boolean isVerboseAsm() {
-        return verboseAsm;
+    public CodeGeneratorOptions genOptions() {
+        return genOptions;
     }
 
     // List<String>
@@ -189,23 +176,24 @@ class Options {
                 else if (arg.startsWith("-o")) {
                     outputFileName = getOptArg(arg, args);
                 }
-                // FIXME: PIC
-                //else if (arg.equals("-fpic"))
-                //else if (arg.equals("-fPIC"))
-                //      -shared ??
+                else if (arg.equals("-fpic")) {
+                    genOptions.generatePIC();
+                }
+                else if (arg.equals("-fPIC")) {
+                    genOptions.generatePIC();
+                }
                 // FIXME: PIE
                 //else if (arg.equals("-fpie"))
                 //else if (arg.equals("-fPIE"))
-                //else if (arg.equals("-pie"))
                 else if (arg.startsWith("-O")) {
                     String type = arg.substring(2);
                     if (! type.matches("^([0123s]|)$")) {
                         parseError("unknown optimization switch: " + arg);
                     }
-                    optimizeLevel = type.equals("0") ? 0 : 1;
+                    genOptions.setOptimizationLevel(type.equals("0") ? 0 : 1);
                 }
                 else if (arg.equals("--verbose-asm")) {
-                    verboseAsm = true;
+                    genOptions.generateVerboseAsm();
                 }
                 else if (arg.startsWith("-Wa,")) {
                     asOptions.addAll(parseCommaSeparatedOptions(arg));
@@ -217,8 +205,10 @@ class Options {
                     ldArgs.add(new LdOption(arg));
                 }
                 else if (arg.equals("-shared")) {
+                    // FIXME: ?? any more work is required??
                     ldArgs.add(new LdOption(arg));
                 }
+                //else if (arg.equals("-pie"))
                 else if (arg.startsWith("-L")) {
                     ldArgs.add(new LdOption("-L" + getOptArg(arg, args)));
                 }
@@ -329,30 +319,30 @@ class Options {
 
     public void printUsage(PrintStream out) {
         out.println("Usage: cbc [options] file...");
-        out.println("Generic Options:");
-        out.println("  --check-syntax   Checks syntax.");
-        out.println("  --dump-tokens    Parses source file and dumps tokens.");
-        out.println("  --dump-ast       Parses source file and dumps AST.");
-        out.println("  --dump-semantic  Checks semantics and dumps AST.");
+        out.println("Global Options:");
+        out.println("  --check-syntax   Checks syntax and quit.");
+        out.println("  --dump-tokens    Dumps tokens and quit.");
+        out.println("  --dump-ast       Dumps AST and quit.");
+        out.println("  --dump-semantic  Dumps AST after semantic check and quit.");
         // --dump-reference is hidden option
-        out.println("  -S               Generates an assembly source.");
-        out.println("  --dump-asm       Dumps an assembly source.");
-        out.println("  -c               Generates an object file.");
+        out.println("  -S               Generates an assembly source and quit.");
+        out.println("  --dump-asm       Prints an assembly source and quit.");
+        out.println("  -c               Generates an object file and quit.");
         out.println("  -o PATH          Places output in file PATH.");
-        out.println("  -v               Verbose mode.");
-        out.println("  --version        Shows compiler version.");
+        out.println("  -v               Turn on verbose mode.");
+        out.println("  --version        Shows compiler version and quit.");
         out.println("  --help           Prints this message and quit.");
         out.println("");
         out.println("Parser Options:");
+        out.println("  -I PATH          Adds PATH as import file directory.");
         out.println("  --debug-parser   Dumps parsing process.");
         out.println("");
-        out.println("Compiler Options:");
-        out.println("  -I PATH          Adds PATH as import file directory.");
+        out.println("Code Generator Options:");
         out.println("  -O               Enables optimization.");
         out.println("  -O1, -O2, -O3    Equivalent to -O.");
         out.println("  -Os              Equivalent to -O.");
         out.println("  -O0              Disables optimization (default).");
-        //out.println("  -fPIC            Generates PIC assembly.");
+        out.println("  -fPIC            Generates PIC assembly.");
         //out.println("  -fPIE            Generates PIE assembly.");
         out.println("  --verbose-asm    Generate assembly with verbose comments.");
         out.println("");
@@ -363,8 +353,8 @@ class Options {
         out.println("Linker Options:");
         out.println("  -l LIB           Links the library LIB.");
         out.println("  -L PATH          Adds PATH as library directory.");
-        //out.println("  -shared          Linkes with shared library (default).");
-        //out.println("  -static          Linkes with static library.");
+        out.println("  -shared          Generates shared library rather than executable.");
+        out.println("  -static          Linkes only with static libraries.");
         //out.println("  -pie             Generates PIE.");
         out.println("  -nostartfiles    Do not link startup files.");
         out.println("  -nodefaultlibs   Do not link default libraries.");

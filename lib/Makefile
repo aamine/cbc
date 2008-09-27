@@ -1,5 +1,5 @@
 CBC = ../bin/cbc
-CBFLAGS = -O
+CBFLAGS = -O -fPIC
 TARGET = libcbc.a
 OBJS = libcbc.o
 

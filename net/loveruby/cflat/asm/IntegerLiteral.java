@@ -17,6 +17,10 @@ public class IntegerLiteral extends Literal {
         return this.value;
     }
 
+    public boolean isZero() {
+        return value == 0;
+    }
+
     public IntegerLiteral integerLiteral() {
         return this;
     }

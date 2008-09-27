@@ -28,20 +28,24 @@ abstract public class ExprNode extends Node {
         }
     }
 
-    public boolean isConstant() {
-        return false;
-    }
-
-    public Literal asmLiteral() {
-        throw new Error("ExprNode#asmLiteral called");
-    }
-
     public boolean isAssignable() {
         return false;
     }
 
     public boolean isParameter() {
         return false;
+    }
+
+    public boolean shouldEvaluatedToAddress() {
+        return false;
+    }
+
+    public boolean isConstant() {
+        return false;
+    }
+
+    public ImmediateValue asmValue() {
+        throw new Error("ExprNode#asmValue called");
     }
 
     public boolean isConstantAddress() {

@@ -1,23 +1,29 @@
 package net.loveruby.cflat.asm;
 
 public class IndirectMemoryReference extends MemoryReference {
-    protected long offset;
+    protected Literal offset;
     protected Register base;
     protected boolean fixed;
 
     public IndirectMemoryReference(Register base) {
-        this.offset = 0;
+        this.offset = new IntegerLiteral(0);
         this.base = base;
         this.fixed = false;
     }
 
     public IndirectMemoryReference(long offset, Register base) {
-        this.offset = offset;
+        this.offset = new IntegerLiteral(offset);
         this.base = base;
         this.fixed = true;
     }
 
-    public long offset() {
+    public IndirectMemoryReference(Label offset, Register base) {
+        this.offset = new LabelRef(offset);
+        this.base = base;
+        this.fixed = true;
+    }
+
+    public Literal offset() {
         return offset;
     }
 
@@ -25,7 +31,7 @@ public class IndirectMemoryReference extends MemoryReference {
         if (fixed) {
             throw new Error("must not happen: fixed = true");
         }
-        this.offset = realOffset;
+        this.offset = new IntegerLiteral(realOffset);
         this.fixed = true;
     }
 
@@ -41,6 +47,7 @@ public class IndirectMemoryReference extends MemoryReference {
         if (! fixed) {
             throw new Error("must not happen: writing unfixed variable");
         }
-        return (offset == 0 ? "" : "" + offset) + "(" + base.toSource() + ")";
+        return (offset.isZero() ? "" : offset.toSource())
+                + "(" + base.toSource() + ")";
     }
 }

@@ -4,22 +4,20 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.*;
 import java.util.*;
 
-public class CodeGenerator extends Visitor implements ASTLHSVisitor {
+public class CodeGenerator
+                extends Visitor implements ASTLHSVisitor, ELFConstants {
     // #@@range/ctor{
-    protected AsmOptimizer optimizer;
+    protected CodeGeneratorOptions options;
     protected ErrorHandler errorHandler;
-    protected boolean verboseAsm;
     protected LinkedList asStack;
     protected Assembler as;
     protected TypeTable typeTable;
     protected DefinedFunction currentFunction;
 
-    public CodeGenerator(AsmOptimizer optimizer,
-                         ErrorHandler errorHandler,
-                         boolean verboseAsm) {
-        this.optimizer = optimizer;
+    public CodeGenerator(CodeGeneratorOptions options,
+                         ErrorHandler errorHandler) {
+        this.options = options;
         this.errorHandler = errorHandler;
-        this.verboseAsm = verboseAsm;
         this.asStack = new LinkedList();
     }
     // #@@}
@@ -29,8 +27,9 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     public String generate(AST ast) {
         this.typeTable = ast.typeTable();
         pushAssembler();
-        allocateGlobalVariables(ast.globalVariables());
-        allocateCommonSymbols(ast.commonSymbols());
+        resolveConstants(ast.constantTable());
+        resolveGlobalVariables(ast.allGlobalVariables());
+        resolveFunctions(ast.allFunctions());
         compileAST(ast);
         return popAssembler().toSource();
     }
@@ -66,48 +65,100 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         }
         // .bss
         compileCommonSymbols(ast.commonSymbols());
+        // others
+        if (options.isPICRequired()) {
+            PICThunk(GOTBaseReg());
+        }
     }
     // #@@}
+
+    protected void resolveConstants(ConstantTable table) {
+        Iterator ents = table.entries();
+        while (ents.hasNext()) {
+            ConstantEntry ent = (ConstantEntry)ents.next();
+            ent.setLabel(new Label(".LC" + ent.id()));
+            if (options.isPICRequired()) {
+                Label offset = new Label(localGOTSymbol(ent.symbol()));
+                ent.setMemref(mem(offset, GOTBaseReg()));
+            }
+            else {
+                ent.setMemref(mem(ent.label()));
+                ent.setAddress(imm(ent.label()));
+            }
+        }
+    }
 
     /**
      * Sets memory reference for...
      *   * public global variables
      *   * private global variables
-     *   * static local variables
-     */
-    // #@@range/allocateGlobalVariable
-    protected void allocateGlobalVariables(Iterator vars) {
-        while (vars.hasNext()) {
-            Variable var = (Variable)vars.next();
-            var.setMemref(globalVariableAddress(var.symbol()));
-        }
-    }
-    // #@@}
-
-    /**
-     * Sets address for...
      *   * public common symbols
      *   * private common symbols
+     *   * static local variables
      */
-    // #@@range/allocateCommonSymbols
-    protected void allocateCommonSymbols(Iterator comms) {
-        while (comms.hasNext()) {
-            Variable var = (Variable)comms.next();
-            var.setMemref(commonSymbolAddress(var.symbol()));
+    // #@@range/resolveGlobalVariables
+    protected void resolveGlobalVariables(Iterator vars) {
+        while (vars.hasNext()) {
+            Variable var = (Variable)vars.next();
+            resolveGlobalVariable(var);
         }
     }
     // #@@}
 
-    /** Linux/IA-32 dependent */
-    // FIXME: PIC
-    protected MemoryReference globalVariableAddress(String sym) {
-        return new DirectMemoryReference(new Label(csymbol(sym)));
+    protected void resolveGlobalVariable(Variable var) {
+        String sym = var.symbol();
+        MemoryReference mem;
+        if (options.isPICRequired()) {
+            if (var.isPrivate()) {
+                mem = mem(new Label(localGOTSymbol(sym)), GOTBaseReg());
+                var.setMemref(mem);
+            }
+            else {
+                mem = mem(new Label(globalGOTSymbol(sym)), GOTBaseReg());
+                var.setAddress(mem);
+            }
+        }
+        else {
+            mem = mem(new Label(csymbol(sym)));
+            var.setMemref(mem);
+        }
     }
 
-    /** Linux/IA-32 dependent */
-    // FIXME: PIC
-    protected MemoryReference commonSymbolAddress(String sym) {
-        return new DirectMemoryReference(new Label(csymbol(sym)));
+    protected void resolveFunctions(Iterator funcs) {
+        while (funcs.hasNext()) {
+            Function func = (Function)funcs.next();
+            func.setSymbol(functionSymbol(func));
+            func.setAddress(functionAddress(func));
+        }
+    }
+
+    protected String functionSymbol(Function func) {
+        if (func.isDefined()) {
+            return csymbol(func.name());
+        }
+        else {
+            if (options.isPICRequired()) {
+                return PLTSymbol(tmpsymbol(func.name()));
+            }
+            else {
+                return tmpsymbol(func.name());
+            }
+        }
+    }
+
+    protected AsmOperand functionAddress(Function func) {
+        if (options.isPICRequired()) {
+            String name = func.name();
+            if (func.isPrivate()) {
+                return mem(new Label(localGOTSymbol(name)), GOTBaseReg());
+            }
+            else {
+                return mem(new Label(globalGOTSymbol(name)), GOTBaseReg());
+            }
+        }
+        else {
+            return imm(func.label());
+        }
     }
 
     /** Generates static variable entries */
@@ -188,6 +239,84 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
     // #@@}
 
+    // #@@range/tmpsymbol{
+    // platform dependent
+    protected String tmpsymbol(String sym) {
+        return sym;
+    }
+    // #@@}
+
+    // #@@range/csymbol{
+    // platform dependent
+    protected String csymbol(String sym) {
+        return sym;
+    }
+    // #@@}
+
+    //
+    // PIC related constants and codes
+    //
+
+    static protected final String GOTName = "_GLOBAL_OFFSET_TABLE_";
+
+    protected void loadGOTBaseAddress(Register reg) {
+        call(PICThunkName(reg));
+        add(imm(new Label(GOTName)), reg);
+    }
+
+    protected String PICThunkName(Register reg) {
+        return "__i686.get_pc_thunk." + reg.baseName();
+    }
+
+    protected Register GOTBaseReg() {
+        return reg("bx");
+    }
+
+    protected String globalGOTSymbol(String base) {
+        return base + "@GOT";
+    }
+
+    protected String localGOTSymbol(String base) {
+        return base + "@GOTOFF";
+    }
+
+    protected String PLTSymbol(String base) {
+        return base + "@PLT";
+    }
+
+    static protected final String
+    PICThunkSectionFlags = SectionFlag_allocatable
+                         + SectionFlag_executable
+                         + SectionFlag_sectiongroup;
+
+    protected void PICThunk(Register reg) {
+        // ELF section declaration; format:
+        //
+        //     .section NAME, FLAGS, TYPE, flag_arguments
+        //
+        // FLAGS, TYPE, flag_arguments are optional.
+        // For "M" flag (a member of a section group),
+        // format is:
+        //
+        //     .section NAME, "...M", TYPE, section_group_name, linkage
+        //
+        _section(".text" + "." + PICThunkName(reg),
+                 "\"" + PICThunkSectionFlags + "\"",
+                 SectionType_bits,      // This section contains data
+                 PICThunkName(reg),     // The name of section group
+                Linkage_linkonce);      // Only 1 copy should be generated
+        _globl(PICThunkName(reg));
+        _hidden(PICThunkName(reg));
+        _type(PICThunkName(reg), SymbolType_function);
+        label(PICThunkName(reg));
+        mov(mem(sp()), reg);    // fetch saved EIP to the GOT base register
+        ret();
+    }
+
+    //
+    // Compile Function
+    //
+
     /** Compiles all functions and generates .text section. */
     // #@@range/compileFunctions{
     protected void compileFunctions(Iterator funcs) {
@@ -222,6 +351,9 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         long lvarBytes = allocateLocalVariables(func.body().scope(),
                                                 saveRegs.size());
         prologue(func, saveRegs, lvarBytes);
+        if (options.isPICRequired() && stats.doesRegisterUsed(GOTBaseReg())) {
+            loadGOTBaseAddress(GOTBaseReg());
+        }
         as.addAll(bodyAsms);
         epilogue(func, saveRegs, lvarBytes);
     }
@@ -232,7 +364,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         compile(func.body());
         label(epilogueLabel(func));
         currentFunction = null;
-        return optimizer.optimize(popAssembler().assemblies());
+        return options.optimizer().optimize(popAssembler().assemblies());
     }
 
     protected List reduceLabels(List assemblies, AsmStatistics stats) {
@@ -252,29 +384,15 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
 
     // #@@range/compile{
     protected void compile(Node n) {
-        if (verboseAsm) {
+        if (options.isVerboseAsm()) {
             comment(n.getClass().getSimpleName() + " {");
             as.indentComment();
         }
         n.accept(this);
-        if (verboseAsm) {
+        if (options.isVerboseAsm()) {
             as.unindentComment();
             comment("}");
         }
-    }
-    // #@@}
-
-    // #@@range/tmpsymbol{
-    // platform dependent
-    protected String tmpsymbol(String sym) {
-        return sym;
-    }
-    // #@@}
-
-    // #@@range/csymbol{
-    // platform dependent
-    protected String csymbol(String sym) {
-        return sym;
     }
     // #@@}
 
@@ -348,7 +466,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         mov(sp(), bp());
         saveRegisters(saveRegs);
         extendStack(lvarBytes);
-        if (verboseAsm) {
+        if (options.isVerboseAsm()) {
             Iterator vars = func.localVariables();
             while (vars.hasNext()) {
                 DefinedVariable var = (DefinedVariable)vars.next();
@@ -481,34 +599,32 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         }
     }
 
-    /** cdecl call
-     *
-     *    * all arguments are on stack
-     *    * rollback stack by caller
+    /**
+     * Implements cdecl function call:
+     *    * All arguments are on stack.
+     *    * Rewind stack by caller.
      */
     public void visit(FuncallNode node) {
-        ListIterator it = node.finalArg();
-        while (it.hasPrevious()) {
-            ExprNode arg = (ExprNode)it.previous();
+        // compile function arguments from right to left.
+        ListIterator args = node.finalArg();
+        while (args.hasPrevious()) {
+            ExprNode arg = (ExprNode)args.previous();
             compile(arg);
             push(reg("ax"));
         }
+        // call
         if (node.isStaticCall()) {
-            if (node.function().isDefined()) {
-                call(csymbol(node.function().name()));
-            }
-            else {
-                call(tmpsymbol(node.function().name()));
-            }
+            // call via function name
+            call(node.function().symbol());
         }
-        else {  // function call via pointer
+        else {
+            // call via pointer
             compile(node.expr());
             callAbsolute(reg("ax"));
         }
-        if (node.numArgs() > 0) {
-            // >4 bytes arguments are not supported.
-            shrinkStack(node.numArgs() * stackWordSize);
-        }
+        // rewind stack
+        // >4 bytes arguments are not supported.
+        shrinkStack(node.numArgs() * stackWordSize);
     }
 
     public void visit(ReturnNode node) {
@@ -538,7 +654,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     protected void compileStmt(Node node) {
-        if (verboseAsm) {
+        if (options.isVerboseAsm()) {
             comment(node.location().numberedLine());
         }
         compile(node);
@@ -683,7 +799,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         AsmOperand right = null;
         if (!doesRequireRegister(node.operator()) && node.right().isConstant()){
             compile(node.left());
-            right = imm(node.right().asmLiteral());
+            right = node.right().asmValue();
         }
         else if (node.right().isConstantAddress()) {
             compile(node.left());
@@ -927,7 +1043,7 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
             compileLHS(node.lhs());
             mov(reg("ax"), reg("cx"));
             load(node.type(), mem(reg("cx")), reg("ax"));
-            AsmOperand rhs = imm(node.rhs().asmLiteral());
+            AsmOperand rhs = node.rhs().asmValue();
             compileBinaryOp(node.operator(), node.type(), rhs);
             save(node.type(), reg("ax"), mem(reg("cx")));
         }
@@ -981,12 +1097,12 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     }
 
     protected void compileLHS(Node node) {
-        if (verboseAsm) {
+        if (options.isVerboseAsm()) {
             comment("compileLHS: " + node.getClass().getSimpleName() + " {");
             as.indentComment();
         }
         node.acceptLHS(this);
-        if (verboseAsm) {
+        if (options.isVerboseAsm()) {
             as.unindentComment();
             comment("compileLHS: }");
         }
@@ -1044,7 +1160,15 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
      * before calling this method.
      */
     protected void loadConstant(ExprNode node, Register reg) {
-        mov(imm(node.asmLiteral()), reg);
+        if (node.asmValue() != null) {
+            mov(node.asmValue(), reg);
+        }
+        else if (node.memref() != null) {
+            lea(node.memref(), reg);
+        }
+        else {
+            throw new Error("must not happen: constant has no asm value");
+        }
     }
 
     /**
@@ -1052,13 +1176,14 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
      * by #isConstantAddress before calling this method.
      */
     protected void loadVariable(ExprNode node, Register dest) {
-        if (node.type().isAllocatedArray()) {
-            // int[4] a; a implies &a
+        if (node.shouldEvaluatedToAddress()) {
+            // "int[4] a; a" implies &a
+            // "x = puts" implies &puts
             loadVariableAddress(node, dest);
         }
         else if (node.memref() == null) {
-            // "puts" equivalent to "&ptr"
             mov(node.address(), dest);
+            load(node.type(), mem(dest), dest);
         }
         else {
             // regular variable
@@ -1097,11 +1222,19 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
         return new Register(name);
     }
 
+    protected DirectMemoryReference mem(Label label) {
+        return new DirectMemoryReference(label);
+    }
+
     protected IndirectMemoryReference mem(Register reg) {
         return new IndirectMemoryReference(0, reg);
     }
 
     protected IndirectMemoryReference mem(long offset, Register reg) {
+        return new IndirectMemoryReference(offset, reg);
+    }
+
+    protected IndirectMemoryReference mem(Label offset, Register reg) {
         return new IndirectMemoryReference(offset, reg);
     }
 
@@ -1148,8 +1281,10 @@ public class CodeGenerator extends Visitor implements ASTLHSVisitor {
     public void _text() { as._text(); }
     public void _data() { as._data(); }
     public void _section(String name) { as._section(name); }
+    public void _section(String name, String flags, String type, String group, String linkage) { as._section(name, flags, type, group, linkage); }
     public void _globl(String sym) { as._globl(sym); }
     public void _local(String sym) { as._local(sym); }
+    public void _hidden(String sym) { as._hidden(sym); }
     public void _comm(String sym, long sz, long a) { as._comm(sym, sz, a); }
     public void _align(long n) { as._align(n); }
     public void _type(String sym, String type) { as._type(sym, type); }

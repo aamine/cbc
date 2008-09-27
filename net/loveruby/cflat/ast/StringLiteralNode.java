@@ -5,6 +5,8 @@ import net.loveruby.cflat.asm.*;
 public class StringLiteralNode extends LiteralNode {
     protected String value;
     protected ConstantEntry entry;
+    protected ImmediateValue asmValue;
+    protected MemoryReference memref;
 
     public StringLiteralNode(Location loc, TypeRef ref, String value) {
         super(loc, ref);
@@ -24,8 +26,16 @@ public class StringLiteralNode extends LiteralNode {
         return entry.label();
     }
 
-    public Literal asmLiteral() {
-        return new LabelRef(label());
+    public MemoryReference memref() {
+        return entry.memref();
+    }
+
+    public AsmOperand address() {
+        return entry.address();
+    }
+
+    public ImmediateValue asmValue() {
+        return entry.address();
     }
 
     protected long id() {

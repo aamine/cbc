@@ -27,12 +27,16 @@ public class CastNode extends ExprNode {
         return expr;
     }
 
+    public boolean shouldEvaluatedToAddress() {
+        return expr.shouldEvaluatedToAddress();
+    }
+
     public boolean isConstant() {
         return expr.isConstant();
     }
 
-    public Literal asmLiteral() {
-        return expr.asmLiteral();
+    public ImmediateValue asmValue() {
+        return expr.asmValue();
     }
 
     public boolean isEffectiveCast() {

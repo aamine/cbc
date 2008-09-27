@@ -51,6 +51,28 @@ public class ToplevelScope extends Scope {
         return staticLocalVariables;
     }
 
+    /** Returns a list of all global variables.
+     * "All global variable" means:
+     *
+     *    * has global scope
+     *    * defined or undefined
+     *    * public or private
+     */
+    public List allGlobalVariables() {
+        List result = new ArrayList();
+        List src = new ArrayList();
+        src.addAll(entities.values());
+        src.addAll(staticLocalVariables());
+        Iterator ents = src.iterator();
+        while (ents.hasNext()) {
+            Object ent = ents.next();
+            if (ent instanceof Variable) {
+                result.add(ent);
+            }
+        }
+        return result;
+    }
+
     /** Returns the list of global variables.
      *  A global variable is a variable which has
      *  global scope and is initialized.  */

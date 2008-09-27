@@ -48,6 +48,10 @@ public class VariableNode extends ExprNode {
         return entity().isParameter();
     }
 
+    public boolean shouldEvaluatedToAddress() {
+        return entity().cannotLoad();
+    }
+
     public boolean isConstantAddress() {
         return true;
     }

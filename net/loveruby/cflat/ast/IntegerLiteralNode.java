@@ -1,7 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.Literal;
-import net.loveruby.cflat.asm.IntegerLiteral;
+import net.loveruby.cflat.asm.*;
 
 public class IntegerLiteralNode extends LiteralNode {
     protected long value;
@@ -15,8 +14,12 @@ public class IntegerLiteralNode extends LiteralNode {
         return value;
     }
 
-    public Literal asmLiteral() {
-        return new IntegerLiteral(value);
+    public ImmediateValue asmValue() {
+        return new ImmediateValue(new IntegerLiteral(value));
+    }
+
+    public MemoryReference memref() {
+        throw new Error("must not happen: IntegerLiteralNode#memref");
     }
 
     protected void _dump(Dumper d) {

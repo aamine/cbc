@@ -71,8 +71,19 @@ public class AST extends Node {
         return declarations.defuns().iterator();
     }
 
+    public Iterator allFunctions() {
+        List result = new ArrayList();
+        result.addAll(declarations.defuns());
+        result.addAll(declarations.funcdecls());
+        return result.iterator();
+    }
+
     public ToplevelScope scope() {
         return scope;
+    }
+
+    public Iterator allGlobalVariables() {
+        return scope.allGlobalVariables().iterator();
     }
 
     public Iterator globalVariables() {

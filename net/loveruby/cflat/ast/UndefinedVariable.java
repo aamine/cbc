@@ -11,22 +11,6 @@ public class UndefinedVariable extends Variable {
     public boolean isPrivate() { return false; }
     public boolean isInitialized() { return false; }
 
-    public String symbol() {
-        return name();
-    }
-
-    public void setMemref(MemoryReference mem) {
-        throw new Error("UndefinedVariable#Memref");
-    }
-
-    public MemoryReference memref() {
-        return new DirectMemoryReference(new Label(symbol()));
-    }
-
-    public AsmOperand address() {
-        return new ImmediateValue(new Label(symbol()));
-    }
-
     protected void _dump(Dumper d) {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate());

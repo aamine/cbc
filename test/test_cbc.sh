@@ -322,6 +322,10 @@ assert_out() {
     assert_compile_success "$1.cb" &&
     assert_stdout "$msg" "$@" &&
     assert_compile_success -O "$1.cb" &&
+    assert_stdout "$msg" "$@" &&
+    assert_compile_success -fPIC "$1.cb" &&
+    assert_stdout "$msg" "$@" &&
+    assert_compile_success -O -fPIC "$1.cb" &&
     assert_stdout "$msg" "$@"
 }
 

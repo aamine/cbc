@@ -19,6 +19,10 @@ abstract public class Entity extends Node {
         return name;
     }
 
+    public String symbol() {
+        return name();
+    }
+
     abstract public boolean isDefined();
     abstract public boolean isInitialized();
 
@@ -51,6 +55,8 @@ abstract public class Entity extends Node {
     public boolean isRefered() {
         return (nRefered > 0);
     }
+
+    abstract public boolean cannotLoad();
 
     abstract public MemoryReference memref();
     abstract public AsmOperand address();

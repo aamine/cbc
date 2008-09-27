@@ -4,6 +4,9 @@ import net.loveruby.cflat.asm.*;
 import java.util.*;
 
 abstract public class Function extends Entity {
+    protected String symbol;
+    protected AsmOperand address;
+
     public Function(boolean priv, TypeNode t, String name) {
         super(priv, t, name);
     }
@@ -25,16 +28,41 @@ abstract public class Function extends Entity {
         return returnType().isVoid();
     }
 
+    public boolean cannotLoad() {
+        return true;
+    }
+
+    public void setSymbol(String sym) {
+        if (this.symbol != null) {
+            throw new Error("must not happen: Function#symbol was set again");
+        }
+        this.symbol = sym;
+    }
+
+    public String symbol() {
+        if (this.symbol == null) {
+            throw new Error("must not happen: Function#symbol called but null");
+        }
+        return this.symbol;
+    }
+
     public MemoryReference memref() {
         return null;
     }
 
+    public void setAddress(AsmOperand addr) {
+        this.address = addr;
+    }
+
     public AsmOperand address() {
-        return new ImmediateValue(label());
+        if (address == null) {
+            throw new Error("must not happen: Function.address == null");
+        }
+        return this.address;
     }
 
     public Label label() {
         // FIXME: should cache
-        return new Label(name);
+        return new Label(symbol());
     }
 }

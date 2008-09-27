@@ -1,3 +1,86 @@
+Sun Sep 28 05:07:30 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* implement PIC generation.
+
+	* lib/Makefile: should generate PIC for libcbc.o.
+
+	* net/loveruby/cflat/compiler/Compiler.java: pass
+	  CodeGeneratorOptions to CodeGenerator.
+
+	* net/loveruby/cflat/compiler/Options.java: new options -fpic,
+	  -fPIC.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: use position
+	  independent address for global variables, common symbols,
+	  defined/undefined functions and string constants.
+
+	* net/loveruby/cflat/compiler/CodeGeneratorOptions.java: new
+	  class.
+
+	* net/loveruby/cflat/asm/ELFConstants.java: new interface to
+	  define ELF-related constants.
+
+	* net/loveruby/cflat/asm/Assembler.java: new method #hidden.
+
+	* net/loveruby/cflat/asm/Assembler.java: new overload
+	  #section(s,s,s,s,s).
+
+	* net/loveruby/cflat/asm/IndirectMemoryReference.java: offset may
+	  not long, but Literal.
+
+	* net/loveruby/cflat/asm/Literal.java: new method #isZero.
+
+	* net/loveruby/cflat/asm/IntegerLiteral.java: ditto.
+
+	* net/loveruby/cflat/asm/LabelRef.java: ditto.
+
+	* net/loveruby/cflat/ast/ExprNode.java: new method
+	  #shouldEvaluatedToAddres.
+
+	* net/loveruby/cflat/ast/VariableNode.java: override it.
+
+	* net/loveruby/cflat/ast/CastNode.java: override it.
+
+	* net/loveruby/cflat/ast/Entity.java: new method #cannotLoad, to
+	  implement #shouldEvaluatedToAddress.
+
+	* net/loveruby/cflat/ast/Variable.java: override it.
+
+	* net/loveruby/cflat/ast/Function.java: override it.
+
+	* net/loveruby/cflat/ast/ExprNode.java: rename method: #AsmLiteral
+	  -> #AsmValue because it now returns ImmediateValue instead of
+	  Literal.
+
+	* net/loveruby/cflat/ast/CastNode.java: override it.
+
+	* net/loveruby/cflat/ast/LiteralNode.java: rename method also.
+
+	* net/loveruby/cflat/ast/IntegerLiteralNode.java: ditto.
+
+	* net/loveruby/cflat/ast/StringLiteralNode.java: ditto.
+
+	* net/loveruby/cflat/ast/Variable.java: holds memref and address
+	  here, not in subclasses.
+
+	* net/loveruby/cflat/ast/DefinedVariable.java: ditto.
+
+	* net/loveruby/cflat/ast/UndefinedVariable.java: ditto.
+
+	* net/loveruby/cflat/ast/LiteralNode.java: new method #memref.
+
+	* net/loveruby/cflat/ast/IntegerLiteralNode.java: implement it.
+
+	* net/loveruby/cflat/ast/StringLiteralNode.java: implement it.
+
+	* net/loveruby/cflat/ast/ConstantEntry.java: holds memref and
+	  address.
+
+	* net/loveruby/cflat/ast/AST.java: new method #allFunctions, to
+	  access undefined functions from code generator.
+
+	* net/loveruby/cflat/ast/ToplevelScope.java: ditto.
+
 Wed Sep 24 01:10:36 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: remove unused

@@ -119,12 +119,20 @@ public class Assembler {
         directive("\t.section\t" + name);
     }
 
+    public void _section(String name, String flags, String type, String group, String linkage) {
+        directive("\t.section\t" + name + "," + flags + "," + type + "," + group + "," + linkage);
+    }
+
     public void _globl(String sym) {
         directive(".globl " + sym);
     }
 
     public void _local(String sym) {
         directive(".local " + sym);
+    }
+
+    public void _hidden(String sym) {
+        directive("\t.hidden\t" + sym);
     }
 
     public void _comm(String sym, long size, long alignment) {
@@ -160,7 +168,7 @@ public class Assembler {
     }
 
     public void _long(Label sym) {
-        directive(".long\t" + sym.toString());
+        directive(".long\t" + sym);
     }
 
     public void _quad(long n) {
@@ -168,7 +176,7 @@ public class Assembler {
     }
 
     public void _quad(Label sym) {
-        directive(".quad\t" + sym.toString());
+        directive(".quad\t" + sym);
     }
 
     public void _string(String str) {
