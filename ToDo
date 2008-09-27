@@ -2,11 +2,11 @@
 
 == Current
 
+* "extern char*[] sys_errlist" is array, not pointer
 * check composite Type#equals, #hashCode (?)
 * Label -> Symbol
 * all Symbols should be got from objects
 * named/unnamed Label
-* -fPIC (PIC generation)
 * -shared
 * bin/cbc: resolve symbolic link
 * remove all FIXME
@@ -251,3 +251,4 @@
 - check "puts = str"
 - -O (jump elimination)
 - useless label elimination
+- -fPIC (PIC generation)
