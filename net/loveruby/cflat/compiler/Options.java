@@ -142,12 +142,7 @@ class Options {
         List srcs = new ArrayList();
         while (args.hasNext()) {
             String arg = (String)args.next();
-            // FIXME: stdin
-            if (arg.equals("-")) {
-                System.err.println("FIXME: stdin is not supported yet");
-                System.exit(1);
-            }
-            else if (arg.equals("--")) {
+            if (arg.equals("--")) {
                 // "--" Stops command line processing
                 break;
             }
