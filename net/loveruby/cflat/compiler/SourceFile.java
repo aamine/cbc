@@ -59,8 +59,8 @@ class SourceFile implements LdArg {
         return or(opts.outputFileNameFor("-c"), replaceExt(".o"));
     }
 
-    public String exeFileName(Options opts) {
-        return or(opts.outputFileName, replaceExt(""));
+    public String linkedFileName(Options opts, String newExt) {
+        return or(opts.outputFileName, replaceExt(newExt));
     }
 
     protected String or(String x, String y) {

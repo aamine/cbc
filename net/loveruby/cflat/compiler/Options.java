@@ -15,6 +15,8 @@ class Options {
     protected boolean debugParser;
     protected CodeGeneratorOptions genOptions;
     protected List asOptions;     // List<String>
+    protected boolean generatingSharedLibrary;
+    protected boolean generatingPIE;
     protected List ldArgs;        // List<LdArg>
     protected boolean noStartFiles = false;
     protected boolean noDefaultLibs = false;
@@ -24,6 +26,8 @@ class Options {
         this.loader = loader;
         this.genOptions = new CodeGeneratorOptions();
         this.asOptions = new ArrayList();
+        this.generatingSharedLibrary = false;
+        this.generatingPIE = false;
         this.ldArgs = new ArrayList();
     }
 
@@ -71,11 +75,18 @@ class Options {
     }
 
     public String exeFileName() {
-        if (outputFileName != null) return outputFileName;
+        return getOutputFileName("");
+    }
+
+    public String soFileName() {
+        return getOutputFileName(".so");
+    }
+
+    protected String getOutputFileName(String newExt) {
         List srcs = sourceFiles();
         if (srcs.size() == 1) {
             SourceFile src = (SourceFile)srcs.get(0);
-            return src.exeFileName(this);
+            return src.linkedFileName(this, newExt);
         }
         else {
             return "a.out";
@@ -121,6 +132,10 @@ class Options {
     // List<String>
     public List asOptions() {
         return this.asOptions;
+    }
+
+    public boolean isGeneratingSharedLibrary() {
+        return this.generatingSharedLibrary;
     }
 
     // List<ldArg>
@@ -171,15 +186,14 @@ class Options {
                 else if (arg.startsWith("-o")) {
                     outputFileName = getOptArg(arg, args);
                 }
-                else if (arg.equals("-fpic")) {
+                else if (arg.equals("-fpic")
+                        || arg.equals("-fPIC")) {
                     genOptions.generatePIC();
                 }
-                else if (arg.equals("-fPIC")) {
-                    genOptions.generatePIC();
+                else if (arg.equals("-fpie")
+                        || arg.equals("-fPIE")) {
+                    genOptions.generatePIE();
                 }
-                // FIXME: PIE
-                //else if (arg.equals("-fpie"))
-                //else if (arg.equals("-fPIE"))
                 else if (arg.startsWith("-O")) {
                     String type = arg.substring(2);
                     if (! type.matches("^([0123s]|)$")) {
@@ -200,10 +214,11 @@ class Options {
                     ldArgs.add(new LdOption(arg));
                 }
                 else if (arg.equals("-shared")) {
-                    // FIXME: ?? any more work is required??
-                    ldArgs.add(new LdOption(arg));
+                    generatingSharedLibrary = true;
                 }
-                //else if (arg.equals("-pie"))
+                else if (arg.equals("-pie")) {
+                    generatingPIE = true;
+                }
                 else if (arg.startsWith("-L")) {
                     ldArgs.add(new LdOption("-L" + getOptArg(arg, args)));
                 }
@@ -338,7 +353,7 @@ class Options {
         out.println("  -Os              Equivalent to -O.");
         out.println("  -O0              Disables optimization (default).");
         out.println("  -fPIC            Generates PIC assembly.");
-        //out.println("  -fPIE            Generates PIE assembly.");
+        out.println("  -fPIE            Generates PIE assembly.");
         out.println("  --verbose-asm    Generate assembly with verbose comments.");
         out.println("");
         out.println("Assembler Options:");
@@ -350,7 +365,7 @@ class Options {
         out.println("  -L PATH          Adds PATH as library directory.");
         out.println("  -shared          Generates shared library rather than executable.");
         out.println("  -static          Linkes only with static libraries.");
-        //out.println("  -pie             Generates PIE.");
+        out.println("  -pie             Generates PIE.");
         out.println("  -nostartfiles    Do not link startup files.");
         out.println("  -nodefaultlibs   Do not link default libraries.");
         out.println("  -nostdlib        Enables -nostartfiles and -nodefaultlibs.");

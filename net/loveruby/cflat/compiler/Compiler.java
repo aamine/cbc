@@ -59,7 +59,12 @@ public class Compiler {
                     compileFile(src, opts);
                 }
                 if (! opts.isLinkRequired()) System.exit(0);
-                generateExecutable(opts);
+                if (! opts.isGeneratingSharedLibrary()) {
+                    generateExecutable(opts);
+                }
+                else {
+                    generateSharedLibrary(opts);
+                }
                 System.exit(0);
             }
             catch (CompileException ex) {
@@ -201,15 +206,25 @@ public class Compiler {
         invoke(cmd, opts.isVerboseMode());
     }
 
+    static final protected String DYNAMIC_LINKER      = "/lib/ld-linux.so.2";
+    static final protected String C_RUNTIME_INIT      = "/usr/lib/crti.o";
+    static final protected String C_RUNTIME_START     = "/usr/lib/crt1.o";
+    static final protected String C_RUNTIME_START_PIE = "/usr/lib/Scrt1.o";
+    static final protected String C_RUNTIME_FINI      = "/usr/lib/crtn.o";
+
     protected void generateExecutable(Options opts) throws IPCException {
         List cmd = new ArrayList();
         cmd.add("ld");
-        // FIXME: -dynamic-linker required only on dynamic linking
         cmd.add("-dynamic-linker");
-        cmd.add("/lib/ld-linux.so.2");
+        cmd.add(DYNAMIC_LINKER);
+        if (opts.isGeneratingPIE()) {
+            cmd.add("-pie");
+        }
         if (! opts.noStartFiles()) {
-            cmd.add("/usr/lib/crt1.o");
-            cmd.add("/usr/lib/crti.o");
+            cmd.add(opts.isGeneratingPIE()
+                    ? C_RUNTIME_START_PIE
+                    : C_RUNTIME_START);
+            cmd.add(C_RUNTIME_INIT);
         }
         cmd.addAll(opts.ldArgs());
         if (! opts.noDefaultLibs()) {
@@ -217,10 +232,30 @@ public class Compiler {
             cmd.add("-lcbc");
         }
         if (! opts.noStartFiles()) {
-            cmd.add("/usr/lib/crtn.o");
+            cmd.add(C_RUNTIME_FINI);
         }
         cmd.add("-o");
         cmd.add(opts.exeFileName());
+        invoke(cmd, opts.isVerboseMode());
+    }
+
+    protected void generateSharedLibrary(Options opts) throws IPCException {
+        List cmd = new ArrayList();
+        cmd.add("ld");
+        cmd.add("-shared");
+        if (! opts.noStartFiles()) {
+            cmd.add(C_RUNTIME_INIT);
+        }
+        cmd.addAll(opts.ldArgs());
+        if (! opts.noDefaultLibs()) {
+            cmd.add("-lc");
+            cmd.add("-lcbc");
+        }
+        if (! opts.noStartFiles()) {
+            cmd.add(C_RUNTIME_FINI);
+        }
+        cmd.add("-o");
+        cmd.add(opts.soFileName());
         invoke(cmd, opts.isVerboseMode());
     }
 

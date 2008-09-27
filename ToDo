@@ -7,10 +7,9 @@
 * Label -> Symbol
 * all Symbols should be got from objects
 * named/unnamed Label
-* -shared
 * bin/cbc: resolve symbolic link
 * remove all FIXME
-? -fPIE, -pie
+* -fPIE, -pie
 
 == Done
 
@@ -252,3 +251,4 @@
 - -O (jump elimination)
 - useless label elimination
 - -fPIC (PIC generation)
+- -shared
