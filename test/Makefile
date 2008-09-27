@@ -1,4 +1,4 @@
-ANT = jant
+ANT = ant
 CBC = ../bin/cbc
 CBFLAGS =
 
