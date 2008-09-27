@@ -50,6 +50,8 @@ run_tests() {
 
     while read f
     do
+        echo 1>&2
+        print "$(echo $f | sed 's/^test_//')" 1>&2
         $f
     done
     shunit_report_result
@@ -60,7 +62,7 @@ defined_tests() {
 }
 
 defined_functions() {
-    typeset +f
+    typeset +f | awk '/^[^ ]+ \(\)/ { print $1 }'
 }
 
 main "$@"
