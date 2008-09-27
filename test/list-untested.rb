@@ -4,7 +4,7 @@ def print_list(list)
   end
 end
 
-test_sh = File.read('test.sh')
+test_sh = File.read('test_cbc.sh')
 tested = test_sh.scan(/[\$\w\-]+\.cb/).reject {|n| /\$/ =~ n } +
          test_sh.scan(%r<\./[\w\-]+>).map {|n| File.basename(n) + '.cb' }
 tested = tested.uniq
