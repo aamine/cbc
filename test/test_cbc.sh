@@ -154,6 +154,7 @@ test_18_array() {
     fi
     assert_out "775;776;777;778;775;776;777;778;775;776;777;778;775;776;777;778;" ./ptrarray
     assert_compile_error aref-semcheck.cb
+    assert_compile_error aref-semcheck2.cb
     assert_compile_error array-semcheck1.cb
     assert_compile_error array-semcheck2.cb
 }
