@@ -7,8 +7,8 @@ import java.util.*;
 public class JumpResolver extends Visitor {
     // #@@range/ctor{
     protected ErrorHandler errorHandler;
-    protected LinkedList breakTargetStack;
-    protected LinkedList continueTargetStack;
+    protected LinkedList<BreakableStmt> breakTargetStack;
+    protected LinkedList<ContinueableStmt> continueTargetStack;
     protected DefinedFunction currentFunction;
 
     public JumpResolver(ErrorHandler h) {
@@ -18,13 +18,12 @@ public class JumpResolver extends Visitor {
 
     // #@@range/resolve{
     public void resolve(AST ast) throws SemanticException {
-        breakTargetStack = new LinkedList();
-        continueTargetStack = new LinkedList();
-        Iterator funcs = ast.functions();
-        while (funcs.hasNext()) {
-            currentFunction = (DefinedFunction)funcs.next();
-            resolve(currentFunction.body());
-            currentFunction.checkJumpLinks(errorHandler);
+        breakTargetStack = new LinkedList<BreakableStmt>();
+        continueTargetStack = new LinkedList<ContinueableStmt>();
+        for (DefinedFunction f : ast.definedFunctions()) {
+            currentFunction = f;
+            resolve(f.body());
+            f.checkJumpLinks(errorHandler);
         }
         if (errorHandler.errorOccured()) {
             throw new SemanticException("compile failed.");
@@ -83,7 +82,7 @@ public class JumpResolver extends Visitor {
                     "break from out of while/do-while/for/switch");
             return;
         }
-        BreakableStmt target = (BreakableStmt)breakTargetStack.getLast();
+        BreakableStmt target = breakTargetStack.getLast();
         node.setTargetLabel(target.endLabel());
     }
     // #@@}
@@ -95,8 +94,7 @@ public class JumpResolver extends Visitor {
                         "continue from out of while/do-while/for");
             return;
         }
-        ContinueableStmt target =
-                (ContinueableStmt)continueTargetStack.getLast();
+        ContinueableStmt target = continueTargetStack.getLast();
         node.setTargetLabel(target.continueLabel());
     }
     // #@@}

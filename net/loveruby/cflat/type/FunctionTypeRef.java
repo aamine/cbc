@@ -4,9 +4,9 @@ import java.util.*;
 
 public class FunctionTypeRef extends TypeRef {
     protected TypeRef returnType;
-    protected Params params;
+    protected ParamTypeRefs params;
 
-    public FunctionTypeRef(TypeRef returnType, Params params) {
+    public FunctionTypeRef(TypeRef returnType, ParamTypeRefs params) {
         super(returnType.location());
         this.returnType = returnType;
         this.params = params;
@@ -17,17 +17,20 @@ public class FunctionTypeRef extends TypeRef {
     }
 
     public boolean equals(Object other) {
-        if (!(other instanceof FunctionTypeRef)) return false;
-        FunctionTypeRef ref = (FunctionTypeRef)other;
-        return returnType.equals(ref.returnType()) &&
-               params.equals(ref.params());
+        return (other instanceof FunctionTypeRef)
+                && equals((FunctionTypeRef)other);
+    }
+
+    public boolean equals(FunctionTypeRef other) {
+        return returnType.equals(other.returnType())
+                && params.equals(other.params());
     }
 
     public TypeRef returnType() {
         return returnType;
     }
 
-    public Params params() {
+    public ParamTypeRefs params() {
         return params;
     }
 
@@ -35,10 +38,8 @@ public class FunctionTypeRef extends TypeRef {
         StringBuffer buf = new StringBuffer();
         buf.append(returnType.toString());
         buf.append(" (");
-        Iterator params = this.params.parameters();
         String sep = "";
-        while (params.hasNext()) {
-            TypeRef ref = (TypeRef)params.next();
+        for (TypeRef ref : this.params.typerefs()) {
             buf.append(sep);
             buf.append(ref.toString());
             sep = ", ";

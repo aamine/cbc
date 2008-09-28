@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Token wrapper.
  */
-public class CflatToken {
+public class CflatToken implements Iterable<CflatToken> {
     protected Token token;
     protected boolean isSpecial;
 
@@ -52,28 +52,28 @@ public class CflatToken {
         return TextUtils.dumpString(token.image);
     }
 
-    public Iterator iterator() {
-        return buildTokenList(new ArrayList(), token, false).iterator();
+    public Iterator<CflatToken> iterator() {
+        return buildTokenList(token, false).iterator();
     }
 
-    protected Iterator tokensWithoutFirstSpecials() {
-        return buildTokenList(new ArrayList(), token, true).iterator();
+    protected List<CflatToken> tokensWithoutFirstSpecials() {
+        return buildTokenList(token, true);
     }
 
-    protected List buildTokenList(List tokens, Token first,
-                                  boolean rejectFirstSpecials) {
+    protected List<CflatToken> buildTokenList(Token first, boolean rejectFirstSpecials) {
+        List<CflatToken> result = new ArrayList<CflatToken>();
         boolean rejectSpecials = rejectFirstSpecials;
         for (Token t = first; t != null; t = t.next) {
             if (t.specialToken != null && !rejectSpecials) {
                 Token s = specialTokenHead(t.specialToken);
                 for (; s != null; s = s.next) {
-                    tokens.add(new CflatToken(s));
+                    result.add(new CflatToken(s));
                 }
             }
-            tokens.add(new CflatToken(t));
+            result.add(new CflatToken(t));
             rejectSpecials = false;
         }
-        return tokens;
+        return result;
     }
 
     protected Token specialTokenHead(Token firstSpecial) {
@@ -86,9 +86,7 @@ public class CflatToken {
 
     public String includedLine() {
         StringBuffer buf = new StringBuffer();
-        Iterator toks = tokensWithoutFirstSpecials();
-        while (toks.hasNext()) {
-            CflatToken t = (CflatToken)toks.next();
+        for (CflatToken t : tokensWithoutFirstSpecials()) {
             int idx = t.image().indexOf("\n");
             if (idx >= 0) {
                 buf.append(t.image().substring(0, idx));

@@ -5,11 +5,11 @@ import java.util.*;
 public class SwitchNode extends StmtNode implements BreakableStmt {
     protected LabelPool pool;
     protected ExprNode cond;
-    protected List cases;
+    protected List<CaseNode> cases;
     protected Label endLabel;
 
     public SwitchNode(Location loc, LabelPool pool,
-                      ExprNode cond, List cases) {
+                      ExprNode cond, List<CaseNode> cases) {
         super(loc);
         this.pool = pool;
         this.cond = cond;
@@ -20,8 +20,8 @@ public class SwitchNode extends StmtNode implements BreakableStmt {
         return cond;
     }
 
-    public Iterator cases() {
-        return cases.iterator();
+    public List<CaseNode> cases() {
+        return cases;
     }
 
     public Label endLabel() {

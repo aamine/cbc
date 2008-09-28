@@ -76,7 +76,7 @@ public class Parser {
     protected LibraryLoader loader;
     protected ErrorHandler errorHandler;
     protected LabelPool labelPool;
-    protected Set knownTypedefs;
+    protected Set<String> knownTypedefs;
     // #@@}
 
     // #@@range/ctor1{
@@ -94,7 +94,7 @@ public class Parser {
         this.loader = loader;
         this.errorHandler = errorHandler;
         this.labelPool = new LabelPool();
-        this.knownTypedefs = new HashSet();
+        this.knownTypedefs = new HashSet<String>();
         if (debug) {
             enable_tracing();
         }
@@ -133,9 +133,8 @@ public class Parser {
         }
     }
 
-    private void addKnownTypedefs(Iterator typedefs) {
-        while (typedefs.hasNext()) {
-            TypedefNode n = (TypedefNode)typedefs.next();
+    private void addKnownTypedefs(List<TypedefNode> typedefs) {
+        for (TypedefNode n : typedefs) {
             addType(n.name());
         }
     }
@@ -429,7 +428,7 @@ Declarations import_stmts():
                 Declarations decls = loader.loadLibrary(libid, errorHandler);
                 if (decls != null) {
                     impdecls.add(decls);
-                    addKnownTypedefs(decls.typedefs().iterator());
+                    addKnownTypedefs(decls.typedefs());
                 }
             }
             catch (CompileException ex) {
@@ -464,7 +463,7 @@ Declarations top_defs():
 {
     Declarations decls = new Declarations();
     DefinedFunction defun;
-    List defvars;
+    List<DefinedVariable> defvars;
     StructNode defstruct;
     UnionNode defunion;
     TypedefNode typedef;
@@ -485,9 +484,9 @@ Declarations top_defs():
 // #@@}
 
 // #@@range/defvars{
-List defvars():
+List<DefinedVariable> defvars():
 {
-    List defs = new ArrayList();
+    List<DefinedVariable> defs = new ArrayList<DefinedVariable>();
     boolean priv;
     TypeNode type;
     String name;
@@ -523,9 +522,9 @@ DefinedFunction defun():
 {
     priv=storage() ref=typeref() n=name() "(" ps=params() ")" body=block()
         {
-            Params ptypes = ps.typeRefs();
+            ParamTypeRefs paramref = ps.parametersTypeRef();
             TypeNode t = new TypeNode(new PointerTypeRef(
-                            new FunctionTypeRef(ref, ptypes)));
+                            new FunctionTypeRef(ref, paramref)));
             return new DefinedFunction(labelPool, priv, t, n, ps, body);
         }
 }
@@ -543,16 +542,16 @@ boolean storage():
 Params params():
 {
     Token t;
-    FixedParams params;
+    Params params;
 }
 {
       LOOKAHEAD(<VOID> ")")
       t=<VOID>
         {
-            return new FixedParams(location(t), new ArrayList());
+            return new Params(location(t), new ArrayList<Parameter>());
         }
     | params=fixedparams()
-            ["," "..." { return new VarParams(params); }]
+            ["," "..." { params.acceptVarargs(); }]
         {
             return params;
         }
@@ -560,16 +559,16 @@ Params params():
 // #@@}
 
 // #@@range/fixedparams{
-FixedParams fixedparams():
+Params fixedparams():
 {
-    List params = new ArrayList();
+    List<Parameter> params = new ArrayList<Parameter>();
     Parameter param, param1;
 }
 {
     param1=param() { params.add(param1); }
     ( LOOKAHEAD(2) "," param=param() { params.add(param); } )*
         {
-            return new FixedParams(param1.location(), params);
+            return new Params(param1.location(), params);
         }
 }
 // #@@}
@@ -589,8 +588,8 @@ Parameter param():
 BlockNode block():
 {
     Token t;
-    List vars;
-    List stmts;
+    List<DefinedVariable> vars;
+    List<Node> stmts;
 }
 {
     t="{" vars=defvar_list() stmts=stmts() "}"
@@ -602,10 +601,10 @@ BlockNode block():
 
 
 // #@@range/defvar_list{
-List defvar_list():
+List<DefinedVariable> defvar_list():
 {
-    List result = new ArrayList();
-    List vars;
+    List<DefinedVariable> result = new ArrayList<DefinedVariable>();
+    List<DefinedVariable> vars;
 }
 {
     ( vars=defvars() { result.addAll(vars); } )*
@@ -620,7 +619,7 @@ StructNode defstruct():
 {
     Token t;
     String n;
-    List membs;
+    List<Slot> membs;
 }
 {
     t=<STRUCT> n=name() membs=member_list() ";"
@@ -634,7 +633,7 @@ UnionNode defunion():
 {
     Token t;
     String n;
-    List membs;
+    List<Slot> membs;
 }
 {
     t=<UNION> n=name() membs=member_list() ";"
@@ -644,9 +643,9 @@ UnionNode defunion():
 }
 
 // #@@range/member_list{
-List member_list():
+List<Slot> member_list():
 {
-    List membs = new ArrayList();
+    List<Slot> membs = new ArrayList<Slot>();
     Slot s;
 }
 {
@@ -678,9 +677,9 @@ UndefinedFunction funcdecl():
 {
     <EXTERN> ref=typeref() n=name() "(" ps=params() ")" ";"
         {
-            Params ptyperefs = ps.typeRefs();
+            ParamTypeRefs paramref = ps.parametersTypeRef();
             TypeNode t = new TypeNode(new PointerTypeRef(
-                            new FunctionTypeRef(ref, ptyperefs)));
+                            new FunctionTypeRef(ref, paramref)));
             return new UndefinedFunction(t, n, ps);
         }
 }
@@ -711,7 +710,7 @@ TypeRef typeref():
 {
     TypeRef ref;
     Token t;
-    Params params;
+    ParamTypeRefs params;
 }
 {
     ref=typeref_base()
@@ -740,16 +739,16 @@ TypeRef typeref():
 // #@@}
 
 // #@@range/param_typerefs{
-Params param_typerefs():
-{ FixedParams params; }
+ParamTypeRefs param_typerefs():
+{ ParamTypeRefs params; }
 {
       LOOKAHEAD(<VOID> ")")
       <VOID>
         {
-            return new FixedParams(new ArrayList());
+            return new ParamTypeRefs(new ArrayList<TypeRef>());
         }
     | params=fixedparam_typerefs()
-          [ "," "..."   { return new VarParams(params); } ]
+          [ "," "..."   { params.acceptVarargs(); }]
         {
             return params;
         }
@@ -757,16 +756,16 @@ Params param_typerefs():
 // #@@}
 
 // #@@range/fixedparam_typerefs{
-FixedParams fixedparam_typerefs():
+ParamTypeRefs fixedparam_typerefs():
 {
-    List refs = new ArrayList();
+    List<TypeRef> refs = new ArrayList<TypeRef>();
     TypeRef ref;
 }
 {
     ref=typeref() { refs.add(ref); }
     ( LOOKAHEAD(2) "," ref=typeref() { refs.add(ref); } )*
         {
-            return new FixedParams(refs);
+            return new ParamTypeRefs(refs);
         }
 }
 // #@@}
@@ -816,9 +815,9 @@ TypedefNode typedef():
 // #@@}
 
 // #@@range/stmts{
-List stmts():
+List<Node> stmts():
 {
-    List ss = new ArrayList();
+    List<Node> ss = new ArrayList<Node>();
     Node s;
 }
 {
@@ -928,7 +927,7 @@ SwitchNode switch_stmt():
 {
     Token t;
     ExprNode cond;
-    List bodies;
+    List<CaseNode> bodies;
 }
 {
     t=<SWITCH> "(" cond=expr() ")" "{" bodies=case_clauses() "}"
@@ -937,10 +936,10 @@ SwitchNode switch_stmt():
         }
 }
 
-List case_clauses():
+List<CaseNode> case_clauses():
 {
-    List clauses = new ArrayList();
-    Node n;
+    List<CaseNode> clauses = new ArrayList<CaseNode>();
+    CaseNode n;
 }
 {
     (n=case_clause() { clauses.add(n); })*
@@ -952,7 +951,7 @@ List case_clauses():
 
 CaseNode case_clause():
 {
-    List values;
+    List<ExprNode> values;
     BlockNode body;
 }
 {
@@ -962,9 +961,9 @@ CaseNode case_clause():
         }
 }
 
-List cases():
+List<ExprNode> cases():
 {
-    List values = new ArrayList();
+    List<ExprNode> values = new ArrayList<ExprNode>();
     ExprNode n;
 }
 {
@@ -980,25 +979,26 @@ CaseNode default_clause():
     <DEFAULT_> ":" body=case_body()
         {
             return new CaseNode(body.location(), labelPool,
-                                new ArrayList(), body);
+                                new ArrayList<ExprNode>(), body);
         }
 }
 
 BlockNode case_body():
 {
-    LinkedList ss = new LinkedList();
+    LinkedList<Node> stmts = new LinkedList<Node>();
     Node s;
 }
 {
-    (s=stmt() { if (s != null) ss.add(s); })+
+    (s=stmt() { if (s != null) stmts.add(s); })+
         {
             // last stmt of case clause must be break stmt.
-            if (! (ss.getLast() instanceof BreakNode)) {
+            if (! (stmts.getLast() instanceof BreakNode)) {
                 throw new ParseException(
                   "missing break statement at the last of case clause");
             }
-            return new BlockNode(((Node)ss.get(0)).location(),
-                                 new ArrayList(), ss);
+            return new BlockNode(stmts.get(0).location(),
+                                 new ArrayList<DefinedVariable>(),
+                                 stmts);
         }
 }
 
@@ -1244,7 +1244,7 @@ ExprNode postfix():
 {
     ExprNode expr, idx;
     String memb;
-    List args;
+    List<ExprNode> args;
 }
 {
     expr=primary()
@@ -1270,9 +1270,9 @@ String name():
 // #@@}
 
 // #@@range/args{
-List args():
+List<ExprNode> args():
 {
-    List args = new ArrayList();
+    List<ExprNode> args = new ArrayList<ExprNode>();
     ExprNode arg;
 }
 {

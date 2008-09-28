@@ -12,18 +12,12 @@ class DereferenceChecker extends Visitor {
     }
 
     public void check(AST ast) throws SemanticException {
-        Iterator vars = ast.variables();
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
+        for (DefinedVariable var : ast.definedVariables()) {
             checkVariable(var);
         }
-
-        Iterator funcs = ast.functions();
-        while (funcs.hasNext()) {
-            DefinedFunction f = (DefinedFunction)funcs.next();
+        for (DefinedFunction f : ast.definedFunctions()) {
             check(f.body());
         }
-
         if (errorHandler.errorOccured()) {
             throw new SemanticException("compile failed.");
         }
@@ -38,15 +32,10 @@ class DereferenceChecker extends Visitor {
     //
 
     public void visit(BlockNode node) {
-        Iterator vars = node.variables();
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
+        for (DefinedVariable var : node.variables()) {
             checkVariable(var);
         }
-
-        Iterator stmts = node.stmts();
-        while (stmts.hasNext()) {
-            Node stmt = (Node)stmts.next();
+        for (Node stmt : node.stmts()) {
             try {
                 check(stmt);
             }
@@ -79,7 +68,7 @@ class DereferenceChecker extends Visitor {
     public void visit(OpAssignNode node) {
         super.visit(node);
         checkAssignment(node);
-        // check as operator
+        // FIXME: check as operator
     }
 
     protected void checkAssignment(AbstractAssignNode node) {

@@ -5,7 +5,7 @@ import net.loveruby.cflat.asm.Assembler;
 import java.util.*;
 
 public class UnionType extends CompositeType {
-    public UnionType(String name, List membs, Location loc) {
+    public UnionType(String name, List<Slot> membs, Location loc) {
         super(name, membs, loc);
     }
 
@@ -19,9 +19,7 @@ public class UnionType extends CompositeType {
     protected void computeOffsets() {
         long maxSize = 0;
         long maxAlign = 1;
-        Iterator membs = members.iterator();
-        while (membs.hasNext()) {
-            Slot s = (Slot)membs.next();
+        for (Slot s : members) {
             s.setOffset(0);
             maxSize = Math.max(maxSize, s.allocSize());
             maxAlign = Math.max(maxAlign, s.alignment());

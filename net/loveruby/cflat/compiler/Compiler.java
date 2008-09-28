@@ -27,7 +27,7 @@ public class Compiler {
 
     public void commandMain(String[] origArgs) {
         Options opts = new Options(defaultTypeTable(), new LibraryLoader());
-        List srcs = null;
+        List<SourceFile> srcs = null;
         try {
             srcs = opts.parse(Arrays.asList(origArgs));
         }
@@ -37,10 +37,8 @@ public class Compiler {
             System.exit(1);
         }
         if (opts.isMode("--check-syntax")) {
-            Iterator inputs = srcs.iterator();
             boolean failed = false;
-            while (inputs.hasNext()) {
-                SourceFile src = (SourceFile)inputs.next();
+            for (SourceFile src : srcs) {
                 if (isValidSyntax(src, opts)) {
                     System.out.println(src.name() + ": Syntax OK");
                 }
@@ -53,9 +51,7 @@ public class Compiler {
         }
         else {
             try {
-                Iterator inputs = srcs.iterator();
-                while (inputs.hasNext()) {
-                    SourceFile src = (SourceFile)inputs.next();
+                for (SourceFile src : srcs) {
                     compileFile(src, opts);
                 }
                 if (! opts.isLinkRequired()) System.exit(0);
@@ -134,9 +130,8 @@ public class Compiler {
         }
     }
 
-    protected void dumpTokens(Iterator tokens, PrintStream s) {
-        while (tokens.hasNext()) {
-            CflatToken t = (CflatToken)tokens.next();
+    protected void dumpTokens(CflatToken tokens, PrintStream s) {
+        for (CflatToken t : tokens) {
             printPair(t.kindName(), t.dumpedImage(), s);
         }
     }
@@ -152,15 +147,13 @@ public class Compiler {
     }
 
     protected Node findStmt(AST ast) {
-        Iterator funcs = ast.functions();
-        while (funcs.hasNext()) {
-            DefinedFunction f = (DefinedFunction)funcs.next();
+        for (DefinedFunction f : ast.definedFunctions()) {
             if (f.name().equals("main")) {
-                Iterator stmts = f.body().stmts();
-                while (stmts.hasNext()) {
-                    return (Node)stmts.next();
+                Node stmt = f.body().stmts().get(0);
+                if (stmt == null) {
+                    errorExit("main() has no stmt");
                 }
-                errorExit("main() has no stmt");
+                return stmt;
             }
         }
         errorExit("source file does not contains main()");
@@ -197,7 +190,7 @@ public class Compiler {
     protected void assemble(String srcPath,
                             String destPath,
                             Options opts) throws IPCException {
-        List cmd = new ArrayList();
+        List<Object> cmd = new ArrayList<Object>();
         cmd.add("as");
         cmd.addAll(opts.asOptions());
         cmd.add("-o");
@@ -213,7 +206,7 @@ public class Compiler {
     static final protected String C_RUNTIME_FINI      = "/usr/lib/crtn.o";
 
     protected void generateExecutable(Options opts) throws IPCException {
-        List cmd = new ArrayList();
+        List<Object> cmd = new ArrayList<Object>();
         cmd.add("ld");
         cmd.add("-dynamic-linker");
         cmd.add(DYNAMIC_LINKER);
@@ -240,7 +233,7 @@ public class Compiler {
     }
 
     protected void generateSharedLibrary(Options opts) throws IPCException {
-        List cmd = new ArrayList();
+        List<Object> cmd = new ArrayList<Object>();
         cmd.add("ld");
         cmd.add("-shared");
         if (! opts.noStartFiles()) {
@@ -259,12 +252,12 @@ public class Compiler {
         invoke(cmd, opts.isVerboseMode());
     }
 
-    protected void invoke(List cmdArgs, boolean debug) throws IPCException {
+    protected void invoke(List<Object> cmdArgs, boolean debug) throws IPCException {
         if (debug) {
-            dumpCommand(cmdArgs.iterator());
+            dumpCommand(cmdArgs);
         }
         try {
-            String[] cmd = stringListToArray(cmdArgs);
+            String[] cmd = getStrings(cmdArgs);
             Process proc = Runtime.getRuntime().exec(cmd);
             proc.waitFor();
             passThrough(proc.getInputStream());
@@ -285,23 +278,20 @@ public class Compiler {
         }
     }
 
-    protected String[] stringListToArray(List list) {
+    protected String[] getStrings(List<Object> list) {
         String[] a = new String[list.size()];
         int idx = 0;
-        Iterator it = list.iterator();
-        while (it.hasNext()) {
-            Object o = it.next();
+        for (Object o : list) {
             a[idx++] = o.toString();
         }
         return a;
     }
 
-    protected void dumpCommand(Iterator args) {
+    protected void dumpCommand(List<Object> args) {
         String sep = "";
-        while (args.hasNext()) {
-            String arg = args.next().toString();
+        for (Object arg : args) {
             System.out.print(sep); sep = " ";
-            System.out.print(arg);
+            System.out.print(arg.toString());
         }
         System.out.println("");
     }

@@ -9,24 +9,27 @@ public class DefinedFunction extends Function {
     protected LabelPool labelPool;
     protected Params params;
     protected BlockNode body;
-    protected Map jumpMap;
+    protected Map<String, JumpEntry> jumpMap;
     protected LocalScope scope;
 
-    public DefinedFunction(LabelPool pool, boolean priv, TypeNode type,
-                           String name, Params params, BlockNode body) {
+    public DefinedFunction(LabelPool pool,
+                           boolean priv,
+                           TypeNode type,
+                           String name,
+                           Params params,
+                           BlockNode body) {
         super(priv, type, name);
         this.labelPool = pool;
         this.params = params;
         this.body = body;
-        this.jumpMap = new HashMap();
+        this.jumpMap = new HashMap<String, JumpEntry>();
     }
 
     public boolean isDefined() {
         return true;
     }
 
-    /** Returns an iterator to the list of parameter slots (Slot). */
-    public Iterator parameters() {
+    public List<Parameter> parameters() {
         return params.parameters();
     }
 
@@ -43,7 +46,7 @@ public class DefinedFunction extends Function {
      * Does NOT include paramters.
      * Does NOT include static local variables.
      */
-    public Iterator localVariables() {
+    public List<DefinedVariable> localVariables() {
         return scope.allLocalVariables();
     }
 
@@ -79,7 +82,7 @@ public class DefinedFunction extends Function {
     }
 
     protected JumpEntry getJumpEntry(String name) {
-        JumpEntry ent = (JumpEntry)jumpMap.get(name);
+        JumpEntry ent = jumpMap.get(name);
         if (ent == null) {
             ent = new JumpEntry(labelPool.newLabel());
             jumpMap.put(name, ent);
@@ -88,11 +91,9 @@ public class DefinedFunction extends Function {
     }
 
     public void checkJumpLinks(ErrorHandler handler) {
-        Iterator ents = jumpMap.entrySet().iterator();
-        while (ents.hasNext()) {
-            Map.Entry ent = (Map.Entry)ents.next();
-            String labelName = (String)ent.getKey();
-            JumpEntry jump = (JumpEntry)ent.getValue();
+        for (Map.Entry<String, JumpEntry> ent : jumpMap.entrySet()) {
+            String labelName = ent.getKey();
+            JumpEntry jump = ent.getValue();
             if (!jump.isDefined) {
                 handler.error(jump.location,
                               name + ": undefined label: " + labelName);

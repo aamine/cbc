@@ -13,7 +13,8 @@
         <mkdir dir="${build.dir}" />
         <mkdir dir="${build.classes.dir}" />
         <javac destdir="${build.classes.dir}" srcdir="${src.dir}"
-               debug="true" source="1.4">
+               debug="true" optimize="true">
+            <compilerarg value="-Xlint:unchecked" />
             <include name="net/**/*.java" />
         </javac>
         <jar jarfile="${build.jar}" basedir="${build.classes.dir}" />

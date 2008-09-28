@@ -3,10 +3,10 @@ import net.loveruby.cflat.type.*;
 import java.util.*;
 
 abstract public class CompositeTypeDefinition extends TypeDefinition {
-    protected List members;     // List<Slot>
+    protected List<Slot> members;
 
-    public CompositeTypeDefinition(Location loc,
-                                 TypeRef ref, String name, List membs) {
+    public CompositeTypeDefinition(Location loc, TypeRef ref,
+                                   String name, List<Slot> membs) {
         super(loc, ref, name);
         members = membs;
     }
@@ -17,7 +17,7 @@ abstract public class CompositeTypeDefinition extends TypeDefinition {
 
     abstract public String kind();
 
-    public List members() {
+    public List<Slot> members() {
         return members;
     }
 

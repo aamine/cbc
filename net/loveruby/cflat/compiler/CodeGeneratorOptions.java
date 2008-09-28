@@ -29,7 +29,9 @@ class CodeGeneratorOptions {
     }
 
     class NullOptimizer implements AsmOptimizer {
-        public List optimize(List assemblies) { return assemblies; }
+        public List<Assembly> optimize(List<Assembly> asms) {
+            return asms;
+        }
     }
 
     public void generateVerboseAsm() {

@@ -5,9 +5,9 @@ import java.util.*;
 
 public class FuncallNode extends ExprNode {
     protected ExprNode expr;
-    protected List arguments;
+    protected List<ExprNode> arguments;
 
-    public FuncallNode(ExprNode expr, List arguments) {
+    public FuncallNode(ExprNode expr, List<ExprNode> arguments) {
         this.expr = expr;
         this.arguments = arguments;
     }
@@ -55,16 +55,16 @@ public class FuncallNode extends ExprNode {
         return arguments.size();
     }
 
-    public Iterator arguments() {
-        return arguments.iterator();
+    public List<ExprNode> arguments() {
+        return arguments;
     }
 
     // called from TypeChecker
-    public void replaceArgs(List args) {
+    public void replaceArgs(List<ExprNode> args) {
         this.arguments = args;
     }
 
-    public ListIterator finalArg() {
+    public ListIterator<ExprNode> finalArg() {
         return arguments.listIterator(arguments.size());
     }
 

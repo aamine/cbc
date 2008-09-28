@@ -6,12 +6,12 @@ import java.util.*;
 public class UndefinedFunction extends Function {
     protected Params params;
 
-    public UndefinedFunction(TypeNode t, String name, Params ps) {
+    public UndefinedFunction(TypeNode t, String name, Params params) {
         super(false, t, name);
-        params = ps;
+        this.params = params;
     }
 
-    public Iterator parameters() {
+    public List<Parameter> parameters() {
         return params.parameters();
     }
 

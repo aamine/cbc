@@ -2,24 +2,22 @@ package net.loveruby.cflat.asm;
 import java.util.*;
 
 public class AsmStatistics {
-    protected Map registerUsage;   // Map<Register, Integer>
-    protected Map insnUsage;       // Map<String, Integer>
-    protected Map labelUsage;      // Map<Label, Integer>
+    protected Map<Register, Integer> registerUsage;
+    protected Map<String, Integer> insnUsage;
+    protected Map<Label, Integer> labelUsage;
 
-    static public AsmStatistics collect(List assemblies) {
+    static public AsmStatistics collect(List<Assembly> assemblies) {
         AsmStatistics stats = new AsmStatistics();
-        Iterator asms = assemblies.iterator();
-        while (asms.hasNext()) {
-            Assembly asm = (Assembly)asms.next();
+        for (Assembly asm : assemblies) {
             asm.collectStatistics(stats);
         }
         return stats;
     }
 
     public AsmStatistics() {
-        registerUsage = new HashMap();
-        insnUsage = new HashMap();
-        labelUsage = new HashMap();
+        registerUsage = new HashMap<Register, Integer>();
+        insnUsage = new HashMap<String, Integer>();
+        labelUsage = new HashMap<Label, Integer>();
     }
 
     public boolean doesRegisterUsed(Register reg) {
@@ -54,17 +52,17 @@ public class AsmStatistics {
         incrementCount(labelUsage, label);
     }
 
-    protected int fetchCount(Map m, Object key) {
-        Integer n = (Integer)m.get(key);
+    protected <K> int fetchCount(Map<K, Integer> m, K key) {
+        Integer n = m.get(key);
         if (n == null) {
             return 0;
         }
         else {
-            return n.intValue();
+            return n;
         }
     }
 
-    protected void incrementCount(Map m, Object key) {
-        m.put(key, new Integer(fetchCount(m, key) + 1));
+    protected <K> void incrementCount(Map<K, Integer> m, K key) {
+        m.put(key, fetchCount(m, key) + 1);
     }
 }

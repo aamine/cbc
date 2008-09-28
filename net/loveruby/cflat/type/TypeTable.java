@@ -34,11 +34,11 @@ public class TypeTable {
     }
 
     protected int pointerSize;
-    protected Map table;
+    protected Map<TypeRef, Type> table;
 
     public TypeTable(int ptrsize) {
         pointerSize = ptrsize;
-        table = new HashMap();
+        table = new HashMap<TypeRef, Type>();
     }
 
     public boolean isDefined(TypeRef ref) {
@@ -53,7 +53,7 @@ public class TypeTable {
     }
 
     public Type get(TypeRef ref) {
-        Type type = (Type)table.get(ref);
+        Type type = table.get(ref);
         if (type == null) {
             if (ref instanceof UserTypeRef) {
                 // If unregistered UserType is used in program, it causes
@@ -104,8 +104,8 @@ public class TypeTable {
         throw new Error("must not happen: integer.size != pointer.size");
     }
 
-    public Iterator types() {
-        return table.values().iterator();
+    public Collection<Type> types() {
+        return table.values();
     }
 
     public VoidType voidType() {
@@ -149,12 +149,10 @@ public class TypeTable {
     }
 
     public void semanticCheck(ErrorHandler h) {
-        Iterator types = table.values().iterator();
-        while (types.hasNext()) {
-            // We can safely use instanceof instead of isXXXX() here,
+        for (Type t : types()) {
+            // We can safely use "instanceof" instead of isXXXX() here,
             // because the type refered from UserType must be also
             // kept in this table.
-            Type t = (Type)types.next();
             if (t instanceof CompositeType) {
                 checkVoidMembers((CompositeType)t, h);
                 checkDuplicatedMembers((CompositeType)t, h);
@@ -173,38 +171,34 @@ public class TypeTable {
     }
 
     protected void checkVoidMembers(CompositeType t, ErrorHandler h) {
-        Iterator membs = t.members();
-        while (membs.hasNext()) {
-            Slot memb = (Slot)membs.next();
-            if (memb.type().isVoid()) {
+        for (Slot s : t.members()) {
+            if (s.type().isVoid()) {
                 h.error(t.location(), "struct/union cannot contain void");
             }
         }
     }
 
     protected void checkDuplicatedMembers(CompositeType t, ErrorHandler h) {
-        Map seen = new HashMap();
-        Iterator membs = t.members();
-        while (membs.hasNext()) {
-            Slot memb = (Slot)membs.next();
-            if (seen.containsKey(memb.name())) {
+        Map<String, Slot> seen = new HashMap<String, Slot>();
+        for (Slot s : t.members()) {
+            if (seen.containsKey(s.name())) {
                 h.error(t.location(),
-                        t.toString() + " has duplicated member: "
-                        + memb.name());
+                        t.toString() + " has duplicated member: " + s.name());
             }
-            seen.put(memb.name(), memb);
+            seen.put(s.name(), s);
         }
     }
 
     // #@@range/checkRecursiveDefinition{
     protected void checkRecursiveDefinition(Type t, ErrorHandler h) {
-        _checkRecursiveDefinition(t, new HashMap(), h);
+        _checkRecursiveDefinition(t, new HashMap<Type, Object>(), h);
     }
 
     static final protected Object checking = new Object();
     static final protected Object checked = new Object();
 
-    protected void _checkRecursiveDefinition(Type t, Map marks,
+    protected void _checkRecursiveDefinition(Type t,
+                                             Map<Type, Object> marks,
                                              ErrorHandler h) {
         if (marks.get(t) == checking) {
             h.error(((NamedType)t).location(),
@@ -218,10 +212,8 @@ public class TypeTable {
             marks.put(t, checking);
             if (t instanceof CompositeType) {
                 CompositeType ct = (CompositeType)t;
-                Iterator membs = ct.members();
-                while (membs.hasNext()) {
-                    Slot slot = (Slot)membs.next();
-                    _checkRecursiveDefinition(slot.type(), marks, h);
+                for (Slot s : ct.members()) {
+                    _checkRecursiveDefinition(s.type(), marks, h);
                 }
             }
             else if (t instanceof ArrayType) {

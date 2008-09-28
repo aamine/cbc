@@ -1,36 +1,32 @@
 package net.loveruby.cflat.utils;
 import java.util.*;
 
-public class Cursor implements Iterator {
-    protected List list;
+public class Cursor<T> implements Iterator {
+    protected List<T> list;
     protected int index;
 
-    public Cursor(List list) {
+    public Cursor(List<T> list) {
         this(list, 0);
     }
 
-    protected Cursor(List list, int index) {
+    protected Cursor(List<T> list, int index) {
         this.list = list;
         this.index = index;
     }
 
-    public Object clone() {
-        return new Cursor(list, index);
-    }
-
-    public Cursor dup() {
-        return new Cursor(list, index);
+    public Cursor<T> clone() {
+        return new Cursor<T>(list, index);
     }
 
     public boolean hasNext() {
         return index < list.size();
     }
 
-    public Object next() {
+    public T next() {
         return list.get(index++);
     }
 
-    public Object current() {
+    public T current() {
         if (index == 0) {
             throw new Error("must not happen: Cursor#current");
         }

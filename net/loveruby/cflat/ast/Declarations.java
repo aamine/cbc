@@ -2,91 +2,89 @@ package net.loveruby.cflat.ast;
 import java.util.*;
 
 public class Declarations {
-    protected Set defvars, vardecls, defuns, funcdecls;
-    protected Set defstructs, defunions, typedefs;
+    protected Set<DefinedVariable> defvars;
+    protected Set<UndefinedVariable> vardecls;
+    protected Set<DefinedFunction> defuns;
+    protected Set<UndefinedFunction> funcdecls;
+    protected Set<StructNode> defstructs;
+    protected Set<UnionNode> defunions;
+    protected Set<TypedefNode> typedefs;
 
     public Declarations() {
-        defvars = new LinkedHashSet();
-        vardecls = new LinkedHashSet();
-        defuns = new LinkedHashSet();
-        funcdecls = new LinkedHashSet();
-        defstructs = new LinkedHashSet();
-        defunions = new LinkedHashSet();
-        typedefs = new LinkedHashSet();
+        defvars = new LinkedHashSet<DefinedVariable>();
+        vardecls = new LinkedHashSet<UndefinedVariable>();
+        defuns = new LinkedHashSet<DefinedFunction>();
+        funcdecls = new LinkedHashSet<UndefinedFunction>();
+        defstructs = new LinkedHashSet<StructNode>();
+        defunions = new LinkedHashSet<UnionNode>();
+        typedefs = new LinkedHashSet<TypedefNode>();
     }
 
     public void add(Declarations decls) {
-        updateSet(vardecls, decls.vardecls());
-        updateSet(funcdecls, decls.funcdecls());
-        updateSet(defstructs, decls.defstructs());
-        updateSet(defunions, decls.defunions());
-        updateSet(typedefs, decls.typedefs());
-    }
-
-    protected void updateSet(Set s, List items) {
-        Iterator i = items.iterator();
-        while (i.hasNext()) {
-            s.add(i.next());
-        }
+        vardecls.addAll(decls.vardecls());
+        funcdecls.addAll(decls.funcdecls());
+        defstructs.addAll(decls.defstructs());
+        defunions.addAll(decls.defunions());
+        typedefs.addAll(decls.typedefs());
     }
 
     public void addDefvar(DefinedVariable var) {
         defvars.add(var);
     }
 
-    public void addDefvars(List vars) {
-        updateSet(defvars, vars);
+    public void addDefvars(List<DefinedVariable> vars) {
+        defvars.addAll(vars);
     }
 
-    public List defvars() {
-        return new ArrayList(defvars);
+    public List<DefinedVariable> defvars() {
+        return new ArrayList<DefinedVariable>(defvars);
     }
 
     public void addVardecl(UndefinedVariable var) {
         vardecls.add(var);
     }
 
-    public List vardecls() {
-        return new ArrayList(vardecls);
+    public List<UndefinedVariable> vardecls() {
+        return new ArrayList<UndefinedVariable>(vardecls);
     }
 
-    public void addDefun(Function func) {
+    public void addDefun(DefinedFunction func) {
         defuns.add(func);
     }
 
-    public List defuns() {
-        return new ArrayList(defuns);
+    public List<DefinedFunction> defuns() {
+        return new ArrayList<DefinedFunction>(defuns);
     }
 
     public void addFuncdecl(UndefinedFunction func) {
         funcdecls.add(func);
     }
 
-    public List funcdecls() {
-        return new ArrayList(funcdecls);
+    public List<UndefinedFunction> funcdecls() {
+        return new ArrayList<UndefinedFunction>(funcdecls);
     }
 
     public void addDefstruct(StructNode n) {
         defstructs.add(n);
     }
 
-    public List defstructs() {
-        return new ArrayList(defstructs);
+    public List<StructNode> defstructs() {
+        return new ArrayList<StructNode>(defstructs);
     }
 
     public void addDefunion(UnionNode n) {
         defunions.add(n);
     }
 
-    public List defunions() {
-        return new ArrayList(defunions);
+    public List<UnionNode> defunions() {
+        return new ArrayList<UnionNode>(defunions);
     }
 
     public void addTypedef(TypedefNode n) {
         typedefs.add(n);
     }
 
-    public List typedefs() {
-        return new ArrayList(typedefs);
+    public List<TypedefNode> typedefs() {
+        return new ArrayList<TypedefNode>(typedefs);
     }
 }

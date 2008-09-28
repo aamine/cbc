@@ -6,12 +6,12 @@ import java.util.*;
 import java.lang.reflect.*;
 
 abstract public class CompositeType extends NamedType {
-    protected List members;     // List<Slot>
+    protected List<Slot> members;
     protected long cachedSize;
     protected long cachedAlign;
     protected boolean isRecursiveChecked;
 
-    public CompositeType(String name, List membs, Location loc) {
+    public CompositeType(String name, List<Slot> membs, Location loc) {
         super(name, loc);
         this.members = membs;
         this.cachedSize = Type.sizeUnknown;
@@ -40,12 +40,9 @@ abstract public class CompositeType extends NamedType {
         if (isUnion() && !other.isUnion()) return false;
         CompositeType otherType = other.getCompositeType();
         if (members.size() != other.size()) return false;
-        Iterator types = memberTypes();
-        Iterator otherTypes = otherType.memberTypes();
-        while (types.hasNext()) {
-            if (! compareTypesBy(cmpMethod,
-                                 (Type)types.next(),
-                                 (Type)otherTypes.next())) {
+        Iterator<Type> otherTypes = otherType.memberTypes().iterator();
+        for (Type t : memberTypes()) {
+            if (! compareTypesBy(cmpMethod, t, otherTypes.next())) {
                 return false;
             }
         }
@@ -84,19 +81,16 @@ abstract public class CompositeType extends NamedType {
         return cachedAlign;
     }
 
-    /** Returns a List<Slot> of members. */
-    public Iterator members() {
-        return members.iterator();
+    public List<Slot> members() {
+        return members;
     }
 
-    /** Returns a List<Type> of members. */
-    public Iterator memberTypes() {
-        Iterator membs = members.iterator();
-        List result = new ArrayList();
-        while (membs.hasNext()) {
-            result.add(((Slot)membs.next()).type());
+    public List<Type> memberTypes() {
+        List<Type> result = new ArrayList<Type>();
+        for (Slot s : members) {
+            result.add(s.type());
         }
-        return result.iterator();
+        return result;
     }
 
     public boolean hasMember(String name) {
@@ -127,9 +121,7 @@ abstract public class CompositeType extends NamedType {
     }
 
     public Slot get(String name) {
-        Iterator membs = members.iterator();
-        while (membs.hasNext()) {
-            Slot s = (Slot)membs.next();
+        for (Slot s : members) {
             if (s.name().equals(name)) {
                 return s;
             }

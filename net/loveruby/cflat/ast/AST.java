@@ -22,8 +22,8 @@ public class AST extends Node {
         return source.sourceName();
     }
 
-    public Iterator sourceTokens() {
-        return source.token().iterator();
+    public CflatToken sourceTokens() {
+        return source.token();
     }
 
     public void setTypeTable(TypeTable table) {
@@ -37,61 +37,64 @@ public class AST extends Node {
         return this.typeTable;
     }
 
-    public Iterator types() {
-        List result = new ArrayList();
+    public List<TypeDefinition> types() {
+        List<TypeDefinition> result = new ArrayList<TypeDefinition>();
         result.addAll(declarations.defstructs());
         result.addAll(declarations.defunions());
         result.addAll(declarations.typedefs());
-        return result.iterator();
+        return result;
     }
 
-    public Iterator declarations() {
-        List result = new ArrayList();
+    public List<Entity> declarations() {
+        List<Entity> result = new ArrayList<Entity>();
         result.addAll(declarations.funcdecls());
         result.addAll(declarations.vardecls());
-        return result.iterator();
+        return result;
     }
 
-    public Iterator entities() {
-        List result = new ArrayList();
+    public List<Entity> entities() {
+        List<Entity> result = new ArrayList<Entity>();
         result.addAll(declarations.defvars());
         result.addAll(declarations.defuns());
-        return result.iterator();
+        return result;
     }
 
-    public Iterator variables() {
-        return declarations.defvars().iterator();
+    public List<DefinedVariable> definedVariables() {
+        return declarations.defvars();
     }
 
     public boolean functionDefined() {
         return !declarations.defuns().isEmpty();
     }
 
-    public Iterator functions() {
-        return declarations.defuns().iterator();
+    public List<DefinedFunction> definedFunctions() {
+        return declarations.defuns();
     }
 
-    public Iterator allFunctions() {
-        List result = new ArrayList();
+    public List<Function> allFunctions() {
+        List<Function> result = new ArrayList<Function>();
         result.addAll(declarations.defuns());
         result.addAll(declarations.funcdecls());
-        return result.iterator();
+        return result;
     }
 
     public ToplevelScope scope() {
         return scope;
     }
 
-    public Iterator allGlobalVariables() {
-        return scope.allGlobalVariables().iterator();
+    /** a list of all defined/declared global-scope variables */
+    public List<Variable> allGlobalVariables() {
+        return scope.allGlobalVariables();
     }
 
-    public Iterator globalVariables() {
-        return scope.globalVariables().iterator();
+    /** a list of defined initialized global variables */
+    public List<DefinedVariable> definedGlobalVariables() {
+        return scope.definedGlobalVariables();
     }
 
-    public Iterator commonSymbols() {
-        return scope.commonSymbols().iterator();
+    /** a list of defined uninitialized global variables */
+    public List<DefinedVariable> definedCommonSymbols() {
+        return scope.definedCommonSymbols();
     }
 
     public ConstantTable constantTable() {
@@ -103,8 +106,8 @@ public class AST extends Node {
     }
 
     protected void _dump(Dumper d) {
-        d.printNodeList("variables", variables());
-        d.printNodeList("functions", functions());
+        d.printNodeList("variables", definedVariables());
+        d.printNodeList("functions", definedFunctions());
     }
 
     public void accept(ASTVisitor visitor) {

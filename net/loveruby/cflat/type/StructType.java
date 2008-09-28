@@ -5,7 +5,7 @@ import net.loveruby.cflat.asm.Assembler;
 import java.util.*;
 
 public class StructType extends CompositeType {
-    public StructType(String name, List membs, Location loc) {
+    public StructType(String name, List<Slot> membs, Location loc) {
         super(name, membs, loc);
     }
 
@@ -19,9 +19,7 @@ public class StructType extends CompositeType {
     protected void computeOffsets() {
         long offset = 0;
         long maxAlign = 1;
-        Iterator membs = members();
-        while (membs.hasNext()) {
-            Slot s = (Slot)membs.next();
+        for (Slot s : members()) {
             offset = Assembler.align(offset, s.allocSize());
             s.setOffset(offset);
             offset += s.allocSize();

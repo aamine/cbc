@@ -9,7 +9,7 @@ public class CodeGenerator
     // #@@range/ctor{
     protected CodeGeneratorOptions options;
     protected ErrorHandler errorHandler;
-    protected LinkedList asStack;
+    protected LinkedList<Assembler> asStack;
     protected Assembler as;
     protected TypeTable typeTable;
     protected DefinedFunction currentFunction;
@@ -18,7 +18,7 @@ public class CodeGenerator
                          ErrorHandler errorHandler) {
         this.options = options;
         this.errorHandler = errorHandler;
-        this.asStack = new LinkedList();
+        this.asStack = new LinkedList<Assembler>();
     }
     // #@@}
 
@@ -27,22 +27,28 @@ public class CodeGenerator
     public String generate(AST ast) {
         this.typeTable = ast.typeTable();
         pushAssembler();
-        resolveConstants(ast.constantTable());
-        resolveGlobalVariables(ast.allGlobalVariables());
-        resolveFunctions(ast.allFunctions());
+        for (ConstantEntry ent : ast.constantTable().entries()) {
+            locateConstant(ent);
+        }
+        for (Variable var : ast.allGlobalVariables()) {
+            locateGlobalVariable(var);
+        }
+        for (Function func : ast.allFunctions()) {
+            locateFunction(func);
+        }
         compileAST(ast);
         return popAssembler().toSource();
     }
 
     protected void pushAssembler() {
-        asStack.add(newAssembler());
-        this.as = (Assembler)asStack.getLast();
+        this.as = newAssembler();
+        asStack.add(this.as);
     }
 
     protected Assembler popAssembler() {
-        Assembler poped = (Assembler)asStack.removeLast();
-        this.as = asStack.isEmpty() ? null : (Assembler)asStack.getLast();
-        return poped;
+        Assembler popped = asStack.removeLast();
+        this.as = asStack.isEmpty() ? null : asStack.getLast();
+        return popped;
     }
 
     protected Assembler newAssembler() {
@@ -53,18 +59,26 @@ public class CodeGenerator
         _file(ast.fileName());
         // .data
         _data();
-        compileGlobalVariables(ast.globalVariables());
+        for (DefinedVariable gvar : ast.definedGlobalVariables()) {
+            dataEntry(gvar);
+        }
         if (!ast.constantTable().isEmpty()) {
             _section(".rodata");
-            compileConstants(ast.constantTable());
+            for (ConstantEntry ent : ast.constantTable()) {
+                compileStringLiteral(ent);
+            }
         }
         // .text
         if (ast.functionDefined()) {
             _text();
-            compileFunctions(ast.functions());
+            for (DefinedFunction func : ast.definedFunctions()) {
+                compileFunction(func);
+            }
         }
         // .bss
-        compileCommonSymbols(ast.commonSymbols());
+        for (DefinedVariable var : ast.definedCommonSymbols()) {
+            compileCommonSymbol(var);
+        }
         // others
         if (options.isPICRequired()) {
             PICThunk(GOTBaseReg());
@@ -72,40 +86,19 @@ public class CodeGenerator
     }
     // #@@}
 
-    protected void resolveConstants(ConstantTable table) {
-        Iterator ents = table.entries();
-        while (ents.hasNext()) {
-            ConstantEntry ent = (ConstantEntry)ents.next();
-            ent.setLabel(new Label(".LC" + ent.id()));
-            if (options.isPICRequired()) {
-                Label offset = new Label(localGOTSymbol(ent.symbol()));
-                ent.setMemref(mem(offset, GOTBaseReg()));
-            }
-            else {
-                ent.setMemref(mem(ent.label()));
-                ent.setAddress(imm(ent.label()));
-            }
+    protected void locateConstant(ConstantEntry ent) {
+        ent.setLabel(new Label(".LC" + ent.id()));
+        if (options.isPICRequired()) {
+            Label offset = new Label(localGOTSymbol(ent.symbol()));
+            ent.setMemref(mem(offset, GOTBaseReg()));
+        }
+        else {
+            ent.setMemref(mem(ent.label()));
+            ent.setAddress(imm(ent.label()));
         }
     }
 
-    /**
-     * Sets memory reference for...
-     *   * public global variables
-     *   * private global variables
-     *   * public common symbols
-     *   * private common symbols
-     *   * static local variables
-     */
-    // #@@range/resolveGlobalVariables
-    protected void resolveGlobalVariables(Iterator vars) {
-        while (vars.hasNext()) {
-            Variable var = (Variable)vars.next();
-            resolveGlobalVariable(var);
-        }
-    }
-    // #@@}
-
-    protected void resolveGlobalVariable(Variable var) {
+    protected void locateGlobalVariable(Variable var) {
         String sym = var.symbol();
         MemoryReference mem;
         if (options.isPICRequired()) {
@@ -124,12 +117,9 @@ public class CodeGenerator
         }
     }
 
-    protected void resolveFunctions(Iterator funcs) {
-        while (funcs.hasNext()) {
-            Function func = (Function)funcs.next();
-            func.setSymbol(functionSymbol(func));
-            func.setAddress(functionAddress(func));
-        }
+    protected void locateFunction(Function func) {
+        func.setSymbol(functionSymbol(func));
+        func.setAddress(functionAddress(func));
     }
 
     protected String functionSymbol(Function func) {
@@ -160,16 +150,6 @@ public class CodeGenerator
             return imm(func.label());
         }
     }
-
-    /** Generates static variable entries */
-    // #@@range/compileGlobalVariables{
-    protected void compileGlobalVariables(Iterator vars) {
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
-            dataEntry(var);
-        }
-    }
-    // #@@}
 
     /** Generates initialized entries */
     // #@@range/dataEntry{
@@ -215,27 +195,20 @@ public class CodeGenerator
     // #@@}
 
     /** Generates BSS entries */
-    // #@@range/compileCommonSymbols{
-    protected void compileCommonSymbols(Iterator ents) {
-        while (ents.hasNext()) {
-            Variable ent = (Variable)ents.next();
-            if (ent.isPrivate()) {
-                _local(csymbol(ent.symbol()));
-            }
-            _comm(csymbol(ent.symbol()), ent.allocSize(), ent.alignment());
+    // #@@range/compileCommonSymbol{
+    protected void compileCommonSymbol(DefinedVariable var) {
+        if (var.isPrivate()) {
+            _local(csymbol(var.symbol()));
         }
+        _comm(csymbol(var.symbol()), var.allocSize(), var.alignment());
     }
     // #@@}
 
     /** Generates .rodata entry (constant strings) */
-    // #@@range/compileConstants{
-    protected void compileConstants(ConstantTable table) {
-        Iterator ents = table.entries();
-        while (ents.hasNext()) {
-            ConstantEntry ent = (ConstantEntry)ents.next();
-            label(ent.label());
-            _string(ent.value());
-        }
+    // #@@range/compileStringLiteral{
+    protected void compileStringLiteral(ConstantEntry ent) {
+        label(ent.label());
+        _string(ent.value());
     }
     // #@@}
 
@@ -317,15 +290,6 @@ public class CodeGenerator
     // Compile Function
     //
 
-    /** Compiles all functions and generates .text section. */
-    // #@@range/compileFunctions{
-    protected void compileFunctions(Iterator funcs) {
-        while (funcs.hasNext()) {
-            compileFunction((DefinedFunction)funcs.next());
-        }
-    }
-    // #@@}
-
     /** Compiles a function. */
     // #@@range/compileFunction{
     protected void compileFunction(DefinedFunction func) {
@@ -344,10 +308,10 @@ public class CodeGenerator
     // #@@}
 
     protected void compileFunctionBody(DefinedFunction func) {
-        List bodyAsms = compileStmts(func);
+        List<Assembly> bodyAsms = compileStmts(func);
         AsmStatistics stats = AsmStatistics.collect(bodyAsms);
         bodyAsms = reduceLabels(bodyAsms, stats);
-        List saveRegs = usedCalleeSavedRegisters(stats);
+        List<Register> saveRegs = usedCalleeSavedRegisters(stats);
         long lvarBytes = allocateLocalVariables(func.body().scope(),
                                                 saveRegs.size());
         prologue(func, saveRegs, lvarBytes);
@@ -358,7 +322,7 @@ public class CodeGenerator
         epilogue(func, saveRegs, lvarBytes);
     }
 
-    protected List compileStmts(DefinedFunction func) {
+    protected List<Assembly> compileStmts(DefinedFunction func) {
         pushAssembler();
         currentFunction = func;
         compile(func.body());
@@ -367,11 +331,9 @@ public class CodeGenerator
         return options.optimizer().optimize(popAssembler().assemblies());
     }
 
-    protected List reduceLabels(List assemblies, AsmStatistics stats) {
-        List result = new ArrayList();
-        Iterator asms = assemblies.iterator();
-        while (asms.hasNext()) {
-            Assembly asm = (Assembly)asms.next();
+    protected List<Assembly> reduceLabels(List<Assembly> assemblies, AsmStatistics stats) {
+        List<Assembly> result = new ArrayList<Assembly>();
+        for (Assembly asm : assemblies) {
             if (asm.isLabel() && ! stats.doesLabelUsed((Label)asm)) {
                 ;
             }
@@ -396,11 +358,9 @@ public class CodeGenerator
     }
     // #@@}
 
-    protected List usedCalleeSavedRegisters(AsmStatistics stats) {
-        List result = new ArrayList();
-        Iterator regs = calleeSavedRegisters().iterator();
-        while (regs.hasNext()) {
-            Register reg = (Register)regs.next();
+    protected List<Register> usedCalleeSavedRegisters(AsmStatistics stats) {
+        List<Register> result = new ArrayList<Register>();
+        for (Register reg : calleeSavedRegisters()) {
             if (stats.doesRegisterUsed(reg)) {
                 result.add(reg);
             }
@@ -408,11 +368,11 @@ public class CodeGenerator
         return result;
     }
 
-    protected List calleeSavedRegistersCache = null;
+    protected List<Register> calleeSavedRegistersCache = null;
 
-    protected List calleeSavedRegisters() {
+    protected List<Register> calleeSavedRegisters() {
         if (calleeSavedRegistersCache == null) {
-            ArrayList regs = new ArrayList();
+            List<Register> regs = new ArrayList<Register>();
             regs.add(reg("bx"));
             regs.add(reg("si"));
             regs.add(reg("di"));
@@ -461,15 +421,14 @@ public class CodeGenerator
 
     // #@@range/prologue{
     protected void prologue(DefinedFunction func,
-                            List saveRegs, long lvarBytes) {
+                            List<Register> saveRegs,
+                            long lvarBytes) {
         push(bp());
         mov(sp(), bp());
         saveRegisters(saveRegs);
         extendStack(lvarBytes);
         if (options.isVerboseAsm()) {
-            Iterator vars = func.localVariables();
-            while (vars.hasNext()) {
-                DefinedVariable var = (DefinedVariable)vars.next();
+            for (DefinedVariable var : func.localVariables()) {
                 comment("mem " + var.memref().toSource() + ": " + var.name());
             }
         }
@@ -478,7 +437,8 @@ public class CodeGenerator
 
     // #@@range/epilogue{
     protected void epilogue(DefinedFunction func,
-                            List savedRegs, long lvarBytes) {
+                            List<Register> savedRegs,
+                            long lvarBytes) {
         shrinkStack(lvarBytes);
         restoreRegisters(savedRegs);
         mov(bp(), sp());
@@ -487,20 +447,18 @@ public class CodeGenerator
     }
     // #@@}
 
-    protected void saveRegisters(List saveRegs) {
-        Iterator regs = saveRegs.iterator();
-        while (regs.hasNext()) {
-            Register reg = (Register)regs.next();
+    protected void saveRegisters(List<Register> saveRegs) {
+        for (Register reg : saveRegs) {
             if (! reg.equals(bp())) {   // bp is already saved.
                 push(reg);
             }
         }
     }
 
-    protected void restoreRegisters(List savedRegs) {
-        Iterator regs = savedRegs.iterator();
-        while (regs.hasNext()) {
-            Register reg = (Register)regs.next();
+    protected void restoreRegisters(List<Register> savedRegs) {
+        ListIterator<Register> regs = savedRegs.listIterator(savedRegs.size());
+        while (regs.hasPrevious()) {
+            Register reg = regs.previous();
             if (! reg.equals(bp())) {   // bp is going to be restored.
                 pop(reg);
             }
@@ -520,10 +478,8 @@ public class CodeGenerator
     // #@@}
 
     protected void allocateParameters(DefinedFunction func) {
-        Iterator vars = func.parameters();
         long word = paramStartWord;
-        while (vars.hasNext()) {
-            Parameter var = (Parameter)vars.next();
+        for (Parameter var : func.parameters()) {
             if (stackGrowsLower) {
                 var.setMemref(mem(word * stackWordSize, bp()));
             }
@@ -539,9 +495,7 @@ public class CodeGenerator
      * not determined, assign unfixed IndirectMemoryReference.
      */
     protected void allocateLocalVariablesTemp(LocalScope scope) {
-        Iterator vars = scope.allLocalVariables();
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
+        for (DefinedVariable var : scope.allLocalVariables()) {
             var.setMemref(new IndirectMemoryReference(bp()));
         }
     }
@@ -559,9 +513,7 @@ public class CodeGenerator
 
     protected long allocateScope(LocalScope scope, long parentStackLen) {
         long len = parentStackLen;
-        Iterator vars = scope.variables();
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
+        for (DefinedVariable var : scope.localVariables()) {
             if (stackGrowsLower) {
                 len = Assembler.align(len + var.allocSize(), stackAlignment);
                 fixMemref((IndirectMemoryReference)var.memref(), -len);
@@ -574,9 +526,7 @@ public class CodeGenerator
         // Allocate local variables in child scopes.
         // We allocate child scopes in the same area (overrapped).
         long maxLen = len;
-        Iterator scopes = scope.children();
-        while (scopes.hasNext()) {
-            LocalScope s = (LocalScope)scopes.next();
+        for (LocalScope s : scope.children()) {
             long childLen = allocateScope(s, len);
             maxLen = Math.max(maxLen, childLen);
         }
@@ -606,10 +556,9 @@ public class CodeGenerator
      */
     public void visit(FuncallNode node) {
         // compile function arguments from right to left.
-        ListIterator args = node.finalArg();
+        ListIterator<ExprNode> args = node.finalArg();
         while (args.hasPrevious()) {
-            ExprNode arg = (ExprNode)args.previous();
-            compile(arg);
+            compile(args.previous());
             push(reg("ax"));
         }
         // call
@@ -639,17 +588,14 @@ public class CodeGenerator
     //
 
     public void visit(BlockNode node) {
-        Iterator vars = node.scope().variables();
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
+        for (DefinedVariable var : node.scope().localVariables()) {
             if (var.initializer() != null) {
                 compile(var.initializer());
                 save(var.type(), reg("ax"), var.memref());
             }
         }
-        Iterator stmts = node.stmts();
-        while (stmts.hasNext()) {
-            compileStmt((Node)stmts.next());
+        for (Node stmt : node.stmts()) {
+            compileStmt(stmt);
         }
     }
 
@@ -696,26 +642,22 @@ public class CodeGenerator
     public void visit(SwitchNode node) {
         compile(node.cond());
         Type t = typeTable.signedInt();
-        Iterator cases = node.cases();
-        while (cases.hasNext()) {
-            CaseNode caseNode = (CaseNode)cases.next();
-            if (! caseNode.isDefault()) {
-                Iterator values = caseNode.values();
-                while (values.hasNext()) {
-                    IntegerLiteralNode ival = (IntegerLiteralNode)values.next();
+        for (CaseNode cn : node.cases()) {
+            if (! cn.isDefault()) {
+                for (ExprNode ex : cn.values()) {
+                    IntegerLiteralNode ival = (IntegerLiteralNode)ex;
                     mov(imm(ival.value()), reg("cx"));
                     cmp(t, reg("cx", t), reg("ax", t));
-                    je(caseNode.beginLabel());
+                    je(cn.beginLabel());
                 }
             }
             else {
-                jmp(caseNode.beginLabel());
+                jmp(cn.beginLabel());
             }
         }
         jmp(node.endLabel());
-        cases = node.cases();
-        while (cases.hasNext()) {
-            compile((CaseNode)cases.next());
+        for (CaseNode n : node.cases()) {
+            compile(n);
         }
         label(node.endLabel());
     }

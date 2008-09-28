@@ -25,15 +25,14 @@ public class TypeResolver extends Visitor {
     // #@@}
 
     // #@@range/resolveNodeList{
-    protected void resolveNodeList(Iterator nodes) {
+    protected void resolveNodeList(List<? extends Node> nodes) {
         visitNodeList(nodes);
     }
     // #@@}
 
     // #@@range/defineTypes{
-    private void defineTypes(Iterator deftypes) {
-        while (deftypes.hasNext()) {
-            TypeDefinition def = (TypeDefinition)deftypes.next();
+    private void defineTypes(List<TypeDefinition> deftypes) {
+        for (TypeDefinition def : deftypes) {
             if (typeTable.isDefined(def.typeRef())) {
                 error(def, "duplicated type definition: " + def.typeRef());
             }
@@ -69,10 +68,8 @@ public class TypeResolver extends Visitor {
         if (ct == null) {
             throw new Error("cannot intern struct/union: " + def.name());
         }
-        Iterator membs = ct.members();
-        while (membs.hasNext()) {
-            Slot slot = (Slot)membs.next();
-            bindType(slot.typeNode());
+        for (Slot s : ct.members()) {
+            bindType(s.typeNode());
         }
     }
     // #@@}
@@ -109,9 +106,7 @@ public class TypeResolver extends Visitor {
     // #@@range/resolveFunctionHeader{
     protected void resolveFunctionHeader(Function func) {
         bindType(func.typeNode());
-        Iterator params = func.parameters();
-        while (params.hasNext()) {
-            Parameter param = (Parameter)params.next();
+        for (Parameter param : func.parameters()) {
             bindType(param.typeNode());
         }
     }

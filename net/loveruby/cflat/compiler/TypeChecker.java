@@ -21,14 +21,10 @@ class TypeChecker extends Visitor {
     // #@@range/check_AST{
     public void check(AST ast) throws SemanticException {
         this.typeTable = ast.typeTable();
-        Iterator vars = ast.variables();
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
+        for (DefinedVariable var : ast.definedVariables()) {
             checkVariable(var);
         }
-        Iterator funcs = ast.functions();
-        while (funcs.hasNext()) {
-            DefinedFunction f = (DefinedFunction)funcs.next();
+        for (DefinedFunction f : ast.definedFunctions()) {
             checkReturnType(f);
             checkParamTypes(f);
             check(f.body());
@@ -42,14 +38,11 @@ class TypeChecker extends Visitor {
     protected void checkReturnType(DefinedFunction f) {
         if (isInvalidReturnType(f.returnType())) {
             error(f, "returns invalid type: " + f.returnType());
-            return;
         }
     }
 
     protected void checkParamTypes(DefinedFunction f) {
-        Iterator params = f.parameters();
-        while (params.hasNext()) {
-            Parameter param = (Parameter)params.next();
+        for (Parameter param : f.parameters()) {
             if (isInvalidParameterType(param.type())) {
                 error(param, "invalid parameter type: " + param.type());
             }
@@ -61,14 +54,10 @@ class TypeChecker extends Visitor {
     //
 
     public void visit(BlockNode node) {
-        Iterator vars = node.variables();
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
+        for (DefinedVariable var : node.variables()) {
             checkVariable(var);
         }
-        Iterator stmts = node.stmts();
-        while (stmts.hasNext()) {
-            Node n = (Node)stmts.next();
+        for (Node n : node.stmts()) {
             if (n instanceof ExprNode) {
                 ExprNode expr = (ExprNode)n;
                 if (isInvalidStatementType(expr.type())) {
@@ -468,17 +457,14 @@ class TypeChecker extends Visitor {
             return;
         }
         // Check type of only mandatory parameters.
-        Iterator params = type.paramTypes();
-        Iterator args = node.arguments();
-        List newArgs = new ArrayList();
-        while (params.hasNext()) {
-            Type param = (Type)params.next();
-            ExprNode arg = (ExprNode)args.next();
+        Iterator<ExprNode> args = node.arguments().iterator();
+        List<ExprNode> newArgs = new ArrayList<ExprNode>();
+        for (Type param : type.paramTypes()) {
+            ExprNode arg = args.next();
             newArgs.add(checkRHS(arg) ? implicitCast(param, arg) : arg);
         }
         while (args.hasNext()) {
-            ExprNode arg = (ExprNode)args.next();
-            newArgs.add(arg);
+            newArgs.add(args.next());
         }
         node.replaceArgs(newArgs);
     }

@@ -14,7 +14,7 @@ abstract public class Function extends Entity {
     public boolean isFunction() { return true; }
     public boolean isInitialized() { return true; }
     abstract public boolean isDefined();
-    abstract public Iterator parameters();
+    abstract public List<Parameter> parameters();
 
     public FunctionType functionType() {
         return type().getPointerType().baseType().getFunctionType();

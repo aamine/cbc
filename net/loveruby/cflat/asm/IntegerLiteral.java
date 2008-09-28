@@ -8,9 +8,12 @@ public class IntegerLiteral extends Literal {
     }
 
     public boolean equals(Object other) {
-        if (!(other instanceof IntegerLiteral)) return false;
-        IntegerLiteral lit = (IntegerLiteral)other;
-        return lit.value == this.value;
+        return (other instanceof IntegerLiteral)
+                && equals((IntegerLiteral)other);
+    }
+
+    public boolean equals(IntegerLiteral other) {
+        return other.value == this.value;
     }
 
     public long value() {

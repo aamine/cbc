@@ -3,19 +3,19 @@ import net.loveruby.cflat.utils.Cursor;
 import java.util.*;
 
 public class PeepholeOptimizer implements AsmOptimizer {
-    protected Map filterSet;   // Map<String, List<Filter>>
+    protected Map<String, List<Filter>> filterSet;
 
     public PeepholeOptimizer() {
-        this.filterSet = new HashMap();
+        this.filterSet = new HashMap<String, List<Filter>>();
     }
 
     public void add(Filter filter) {
         String[] heads = filter.patternHeads();
         for (int i = 0; i < heads.length; i++) {
             String head = heads[i];
-            List list = (List)filterSet.get(head);
+            List<Filter> list = filterSet.get(head);
             if (list == null) {
-                list = new ArrayList();
+                list = new ArrayList<Filter>();
                 list.add(filter);
                 filterSet.put(head, list);
             }
@@ -25,11 +25,11 @@ public class PeepholeOptimizer implements AsmOptimizer {
         }
     }
 
-    public List optimize(List assemblies) {
-        List result = new ArrayList();
-        Cursor cursor = new Cursor(assemblies);
+    public List<Assembly> optimize(List<Assembly> assemblies) {
+        List<Assembly> result = new ArrayList<Assembly>();
+        Cursor<Assembly> cursor = new Cursor<Assembly>(assemblies);
         while (cursor.hasNext()) {
-            Assembly asm = (Assembly)cursor.next();
+            Assembly asm = cursor.next();
             if (asm.isInstruction()) {
                 Filter matched = matchFilter(cursor);
                 if (matched != null) {
@@ -42,14 +42,12 @@ public class PeepholeOptimizer implements AsmOptimizer {
         return result;
     }
 
-    protected Filter matchFilter(Cursor asms) {
+    protected Filter matchFilter(Cursor<Assembly> asms) {
         Instruction insn = (Instruction)asms.current();
-        List filters = (List)filterSet.get(insn.mnemonic());
+        List<Filter> filters = filterSet.get(insn.mnemonic());
         if (filters == null) return null;
         if (filters.isEmpty()) return null;
-        Iterator it = filters.iterator();
-        while (it.hasNext()) {
-            Filter filter = (Filter)it.next();
+        for (Filter filter : filters) {
             if (filter.match(asms)) {
                 return filter;
             }
@@ -180,8 +178,8 @@ public class PeepholeOptimizer implements AsmOptimizer {
 
     abstract class Filter {
         abstract public String[] patternHeads();
-        abstract public boolean match(Cursor asms);
-        abstract public void optimize(Cursor src, List dest);
+        abstract public boolean match(Cursor<Assembly> asms);
+        abstract public void optimize(Cursor<Assembly> src, List<Assembly> dest);
     }
 
     //
@@ -202,11 +200,11 @@ public class PeepholeOptimizer implements AsmOptimizer {
             return new String[] { pattern.name };
         }
 
-        public boolean match(Cursor asms) {
+        public boolean match(Cursor<Assembly> asms) {
             return pattern.match((Instruction)asms.current());
         }
 
-        public void optimize(Cursor src, List dest) {
+        public void optimize(Cursor<Assembly> src, List<Assembly> dest) {
             if (transform == null) {
                 ;   // remove instruction
             }
@@ -260,13 +258,13 @@ public class PeepholeOptimizer implements AsmOptimizer {
             return jmpInsns();
         }
 
-        public void optimize(Cursor src, List dest) {
+        public void optimize(Cursor<Assembly> src, List<Assembly> dest) {
             ;   // remove jump
         }
 
-        public boolean match(Cursor asms) {
+        public boolean match(Cursor<Assembly> asms) {
             Instruction insn = (Instruction)asms.current();
-            return doesLabelFollows(asms.dup(), insn.jmpDestination());
+            return doesLabelFollows(asms.clone(), insn.jmpDestination());
         }
 
         /**
@@ -281,9 +279,9 @@ public class PeepholeOptimizer implements AsmOptimizer {
          *          mov
          *          add
          */
-        protected boolean doesLabelFollows(Cursor asms, Label jmpDest) {
+        protected boolean doesLabelFollows(Cursor<Assembly> asms, Label jmpDest) {
             while (asms.hasNext()) {
-                Assembly asm = (Assembly)asms.next();
+                Assembly asm = asms.next();
                 if (asm.isLabel()) {
                     Label label = (Label)asm;
                     if (label.equals(jmpDest)) {

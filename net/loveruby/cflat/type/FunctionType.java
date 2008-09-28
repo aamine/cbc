@@ -4,9 +4,9 @@ import java.util.*;
 
 public class FunctionType extends Type {
     protected Type returnType;
-    protected Params paramTypes;
+    protected ParamTypes paramTypes;
 
-    public FunctionType(Type ret, Params partypes) {
+    public FunctionType(Type ret, ParamTypes partypes) {
         returnType = ret;
         paramTypes = partypes;
     }
@@ -52,8 +52,8 @@ public class FunctionType extends Type {
      * Returns iterator of mandatory parameter types.
      * This method does NOT include types for varargs.
      */
-    public Iterator paramTypes() {
-        return paramTypes.parameters();
+    public List<Type> paramTypes() {
+        return paramTypes.types();
     }
 
     public long alignment() {
@@ -68,9 +68,7 @@ public class FunctionType extends Type {
         StringBuffer buf = new StringBuffer();
         buf.append(returnType.toString());
         buf.append(" (*)(");
-        Iterator params = paramTypes.parameters();
-        while (params.hasNext()) {
-            Type t = (Type)params.next();
+        for (Type t : paramTypes.types()) {
             buf.append(t.toString());
         }
         buf.append(")");

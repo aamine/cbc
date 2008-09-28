@@ -7,7 +7,7 @@ public class LocalReferenceResolver extends Visitor {
     // #@@range/ctor{
     protected ErrorHandler errorHandler;
     protected ToplevelScope toplevel;
-    protected LinkedList scopeStack;
+    protected LinkedList<Scope> scopeStack;
     protected ConstantTable constantTable;
 
     public LocalReferenceResolver(ErrorHandler h) {
@@ -22,17 +22,21 @@ public class LocalReferenceResolver extends Visitor {
     // #@@range/resolve{
     public void resolve(AST ast) throws SemanticException {
         toplevel = ast.scope();
-        scopeStack = new LinkedList();
+        scopeStack = new LinkedList<Scope>();
         scopeStack.add(toplevel);
         constantTable = ast.constantTable();
 
         // #@@range/declareToplevel{
-        declareToplevelEntities(ast.declarations());
-        declareToplevelEntities(ast.entities());
+        for (Entity decl : ast.declarations()) {
+            toplevel.declareEntity(decl);
+        }
+        for (Entity ent : ast.entities()) {
+            toplevel.declareEntity(ent);
+        }
         // #@@}
         // #@@range/resolveRefs{
-        resolveGvarInitializers(ast.variables());
-        resolveFunctions(ast.functions());
+        resolveGvarInitializers(ast.definedVariables());
+        resolveFunctions(ast.definedFunctions());
         // #@@}
         toplevel.checkReferences(errorHandler);
         if (errorHandler.errorOccured()) {
@@ -41,29 +45,19 @@ public class LocalReferenceResolver extends Visitor {
     }
     // #@@}
 
-    // #@@range/declareToplevelEntities{
-    protected void declareToplevelEntities(Iterator decls) {
-        while (decls.hasNext()) {
-            toplevel.declareEntity((Entity)decls.next());
-        }
-    }
-    // #@@}
-
     // #@@range/resolveGvarInitializers{
-    protected void resolveGvarInitializers(Iterator vars) {
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
-            if (var.hasInitializer()) {
-                resolve(var.initializer());
+    protected void resolveGvarInitializers(List<DefinedVariable> gvars) {
+        for (DefinedVariable gvar : gvars) {
+            if (gvar.hasInitializer()) {
+                resolve(gvar.initializer());
             }
         }
     }
     // #@@}
 
     // #@@range/resolveFunctions{
-    protected void resolveFunctions(Iterator funcs) {
-        while (funcs.hasNext()) {
-            DefinedFunction func = (DefinedFunction)funcs.next();
+    protected void resolveFunctions(List<DefinedFunction> funcs) {
+        for (DefinedFunction func : funcs) {
             pushScope(func.parameters());
             resolve(func.body());
             func.setScope(popScope());
@@ -80,15 +74,14 @@ public class LocalReferenceResolver extends Visitor {
     // #@@}
 
     // #@@range/pushScope{
-    protected void pushScope(Iterator vars) {
+    protected void pushScope(List<? extends DefinedVariable> vars) {
         LocalScope scope = new LocalScope(currentScope());
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
+        for (DefinedVariable var : vars) {
             if (scope.isDefinedLocally(var.name())) {
                 error(var, "duplicated variable in scope: " + var.name());
             }
             else {
-                scope.declareEntity(var);
+                scope.defineVariable(var);
             }
         }
         scopeStack.addLast(scope);
@@ -103,7 +96,7 @@ public class LocalReferenceResolver extends Visitor {
 
     // #@@range/currentScope{
     protected Scope currentScope() {
-        return (Scope)scopeStack.getLast();
+        return scopeStack.getLast();
     }
     // #@@}
 

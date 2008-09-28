@@ -2,27 +2,27 @@ package net.loveruby.cflat.ast;
 import java.util.*;
 
 public class BlockNode extends StmtNode {
-    protected List variables;
-    protected List stmts;
+    protected List<DefinedVariable> variables;
+    protected List<Node> stmts;
     protected LocalScope scope;
 
-    public BlockNode(Location loc, List vars, List ss) {
+    public BlockNode(Location loc, List<DefinedVariable> vars, List<Node> stmts) {
         super(loc);
-        variables = vars;
-        stmts = ss;
+        this.variables = vars;
+        this.stmts = stmts;
     }
 
-    public Iterator variables() {
-        return variables.iterator();
+    public List<DefinedVariable> variables() {
+        return variables;
     }
 
-    public Iterator stmts() {
-        return stmts.iterator();
+    public List<Node> stmts() {
+        return stmts;
     }
 
     public Node tailStmt() {
         if (stmts.isEmpty()) return null;
-        return (Node)stmts.get(stmts.size() - 1);
+        return stmts.get(stmts.size() - 1);
     }
 
     public LocalScope scope() {

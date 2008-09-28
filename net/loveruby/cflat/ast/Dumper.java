@@ -15,24 +15,14 @@ public class Dumper {
 
     public void printClass(Object obj, Location loc) {
         printIndent();
-        stream.println("<<" + className(obj) + ">> (" + loc + ")");
+        stream.println("<<" + obj.getClass().getSimpleName() + ">> (" + loc + ")");
     }
 
-    protected String className(Object obj) {
-        String[] ids = obj.getClass().getName().split("\\.");
-        return ids[ids.length - 1];
-    }
-
-    public void printNodeList(String name, List list) {
-        printNodeList(name, list.iterator());
-    }
-
-    public void printNodeList(String name, Iterator list) {
+    public void printNodeList(String name, List<? extends Node> nodes) {
         printIndent();
         stream.println(name + ":");
         indent();
-        while (list.hasNext()) {
-            Node n = (Node)list.next();
+        for (Node n : nodes) {
             n.dump(this);
         }
         unindent();

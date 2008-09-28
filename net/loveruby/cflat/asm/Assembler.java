@@ -4,7 +4,7 @@ import net.loveruby.cflat.utils.*;
 import java.util.*;
 
 public class Assembler {
-    protected List assemblies;        // List<Assembly>
+    protected List<Assembly> assemblies;
     protected Type naturalType;
     protected int commentIndentLevel;
 
@@ -13,24 +13,22 @@ public class Assembler {
     }
 
     public Assembler(Type naturalType) {
-        this.assemblies = new ArrayList();
+        this.assemblies = new ArrayList<Assembly>();
         this.naturalType = naturalType;
         this.commentIndentLevel = 0;
     }
 
-    public List assemblies() {
+    public List<Assembly> assemblies() {
         return this.assemblies;
     }
 
-    public void addAll(List assemblies) {
+    public void addAll(List<Assembly> assemblies) {
         this.assemblies.addAll(assemblies);
     }
 
     public String toSource() {
         StringBuffer buf = new StringBuffer();
-        Iterator asms = assemblies.iterator();
-        while (asms.hasNext()) {
-            Assembly asm = (Assembly)asms.next();
+        for (Assembly asm : assemblies) {
             buf.append(asm.toSource());
             buf.append("\n");
         }

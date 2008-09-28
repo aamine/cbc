@@ -14,10 +14,10 @@ class Options {
     protected boolean verbose;
     protected boolean debugParser;
     protected CodeGeneratorOptions genOptions;
-    protected List asOptions;     // List<String>
+    protected List<String> asOptions;
     protected boolean generatingSharedLibrary;
     protected boolean generatingPIE;
-    protected List ldArgs;        // List<LdArg>
+    protected List<LdArg> ldArgs;
     protected boolean noStartFiles = false;
     protected boolean noDefaultLibs = false;
 
@@ -25,10 +25,10 @@ class Options {
         this.typeTable = typeTable;
         this.loader = loader;
         this.genOptions = new CodeGeneratorOptions();
-        this.asOptions = new ArrayList();
+        this.asOptions = new ArrayList<String>();
         this.generatingSharedLibrary = false;
         this.generatingPIE = false;
-        this.ldArgs = new ArrayList();
+        this.ldArgs = new ArrayList<LdArg>();
     }
 
     public boolean isMode(String m) {
@@ -44,12 +44,12 @@ class Options {
     }
 
     static final protected String defaultMode = "link";
-    static protected List modeLevels;
+    static protected List<String> modeLevels;
     static final protected int MODE_LEVEL_ASSEMBLE;
     static final protected int MODE_LEVEL_LINK;
 
     static {
-        modeLevels = new ArrayList();
+        modeLevels = new ArrayList<String>();
         modeLevels.add("--check-syntax");
         modeLevels.add("--dump-tokens");
         modeLevels.add("--dump-ast");
@@ -86,23 +86,20 @@ class Options {
         if (outputFileName != null) {
             return outputFileName;
         }
-        List srcs = sourceFiles();
+        List<SourceFile> srcs = sourceFiles();
         if (srcs.size() == 1) {
-            SourceFile src = (SourceFile)srcs.get(0);
-            return src.linkedFileName(this, newExt);
+            return srcs.get(0).linkedFileName(this, newExt);
         }
         else {
             return "a.out";
         }
     }
 
-    protected List sourceFiles() {
-        Iterator args = ldArgs.iterator();
-        List result = new ArrayList();
-        while (args.hasNext()) {
-            LdArg arg = (LdArg)args.next();
+    protected List<SourceFile> sourceFiles() {
+        List<SourceFile> result = new ArrayList<SourceFile>();
+        for (LdArg arg : ldArgs) {
             if (arg.isSourceFile()) {
-                result.add(arg);
+                result.add((SourceFile)arg);
             }
         }
         return result;
@@ -132,8 +129,7 @@ class Options {
         return genOptions;
     }
 
-    // List<String>
-    public List asOptions() {
+    public List<String> asOptions() {
         return this.asOptions;
     }
 
@@ -146,7 +142,7 @@ class Options {
     }
 
     // List<ldArg>
-    public List ldArgs() {
+    public List<LdArg> ldArgs() {
         return this.ldArgs;
     }
 
@@ -159,11 +155,11 @@ class Options {
     }
 
     /** Returns List<SourceFile>. */
-    public List parse(List argsList) {
-        ListIterator args = argsList.listIterator();
-        List srcs = new ArrayList();
+    public List<SourceFile> parse(List<String> argsList) {
+        List<SourceFile> srcs = new ArrayList<SourceFile>();
+        ListIterator<String> args = argsList.listIterator();
         while (args.hasNext()) {
-            String arg = (String)args.next();
+            String arg = args.next();
             if (arg.equals("--")) {
                 // "--" Stops command line processing
                 break;
@@ -245,9 +241,7 @@ class Options {
                     noDefaultLibs = true;
                 }
                 else if (arg.startsWith("-Wl,")) {
-                    Iterator opts = parseCommaSeparatedOptions(arg).iterator();
-                    while (opts.hasNext()) {
-                        String opt = (String)opts.next();
+                    for (String opt : parseCommaSeparatedOptions(arg)) {
                         ldArgs.add(new LdOption(opt));
                     }
                 }
@@ -277,8 +271,7 @@ class Options {
         }
         // args has more arguments when "--" is appeared.
         while (args.hasNext()) {
-            String arg = (String)args.next();
-            addSourceFile(srcs, ldArgs, arg);
+            addSourceFile(srcs, ldArgs, args.next());
         }
         if (srcs.isEmpty()) parseError("no input file");
         if (mode == null) {
@@ -294,14 +287,14 @@ class Options {
         throw new OptionParseError(msg);
     }
 
-    protected void addSourceFile(List srcs, List ldArgs, String sourceName) {
+    protected void addSourceFile(List<SourceFile> srcs, List<LdArg> ldArgs, String sourceName) {
         SourceFile src = new SourceFile(sourceName);
         srcs.add(src);
         // Original argument order does matter when linking.
         ldArgs.add(src);
     }
 
-    protected String getOptArg(String opt, ListIterator args) {
+    protected String getOptArg(String opt, ListIterator<String> args) {
         String path = opt.substring(2);
         if (path.length() != 0) {       // -Ipath
             return path;
@@ -311,29 +304,21 @@ class Options {
         }
     }
 
-    protected String nextArg(String opt, ListIterator args) {
+    protected String nextArg(String opt, ListIterator<String> args) {
         if (! args.hasNext()) {
             parseError("missing argument for " + opt);
         }
-        return (String)args.next();
+        return args.next();
     }
 
     /** "-Wl,-rpath,/usr/local/lib" -> ["-rpath", "/usr/local/lib"] */
-    protected List parseCommaSeparatedOptions(String opt) {
-        List opts = arrayToList(opt.split(","));
+    protected List<String> parseCommaSeparatedOptions(String opt) {
+        List<String> opts = Arrays.asList(opt.split(","));
         opts.remove(0);  // remove "-Wl" etc.
         if (opts.isEmpty()) {
             parseError("missing argument for " + opt);
         }
         return opts;
-    }
-
-    protected List arrayToList(Object[] ary) {
-        List result = new ArrayList();
-        for (int i = 0; i < ary.length; i++) {
-            result.add(ary[i]);
-        }
-        return result;
     }
 
     public void printUsage(PrintStream out) {

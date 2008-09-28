@@ -4,83 +4,82 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class LocalScope extends Scope {
-    protected long numAllEntities;
+    protected Scope parent;
+    protected Map<String, DefinedVariable> variables;
 
-    public LocalScope(Scope up) {
-        super(up);
-        numAllEntities = -1;
+    public LocalScope(Scope parent) {
+        super();
+        this.parent = parent;
+        parent.addChild(this);
+        variables = new LinkedHashMap<String, DefinedVariable>();
     }
 
     public boolean isToplevel() {
         return false;
     }
 
-    public Iterator children() {
-        return children.iterator();
+    public ToplevelScope toplevel() {
+        return parent.toplevel();
     }
 
-    /**
-     * Returns local variables defined in this scope.
-     * Does NOT includes children's local variables.
-     * Does NOT include static local variables.
-     */
-    public Iterator variables() {
-        return lvarList().iterator();
+    public Scope parent() {
+        return this.parent;
     }
 
-    /**
-     * Returns local variables defined in this scope.
-     * Does NOT includes children's local variables.
-     * Does NOT include static local variables.
-     */
-    protected List lvarList() {
-        List result = new ArrayList();
-        Iterator ents = entities.values().iterator();
-        while (ents.hasNext()) {
-            Entity ent = (Entity)ents.next();
-            if (ent instanceof DefinedVariable) {
-                DefinedVariable var = (DefinedVariable)ent;
-                if (!var.isPrivate()) {
-                    result.add(var);
-                }
-            }
+    public List<LocalScope> children() {
+        return children;
+    }
+
+    public boolean isDefinedLocally(String name) {
+        return variables.containsKey(name);
+    }
+
+    /** Define variable in this scope. */
+    // #@@range/defineVariable{
+    public void defineVariable(DefinedVariable var) {
+        if (variables.containsKey(var.name())) {
+            throw new Error("duplicated variable: " + var.name());
         }
-        return result;
+        variables.put(var.name(), var);
     }
+    // #@@}
 
-    /**
-     * Returns the number of all entities in this scope.
-     * Result includes the number of children's entities.
-     */
-    public long numAllEntities() {
-        if (numAllEntities < 0) {
-            Iterator cs = allScopes().iterator();
-            long n = 0;
-            while (cs.hasNext()) {
-                Scope c = (Scope)cs.next();
-                n += c.numEntities();
-            }
-            numAllEntities = n;
+    // #@@range/get{
+    public Entity get(String name) throws SemanticException {
+        DefinedVariable var = variables.get(name);
+        if (var != null) {
+            return var;
         }
-        return numAllEntities;
+        else {
+            return parent.get(name);
+        }
     }
+    // #@@}
 
     /**
      * Returns all local variables in this scope.
      * The result DOES includes all nested local variables,
      * while it does NOT include static local variables.
      */
-    public Iterator allLocalVariables() {
-        return allLocalVariablesList().iterator();
+    public List<DefinedVariable> allLocalVariables() {
+        List<DefinedVariable> result = new ArrayList<DefinedVariable>();
+        for (LocalScope s : allLocalScopes()) {
+            result.addAll(s.localVariables());
+        }
+        return result;
     }
 
-    // List<DefinedVariable>
-    protected List allLocalVariablesList() {
-        List result = new ArrayList();
-        Iterator scopes = allScopes().iterator();
-        while (scopes.hasNext()) {
-            LocalScope s = (LocalScope)scopes.next();
-            result.addAll(s.lvarList());
+    /**
+     * Returns local variables defined in this scope.
+     * Does NOT includes children's local variables.
+     * Does NOT include static local variables.
+     */
+    public List<DefinedVariable> localVariables() {
+        List<DefinedVariable> result = new ArrayList<DefinedVariable>();
+        for (DefinedVariable var : variables.values()) {
+            if (!var.isPrivate()) {
+                result.add(var);
+            }
         }
         return result;
     }
@@ -88,19 +87,40 @@ public class LocalScope extends Scope {
     /**
      * Returns all static local variables defined in this scope.
      */
-    public List staticLocalVariables() {
-        List result = new ArrayList();
-        Iterator scopes = allScopes().iterator();
-        while (scopes.hasNext()) {
-            LocalScope s = (LocalScope)scopes.next();
-            Iterator vars = s.entities.values().iterator();
-            while (vars.hasNext()) {
-                DefinedVariable var = (DefinedVariable)vars.next();
+    public List<DefinedVariable> staticLocalVariables() {
+        List<DefinedVariable> result = new ArrayList<DefinedVariable>();
+        for (LocalScope s : allLocalScopes()) {
+            for (DefinedVariable var : s.variables.values()) {
                 if (var.isPrivate()) {
                     result.add(var);
                 }
             }
         }
         return result;
+    }
+
+    // Returns a list of all child scopes including this scope.
+    protected List<LocalScope> allLocalScopes() {
+        List<LocalScope> result = new ArrayList<LocalScope>();
+        collectScope(result);
+        return result;
+    }
+
+    protected void collectScope(List<LocalScope> buf) {
+        buf.add(this);
+        for (LocalScope s : children) {
+            s.collectScope(buf);
+        }
+    }
+
+    public void checkReferences(ErrorHandler h) {
+        for (DefinedVariable var : variables.values()) {
+            if (!var.isRefered()) {
+                h.warn(var.location(), "unused variable: " + var.name());
+            }
+        }
+        for (LocalScope c : children) {
+            c.checkReferences(h);
+        }
     }
 }

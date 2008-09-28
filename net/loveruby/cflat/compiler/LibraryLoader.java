@@ -6,12 +6,12 @@ import java.util.*;
 import java.io.*;
 
 public class LibraryLoader {
-    protected List loadPath;
-    protected LinkedList loadingLibraries;      // LinkedList<String>
-    protected Map loadedLibraries;              // Map<String, Boolean>
+    protected List<String> loadPath;
+    protected LinkedList<String> loadingLibraries;
+    protected Map<String, Declarations> loadedLibraries;
 
-    static public List defaultLoadPath() {
-        List pathes = new ArrayList();
+    static public List<String> defaultLoadPath() {
+        List<String> pathes = new ArrayList<String>();
         pathes.add(".");
         return pathes;
     }
@@ -20,10 +20,10 @@ public class LibraryLoader {
         this(defaultLoadPath());
     }
 
-    public LibraryLoader(List loadPath) {
+    public LibraryLoader(List<String> loadPath) {
         this.loadPath = loadPath;
-        this.loadingLibraries = new LinkedList();
-        this.loadedLibraries = new HashMap();
+        this.loadingLibraries = new LinkedList<String>();
+        this.loadedLibraries = new HashMap<String, Declarations>();
     }
 
     public void addLoadPath(String path) {
@@ -38,7 +38,7 @@ public class LibraryLoader {
                                         + ": " + libid);
         }
         loadingLibraries.addLast(libid);   // stop recursive import
-        Declarations decls = (Declarations)loadedLibraries.get(libid);
+        Declarations decls = loadedLibraries.get(libid);
         if (decls != null) {
             // Already loaded import file.  Returns cached declarations.
             return decls;
@@ -51,9 +51,7 @@ public class LibraryLoader {
 
     public File searchLibrary(String libid) throws FileException {
         try {
-            Iterator pathes = loadPath.iterator();
-            while (pathes.hasNext()) {
-                String path = (String)pathes.next();
+            for (String path : loadPath) {
                 File file = new File(path + "/" + libPath(libid) + ".hb");
                 if (file.exists()) {
                     return file;

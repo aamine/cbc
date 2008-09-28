@@ -5,10 +5,11 @@ import java.util.*;
 public class CaseNode extends StmtNode {
     protected LabelPool pool;
     protected Label beginLabel;
-    protected List values;      // List<Node>
+    protected List<ExprNode> values;
     protected BlockNode body;
 
-    public CaseNode(Location loc, LabelPool pool, List values, BlockNode body) {
+    public CaseNode(Location loc, LabelPool pool,
+                    List<ExprNode> values, BlockNode body) {
         super(loc);
         this.pool = pool;
         this.values = values;
@@ -16,8 +17,8 @@ public class CaseNode extends StmtNode {
         this.beginLabel = null;
     }
 
-    public Iterator values() {
-        return values.iterator();
+    public List<ExprNode> values() {
+        return values;
     }
 
     public boolean isDefault() {

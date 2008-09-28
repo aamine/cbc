@@ -10,9 +10,8 @@ abstract public class Visitor implements ASTVisitor {
         node.accept(this);
     }
 
-    protected void visitNodeList(Iterator ns) {
-        while (ns.hasNext()) {
-            Node n = (Node)ns.next();
+    protected void visitNodeList(List<? extends Node> nodes) {
+        for (Node n : nodes) {
             visitNode(n);
         }
     }
@@ -50,9 +49,7 @@ abstract public class Visitor implements ASTVisitor {
     //
 
     public void visit(BlockNode node) {
-        Iterator vars = node.variables();
-        while (vars.hasNext()) {
-            DefinedVariable var = (DefinedVariable)vars.next();
+        for (DefinedVariable var : node.variables()) {
             visit(var);
         }
         visitNodeList(node.stmts());

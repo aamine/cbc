@@ -1,12 +1,12 @@
 package net.loveruby.cflat.ast;
 import java.util.*;
 
-public class ConstantTable {
-    protected Map table;
+public class ConstantTable implements Iterable<ConstantEntry> {
+    protected Map<String, ConstantEntry> table;
     protected long id;
 
     public ConstantTable() {
-        table = new LinkedHashMap();
+        table = new LinkedHashMap<String, ConstantEntry>();
         id = 0;
     }
 
@@ -15,7 +15,7 @@ public class ConstantTable {
     }
 
     public ConstantEntry intern(String s) {
-        ConstantEntry ent = (ConstantEntry)table.get(s);
+        ConstantEntry ent = table.get(s);
         if (ent == null) {
             ent = new ConstantEntry(id++, s);
             table.put(s, ent);
@@ -23,7 +23,11 @@ public class ConstantTable {
         return ent;
     }
 
-    public Iterator entries() {
+    public Collection<ConstantEntry> entries() {
+        return table.values();
+    }
+
+    public Iterator<ConstantEntry> iterator() {
         return table.values().iterator();
     }
 }
