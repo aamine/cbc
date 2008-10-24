@@ -279,12 +279,12 @@ public class PeepholeOptimizer implements AsmOptimizer {
          *          mov
          *          add
          */
-        protected boolean doesLabelFollows(Cursor<Assembly> asms, Label jmpDest) {
+        protected boolean doesLabelFollows(Cursor<Assembly> asms, Symbol jmpDest) {
             while (asms.hasNext()) {
                 Assembly asm = asms.next();
                 if (asm.isLabel()) {
                     Label label = (Label)asm;
-                    if (label.equals(jmpDest)) {
+                    if (label.symbol().equals(jmpDest)) {
                         return true;
                     }
                     else {

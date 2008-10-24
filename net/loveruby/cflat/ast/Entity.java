@@ -1,5 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.asm.Symbol;
+import net.loveruby.cflat.asm.NamedSymbol;
 import net.loveruby.cflat.asm.AsmOperand;
 import net.loveruby.cflat.asm.MemoryReference;
 
@@ -20,8 +22,8 @@ abstract public class Entity extends Node {
         return name;
     }
 
-    public String symbol() {
-        return name();
+    public Symbol symbol() {
+        return new NamedSymbol(name);
     }
 
     abstract public boolean isDefined();

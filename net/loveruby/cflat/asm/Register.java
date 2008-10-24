@@ -81,7 +81,7 @@ public class Register extends AsmOperand {
         stats.registerUsed(this);
     }
 
-    public String toSource() {
+    public String toSource(SymbolTable table) {
         return "%" + name();
     }
 }

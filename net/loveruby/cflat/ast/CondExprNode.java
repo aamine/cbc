@@ -1,20 +1,18 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.LabelPool;
 import net.loveruby.cflat.asm.Label;
 
 public class CondExprNode extends ExprNode {
     protected ExprNode cond, thenExpr, elseExpr;
-    protected LabelPool pool;
     protected Label elseLabel, endLabel;
 
-    public CondExprNode(LabelPool pool,
-                        ExprNode cond, ExprNode t, ExprNode e) {
+    public CondExprNode(ExprNode cond, ExprNode t, ExprNode e) {
         super();
-        this.pool = pool;
         this.cond = cond;
         this.thenExpr = t;
         this.elseExpr = e;
+        this.elseLabel = new Label();
+        this.endLabel = new Label();
     }
 
     public Type type() {
@@ -42,16 +40,10 @@ public class CondExprNode extends ExprNode {
     }
 
     public Label elseLabel() {
-        if (elseLabel == null) {
-            elseLabel = pool.newLabel();
-        }
         return elseLabel;
     }
 
     public Label endLabel() {
-        if (endLabel == null) {
-            endLabel = pool.newLabel();
-        }
         return endLabel;
     }
 

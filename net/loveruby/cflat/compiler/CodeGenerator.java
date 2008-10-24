@@ -27,8 +27,9 @@ public class CodeGenerator
     public String generate(AST ast) {
         this.typeTable = ast.typeTable();
         pushAssembler();
+        SymbolTable constSymbols = new SymbolTable(Assembler.CONST_SYMBOL_BASE);
         for (ConstantEntry ent : ast.constantTable().entries()) {
-            locateConstant(ent);
+            locateConstant(ent, constSymbols);
         }
         for (Variable var : ast.allGlobalVariables()) {
             locateGlobalVariable(var);
@@ -86,33 +87,32 @@ public class CodeGenerator
     }
     // #@@}
 
-    protected void locateConstant(ConstantEntry ent) {
-        ent.setLabel(new Label(".LC" + ent.id()));
+    protected void locateConstant(ConstantEntry ent, SymbolTable symbols) {
+        ent.setSymbol(symbols.newSymbol());
         if (options.isPICRequired()) {
-            Label offset = new Label(localGOTSymbol(ent.symbol()));
+            Symbol offset = localGOTSymbol(ent.symbol());
             ent.setMemref(mem(offset, GOTBaseReg()));
         }
         else {
-            ent.setMemref(mem(ent.label()));
-            ent.setAddress(imm(ent.label()));
+            ent.setMemref(mem(ent.symbol()));
+            ent.setAddress(imm(ent.symbol()));
         }
     }
 
     protected void locateGlobalVariable(Variable var) {
-        String sym = var.symbol();
         MemoryReference mem;
         if (options.isPICRequired()) {
             if (var.isPrivate()) {
-                mem = mem(new Label(localGOTSymbol(sym)), GOTBaseReg());
+                mem = mem(localGOTSymbol(var.symbol()), GOTBaseReg());
                 var.setMemref(mem);
             }
             else {
-                mem = mem(new Label(globalGOTSymbol(sym)), GOTBaseReg());
+                mem = mem(globalGOTSymbol(var.symbol()), GOTBaseReg());
                 var.setAddress(mem);
             }
         }
         else {
-            mem = mem(new Label(csymbol(sym)));
+            mem = mem(globalSymbol(var.symbolString()));
             var.setMemref(mem);
         }
     }
@@ -122,45 +122,42 @@ public class CodeGenerator
         func.setAddress(functionAddress(func));
     }
 
-    protected String functionSymbol(Function func) {
+    protected Symbol functionSymbol(Function func) {
         if (func.isDefined()) {
-            return csymbol(func.name());
+            return globalSymbol(func.name());
         }
         else {
-            if (options.isPICRequired()) {
-                return PLTSymbol(tmpsymbol(func.name()));
-            }
-            else {
-                return tmpsymbol(func.name());
-            }
+            Symbol sym = privateSymbol(func.name());
+            return options.isPICRequired() ? PLTSymbol(sym) : sym;
         }
     }
 
     protected AsmOperand functionAddress(Function func) {
+        Symbol sym = new NamedSymbol(func.name());
         if (options.isPICRequired()) {
-            String name = func.name();
             if (func.isPrivate()) {
-                return mem(new Label(localGOTSymbol(name)), GOTBaseReg());
+                return mem(localGOTSymbol(sym), GOTBaseReg());
             }
             else {
-                return mem(new Label(globalGOTSymbol(name)), GOTBaseReg());
+                return mem(globalGOTSymbol(sym), GOTBaseReg());
             }
         }
         else {
-            return imm(func.label());
+            return imm(sym);
         }
     }
 
     /** Generates initialized entries */
     // #@@range/dataEntry{
     protected void dataEntry(DefinedVariable ent) {
+        Symbol sym = globalSymbol(ent.symbolString());
         if (!ent.isPrivate()) {
-            _globl(csymbol(ent.symbol()));
+            _globl(sym);
         }
         _align(ent.alignment());
-        _type(csymbol(ent.symbol()), "@object");
-        _size(csymbol(ent.symbol()), ent.allocSize());
-        label(csymbol(ent.symbol()));
+        _type(sym, "@object");
+        _size(sym, ent.allocSize());
+        label(sym);
         compileImmediate(ent.type(), ent.initializer());
     }
     // #@@}
@@ -182,8 +179,8 @@ public class CodeGenerator
         else if (node instanceof StringLiteralNode) {
             StringLiteralNode expr = (StringLiteralNode)node;
             switch ((int)type.allocSize()) {
-            case 4: _long(expr.label());   break;
-            case 8: _quad(expr.label());   break;
+            case 4: _long(expr.symbol());   break;
+            case 8: _quad(expr.symbol());   break;
             default:
                 throw new Error("pointer size must be 4,8");
             }
@@ -197,32 +194,33 @@ public class CodeGenerator
     /** Generates BSS entries */
     // #@@range/compileCommonSymbol{
     protected void compileCommonSymbol(DefinedVariable var) {
+        Symbol sym = globalSymbol(var.symbolString());
         if (var.isPrivate()) {
-            _local(csymbol(var.symbol()));
+            _local(sym);
         }
-        _comm(csymbol(var.symbol()), var.allocSize(), var.alignment());
+        _comm(sym, var.allocSize(), var.alignment());
     }
     // #@@}
 
     /** Generates .rodata entry (constant strings) */
     // #@@range/compileStringLiteral{
     protected void compileStringLiteral(ConstantEntry ent) {
-        label(ent.label());
+        label(ent.symbol());
         _string(ent.value());
     }
     // #@@}
 
-    // #@@range/tmpsymbol{
+    // #@@range/globalSymbol{
     // platform dependent
-    protected String tmpsymbol(String sym) {
-        return sym;
+    protected Symbol globalSymbol(String sym) {
+        return new NamedSymbol(sym);
     }
     // #@@}
 
-    // #@@range/csymbol{
+    // #@@range/privateSymbol{
     // platform dependent
-    protected String csymbol(String sym) {
-        return sym;
+    protected Symbol privateSymbol(String sym) {
+        return new NamedSymbol(sym);
     }
     // #@@}
 
@@ -230,31 +228,15 @@ public class CodeGenerator
     // PIC related constants and codes
     //
 
-    static protected final String GOTName = "_GLOBAL_OFFSET_TABLE_";
+    static protected final Symbol GOT = new NamedSymbol("_GLOBAL_OFFSET_TABLE_");
 
     protected void loadGOTBaseAddress(Register reg) {
-        call(PICThunkName(reg));
-        add(imm(new Label(GOTName)), reg);
+        call(PICThunkSymbol(reg));
+        add(imm(GOT), reg);
     }
 
-    protected String PICThunkName(Register reg) {
-        return "__i686.get_pc_thunk." + reg.baseName();
-    }
-
-    protected Register GOTBaseReg() {
-        return reg("bx");
-    }
-
-    protected String globalGOTSymbol(String base) {
-        return base + "@GOT";
-    }
-
-    protected String localGOTSymbol(String base) {
-        return base + "@GOTOFF";
-    }
-
-    protected String PLTSymbol(String base) {
-        return base + "@PLT";
+    protected Symbol PICThunkSymbol(Register reg) {
+        return new NamedSymbol("__i686.get_pc_thunk." + reg.baseName());
     }
 
     static protected final String
@@ -273,17 +255,34 @@ public class CodeGenerator
         //
         //     .section NAME, "...M", TYPE, section_group_name, linkage
         //
-        _section(".text" + "." + PICThunkName(reg),
+        Symbol sym = PICThunkSymbol(reg);
+        _section(".text" + "." + sym.toSource(),
                  "\"" + PICThunkSectionFlags + "\"",
                  SectionType_bits,      // This section contains data
-                 PICThunkName(reg),     // The name of section group
+                 sym.toSource(),        // The name of section group
                 Linkage_linkonce);      // Only 1 copy should be generated
-        _globl(PICThunkName(reg));
-        _hidden(PICThunkName(reg));
-        _type(PICThunkName(reg), SymbolType_function);
-        label(PICThunkName(reg));
+        _globl(sym);
+        _hidden(sym);
+        _type(sym, SymbolType_function);
+        label(sym);
         mov(mem(sp()), reg);    // fetch saved EIP to the GOT base register
         ret();
+    }
+
+    protected Register GOTBaseReg() {
+        return reg("bx");
+    }
+
+    protected Symbol globalGOTSymbol(Symbol base) {
+        return new SuffixedSymbol(base, "@GOT");
+    }
+
+    protected Symbol localGOTSymbol(Symbol base) {
+        return new SuffixedSymbol(base, "@GOTOFF");
+    }
+
+    protected Symbol PLTSymbol(Symbol base) {
+        return new SuffixedSymbol(base, "@PLT");
     }
 
     //
@@ -296,14 +295,14 @@ public class CodeGenerator
         allocateParameters(func);
         allocateLocalVariablesTemp(func.body().scope());
 
-        String symbol = csymbol(func.name());
+        Symbol sym = globalSymbol(func.name());
         if (! func.isPrivate()) {
-            _globl(symbol);
+            _globl(sym);
         }
-        _type(symbol, "@function");
-        label(symbol);
+        _type(sym, "@function");
+        label(sym);
         compileFunctionBody(func);
-        _size(symbol, ".-" + symbol);
+        _size(sym, ".-" + sym.toSource());
     }
     // #@@}
 
@@ -326,7 +325,7 @@ public class CodeGenerator
         pushAssembler();
         currentFunction = func;
         compile(func.body());
-        label(epilogueLabel(func));
+        label(func.epilogueLabel());
         currentFunction = null;
         return options.optimizer().optimize(popAssembler().assemblies());
     }
@@ -334,7 +333,7 @@ public class CodeGenerator
     protected List<Assembly> reduceLabels(List<Assembly> assemblies, AsmStatistics stats) {
         List<Assembly> result = new ArrayList<Assembly>();
         for (Assembly asm : assemblies) {
-            if (asm.isLabel() && ! stats.doesLabelUsed((Label)asm)) {
+            if (asm.isLabel() && ! stats.doesSymbolUsed((Label)asm)) {
                 ;
             }
             else {
@@ -429,7 +428,7 @@ public class CodeGenerator
         extendStack(lvarBytes);
         if (options.isVerboseAsm()) {
             for (DefinedVariable var : func.localVariables()) {
-                comment("mem " + var.memref().toSource() + ": " + var.name());
+                comment("mem " + var.memref() + ": " + var.name());
             }
         }
     }
@@ -464,18 +463,6 @@ public class CodeGenerator
             }
         }
     }
-
-    // #@@range/jmpEpilogue{
-    protected void jmpEpilogue() {
-        jmp(new Label(epilogueLabel(currentFunction)));
-    }
-    // #@@}
-
-    // #@@range/epilogueLabel{
-    protected String epilogueLabel(DefinedFunction func) {
-        return ".L" + func.name() + "$epilogue";
-    }
-    // #@@}
 
     protected void allocateParameters(DefinedFunction func) {
         long word = paramStartWord;
@@ -580,7 +567,7 @@ public class CodeGenerator
         if (node.expr() != null) {
             compile(node.expr());
         }
-        jmpEpilogue();
+        jmp(currentFunction.epilogueLabel());
     }
 
     //
@@ -1164,8 +1151,8 @@ public class CodeGenerator
         return new Register(name);
     }
 
-    protected DirectMemoryReference mem(Label label) {
-        return new DirectMemoryReference(label);
+    protected DirectMemoryReference mem(Symbol sym) {
+        return new DirectMemoryReference(sym);
     }
 
     protected IndirectMemoryReference mem(Register reg) {
@@ -1176,7 +1163,7 @@ public class CodeGenerator
         return new IndirectMemoryReference(offset, reg);
     }
 
-    protected IndirectMemoryReference mem(Label offset, Register reg) {
+    protected IndirectMemoryReference mem(Symbol offset, Register reg) {
         return new IndirectMemoryReference(offset, reg);
     }
 
@@ -1184,8 +1171,8 @@ public class CodeGenerator
         return new ImmediateValue(n);
     }
 
-    protected ImmediateValue imm(Label label) {
-        return new ImmediateValue(label);
+    protected ImmediateValue imm(Symbol sym) {
+        return new ImmediateValue(sym);
     }
 
     protected ImmediateValue imm(Literal lit) {
@@ -1224,22 +1211,22 @@ public class CodeGenerator
     public void _data() { as._data(); }
     public void _section(String name) { as._section(name); }
     public void _section(String name, String flags, String type, String group, String linkage) { as._section(name, flags, type, group, linkage); }
-    public void _globl(String sym) { as._globl(sym); }
-    public void _local(String sym) { as._local(sym); }
-    public void _hidden(String sym) { as._hidden(sym); }
-    public void _comm(String sym, long sz, long a) { as._comm(sym, sz, a); }
+    public void _globl(Symbol sym) { as._globl(sym); }
+    public void _local(Symbol sym) { as._local(sym); }
+    public void _hidden(Symbol sym) { as._hidden(sym); }
+    public void _comm(Symbol sym, long sz, long a) { as._comm(sym, sz, a); }
     public void _align(long n) { as._align(n); }
-    public void _type(String sym, String type) { as._type(sym, type); }
-    public void _size(String sym, long size) { as._size(sym, size); }
-    public void _size(String sym, String size) { as._size(sym, size); }
-    public void _byte(long n) { as._byte(n); }
-    public void _value(long n) { as._value(n); }
-    public void _long(long n) { as._long(n); }
-    public void _long(Label label) { as._long(label); }
-    public void _quad(long n) { as._quad(n); }
-    public void _quad(Label label) { as._quad(label); }
+    public void _type(Symbol sym, String type) { as._type(sym, type); }
+    public void _size(Symbol sym, long size) { as._size(sym, size); }
+    public void _size(Symbol sym, String size) { as._size(sym, size); }
+    public void _byte(long n) { as._byte(new IntegerLiteral(n)); }
+    public void _value(long n) { as._value(new IntegerLiteral(n)); }
+    public void _long(long n) { as._long(new IntegerLiteral(n)); }
+    public void _long(Symbol sym) { as._long(sym); }
+    public void _quad(long n) { as._quad(new IntegerLiteral(n)); }
+    public void _quad(Symbol sym) { as._quad(sym); }
     public void _string(String str) { as._string(str); }
-    public void label(String sym) { as.label(sym); }
+    public void label(Symbol sym) { as.label(sym); }
     public void label(Label label) { as.label(label); }
 
     public void jmp(Label label) { as.jmp(label); }
@@ -1261,7 +1248,7 @@ public class CodeGenerator
     public void test(Type type, Register a, Register b) { as.test(type, a, b); }
     public void push(Register reg) { as.push(reg); }
     public void pop(Register reg) { as.pop(reg); }
-    public void call(String sym) { as.call(sym); }
+    public void call(Symbol sym) { as.call(sym); }
     public void callAbsolute(Register reg) { as.callAbsolute(reg); }
     public void ret() { as.ret(); }
     public void mov(AsmOperand src, AsmOperand dest) { as.mov(src, dest); }

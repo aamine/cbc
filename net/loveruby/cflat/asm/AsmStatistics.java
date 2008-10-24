@@ -4,7 +4,7 @@ import java.util.*;
 public class AsmStatistics {
     protected Map<Register, Integer> registerUsage;
     protected Map<String, Integer> insnUsage;
-    protected Map<Label, Integer> labelUsage;
+    protected Map<Symbol, Integer> symbolUsage;
 
     static public AsmStatistics collect(List<Assembly> assemblies) {
         AsmStatistics stats = new AsmStatistics();
@@ -17,7 +17,7 @@ public class AsmStatistics {
     public AsmStatistics() {
         registerUsage = new HashMap<Register, Integer>();
         insnUsage = new HashMap<String, Integer>();
-        labelUsage = new HashMap<Label, Integer>();
+        symbolUsage = new HashMap<Symbol, Integer>();
     }
 
     public boolean doesRegisterUsed(Register reg) {
@@ -40,16 +40,20 @@ public class AsmStatistics {
         incrementCount(insnUsage, insn);
     }
 
-    public boolean doesLabelUsed(Label label) {
-        return numLabelUsed(label) > 0;
+    public boolean doesSymbolUsed(Label label) {
+        return doesSymbolUsed(label.symbol());
     }
 
-    public int numLabelUsed(Label label) {
-        return fetchCount(labelUsage, label);
+    public boolean doesSymbolUsed(Symbol sym) {
+        return numSymbolUsed(sym) > 0;
     }
 
-    public void labelUsed(Label label) {
-        incrementCount(labelUsage, label);
+    public int numSymbolUsed(Symbol sym) {
+        return fetchCount(symbolUsage, sym);
+    }
+
+    public void symbolUsed(Symbol sym) {
+        incrementCount(symbolUsage, sym);
     }
 
     protected <K> int fetchCount(Map<K, Integer> m, K key) {

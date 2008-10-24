@@ -3,12 +3,8 @@ package net.loveruby.cflat.asm;
 public class DirectMemoryReference extends MemoryReference {
     protected Literal value;
 
-    public DirectMemoryReference(Label label) {
-        this.value = new LabelRef(label);
-    }
-
-    public DirectMemoryReference(IntegerLiteral n) {
-        this.value = n;
+    public DirectMemoryReference(Literal val) {
+        this.value = val;
     }
 
     public Literal value() {
@@ -19,7 +15,11 @@ public class DirectMemoryReference extends MemoryReference {
         value.collectStatistics(stats);
     }
 
-    public String toSource() {
-        return this.value.toSource();
+    public String toString() {
+        return toSource(SymbolTable.dummy());
+    }
+
+    public String toSource(SymbolTable table) {
+        return this.value.toSource(table);
     }
 }

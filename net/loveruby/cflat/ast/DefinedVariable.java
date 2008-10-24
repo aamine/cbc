@@ -1,10 +1,12 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.Label;
+import net.loveruby.cflat.asm.Symbol;
+import net.loveruby.cflat.asm.NamedSymbol;
 
 public class DefinedVariable extends Variable {
-    protected long sequence;
     protected ExprNode initializer;
+    protected long sequence;
+    protected Symbol symbol;
 
     public DefinedVariable(boolean priv, TypeNode type,
                            String name, ExprNode init) {
@@ -21,7 +23,17 @@ public class DefinedVariable extends Variable {
         this.sequence = seq;
     }
 
-    public String symbol() {
+    public Symbol symbol() {
+        if (symbol != null) {
+            return symbol;
+        }
+        else {
+            symbol = new NamedSymbol(symbolString());
+            return symbol;
+        }
+    }
+
+    public String symbolString() {
         return (sequence < 0) ? name : (name + "." + sequence);
     }
 

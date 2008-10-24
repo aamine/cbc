@@ -11,6 +11,8 @@ abstract public class Variable extends Entity {
         super(priv, type, name);
     }
 
+    abstract public String symbolString();
+
     public boolean cannotLoad() {
         return type().isAllocatedArray();
     }

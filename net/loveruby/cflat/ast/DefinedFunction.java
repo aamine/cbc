@@ -1,29 +1,29 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.compiler.ErrorHandler;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.LabelPool;
+import net.loveruby.cflat.asm.Symbol;
+import net.loveruby.cflat.asm.BaseSymbol;
 import net.loveruby.cflat.asm.Label;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 public class DefinedFunction extends Function {
-    protected LabelPool labelPool;
     protected Params params;
     protected BlockNode body;
     protected Map<String, JumpEntry> jumpMap;
     protected LocalScope scope;
+    protected Label epilogueLabel;
 
-    public DefinedFunction(LabelPool pool,
-                           boolean priv,
+    public DefinedFunction(boolean priv,
                            TypeNode type,
                            String name,
                            Params params,
                            BlockNode body) {
         super(priv, type, name);
-        this.labelPool = pool;
         this.params = params;
         this.body = body;
         this.jumpMap = new HashMap<String, JumpEntry>();
+        this.epilogueLabel = new Label();
     }
 
     public boolean isDefined() {
@@ -49,6 +49,10 @@ public class DefinedFunction extends Function {
      */
     public List<DefinedVariable> localVariables() {
         return scope.allLocalVariables();
+    }
+
+    public Label epilogueLabel() {
+        return this.epilogueLabel;
     }
 
     class JumpEntry {
@@ -85,7 +89,7 @@ public class DefinedFunction extends Function {
     protected JumpEntry getJumpEntry(String name) {
         JumpEntry ent = jumpMap.get(name);
         if (ent == null) {
-            ent = new JumpEntry(labelPool.newLabel());
+            ent = new JumpEntry(new Label());
             jumpMap.put(name, ent);
         }
         return ent;

@@ -1,7 +1,7 @@
 package net.loveruby.cflat.asm;
 
 abstract public class AsmOperand implements OperandPattern {
-    abstract public String toSource();
+    abstract public String toSource(SymbolTable table);
 
     public boolean isRegister() {
         return false;

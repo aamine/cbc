@@ -1,41 +1,31 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.Label;
+import net.loveruby.cflat.asm.Symbol;
 import net.loveruby.cflat.asm.ImmediateValue;
 import net.loveruby.cflat.asm.MemoryReference;
 
 public class ConstantEntry {
-    protected long id;
     protected String value;
-    protected Label label;
+    protected Symbol symbol;
     protected MemoryReference memref;
     protected ImmediateValue address;
 
-    public ConstantEntry(long i, String val) {
-        id = i;
+    public ConstantEntry(String val) {
         value = val;
-    }
-
-    public long id() {
-        return id;
     }
 
     public String value() {
         return value;
     }
 
-    public String symbol() {
-        return this.label.toString();
+    public void setSymbol(Symbol sym) {
+        this.symbol = sym;
     }
 
-    public void setLabel(Label label) {
-        this.label = label;
-    }
-
-    public Label label() {
-        if (this.label == null) {
-            throw new Error("must not happen: label == null");
+    public Symbol symbol() {
+        if (symbol == null) {
+            throw new Error("must not happen: symbol == null");
         }
-        return this.label;
+        return symbol;
     }
 
     public void setMemref(MemoryReference mem) {

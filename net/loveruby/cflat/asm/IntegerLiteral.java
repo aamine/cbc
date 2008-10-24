@@ -1,6 +1,6 @@
 package net.loveruby.cflat.asm;
 
-public class IntegerLiteral extends Literal {
+public class IntegerLiteral implements Literal {
     protected long value;
 
     public IntegerLiteral(long n) {
@@ -28,11 +28,15 @@ public class IntegerLiteral extends Literal {
         return this;
     }
 
-    public void collectStatistics(AsmStatistics stats) {
-        // does nothing
-    }
-
     public String toSource() {
         return new Long(value).toString();
+    }
+
+    public String toSource(SymbolTable table) {
+        return toSource();
+    }
+
+    public void collectStatistics(AsmStatistics stats) {
+        // does nothing
     }
 }

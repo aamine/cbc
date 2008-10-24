@@ -1,20 +1,17 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.LabelPool;
 import net.loveruby.cflat.asm.Label;
 import java.util.*;
 
 public class SwitchNode extends StmtNode implements BreakableStmt {
-    protected LabelPool pool;
     protected ExprNode cond;
     protected List<CaseNode> cases;
     protected Label endLabel;
 
-    public SwitchNode(Location loc, LabelPool pool,
-                      ExprNode cond, List<CaseNode> cases) {
+    public SwitchNode(Location loc, ExprNode cond, List<CaseNode> cases) {
         super(loc);
-        this.pool = pool;
         this.cond = cond;
         this.cases = cases;
+        this.endLabel = new Label();
     }
 
     public ExprNode cond() {
@@ -26,9 +23,6 @@ public class SwitchNode extends StmtNode implements BreakableStmt {
     }
 
     public Label endLabel() {
-        if (endLabel == null) {
-            endLabel = pool.newLabel();
-        }
         return endLabel;
     }
 

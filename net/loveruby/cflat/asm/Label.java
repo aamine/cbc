@@ -1,53 +1,25 @@
 package net.loveruby.cflat.asm;
 
 public class Label extends Assembly {
-    protected long seq;
-    protected String name;
+    protected Symbol symbol;
 
-    public Label(String n) {
-        seq = -1;
-        name = n;
+    public Label() {
+        this(new UnnamedSymbol());
     }
 
-    public Label(long s, String n) {
-        seq = s;
-        name = n;
+    public Label(Symbol sym) {
+        this.symbol = sym;
+    }
+    
+    public Symbol symbol() {
+        return symbol;
     }
 
     public boolean isLabel() {
         return true;
     }
 
-    public long seq() {
-        return seq;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public boolean equals(Object other) {
-        if (other instanceof Label) {
-            return equals((Label)other);
-        }
-        else {
-            return false;
-        }
-    }
-
-    public int hashCode() {
-        return name.hashCode();
-    }
-
-    public boolean equals(Label label) {
-        return name.equals(label.name());
-    }
-
-    public String toSource() {
-        return name + ":";
-    }
-
-    public String toString() {
-        return name;
+    public String toSource(SymbolTable table) {
+        return symbol.toSource(table) + ":";
     }
 }

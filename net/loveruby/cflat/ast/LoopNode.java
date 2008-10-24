@@ -1,28 +1,21 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.LabelPool;
 import net.loveruby.cflat.asm.Label;
 
 abstract public class LoopNode extends StmtNode
         implements BreakableStmt, ContinueableStmt {
-    protected LabelPool pool;
     protected Label begLabel, endLabel;
 
-    public LoopNode(Location loc, LabelPool lp) {
+    public LoopNode(Location loc) {
         super(loc);
-        pool = lp;
+        this.begLabel = new Label();
+        this.endLabel = new Label();
     }
 
     public Label begLabel() {
-        if (begLabel == null) {
-            begLabel = pool.newLabel();
-        }
         return begLabel;
     }
 
     public Label endLabel() {
-        if (endLabel == null) {
-            endLabel = pool.newLabel();
-        }
         return endLabel;
     }
 

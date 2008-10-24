@@ -1,14 +1,12 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.LabelPool;
 import net.loveruby.cflat.asm.Label;
 
 public class WhileNode extends LoopNode {
     protected ExprNode cond;
     protected Node body;
 
-    public WhileNode(Location loc, LabelPool pool,
-                     ExprNode cond, Node body) {
-        super(loc, pool);
+    public WhileNode(Location loc, ExprNode cond, Node body) {
+        super(loc);
         this.cond = cond;
         this.body = body;
     }

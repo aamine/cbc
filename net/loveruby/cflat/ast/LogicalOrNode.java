@@ -1,14 +1,12 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.LabelPool;
 import net.loveruby.cflat.asm.Label;
 
 public class LogicalOrNode extends BinaryOpNode {
-    protected LabelPool pool;
     protected Label endLabel;
 
-    public LogicalOrNode(LabelPool lp, ExprNode left, ExprNode right) {
+    public LogicalOrNode(ExprNode left, ExprNode right) {
         super(left, "||", right);
-        pool = lp;
+        this.endLabel = new Label();
     }
 
     public void accept(ASTVisitor visitor) {
@@ -16,9 +14,6 @@ public class LogicalOrNode extends BinaryOpNode {
     }
 
     public Label endLabel() {
-        if (endLabel == null) {
-            endLabel = pool.newLabel();
-        }
         return endLabel;
     }
 }

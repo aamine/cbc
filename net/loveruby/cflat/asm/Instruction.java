@@ -67,9 +67,9 @@ public class Instruction extends Assembly {
     /**
      * Extract jump destination label from operands.
      */
-    public Label jmpDestination() {
-        DirectMemoryReference ref = (DirectMemoryReference)(operands[0]);
-        return ((LabelRef)ref.value()).label();
+    public Symbol jmpDestination() {
+        DirectMemoryReference ref = (DirectMemoryReference)operands[0];
+        return (Symbol)ref.value();
     }
 
     public void collectStatistics(AsmStatistics stats) {
@@ -79,14 +79,14 @@ public class Instruction extends Assembly {
         }
     }
 
-    public String toSource() {
+    public String toSource(SymbolTable table) {
         StringBuffer buf = new StringBuffer();
         buf.append("\t");
         buf.append(mnemonic + suffix);
         String sep = "\t";
         for (int i = 0; i < operands.length; i++) {
             buf.append(sep); sep = ", ";
-            buf.append(operands[i].toSource());
+            buf.append(operands[i].toSource(table));
         }
         return buf.toString();
     }

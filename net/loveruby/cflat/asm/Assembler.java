@@ -26,10 +26,14 @@ public class Assembler {
         this.assemblies.addAll(assemblies);
     }
 
+    static final public String CODE_SYMBOL_BASE = ".L";
+    static final public String CONST_SYMBOL_BASE = ".LC";
+
     public String toSource() {
+        SymbolTable symbolTable = new SymbolTable(CODE_SYMBOL_BASE);
         StringBuffer buf = new StringBuffer();
         for (Assembly asm : assemblies) {
-            buf.append(asm.toSource());
+            buf.append(asm.toSource(symbolTable));
             buf.append("\n");
         }
         return buf.toString();
@@ -47,7 +51,7 @@ public class Assembler {
         commentIndentLevel--;
     }
 
-    public void label(String sym) {
+    public void label(Symbol sym) {
         assemblies.add(new Label(sym));
     }
 
@@ -121,60 +125,52 @@ public class Assembler {
         directive("\t.section\t" + name + "," + flags + "," + type + "," + group + "," + linkage);
     }
 
-    public void _globl(String sym) {
-        directive(".globl " + sym);
+    public void _globl(Symbol sym) {
+        directive(".globl " + sym.name());
     }
 
-    public void _local(String sym) {
-        directive(".local " + sym);
+    public void _local(Symbol sym) {
+        directive(".local " + sym.name());
     }
 
-    public void _hidden(String sym) {
-        directive("\t.hidden\t" + sym);
+    public void _hidden(Symbol sym) {
+        directive("\t.hidden\t" + sym.name());
     }
 
-    public void _comm(String sym, long size, long alignment) {
-        directive("\t.comm\t" + sym + "," + size + "," + alignment);
+    public void _comm(Symbol sym, long size, long alignment) {
+        directive("\t.comm\t" + sym.name() + "," + size + "," + alignment);
     }
 
     public void _align(long n) {
         directive("\t.align\t" + n);
     }
 
-    public void _type(String sym, String type) {
-        directive("\t.type\t" + sym + "," + type);
+    public void _type(Symbol sym, String type) {
+        directive("\t.type\t" + sym.name() + "," + type);
     }
 
-    public void _size(String sym, long size) {
+    public void _size(Symbol sym, long size) {
         _size(sym, new Long(size).toString());
     }
 
-    public void _size(String sym, String size) {
-        directive("\t.size\t" + sym + "," + size);
+    public void _size(Symbol sym, String size) {
+        directive("\t.size\t" + sym.name() + "," + size);
     }
 
-    public void _byte(long n) {
-        directive(".byte\t" + n);
+    public void _byte(Literal val) {
+        directive(".byte\t" + val.toSource());
     }
 
-    public void _value(long n) {
-        directive(".value\t" + n);
+    public void _value(Literal val) {
+        directive(".value\t" + val.toSource());
     }
 
-    public void _long(long n) {
-        directive(".long\t" + n);
+    public void _long(Literal val) {
+        directive(".long\t" + val.toSource());
     }
 
-    public void _long(Label sym) {
-        directive(".long\t" + sym);
-    }
-
-    public void _quad(long n) {
-        directive(".quad\t" + n);
-    }
-
-    public void _quad(Label sym) {
-        directive(".quad\t" + sym);
+    public void _quad(Literal val) {
+        directive(".quad\t" + val.toSource());
     }
 
     public void _string(String str) {
@@ -186,23 +182,23 @@ public class Assembler {
     //
 
     public void jmp(Label label) {
-        insn("jmp", new DirectMemoryReference(label));
+        insn("jmp", new DirectMemoryReference(label.symbol()));
     }
 
     public void jz(Label label) {
-        insn("jz", new DirectMemoryReference(label));
+        insn("jz", new DirectMemoryReference(label.symbol()));
     }
 
     public void jnz(Label label) {
-        insn("jnz", new DirectMemoryReference(label));
+        insn("jnz", new DirectMemoryReference(label.symbol()));
     }
 
     public void je(Label label) {
-        insn("je", new DirectMemoryReference(label));
+        insn("je", new DirectMemoryReference(label.symbol()));
     }
 
     public void jne(Label label) {
-        insn("jne", new DirectMemoryReference(label));
+        insn("jne", new DirectMemoryReference(label.symbol()));
     }
 
     public void cmp(Type t, AsmOperand a, Register b) {
@@ -262,8 +258,8 @@ public class Assembler {
     }
 
     // call function by relative address
-    public void call(String sym) {
-        insn("call", new DirectMemoryReference(new Label(sym)));
+    public void call(Symbol sym) {
+        insn("call", new DirectMemoryReference(sym));
     }
 
     // call function by absolute address

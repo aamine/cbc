@@ -3,11 +3,9 @@ import java.util.*;
 
 public class ConstantTable implements Iterable<ConstantEntry> {
     protected Map<String, ConstantEntry> table;
-    protected long id;
 
     public ConstantTable() {
         table = new LinkedHashMap<String, ConstantEntry>();
-        id = 0;
     }
 
     public boolean isEmpty() {
@@ -17,7 +15,7 @@ public class ConstantTable implements Iterable<ConstantEntry> {
     public ConstantEntry intern(String s) {
         ConstantEntry ent = table.get(s);
         if (ent == null) {
-            ent = new ConstantEntry(id++, s);
+            ent = new ConstantEntry(s);
             table.put(s, ent);
         }
         return ent;

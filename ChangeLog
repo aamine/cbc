@@ -1,3 +1,33 @@
+Sat Oct 25 03:40:16 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* name code symbols lazily.
+
+	* separate Label and Symbol.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: use Symbol
+	  instead of Label for entity symbol.
+
+	* net/loveruby/cflat/asm/Symbol.java: new interface.
+
+	* net/loveruby/cflat/asm/BaseSymbol.java: new class.
+
+	* net/loveruby/cflat/asm/NamedSymbol.java: new class.
+
+	* net/loveruby/cflat/asm/SuffixedSymbol.java: new class.
+
+	* net/loveruby/cflat/asm/UnnamedSymbol.java: new class.
+
+	* net/loveruby/cflat/asm/SymbolTable.java: new class.
+
+	* net/loveruby/cflat/asm/*.java: Label -> Symbol.
+
+	* net/loveruby/cflat/asm/LabelRef.java: removed.
+
+	* net/loveruby/cflat/ast/*.java: Label -> Symbol.
+
+	* net/loveruby/cflat/parser/Parser.jj: does not pass a LabelPool
+	  anymore.
+
 Fri Oct 24 23:03:26 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/*.java: minimize references to asm/*.

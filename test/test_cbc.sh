@@ -38,25 +38,25 @@ test_06_variables() {
     assert_out "1;2;3;4;5" ./lvar2
     assert_out "4;80;0;local" ./initializer
 
-    assert_out "1;2;OK;NEW" ./comm
-    assert_public comm global_int
+    assert_out "1;2;OK;NEW" ./comm &&
+    assert_public comm global_int &&
     assert_public comm global_string
-    assert_out "1;2;OK;NEW" ./scomm
-    assert_private scomm static_common_symbol
+    assert_out "1;2;OK;NEW" ./scomm &&
+    assert_private scomm static_common_symbol &&
     assert_private scomm static_common_string
 
-    assert_out "1;2;OK;NEW" ./gvar
-    assert_public comm global_int
+    assert_out "1;2;OK;NEW" ./gvar &&
+    assert_public comm global_int &&
     assert_public comm global_string
-    assert_out "1;2;OK;NEW" ./sgvar
-    assert_private sgvar static_global_variable
+    assert_out "1;2;OK;NEW" ./sgvar &&
+    assert_private sgvar static_global_variable &&
     assert_private sgvar static_global_string
 
-    assert_out "1;2;OK;NEW" ./slvar
-    assert_private slvar static_variable
+    assert_out "1;2;OK;NEW" ./slvar &&
+    assert_private slvar static_variable &&
     assert_private slvar static_string
-    assert_out "1;2;OK;NEW" ./slcomm
-    assert_private slcomm static_variable
+    assert_out "1;2;OK;NEW" ./slcomm &&
+    assert_private slcomm static_variable &&
     assert_private slcomm static_string
 }
 
@@ -143,7 +143,7 @@ test_18_array() {
     assert_out "1;5;9" ./array
     assert_out "0;0;0" ./array2
     assert_out "3;4;5;6;7;8;9;10;11;" ./mdarray
-    assert_compile_success mdarray2.cb
+    assert_compile_success mdarray2.cb &&
     if ruby_exists
     then
         local offsets=$(./mdarray2 | ruby -e '
@@ -278,7 +278,7 @@ test_29_import() {
 }
 
 test_30_staticfunction() {
-    assert_compile_success staticfunc.cb
+    assert_compile_success staticfunc.cb &&
     assert_private staticfunc private_function
 }
 
@@ -294,7 +294,7 @@ test_32_noreturn() {
 }
 
 test_33_multipleinput() {
-    assert_compile_success src1.cb src2.cb -o src
+    assert_compile_success src1.cb src2.cb -o src &&
     assert_status 4 ./src
 }
 

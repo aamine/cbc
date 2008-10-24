@@ -11,7 +11,7 @@ public class Directive extends Assembly {
         return true;
     }
 
-    public String toSource() {
+    public String toSource(SymbolTable table) {
         return this.content;
     }
 }

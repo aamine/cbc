@@ -1,21 +1,17 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.LabelPool;
 import net.loveruby.cflat.asm.Label;
 import java.util.*;
 
 public class CaseNode extends StmtNode {
-    protected LabelPool pool;
     protected Label beginLabel;
     protected List<ExprNode> values;
     protected BlockNode body;
 
-    public CaseNode(Location loc, LabelPool pool,
-                    List<ExprNode> values, BlockNode body) {
+    public CaseNode(Location loc, List<ExprNode> values, BlockNode body) {
         super(loc);
-        this.pool = pool;
         this.values = values;
         this.body = body;
-        this.beginLabel = null;
+        this.beginLabel = new Label();
     }
 
     public List<ExprNode> values() {
@@ -31,9 +27,6 @@ public class CaseNode extends StmtNode {
     }
 
     public Label beginLabel() {
-        if (beginLabel == null) {
-            beginLabel = pool.newLabel();
-        }
         return beginLabel;
     }
 

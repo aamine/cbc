@@ -15,7 +15,7 @@ public class AbsoluteAddress extends AsmOperand {
         register.collectStatistics(stats);
     }
 
-    public String toSource() {
-        return "*" + register.toSource();
+    public String toSource(SymbolTable table) {
+        return "*" + register.toSource(table);
     }
 }

@@ -1,19 +1,20 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.LabelPool;
 import net.loveruby.cflat.asm.Label;
 
 public class IfNode extends StmtNode {
     protected ExprNode cond;
-    protected Node thenBody, elseBody;
-    protected LabelPool pool;
-    protected Label elseLabel, endLabel;
+    protected Node thenBody;
+    protected Node elseBody;
+    protected Label elseLabel;
+    protected Label endLabel;
 
-    public IfNode(Location loc, LabelPool lp, ExprNode c, Node t, Node e) {
+    public IfNode(Location loc, ExprNode c, Node t, Node e) {
         super(loc);
-        pool = lp;
-        cond = c;
-        thenBody = t;
-        elseBody = e;
+        this.cond = c;
+        this.thenBody = t;
+        this.elseBody = e;
+        this.elseLabel = new Label();
+        this.endLabel = new Label();
     }
 
     public ExprNode cond() {
@@ -29,16 +30,10 @@ public class IfNode extends StmtNode {
     }
 
     public Label elseLabel() {
-        if (elseLabel == null) {
-            elseLabel = pool.newLabel();
-        }
         return elseLabel;
     }
 
     public Label endLabel() {
-        if (endLabel == null) {
-            endLabel = pool.newLabel();
-        }
         return endLabel;
     }
 

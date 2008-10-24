@@ -1,6 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.Label;
+import net.loveruby.cflat.asm.Symbol;
 import net.loveruby.cflat.asm.AsmOperand;
 import net.loveruby.cflat.asm.ImmediateValue;
 import net.loveruby.cflat.asm.MemoryReference;
@@ -24,9 +24,9 @@ public class StringLiteralNode extends LiteralNode {
         entry = ent;
     }
 
-    public Label label() {
+    public Symbol symbol() {
         checkEntry();
-        return entry.label();
+        return entry.symbol();
     }
 
     public MemoryReference memref() {
@@ -39,11 +39,6 @@ public class StringLiteralNode extends LiteralNode {
 
     public ImmediateValue asmValue() {
         return entry.address();
-    }
-
-    protected long id() {
-        checkEntry();
-        return entry.id();
     }
 
     protected void checkEntry() {

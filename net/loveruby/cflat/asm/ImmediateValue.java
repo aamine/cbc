@@ -7,10 +7,6 @@ public class ImmediateValue extends AsmOperand {
         this(new IntegerLiteral(n));
     }
 
-    public ImmediateValue(Label label) {
-        this(new LabelRef(label));
-    }
-
     public ImmediateValue(Literal expr) {
         this.expr = expr;
     }
@@ -29,7 +25,7 @@ public class ImmediateValue extends AsmOperand {
         // does nothing
     }
 
-    public String toSource() {
-        return "$" + expr.toSource();
+    public String toSource(SymbolTable table) {
+        return "$" + expr.toSource(table);
     }
 }

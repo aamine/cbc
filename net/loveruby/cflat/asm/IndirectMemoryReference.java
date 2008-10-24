@@ -17,8 +17,8 @@ public class IndirectMemoryReference extends MemoryReference {
         this.fixed = true;
     }
 
-    public IndirectMemoryReference(Label offset, Register base) {
-        this.offset = new LabelRef(offset);
+    public IndirectMemoryReference(Symbol offset, Register base) {
+        this.offset = offset;
         this.base = base;
         this.fixed = true;
     }
@@ -43,11 +43,15 @@ public class IndirectMemoryReference extends MemoryReference {
         base.collectStatistics(stats);
     }
 
-    public String toSource() {
+    public String toString() {
+        return toSource(SymbolTable.dummy());
+    }
+
+    public String toSource(SymbolTable table) {
         if (! fixed) {
             throw new Error("must not happen: writing unfixed variable");
         }
-        return (offset.isZero() ? "" : offset.toSource())
-                + "(" + base.toSource() + ")";
+        return (offset.isZero() ? "" : offset.toSource(table))
+                + "(" + base.toSource(table) + ")";
     }
 }

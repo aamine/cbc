@@ -1,12 +1,15 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.Label;
+import net.loveruby.cflat.asm.Symbol;
+import net.loveruby.cflat.asm.NamedSymbol;
 import net.loveruby.cflat.asm.AsmOperand;
 import net.loveruby.cflat.asm.MemoryReference;
 import java.util.*;
 
 abstract public class Function extends Entity {
-    protected String symbol;
+    protected Symbol symbol;
+    protected Label label;
     protected AsmOperand address;
 
     public Function(boolean priv, TypeNode t, String name) {
@@ -34,18 +37,27 @@ abstract public class Function extends Entity {
         return true;
     }
 
-    public void setSymbol(String sym) {
+    public void setSymbol(Symbol sym) {
         if (this.symbol != null) {
             throw new Error("must not happen: Function#symbol was set again");
         }
         this.symbol = sym;
     }
 
-    public String symbol() {
+    public Symbol symbol() {
         if (this.symbol == null) {
             throw new Error("must not happen: Function#symbol called but null");
         }
         return this.symbol;
+    }
+
+    public Label label() {
+        if (label != null) {
+            return label;
+        }
+        else {
+            return label = new Label(symbol());
+        }
     }
 
     public MemoryReference memref() {
@@ -61,10 +73,5 @@ abstract public class Function extends Entity {
             throw new Error("must not happen: Function.address == null");
         }
         return this.address;
-    }
-
-    public Label label() {
-        // FIXME: should cache
-        return new Label(symbol());
     }
 }

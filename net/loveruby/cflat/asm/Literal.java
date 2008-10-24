@@ -1,7 +1,8 @@
 package net.loveruby.cflat.asm;
 
-abstract public class Literal {
-    abstract public String toSource();
-    abstract public void collectStatistics(AsmStatistics stats);
-    abstract public boolean isZero();
+public interface Literal {
+    public String toSource();
+    public String toSource(SymbolTable table);
+    public void collectStatistics(AsmStatistics stats);
+    public boolean isZero();
 }

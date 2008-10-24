@@ -1,16 +1,16 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.LabelPool;
 import net.loveruby.cflat.asm.Label;
 
 public class DoWhileNode extends LoopNode {
     protected ExprNode cond;
     protected Node body;
+    protected Label continueLabel;
 
-    public DoWhileNode(Location loc, LabelPool pool,
-                       Node body, ExprNode cond) {
-        super(loc, pool);
+    public DoWhileNode(Location loc, Node body, ExprNode cond) {
+        super(loc);
         this.body = body;
         this.cond = cond;
+        this.continueLabel = new Label();
     }
 
     public Node body() {
@@ -21,12 +21,7 @@ public class DoWhileNode extends LoopNode {
         return cond;
     }
 
-    protected Label continueLabel;
-
     public Label continueLabel() {
-        if (continueLabel == null) {
-            continueLabel = pool.newLabel();
-        }
         return continueLabel;
     }
 
