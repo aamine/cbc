@@ -4,11 +4,7 @@
 
 * type handling
         * "extern char*[] sys_errlist" is array, not pointer
-        * &puts should make int(*)(char*)* instead of int(*)(char*)**
-* label refactoring
-        * Label -> Symbol
-        * all Symbols should be got from objects
-        * implement unnamed (code) Label
+        * &puts should be typed as int(*)(char*)*, not int(*)(char*)**
 * bin/cbc: resolve symbolic link
 * -fPIE, -pie
 * remove all FIXME
@@ -255,3 +251,7 @@
 - -fPIC (PIC generation)
 - -shared
 - Java 5
+- label refactoring
+        - Label -> Symbol
+        - all Symbols should be got from objects
+        - implement unnamed (code) Label
