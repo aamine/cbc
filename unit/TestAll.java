@@ -5,7 +5,7 @@ import org.junit.runners.Suite.*;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-    TestClonableIterator.class,
+    TestCursor.class,
     TestTextUtils.class
 })
 public class TestAll {

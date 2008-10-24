@@ -1,25 +1,25 @@
-import net.loveruby.cflat.utils.ClonableIterator;
+import net.loveruby.cflat.utils.Cursor;
 import java.util.*;
 import org.junit.*;
 import org.junit.runner.*;
 import static org.junit.Assert.*;
 
-public class TestClonableIterator {
+public class TestCursor {
     static public void main(String[] args) {
-        JUnitCore.main(TestClonableIterator.class.getName());
+        JUnitCore.main(TestCursor.class.getName());
     }
 
-    @Test public void hasNext_0() {
+    @Test public void test_hasNext_0() {
         List<Integer> list = new ArrayList<Integer>();
-        ClonableIterator it = new ClonableIterator(list);
+        Cursor<Integer> it = new Cursor<Integer>(list);
         assertEquals("[].hasNext #1", false, it.hasNext());
         assertEquals("[].hasNext #2", false, it.hasNext());
     }
 
-    @Test public void hasNext_1() {
+    @Test public void test_hasNext_1() {
         List<Integer> list = new ArrayList<Integer>();
         list.add(1);
-        ClonableIterator it = new ClonableIterator(list);
+        Cursor<Integer> it = new Cursor<Integer>(list);
         assertEquals("[1].hasNext #1", true, it.hasNext());
         assertEquals("[1].hasNext #2", true, it.hasNext());
         it.next();
@@ -27,11 +27,11 @@ public class TestClonableIterator {
         assertEquals("[].hasNext #2", false, it.hasNext());
     }
 
-    @Test public void hasNext_2() {
+    @Test public void test_hasNext_2() {
         List<Integer> list = new ArrayList<Integer>();
         list.add(1);
         list.add(2);
-        ClonableIterator it = new ClonableIterator(list);
+        Cursor<Integer> it = new Cursor<Integer>(list);
         assertEquals("[1,2].hasNext #1", true, it.hasNext());
         assertEquals("[1,2].hasNext #2", true, it.hasNext());
         it.next();
@@ -42,23 +42,23 @@ public class TestClonableIterator {
         assertEquals("[].hasNext #2", false, it.hasNext());
     }
 
-    @Test public void next() {
+    @Test public void test_next() {
         List<Integer> list = new ArrayList<Integer>();
         list.add(1);
         list.add(2);
-        ClonableIterator it = new ClonableIterator(list);
-        assertEquals("[1,2].next", 1, it.next());
-        assertEquals("[2].next", 2, it.next());
+        Cursor<Integer> it = new Cursor<Integer>(list);
+        assertEquals("[1,2].next", 1, (Object)it.next());
+        assertEquals("[2].next", 2, (Object)it.next());
     }
 
-    @Test public void dup() {
+    @Test public void test_clone() {
         List<Integer> list = new ArrayList<Integer>();
         list.add(1);
         list.add(2);
-        ClonableIterator it = new ClonableIterator(list);
+        Cursor<Integer> it = new Cursor<Integer>(list);
         it.next();
-        ClonableIterator it2 = it.dup();
-        assertEquals("dup+hasNext #1", true, it2.hasNext());
-        assertEquals("dup+next #1", 2, it2.next());
+        Cursor<Integer> it2 = it.clone();
+        assertEquals("clone+hasNext #1", true, (Object)it2.hasNext());
+        assertEquals("clone+next #1", 2, (Object)it2.next());
     }
 }
