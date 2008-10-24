@@ -1,6 +1,5 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.*;
 import java.util.*;
 
 public class UndefinedFunction extends Function {

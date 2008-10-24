@@ -1,6 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.Type;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.AsmOperand;
+import net.loveruby.cflat.asm.MemoryReference;
 
 public class VariableNode extends ExprNode {
     protected Location location;

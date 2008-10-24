@@ -1,5 +1,7 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.Label;
+import net.loveruby.cflat.asm.ImmediateValue;
+import net.loveruby.cflat.asm.MemoryReference;
 
 public class ConstantEntry {
     protected long id;

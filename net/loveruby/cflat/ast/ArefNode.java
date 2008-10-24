@@ -1,6 +1,5 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.*;
 
 public class ArefNode extends ExprNode {
     protected ExprNode expr, index;
@@ -41,7 +40,6 @@ public class ArefNode extends ExprNode {
 
     // element size of this (multi-dimension) array
     public long elementSize() {
-        //return baseExpr().type().baseType().allocSize();
         return type().allocSize();
     }
 

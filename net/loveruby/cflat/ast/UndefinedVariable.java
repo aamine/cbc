@@ -1,6 +1,5 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.*;
 
 public class UndefinedVariable extends Variable {
     public UndefinedVariable(TypeNode t, String name) {

@@ -1,6 +1,8 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.ImmediateValue;
+import net.loveruby.cflat.asm.MemoryReference;
+import net.loveruby.cflat.asm.AsmOperand;
 
 public class CastNode extends ExprNode {
     protected TypeNode typeNode;

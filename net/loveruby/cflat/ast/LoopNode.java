@@ -1,5 +1,6 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.LabelPool;
+import net.loveruby.cflat.asm.Label;
 
 abstract public class LoopNode extends StmtNode
         implements BreakableStmt, ContinueableStmt {

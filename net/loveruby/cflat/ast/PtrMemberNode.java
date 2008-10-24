@@ -1,6 +1,5 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.exception.*;
 
 public class PtrMemberNode extends ExprNode {

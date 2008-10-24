@@ -1,6 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.Label;
 
 public class DefinedVariable extends Variable {
     protected long sequence;

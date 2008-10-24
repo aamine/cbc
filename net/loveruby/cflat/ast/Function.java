@@ -1,6 +1,8 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.Label;
+import net.loveruby.cflat.asm.AsmOperand;
+import net.loveruby.cflat.asm.MemoryReference;
 import java.util.*;
 
 abstract public class Function extends Entity {

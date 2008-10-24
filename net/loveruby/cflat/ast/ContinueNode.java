@@ -1,5 +1,5 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.Label;
 
 public class ContinueNode extends StmtNode {
     public ContinueNode(Location loc) {
