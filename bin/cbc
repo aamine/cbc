@@ -3,7 +3,8 @@
 
 JAVA=${JAVA:-java}
 
-srcdir_root="$(dirname "$(dirname "$0")")"
+cmd_path="$(readlink -f $0)"
+srcdir_root="$(dirname "$(dirname "$cmd_path")")"
 "$JAVA" -classpath "$srcdir_root/lib/cbc.jar" \
         net.loveruby.cflat.compiler.Compiler \
         -I"$srcdir_root/import" \

@@ -1,3 +1,7 @@
+Sun Oct 26 07:04:53 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* bin/cbc: resolve symbolic link to command file.
+
 Sat Oct 25 03:40:16 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* name code symbols lazily.
