@@ -8,7 +8,6 @@
 * check opassign semantic as operator
 * -fPIE, -pie
         * implement difference against PIC
-* --readonly-plt
 * remove all FIXME
 
 == Done
@@ -258,3 +257,4 @@
         - all Symbols should be got from objects
         - implement unnamed (code) Label
 - bin/cbc: resolve symbolic link
+- --readonly-plt

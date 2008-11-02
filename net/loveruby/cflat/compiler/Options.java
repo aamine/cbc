@@ -141,7 +141,6 @@ class Options {
         return this.generatingPIE;
     }
 
-    // List<ldArg>
     public List<LdArg> ldArgs() {
         return this.ldArgs;
     }
@@ -222,8 +221,14 @@ class Options {
                 else if (arg.equals("-pie")) {
                     generatingPIE = true;
                 }
-                // FIXME: -z combreloc -z now -z relro
-                //else if (arg.equals("--readonly-plt"))
+                else if (arg.equals("--readonly-plt")) {
+                    ldArgs.add(new LdOption("-z"));
+                    ldArgs.add(new LdOption("combreloc"));
+                    ldArgs.add(new LdOption("-z"));
+                    ldArgs.add(new LdOption("now"));
+                    ldArgs.add(new LdOption("-z"));
+                    ldArgs.add(new LdOption("relro"));
+                }
                 else if (arg.startsWith("-L")) {
                     ldArgs.add(new LdOption("-L" + getOptArg(arg, args)));
                 }
@@ -360,7 +365,7 @@ class Options {
         out.println("  -shared          Generates shared library rather than executable.");
         out.println("  -static          Linkes only with static libraries.");
         out.println("  -pie             Generates PIE.");
-        //out.println("  --readonly-plt   Generates read-only PLT.");
+        out.println("  --readonly-plt   Generates read-only PLT.");
         out.println("  -nostartfiles    Do not link startup files.");
         out.println("  -nodefaultlibs   Do not link default libraries.");
         out.println("  -nostdlib        Enables -nostartfiles and -nodefaultlibs.");
