@@ -10,10 +10,6 @@ public class UndefinedVariable extends Variable {
     public boolean isPrivate() { return false; }
     public boolean isInitialized() { return false; }
 
-    public String symbolString() {
-        return name();
-    }
-
     protected void _dump(Dumper d) {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate());

@@ -1,16 +1,12 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.Label;
 import net.loveruby.cflat.asm.Symbol;
-import net.loveruby.cflat.asm.NamedSymbol;
-import net.loveruby.cflat.asm.AsmOperand;
-import net.loveruby.cflat.asm.MemoryReference;
+import net.loveruby.cflat.asm.Label;
 import java.util.*;
 
 abstract public class Function extends Entity {
-    protected Symbol symbol;
+    protected Symbol callingSymbol;
     protected Label label;
-    protected AsmOperand address;
 
     public Function(boolean priv, TypeNode t, String name) {
         super(priv, t, name);
@@ -37,18 +33,18 @@ abstract public class Function extends Entity {
         return true;
     }
 
-    public void setSymbol(Symbol sym) {
-        if (this.symbol != null) {
-            throw new Error("must not happen: Function#symbol was set again");
+    public void setCallingSymbol(Symbol sym) {
+        if (this.callingSymbol != null) {
+            throw new Error("must not happen: Function#callingSymbol was set again");
         }
-        this.symbol = sym;
+        this.callingSymbol = sym;
     }
 
-    public Symbol symbol() {
-        if (this.symbol == null) {
-            throw new Error("must not happen: Function#symbol called but null");
+    public Symbol callingSymbol() {
+        if (this.callingSymbol == null) {
+            throw new Error("must not happen: Function#callingSymbol called but null");
         }
-        return this.symbol;
+        return this.callingSymbol;
     }
 
     public Label label() {
@@ -56,22 +52,7 @@ abstract public class Function extends Entity {
             return label;
         }
         else {
-            return label = new Label(symbol());
+            return label = new Label(callingSymbol());
         }
-    }
-
-    public MemoryReference memref() {
-        return null;
-    }
-
-    public void setAddress(AsmOperand addr) {
-        this.address = addr;
-    }
-
-    public AsmOperand address() {
-        if (address == null) {
-            throw new Error("must not happen: Function.address == null");
-        }
-        return this.address;
     }
 }

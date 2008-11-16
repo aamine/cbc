@@ -81,7 +81,7 @@ public class CodeGenerator
             compileCommonSymbol(var);
         }
         // others
-        if (options.isPICRequired()) {
+        if (options.isPositionIndependent()) {
             PICThunk(GOTBaseReg());
         }
     }
@@ -89,7 +89,7 @@ public class CodeGenerator
 
     protected void locateConstant(ConstantEntry ent, SymbolTable symbols) {
         ent.setSymbol(symbols.newSymbol());
-        if (options.isPICRequired()) {
+        if (options.isPositionIndependent()) {
             Symbol offset = localGOTSymbol(ent.symbol());
             ent.setMemref(mem(offset, GOTBaseReg()));
         }
@@ -99,52 +99,49 @@ public class CodeGenerator
         }
     }
 
-    protected void locateGlobalVariable(Variable var) {
-        MemoryReference mem;
-        if (options.isPICRequired()) {
-            if (var.isPrivate()) {
-                mem = mem(localGOTSymbol(var.symbol()), GOTBaseReg());
-                var.setMemref(mem);
+    protected void locateGlobalVariable(Entity ent) {
+        Symbol sym = ent.isPrivate() ? privateSymbol(ent.symbolString())
+                                     : globalSymbol(ent.symbolString());
+        if (options.isPositionIndependent()) {
+            MemoryReference mem;
+            if (ent.isPrivate() || optimizeGvarAccess(ent)) {
+                mem = mem(localGOTSymbol(sym), GOTBaseReg());
+                ent.setMemref(mem);
             }
             else {
-                mem = mem(globalGOTSymbol(var.symbol()), GOTBaseReg());
-                var.setAddress(mem);
+                mem = mem(globalGOTSymbol(sym), GOTBaseReg());
+                ent.setAddress(mem);
             }
         }
         else {
-            mem = mem(globalSymbol(var.symbolString()));
-            var.setMemref(mem);
+            ent.setMemref(mem(sym));
         }
     }
 
     protected void locateFunction(Function func) {
-        func.setSymbol(functionSymbol(func));
-        func.setAddress(functionAddress(func));
+        func.setCallingSymbol(callingSymbol(func));
+        locateGlobalVariable(func);
     }
 
-    protected Symbol functionSymbol(Function func) {
-        if (func.isDefined()) {
-            return globalSymbol(func.name());
+    protected Symbol callingSymbol(Function func) {
+        if (func.isPrivate()) {
+            return privateSymbol(func.symbolString());
         }
         else {
-            Symbol sym = privateSymbol(func.name());
-            return options.isPICRequired() ? PLTSymbol(sym) : sym;
+            Symbol sym = globalSymbol(func.symbolString());
+            return doesIndirectAccess(func) ? PLTSymbol(sym) : sym;
         }
     }
 
-    protected AsmOperand functionAddress(Function func) {
-        Symbol sym = new NamedSymbol(func.name());
-        if (options.isPICRequired()) {
-            if (func.isPrivate()) {
-                return mem(localGOTSymbol(sym), GOTBaseReg());
-            }
-            else {
-                return mem(globalGOTSymbol(sym), GOTBaseReg());
-            }
-        }
-        else {
-            return imm(sym);
-        }
+    // condition to use indirect access (using PLT to call, GOT to refer).
+    // In PIC, we do use indirect access for all global variables.
+    // In PIE, we do use direct access for file-local reference.
+    protected boolean doesIndirectAccess(Entity ent) {
+        return options.isPositionIndependent() && !optimizeGvarAccess(ent);
+    }
+
+    protected boolean optimizeGvarAccess(Entity ent) {
+        return options.isPIERequired() && ent.isDefined();
     }
 
     /** Generates initialized entries */
@@ -225,7 +222,7 @@ public class CodeGenerator
     // #@@}
 
     //
-    // PIC related constants and codes
+    // PIC/PIE related constants and codes
     //
 
     static protected final Symbol GOT = new NamedSymbol("_GLOBAL_OFFSET_TABLE_");
@@ -314,7 +311,7 @@ public class CodeGenerator
         long lvarBytes = allocateLocalVariables(func.body().scope(),
                                                 saveRegs.size());
         prologue(func, saveRegs, lvarBytes);
-        if (options.isPICRequired() && stats.doesRegisterUsed(GOTBaseReg())) {
+        if (options.isPositionIndependent() && stats.doesRegisterUsed(GOTBaseReg())) {
             loadGOTBaseAddress(GOTBaseReg());
         }
         as.addAll(bodyAsms);
@@ -551,7 +548,7 @@ public class CodeGenerator
         // call
         if (node.isStaticCall()) {
             // call via function name
-            call(node.function().symbol());
+            call(node.function().callingSymbol());
         }
         else {
             // call via pointer

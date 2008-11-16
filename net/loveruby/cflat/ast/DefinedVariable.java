@@ -23,16 +23,6 @@ public class DefinedVariable extends Variable {
         this.sequence = seq;
     }
 
-    public Symbol symbol() {
-        if (symbol != null) {
-            return symbol;
-        }
-        else {
-            symbol = new NamedSymbol(symbolString());
-            return symbol;
-        }
-    }
-
     public String symbolString() {
         return (sequence < 0) ? name : (name + "." + sequence);
     }

@@ -1,3 +1,25 @@
+Sun Nov 16 20:01:06 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: should access
+	  file-local gvar directly (with @GOTOFF) in PIE.
+
+	* net/loveruby/cflat/ast/Entity.java: all entities should have
+	  memref or address.
+
+	* net/loveruby/cflat/ast/Variable.java: ditto.
+
+	* net/loveruby/cflat/ast/DefinedVariable.java: ditto.
+
+	* net/loveruby/cflat/ast/UndefinedVariable.java: ditto.
+
+	* net/loveruby/cflat/ast/Function.java: ditto.
+
+	* net/loveruby/cflat/ast/DefinedFunction.java: ditto.
+
+	* import/stdlib.hb: add new declarations.
+
+	* import/unistd.hb: add new declarations.
+
 Sun Nov  2 18:27:01 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Options.java: new option

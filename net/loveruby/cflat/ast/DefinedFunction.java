@@ -1,8 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.compiler.ErrorHandler;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.Symbol;
-import net.loveruby.cflat.asm.BaseSymbol;
 import net.loveruby.cflat.asm.Label;
 import net.loveruby.cflat.exception.*;
 import java.util.*;

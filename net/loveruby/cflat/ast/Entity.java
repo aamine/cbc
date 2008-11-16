@@ -1,7 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.Symbol;
-import net.loveruby.cflat.asm.NamedSymbol;
 import net.loveruby.cflat.asm.AsmOperand;
 import net.loveruby.cflat.asm.MemoryReference;
 
@@ -10,6 +9,8 @@ abstract public class Entity extends Node {
     protected boolean isPrivate;
     protected TypeNode typeNode;
     protected long nRefered;
+    protected MemoryReference memref;
+    protected MemoryReference address;
 
     public Entity(boolean priv, TypeNode type, String name) {
         this.name = name;
@@ -22,8 +23,8 @@ abstract public class Entity extends Node {
         return name;
     }
 
-    public Symbol symbol() {
-        return new NamedSymbol(name);
+    public String symbolString() {
+        return name();
     }
 
     abstract public boolean isDefined();
@@ -61,8 +62,29 @@ abstract public class Entity extends Node {
 
     abstract public boolean cannotLoad();
 
-    abstract public MemoryReference memref();
-    abstract public AsmOperand address();
+    public void setMemref(MemoryReference mem) {
+        this.memref = mem;
+    }
+
+    public MemoryReference memref() {
+        checkAddress();
+        return memref;
+    }
+
+    public void setAddress(MemoryReference mem) {
+        this.address = mem;
+    }
+
+    public AsmOperand address() {
+        checkAddress();
+        return address;
+    }
+
+    protected void checkAddress() {
+        if (memref == null && address == null) {
+            throw new Error("address did not resolved: " + name);
+        }
+    }
 
     public Location location() {
         return typeNode.location();
