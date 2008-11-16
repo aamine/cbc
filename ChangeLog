@@ -1,3 +1,33 @@
+Sun Nov 16 23:57:08 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: an array on the
+	  parameter list is a pointer really.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: an array for stmt
+	  value *is* valid because it is a pointer really.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: st.x while st.x
+	  is an array should make a pointer.
+
+	* net/loveruby/cflat/type/Type.java: remove #isPointerAlike, there
+	  is only a Pointer and an Array already.
+
+	* net/loveruby/cflat/type/ArrayType.java: ditto.
+
+	* net/loveruby/cflat/type/PointerType.java: ditto.
+
+	* net/loveruby/cflat/type/UserType.java: ditto.
+
+	* net/loveruby/cflat/ast/ArefNode.java: ditto.
+
+	* net/loveruby/cflat/ast/Variable.java: ditto.
+
+	* net/loveruby/cflat/ast/ExprNode.java: ditto.
+
+	* test: check st.x[1] access.
+
+	* test: check pst->x[1] access.
+
 Sun Nov 16 22:29:33 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeResolver.java: "f = puts"

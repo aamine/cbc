@@ -10,7 +10,6 @@ public class PointerType extends Type {
     }
 
     public boolean isPointer() { return true; }
-    public boolean isPointerAlike() { return true; }
     public boolean isScalar() { return true; }
     public boolean isSigned() { return false; }
     public boolean isDereferable() { return true; }

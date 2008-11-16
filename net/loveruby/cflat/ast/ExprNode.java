@@ -39,7 +39,7 @@ abstract public class ExprNode extends Node {
     }
 
     public boolean shouldEvaluatedToAddress() {
-        return false;
+        return type().isArray();
     }
 
     public boolean isConstant() {

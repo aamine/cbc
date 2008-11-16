@@ -166,6 +166,7 @@ ruby_exists() {
 test_19_struct() {
     assert_out "11;22" ./struct
     assert_out "701;702;703;704" ./struct2
+    assert_out "7" ./struct3
     assert_stat 0 ./struct-semcheck
     assert_compile_success empstruct.cb
     assert_compile_error struct-semcheck2.cb
@@ -204,6 +205,7 @@ test_22_pointer() {
     assert_out "1;777;3;4;1;777;3;4" ./pointer3
     assert_out "777" ./pointer4
     assert_out "1;2;3;4;5;6;77;78" ./ptrmemb
+    assert_out "7" ./ptrmemb2
     assert_compile_error deref-semcheck1.cb
     assert_compile_error deref-semcheck2.cb
     assert_compile_error deref-semcheck3.cb
@@ -305,7 +307,7 @@ test_34_varargs() {
 test_35_invalidstmt() {
     assert_compile_error invalidstmt1.cb
     assert_compile_error invalidstmt2.cb
-    assert_compile_error invalidstmt3.cb
+    assert_compile_success validstmt1.cb
 }
 
 ###

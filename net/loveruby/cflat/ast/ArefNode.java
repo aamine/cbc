@@ -29,7 +29,7 @@ public class ArefNode extends ExprNode {
     // isMultiDimension a[x][y] = true.
     // isMultiDimension a[x] = false.
     public boolean isMultiDimension() {
-        return (expr instanceof ArefNode) && !expr.type().isPointerAlike();
+        return (expr instanceof ArefNode) && !expr.type().isPointer();
     }
 
     // Returns base expression of (multi-dimension) array.

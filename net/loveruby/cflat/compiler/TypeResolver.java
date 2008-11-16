@@ -107,7 +107,12 @@ public class TypeResolver extends Visitor {
     protected void resolveFunctionHeader(Function func) {
         bindType(func.typeNode());
         for (Parameter param : func.parameters()) {
-            bindType(param.typeNode());
+            Type t = typeTable.get(param.typeNode().typeRef());
+            // arrays must be converted to pointers in a function parameter.
+            if (t.isArray()) {
+                t = typeTable.pointerTo(t.getArrayType().baseType());
+            }
+            param.typeNode().setType(t);
         }
     }
     // #@@}

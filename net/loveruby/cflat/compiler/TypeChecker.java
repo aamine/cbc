@@ -557,7 +557,7 @@ class TypeChecker extends Visitor {
     // #@@}
 
     protected boolean isInvalidStatementType(Type t) {
-        return t.isStruct() || t.isUnion() || t.isAllocatedArray();
+        return t.isStruct() || t.isUnion();
     }
 
     protected boolean isInvalidReturnType(Type t) {

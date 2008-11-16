@@ -1,0 +1,15 @@
+import stdio;
+
+struct st {
+    int[4] x;
+};
+
+int
+main(void)
+{
+    struct st s;
+    struct st* p = &s;
+    p->x[1] = 7;
+    printf("%d\n", p->x[1]);
+    return 0;
+}

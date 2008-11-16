@@ -7,6 +7,6 @@ abstract public class Variable extends Entity {
     }
 
     public boolean cannotLoad() {
-        return type().isAllocatedArray();
+        return type().isArray();
     }
 }

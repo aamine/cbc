@@ -18,7 +18,6 @@ public class ArrayType extends Type {
 
     public boolean isArray() { return true; }
     public boolean isDereferable() { return true; }
-    public boolean isPointerAlike() { return length == undefined; }
     public boolean isScalar() { return true; }
     public boolean isSigned() { return false; }
 

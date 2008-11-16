@@ -25,7 +25,6 @@ public abstract class Type {
 
     // Ability methods (unary)
     public boolean isDereferable() { return false; }
-    public boolean isPointerAlike() { return false; }
     public boolean isAllocatedArray() { return false; }
     public boolean isIncompleteArray() { return false; }
     public boolean isScalar() { return false; }

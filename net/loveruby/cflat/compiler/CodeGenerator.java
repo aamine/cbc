@@ -1008,12 +1008,22 @@ public class CodeGenerator
 
     public void visit(MemberNode node) {
         compileLHS(node.expr());
-        load(node.type(), mem(node.offset(), reg("ax")), reg("ax"));
+        if (node.shouldEvaluatedToAddress()) {
+            add(imm(node.offset()), reg("ax"));
+        }
+        else {
+            load(node.type(), mem(node.offset(), reg("ax")), reg("ax"));
+        }
     }
 
     public void visit(PtrMemberNode node) {
         compile(node.expr());
-        load(node.type(), mem(node.offset(), reg("ax")), reg("ax"));
+        if (node.shouldEvaluatedToAddress()) {
+            add(imm(node.offset()), reg("ax"));
+        }
+        else {
+            load(node.type(), mem(node.offset(), reg("ax")), reg("ax"));
+        }
     }
 
     public void visit(DereferenceNode node) {
@@ -1045,12 +1055,7 @@ public class CodeGenerator
         compileArrayIndex(node);
         imul(imm(node.elementSize()), reg("ax"));
         push(reg("ax"));
-        if (node.baseExpr().type().isPointerAlike()) {
-            compile(node.baseExpr());
-        }
-        else {
-            compileLHS(node.baseExpr());
-        }
+        compile(node.baseExpr());
         pop(reg("cx"));
         add(reg("cx"), reg("ax"));
     }

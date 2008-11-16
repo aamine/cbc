@@ -40,7 +40,6 @@ public class UserType extends NamedType {
     public boolean isFunction() { return realType().isFunction(); }
 
     public boolean isDereferable() { return realType().isDereferable(); }
-    public boolean isPointerAlike() { return realType().isPointerAlike(); }
     public boolean isCallable() { return realType().isCallable(); }
     public boolean isScalar() { return realType().isScalar(); }
 
