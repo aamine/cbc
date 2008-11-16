@@ -59,9 +59,12 @@ public class CodeGenerator
     public void compileAST(AST ast) {
         _file(ast.fileName());
         // .data
-        _data();
-        for (DefinedVariable gvar : ast.definedGlobalVariables()) {
-            dataEntry(gvar);
+        List<DefinedVariable> gvars = ast.definedGlobalVariables();
+        if (!gvars.isEmpty()) {
+            _data();
+            for (DefinedVariable gvar : gvars) {
+                dataEntry(gvar);
+            }
         }
         if (!ast.constantTable().isEmpty()) {
             _section(".rodata");
