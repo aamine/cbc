@@ -2,10 +2,6 @@
 
 == Current
 
-* type handling
-        * "extern char*[] sys_errlist" is array, not pointer
-        - &puts should be typed as int(*)(char*)*, not int(*)(char*)**
-
 == Done
 
 - generate resolved AST
@@ -258,3 +254,6 @@
         - implement difference against PIC
 - check opassign semantic as operator
 - use enum for compiler mode.
+- type handling
+        - "extern char*[] sys_errlist" is array, not pointer
+        - &puts should be typed as int(*)(char*)*, not int(*)(char*)**
