@@ -5,7 +5,6 @@
 * type handling
         * "extern char*[] sys_errlist" is array, not pointer
         * &puts should be typed as int(*)(char*)*, not int(*)(char*)**
-* use enum for compiler mode.
 
 == Done
 
@@ -258,3 +257,4 @@
 - -fPIE, -pie
         - implement difference against PIC
 - check opassign semantic as operator
+- use enum for compiler mode.
