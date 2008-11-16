@@ -7,8 +7,6 @@
         * &puts should be typed as int(*)(char*)*, not int(*)(char*)**
 * check opassign semantic as operator
 * use enum for compiler mode.
-* -fPIE, -pie
-        * implement difference against PIC
 
 == Done
 
@@ -258,3 +256,5 @@
         - implement unnamed (code) Label
 - bin/cbc: resolve symbolic link
 - --readonly-plt
+- -fPIE, -pie
+        - implement difference against PIC
