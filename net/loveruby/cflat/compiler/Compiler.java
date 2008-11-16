@@ -36,7 +36,7 @@ public class Compiler {
             errorHandler.error("Try cbc --help for option usage");
             System.exit(1);
         }
-        if (opts.isMode("--check-syntax")) {
+        if (opts.mode() == CompilerMode.CheckSyntax) {
             boolean failed = false;
             for (SourceFile src : srcs) {
                 if (isValidSyntax(src, opts)) {
@@ -93,33 +93,34 @@ public class Compiler {
                                         throws CompileException {
         if (src.isCflatSource()) {
             AST ast = parseFile(src, opts);
-            if (opts.isMode("--dump-tokens")) {
+            switch (opts.mode()) {
+            case DumpTokens:
                 dumpTokens(ast.sourceTokens(), System.out);
                 return;
-            }
-            if (opts.isMode("--dump-ast")) {
+            case DumpAST:
                 ast.dump();
                 return;
-            }
-            if (opts.isMode("--dump-stmt")) {
+            case DumpStmt:
                 findStmt(ast).dump();
                 return;
             }
             ast.setTypeTable(opts.typeTable);
             semanticAnalysis(ast, opts);
-            if (opts.isMode("--dump-reference")) return;
-            if (opts.isMode("--dump-semantic")) {
+            switch (opts.mode()) {
+            case DumpReference:
+                return;
+            case DumpSemantic:
                 ast.dump();
                 return;
             }
             String asm = generateAssembly(ast, opts);
-            if (opts.isMode("--dump-asm")) {
+            if (opts.mode() == CompilerMode.DumpAsm) {
                 System.out.println(asm);
                 return;
             }
             writeFile(src.asmFileName(opts), asm);
             src.setCurrentName(src.asmFileName(opts));
-            if (opts.isMode("-S")) {
+            if (opts.mode() == CompilerMode.Compile) {
                 return;
             }
         }
@@ -175,7 +176,7 @@ public class Compiler {
         new TypeResolver(errorHandler).resolve(ast);
         ast.typeTable().semanticCheck(errorHandler);
         new DereferenceChecker(errorHandler).check(ast);
-        if (opts.isMode("--dump-reference")) {
+        if (opts.mode() == CompilerMode.DumpReference) {
             ast.dump();
             return;
         }

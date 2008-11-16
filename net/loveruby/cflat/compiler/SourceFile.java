@@ -52,11 +52,11 @@ class SourceFile implements LdArg {
     }
 
     public String asmFileName(Options opts) {
-        return or(opts.outputFileNameFor("-S"), replaceExt(".s"));
+        return or(opts.outputFileNameFor(CompilerMode.Compile), replaceExt(".s"));
     }
 
     public String objFileName(Options opts) {
-        return or(opts.outputFileNameFor("-c"), replaceExt(".o"));
+        return or(opts.outputFileNameFor(CompilerMode.Assemble), replaceExt(".o"));
     }
 
     public String linkedFileName(Options opts, String newExt) {

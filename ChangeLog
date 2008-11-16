@@ -1,3 +1,14 @@
+Sun Nov 16 21:28:00 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: make compiler mode
+	  enum.
+
+	* net/loveruby/cflat/compiler/Options.java: ditto.
+
+	* net/loveruby/cflat/compiler/SourceFile.java: ditto.
+
+	* net/loveruby/cflat/compiler/CompilerMode.java: new enum.
+
 Sun Nov 16 20:20:08 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/DereferenceChecker.java: We do not

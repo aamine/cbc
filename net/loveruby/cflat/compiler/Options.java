@@ -7,7 +7,7 @@ import java.io.*;
 
 // package scope
 class Options {
-    protected String mode;
+    protected CompilerMode mode;
     protected TypeTable typeTable;
     protected LibraryLoader loader;
     protected String outputFileName;
@@ -31,47 +31,20 @@ class Options {
         this.ldArgs = new ArrayList<LdArg>();
     }
 
-    public boolean isMode(String m) {
-        return mode.equals(m);
+    public CompilerMode mode() {
+        return mode;
     }
 
     public boolean isAssembleRequired() {
-        return modeLevel(mode) >= MODE_LEVEL_ASSEMBLE;
+        return mode.requires(CompilerMode.Assemble);
     }
 
     public boolean isLinkRequired() {
-        return modeLevel(mode) >= MODE_LEVEL_LINK;
+        return mode.requires(CompilerMode.Link);
     }
 
-    static final protected String defaultMode = "link";
-    static protected List<String> modeLevels;
-    static final protected int MODE_LEVEL_ASSEMBLE;
-    static final protected int MODE_LEVEL_LINK;
-
-    static {
-        modeLevels = new ArrayList<String>();
-        modeLevels.add("--check-syntax");
-        modeLevels.add("--dump-tokens");
-        modeLevels.add("--dump-ast");
-        modeLevels.add("--dump-semantic");
-        modeLevels.add("--dump-reference");
-        modeLevels.add("--dump-asm");
-        modeLevels.add("-S");
-        modeLevels.add("-c");           // assemble required
-        modeLevels.add(defaultMode);    // link required
-
-        MODE_LEVEL_ASSEMBLE = modeLevels.indexOf("-c");
-        MODE_LEVEL_LINK = modeLevels.indexOf(defaultMode);
-    };
-
-    protected int modeLevel(String mode) {
-        int idx = modeLevels.indexOf(mode);
-        if (idx < 0) throw new Error("unknown compiler mode: " + mode);
-        return idx;
-    }
-
-    public String outputFileNameFor(String mode) {
-        return isMode(mode) ? outputFileName : null;
+    public String outputFileNameFor(CompilerMode mode) {
+        return this.mode == mode ? outputFileName : null;
     }
 
     public String exeFileName() {
@@ -164,20 +137,12 @@ class Options {
                 break;
             }
             else if (arg.startsWith("-")) {
-                if (arg.equals("--check-syntax")
-                        || arg.equals("--dump-tokens")
-                        || arg.equals("--dump-ast")
-                        || arg.equals("--dump-stmt")
-                        || arg.equals("--dump-reference")
-                        || arg.equals("--dump-semantic")
-                        || arg.equals("-S")
-                        || arg.equals("--dump-asm")
-                        || arg.equals("-c")) {
+                if (CompilerMode.isModeOption(arg)) {
                     if (mode != null) {
-                        parseError(mode + " option and "
+                        parseError(mode.toOption() + " option and "
                                    + arg + " option is exclusive");
                     }
-                    mode = arg;
+                    mode = CompilerMode.fromOption(arg);
                 }
                 else if (arg.startsWith("-I")) {
                     loader.addLoadPath(getOptArg(arg, args));
@@ -280,7 +245,7 @@ class Options {
         }
         if (srcs.isEmpty()) parseError("no input file");
         if (mode == null) {
-            mode = defaultMode;
+            mode = CompilerMode.Link;
         }
         if (! isLinkRequired() && outputFileName != null && srcs.size() > 1) {
             parseError("-o option requires only 1 input not on linking");
@@ -331,11 +296,12 @@ class Options {
         out.println("Global Options:");
         out.println("  --check-syntax   Checks syntax and quit.");
         out.println("  --dump-tokens    Dumps tokens and quit.");
+        // --dump-stmt is a hidden option.
         out.println("  --dump-ast       Dumps AST and quit.");
         out.println("  --dump-semantic  Dumps AST after semantic check and quit.");
-        // --dump-reference is hidden option
-        out.println("  -S               Generates an assembly source and quit.");
+        // --dump-reference is a hidden option.
         out.println("  --dump-asm       Prints an assembly source and quit.");
+        out.println("  -S               Generates an assembly file and quit.");
         out.println("  -c               Generates an object file and quit.");
         out.println("  -o PATH          Places output in file PATH.");
         out.println("  -v               Turn on verbose mode.");
@@ -352,7 +318,9 @@ class Options {
         out.println("  -Os              Equivalent to -O.");
         out.println("  -O0              Disables optimization (default).");
         out.println("  -fPIC            Generates PIC assembly.");
+        out.println("  -fpic            Equivalent to -fPIC.");
         out.println("  -fPIE            Generates PIE assembly.");
+        out.println("  -fpie            Equivalent to -fPIE.");
         out.println("  --verbose-asm    Generate assembly with verbose comments.");
         out.println("");
         out.println("Assembler Options:");
