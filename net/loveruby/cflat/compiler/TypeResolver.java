@@ -117,8 +117,13 @@ public class TypeResolver extends Visitor {
         // to avoid SemanticError which occurs when getting type of
         // expr which is not assignable.
         try {
-            Type t = typeTable.pointerTo(node.expr().type());
-            node.setType(t);
+            Type base = node.expr().type();
+            if (node.expr().shouldEvaluatedToAddress()) {
+                node.setType(base);
+            }
+            else {
+                node.setType(typeTable.pointerTo(base));
+            }
         }
         catch (SemanticError err) {
             Type t = typeTable.pointerTo(typeTable.voidType());

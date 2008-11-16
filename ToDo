@@ -4,7 +4,7 @@
 
 * type handling
         * "extern char*[] sys_errlist" is array, not pointer
-        * &puts should be typed as int(*)(char*)*, not int(*)(char*)**
+        - &puts should be typed as int(*)(char*)*, not int(*)(char*)**
 
 == Done
 
