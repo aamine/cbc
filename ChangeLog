@@ -1,3 +1,9 @@
+Sun Nov 16 20:20:08 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: We do not
+	  need to check an OpAssignNode as operator, because this class only
+	  check references.
+
 Sun Nov 16 20:10:59 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java (compileAST):

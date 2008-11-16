@@ -68,7 +68,6 @@ class DereferenceChecker extends Visitor {
     public void visit(OpAssignNode node) {
         super.visit(node);
         checkAssignment(node);
-        // FIXME: check as operator
     }
 
     protected void checkAssignment(AbstractAssignNode node) {
