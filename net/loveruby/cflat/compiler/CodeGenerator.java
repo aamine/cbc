@@ -106,14 +106,11 @@ public class CodeGenerator
         Symbol sym = ent.isPrivate() ? privateSymbol(ent.symbolString())
                                      : globalSymbol(ent.symbolString());
         if (options.isPositionIndependent()) {
-            MemoryReference mem;
             if (ent.isPrivate() || optimizeGvarAccess(ent)) {
-                mem = mem(localGOTSymbol(sym), GOTBaseReg());
-                ent.setMemref(mem);
+                ent.setMemref(mem(localGOTSymbol(sym), GOTBaseReg()));
             }
             else {
-                mem = mem(globalGOTSymbol(sym), GOTBaseReg());
-                ent.setAddress(mem);
+                ent.setAddress(mem(globalGOTSymbol(sym), GOTBaseReg()));
             }
         }
         else {

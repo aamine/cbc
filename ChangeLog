@@ -1,3 +1,8 @@
+Mon Nov 24 18:49:27 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: refactoring:
+	  reduce lvar.
+
 Sun Nov 16 23:57:08 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeResolver.java: an array on the
