@@ -172,7 +172,7 @@ public class Compiler {
     protected void semanticAnalysis(AST ast, Options opts)
                                         throws SemanticException {
         new JumpResolver(errorHandler).resolve(ast);
-        new LocalReferenceResolver(errorHandler).resolve(ast);
+        new LocalResolver(errorHandler).resolve(ast);
         new TypeResolver(errorHandler).resolve(ast);
         ast.typeTable().semanticCheck(errorHandler);
         new DereferenceChecker(errorHandler).check(ast);

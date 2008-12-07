@@ -3,14 +3,14 @@ import net.loveruby.cflat.ast.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
-public class LocalReferenceResolver extends Visitor {
+public class LocalResolver extends Visitor {
     // #@@range/ctor{
     protected ErrorHandler errorHandler;
     protected ToplevelScope toplevel;
     protected LinkedList<Scope> scopeStack;
     protected ConstantTable constantTable;
 
-    public LocalReferenceResolver(ErrorHandler h) {
+    public LocalResolver(ErrorHandler h) {
         this.errorHandler = h;
     }
     // #@@}
