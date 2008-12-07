@@ -1,3 +1,12 @@
+Sun Dec  7 17:09:17 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/ToplevelScope.java: use SemanticException
+	  instead of SemanticError for duplicated declarations/definitions.
+
+Sun Dec  7 17:08:26 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test: test declaration override (error path).
+
 Sun Dec  7 16:55:56 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test: test declaration override.

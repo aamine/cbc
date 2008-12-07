@@ -28,21 +28,25 @@ public class ToplevelScope extends Scope {
 
     /** Declare variable or function globally. */
     // #@@range/declareEntity{
-    public void declareEntity(Entity ent) {
-        if (entities.containsKey(ent.name())) {
-            throw new Error("duplicated declaration: " + ent.name());
+    public void declareEntity(Entity entity) throws SemanticException {
+        Entity e = entities.get(entity.name());
+        if (e != null) {
+            throw new SemanticException("duplicated declaration: " +
+                    entity.name() + ": " +
+                    e.location() + " and " + entity.location());
         }
-        entities.put(ent.name(), ent);
+        entities.put(entity.name(), entity);
     }
     // #@@}
 
     /** Define variable or function globally. */
     // #@@range/defineEntity{
-    public void defineEntity(Entity entity) {
-        Entity ent = entities.get(entity.name());
-        if (ent != null && ent.isDefined()) {
-            throw new Error("duplicated definition: " + entity.name() + ": " +
-                            ent.location() + " and " + entity.location());
+    public void defineEntity(Entity entity) throws SemanticException {
+        Entity e = entities.get(entity.name());
+        if (e != null && e.isDefined()) {
+            throw new SemanticException("duplicated definition: " +
+                    entity.name() + ": " +
+                    e.location() + " and " + entity.location());
         }
         entities.put(entity.name(), entity);
     }
