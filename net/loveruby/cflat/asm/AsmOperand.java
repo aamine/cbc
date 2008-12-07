@@ -21,4 +21,8 @@ abstract public class AsmOperand implements OperandPattern {
     public boolean match(AsmOperand operand) {
         return equals(operand);
     }
+
+    public void fixStackOffset(long diff) {
+        // does nothing by default
+    }
 }

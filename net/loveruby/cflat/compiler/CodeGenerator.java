@@ -304,18 +304,30 @@ public class CodeGenerator
     // #@@}
 
     protected void compileFunctionBody(DefinedFunction func) {
+        initStackParams();
         List<Assembly> bodyAsms = compileStmts(func);
         AsmStatistics stats = AsmStatistics.collect(bodyAsms);
         bodyAsms = reduceLabels(bodyAsms, stats);
         List<Register> saveRegs = usedCalleeSavedRegisters(stats);
-        long lvarBytes = allocateLocalVariables(func.body().scope(),
-                                                saveRegs.size());
-        prologue(func, saveRegs, lvarBytes);
+        long lvarBytes = allocateLocalVariables(func.body().scope(), savedRegsSize(saveRegs));
+        fixStackOffsets(bodyAsms, savedRegsSize(saveRegs) + lvarBytes);
+
+        prologue(func, saveRegs, savedRegsSize(saveRegs) + lvarBytes + maxStackLength());
         if (options.isPositionIndependent() && stats.doesRegisterUsed(GOTBaseReg())) {
             loadGOTBaseAddress(GOTBaseReg());
         }
         as.addAll(bodyAsms);
         epilogue(func, saveRegs, lvarBytes);
+    }
+
+    protected long savedRegsSize(List<Register> regs) {
+        long numReallySaved = 0;
+        for (Register reg : regs) {
+            if (! reg.baseName().equals("bp")) {
+                numReallySaved++;
+            }
+        }
+        return numReallySaved * stackWordSize;
     }
 
     protected List<Assembly> compileStmts(DefinedFunction func) {
@@ -418,11 +430,11 @@ public class CodeGenerator
     // #@@range/prologue{
     protected void prologue(DefinedFunction func,
                             List<Register> saveRegs,
-                            long lvarBytes) {
-        push(bp());
+                            long frameSize) {
+        truePush(bp());
         mov(sp(), bp());
         saveRegisters(saveRegs);
-        extendStack(lvarBytes);
+        allocateStack(frameSize);
         if (options.isVerboseAsm()) {
             for (DefinedVariable var : func.localVariables()) {
                 comment("mem " + var.memref() + ": " + var.name());
@@ -435,10 +447,10 @@ public class CodeGenerator
     protected void epilogue(DefinedFunction func,
                             List<Register> savedRegs,
                             long lvarBytes) {
-        shrinkStack(lvarBytes);
+        //shrinkStack(lvarBytes);
         restoreRegisters(savedRegs);
         mov(bp(), sp());
-        pop(bp());
+        truePop(bp());
         ret();
     }
     // #@@}
@@ -489,10 +501,9 @@ public class CodeGenerator
      * Returns byte-length of the local variable area.
      * Note that numSavedRegs includes bp.
      */
-    protected long allocateLocalVariables(LocalScope scope, long numSavedRegs) {
-        long initLen = (numSavedRegs - 1) * stackWordSize;
-        long maxLen = allocateScope(scope, initLen);
-        return maxLen - initLen;
+    protected long allocateLocalVariables(LocalScope scope, long offset) {
+        long maxLen = allocateScope(scope, offset);
+        return maxLen - offset;
     }
 
     protected long allocateScope(LocalScope scope, long parentStackLen) {
@@ -521,15 +532,60 @@ public class CodeGenerator
         memref.fixOffset(offset);
     }
 
-    protected void extendStack(long len) {
+    protected void allocateStack(long len) {
         if (len > 0) {
-            add(imm(len * (stackGrowsLower ? -1 : 1)), sp());
+            if (stackGrowsLower) {
+                sub(imm(len), sp());
+            }
+            else {
+                add(imm(len), sp());
+            }
         }
     }
 
-    protected void shrinkStack(long len) {
-        if (len > 0) {
-            add(imm(len * (stackGrowsLower ? 1 : -1)), sp());
+    protected long stackPointer;
+    protected long stackPointerMax;
+
+    protected void initStackParams() {
+        stackPointer = 0;
+        stackPointerMax = stackPointer;
+    }
+
+    protected long maxStackLength() {
+        return stackPointerMax;
+    }
+
+    protected IndirectMemoryReference stackTop() {
+        if (stackGrowsLower) {
+            return mem(-stackPointer, bp());
+        }
+        else {
+            return mem(stackPointer - stackWordSize, bp());
+        }
+    }
+
+    protected void push(Register reg) {
+        extendStack(stackWordSize);
+        as.relocatableMov(reg, stackTop());
+    }
+
+    protected void pop(Register reg) {
+        as.relocatableMov(stackTop(), reg);
+        rewindStack(stackWordSize);
+    }
+
+    protected void extendStack(long len) {
+        stackPointer += len;
+        stackPointerMax = Math.max(stackPointerMax, stackPointer);
+    }
+
+    protected void rewindStack(long len) {
+        stackPointer -= len;
+    }
+
+    protected void fixStackOffsets(List<Assembly> asms, long offset) {
+        for (Assembly asm : asms) {
+            asm.fixStackOffset(offset * (stackGrowsLower ? -1 : 1));
         }
     }
 
@@ -541,9 +597,12 @@ public class CodeGenerator
     public void visit(FuncallNode node) {
         // compile function arguments from right to left.
         ListIterator<ExprNode> args = node.finalArg();
+        long argIndex = node.numArgs() - 1;
         while (args.hasPrevious()) {
             compile(args.previous());
-            push(reg("ax"));
+            mov(reg("ax"), argMemory(argIndex));
+            argIndex--;
+            extendStack(stackWordSize);
         }
         // call
         if (node.isStaticCall()) {
@@ -557,7 +616,16 @@ public class CodeGenerator
         }
         // rewind stack
         // >4 bytes arguments are not supported.
-        shrinkStack(node.numArgs() * stackWordSize);
+        rewindStack(node.numArgs() * stackWordSize);
+    }
+
+    protected IndirectMemoryReference argMemory(long argIndex) {
+        if (stackGrowsLower) {
+            return mem(stackWordSize * argIndex, sp());
+        }
+        else {
+            return mem(-stackWordSize * (argIndex + 1), sp());
+        }
     }
 
     public void visit(ReturnNode node) {
@@ -1248,8 +1316,8 @@ public class CodeGenerator
     public void setl(Register reg) { as.setl(reg); }
     public void setle(Register reg) { as.setle(reg); }
     public void test(Type type, Register a, Register b) { as.test(type, a, b); }
-    public void push(Register reg) { as.push(reg); }
-    public void pop(Register reg) { as.pop(reg); }
+    protected void truePush(Register reg) { as.push(reg); }
+    protected void truePop(Register reg) { as.pop(reg); }
     public void call(Symbol sym) { as.call(sym); }
     public void callAbsolute(Register reg) { as.callAbsolute(reg); }
     public void ret() { as.ret(); }

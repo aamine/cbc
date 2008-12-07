@@ -17,6 +17,10 @@ public class SuffixedSymbol implements Symbol {
         base.collectStatistics(stats);
     }
 
+    public Literal plus(long n) {
+        throw new Error("must not happen: SuffixedSymbol.plus called");
+    }
+
     public String name() {
         return base.name();
     }
