@@ -24,10 +24,6 @@ public class IntegerLiteral implements Literal {
         return value == 0;
     }
 
-    public IntegerLiteral plus(long diff) {
-        return new IntegerLiteral(value + diff);
-    }
-
     public IntegerLiteral integerLiteral() {
         return this;
     }
@@ -42,9 +38,5 @@ public class IntegerLiteral implements Literal {
 
     public void collectStatistics(AsmStatistics stats) {
         // does nothing
-    }
-
-    public String toString() {
-        return "$" + value;
     }
 }

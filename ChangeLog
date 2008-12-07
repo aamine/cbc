@@ -1,3 +1,8 @@
+Sun Dec  7 23:26:50 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* net: revert r4100; implementing alloca() is too difficult for
+	  current architecture.
+
 Sun Dec  7 23:25:25 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* lib/libcbc.cb -> lib/stdarg.cb

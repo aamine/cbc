@@ -5,41 +5,32 @@ public class Instruction extends Assembly {
     protected String mnemonic;
     protected String suffix;
     protected AsmOperand[] operands;
-    protected boolean needRelocation;
 
     public Instruction(String mnemonic) {
-        this(mnemonic, "", new AsmOperand[0], false);
+        this(mnemonic, "", new AsmOperand[0]);
     }
 
     public Instruction(String mnemonic, String suffix, AsmOperand a1) {
-        this(mnemonic, suffix, new AsmOperand[] { a1 }, false);
+        this(mnemonic, suffix, new AsmOperand[] { a1 });
     }
 
     public Instruction(String mnemonic, String suffix,
                        AsmOperand a1, AsmOperand a2) {
-        this(mnemonic, suffix, new AsmOperand[] { a1, a2 }, false);
+        this(mnemonic, suffix, new AsmOperand[] { a1, a2 });
     }
 
-    public Instruction(String mnemonic, String suffix,
-                       AsmOperand a1, AsmOperand a2, boolean reloc) {
-        this(mnemonic, suffix, new AsmOperand[] { a1, a2 }, reloc);
-    }
-
-    public Instruction(String mnemonic, String suffix, AsmOperand[] operands, boolean reloc) {
+    public Instruction(String mnemonic, String suffix, AsmOperand[] operands) {
         this.mnemonic = mnemonic;
         this.suffix = suffix;
         this.operands = operands;
-        this.needRelocation = reloc;
     }
 
     public Instruction build(String mnemonic, AsmOperand o1) {
-        return new Instruction(mnemonic, this.suffix,
-                new AsmOperand[] { o1 }, needRelocation);
+        return new Instruction(mnemonic, this.suffix, new AsmOperand[] { o1 });
     }
 
     public Instruction build(String mnemonic, AsmOperand o1, AsmOperand o2) {
-        return new Instruction(mnemonic, this.suffix,
-                new AsmOperand[] { o1, o2 }, needRelocation);
+        return new Instruction(mnemonic, this.suffix, new AsmOperand[] { o1, o2 });
     }
 
     public boolean isInstruction() {
@@ -85,13 +76,6 @@ public class Instruction extends Assembly {
         stats.instructionUsed(mnemonic);
         for (int i = 0; i < operands.length; i++) {
             operands[i].collectStatistics(stats);
-        }
-    }
-
-    public void fixStackOffset(long diff) {
-        if (!needRelocation) return;
-        for (int i = 0; i < operands.length; i++) {
-            operands[i].fixStackOffset(diff);
         }
     }
 

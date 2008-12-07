@@ -43,10 +43,6 @@ public class IndirectMemoryReference extends MemoryReference {
         base.collectStatistics(stats);
     }
 
-    public void fixStackOffset(long diff) {
-        offset = offset.plus(diff);
-    }
-
     public String toString() {
         return toSource(SymbolTable.dummy());
     }

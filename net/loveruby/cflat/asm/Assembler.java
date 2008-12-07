@@ -275,11 +275,6 @@ public class Assembler {
         mov(naturalType, src, dest);
     }
 
-    // for stack access
-    public void relocatableMov(AsmOperand src, AsmOperand dest) {
-        assemblies.add(new Instruction("mov", typeSuffix(naturalType), src, dest, true));
-    }
-
     public void mov(Type type, AsmOperand src, AsmOperand dest) {
         insn(type, "mov", src, dest);
     }

@@ -8,8 +8,4 @@ abstract public class BaseSymbol implements Symbol {
     public void collectStatistics(AsmStatistics stats) {
         stats.symbolUsed(this);
     }
-
-    public Literal plus(long n) {
-        throw new Error("must not happen: BaseSymbol.plus called");
-    }
 }
