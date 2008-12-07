@@ -237,6 +237,7 @@ test_25_block() {
     assert_out "1;2;3;1;OK" ./block
     assert_out "1;2;3" ./defvar
     assert_out "77" ./decloverride
+    assert_compile_error decloverride2.cb
 }
 
 test_26_funcptr() {
@@ -363,7 +364,7 @@ assert_compile_success() {
 
 assert_compile_error() {
     shunit_begin_test
-    if eval "$CBC $@" >tc.out 2>&1
+    if "$CBC" "$@" >tc.out 2>&1
     then
         echo "shunit[$@]: compile error not occured"
         shunit_test_failed
