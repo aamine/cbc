@@ -1,3 +1,11 @@
+Mon Dec  8 00:55:33 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* lib/alloca.s: alloca() implemeted.
+
+	* lib/Makefile: build it.
+
+	* import/alloca.hb: declare alloca.
+
 Sun Dec  7 23:26:50 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net: revert r4100; implementing alloca() is too difficult for

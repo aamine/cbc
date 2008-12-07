@@ -1,7 +1,7 @@
 CBC = ../bin/cbc
 CBFLAGS = -O -fPIC
 TARGET = libcbc.a
-OBJS = stdarg.o
+OBJS = stdarg.o alloca.o
 
 .SUFFIXES:
 .SUFFIXES: .cb .s .o
