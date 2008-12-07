@@ -312,6 +312,10 @@ test_35_invalidstmt() {
     assert_compile_success validstmt1.cb
 }
 
+test_36_alloca() {
+    assert_out "<<Hello>>" ./alloca
+}
+
 ###
 ### Local Assertions
 ###
