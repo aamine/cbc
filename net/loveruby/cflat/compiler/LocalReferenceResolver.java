@@ -31,7 +31,7 @@ public class LocalReferenceResolver extends Visitor {
             toplevel.declareEntity(decl);
         }
         for (Entity ent : ast.entities()) {
-            toplevel.declareEntity(ent);
+            toplevel.defineEntity(ent);
         }
         // #@@}
         // #@@range/resolveRefs{

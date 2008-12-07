@@ -6,17 +6,25 @@ main() {
     cd "$(dirname "$0")"
     . ./shunit.sh
 
-    while print "$1" | grep '^-' >/dev/null 2>&1
+    while [ $# -gt 0 ]
     do
         case "$1" in
         -t)
             # run specified tests
-            shift
-            local pattern="$1"; shift
+            [ -n "$2" ] || error_exit "-t option requires argument"
+            local pattern="$2"
+            shift; shift
+            ;;
+        --help)
+            print_usage
+            exit 0
+            ;;
+        -*)
+            print_usage 1>&2
+            exit 1
             ;;
         *)
-            echo "Usage: $0 [-t PATTERN] [<file>...]" 1>&2
-            exit 1
+            break
             ;;
         esac
     done
@@ -34,6 +42,10 @@ main() {
         # run only matched tests
         defined_tests | grep "$pattern" | sort | run_tests
     fi
+}
+
+print_usage() {
+    echo "Usage: $0 [-t PATTERN] [--help] [<file>...]"
 }
 
 load_tests() {

@@ -26,13 +26,25 @@ public class ToplevelScope extends Scope {
         return null;
     }
 
-    /** Declare variable or function in this scope. */
+    /** Declare variable or function globally. */
     // #@@range/declareEntity{
     public void declareEntity(Entity ent) {
         if (entities.containsKey(ent.name())) {
-            throw new Error("duplicated entity: " + ent.name());
+            throw new Error("duplicated declaration: " + ent.name());
         }
         entities.put(ent.name(), ent);
+    }
+    // #@@}
+
+    /** Define variable or function globally. */
+    // #@@range/defineEntity{
+    public void defineEntity(Entity entity) {
+        Entity ent = entities.get(entity.name());
+        if (ent != null && ent.isDefined()) {
+            throw new Error("duplicated definition: " + entity.name() + ": " +
+                            ent.location() + " and " + entity.location());
+        }
+        entities.put(entity.name(), entity);
     }
     // #@@}
 

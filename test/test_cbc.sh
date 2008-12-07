@@ -236,6 +236,7 @@ test_24_cast() {
 test_25_block() {
     assert_out "1;2;3;1;OK" ./block
     assert_out "1;2;3" ./defvar
+    assert_out "77" ./decloverride
 }
 
 test_26_funcptr() {

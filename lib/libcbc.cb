@@ -1,7 +1,4 @@
-//import stdarg;        // FIXME
-
-typedef unsigned long va_arg_t;
-typedef va_arg_t* va_list;
+import stdarg;
 
 va_list
 va_init(void *arg)

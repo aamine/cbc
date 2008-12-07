@@ -1,3 +1,9 @@
+Sun Dec  7 16:55:56 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* test: test declaration override.
+
+	* test/run.sh: new option --help.
+
 Mon Nov 24 18:49:27 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: refactoring:
