@@ -307,11 +307,12 @@ public class CodeGenerator
         List<Assembly> bodyAsms = compileStmts(func);
         AsmStatistics stats = AsmStatistics.collect(bodyAsms);
         bodyAsms = reduceLabels(bodyAsms, stats);
-        List<Register> saveRegs = usedCalleeSavedRegisters(stats);
+        List<Register> saveRegs = usedCalleeSavedRegistersWithoutBP(stats);
         long lvarBytes = allocateLocalVariables(func.body().scope(),
                                                 saveRegs.size());
         prologue(func, saveRegs, lvarBytes);
-        if (options.isPositionIndependent() && stats.doesRegisterUsed(GOTBaseReg())) {
+        if (options.isPositionIndependent()
+                && stats.doesRegisterUsed(GOTBaseReg())) {
             loadGOTBaseAddress(GOTBaseReg());
         }
         as.addAll(bodyAsms);
@@ -354,10 +355,10 @@ public class CodeGenerator
     }
     // #@@}
 
-    protected List<Register> usedCalleeSavedRegisters(AsmStatistics stats) {
+    protected List<Register> usedCalleeSavedRegistersWithoutBP(AsmStatistics stats) {
         List<Register> result = new ArrayList<Register>();
         for (Register reg : calleeSavedRegisters()) {
-            if (stats.doesRegisterUsed(reg)) {
+            if (stats.doesRegisterUsed(reg) && !reg.equals(bp())) {
                 result.add(reg);
             }
         }
@@ -435,8 +436,14 @@ public class CodeGenerator
     protected void epilogue(DefinedFunction func,
                             List<Register> savedRegs,
                             long lvarBytes) {
-        shrinkStack(lvarBytes);
-        restoreRegisters(savedRegs);
+        //shrinkStack(lvarBytes);
+        if (! savedRegs.isEmpty()) {
+            long offset = stackGrowsLower
+                    ? -1 * savedRegs.size() * stackWordSize
+                    : (savedRegs.size() - 1) * stackWordSize;
+            lea(mem(offset, bp()), sp());
+            restoreRegisters(savedRegs);
+        }
         mov(bp(), sp());
         pop(bp());
         ret();
@@ -445,19 +452,14 @@ public class CodeGenerator
 
     protected void saveRegisters(List<Register> saveRegs) {
         for (Register reg : saveRegs) {
-            if (! reg.equals(bp())) {   // bp is already saved.
-                push(reg);
-            }
+            push(reg);
         }
     }
 
     protected void restoreRegisters(List<Register> savedRegs) {
         ListIterator<Register> regs = savedRegs.listIterator(savedRegs.size());
         while (regs.hasPrevious()) {
-            Register reg = regs.previous();
-            if (! reg.equals(bp())) {   // bp is going to be restored.
-                pop(reg);
-            }
+            pop(regs.previous());
         }
     }
 
@@ -490,7 +492,7 @@ public class CodeGenerator
      * Note that numSavedRegs includes bp.
      */
     protected long allocateLocalVariables(LocalScope scope, long numSavedRegs) {
-        long initLen = (numSavedRegs - 1) * stackWordSize;
+        long initLen = numSavedRegs * stackWordSize;
         long maxLen = allocateScope(scope, initLen);
         return maxLen - initLen;
     }
