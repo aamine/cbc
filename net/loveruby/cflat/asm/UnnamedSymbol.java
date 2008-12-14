@@ -20,4 +20,24 @@ public class UnnamedSymbol extends BaseSymbol {
     public String toString() {
         return super.toString();
     }
+
+    public int compareTo(Literal lit) {
+        return -(lit.compareTo(this));
+    }
+
+    public int cmp(IntegerLiteral i) {
+        return 1;
+    }
+
+    public int cmp(NamedSymbol sym) {
+        return 1;
+    }
+
+    public int cmp(UnnamedSymbol sym) {
+        return toString().compareTo(sym.toString());
+    }
+
+    public int cmp(SuffixedSymbol sym) {
+        return 1;
+    }
 }

@@ -1,3 +1,10 @@
+Mon Dec 15 00:05:16 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* introduce virtual stack again, for only local variables and tmp
+	  variables.  Function arguments use true push & pop.
+
+	* --verbose-asm prints stack frame layout in detail.
+
 Sun Dec 14 21:04:56 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* test: test alloca more.

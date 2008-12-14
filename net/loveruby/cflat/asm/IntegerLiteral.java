@@ -24,6 +24,10 @@ public class IntegerLiteral implements Literal {
         return value == 0;
     }
 
+    public IntegerLiteral plus(long diff) {
+        return new IntegerLiteral(value + diff);
+    }
+
     public IntegerLiteral integerLiteral() {
         return this;
     }
@@ -38,5 +42,29 @@ public class IntegerLiteral implements Literal {
 
     public void collectStatistics(AsmStatistics stats) {
         // does nothing
+    }
+
+    public String toString() {
+        return "$" + value;
+    }
+
+    public int compareTo(Literal lit) {
+        return -(lit.cmp(this));
+    }
+
+    public int cmp(IntegerLiteral i) {
+        return new Long(value).compareTo(new Long(i.value));
+    }
+
+    public int cmp(NamedSymbol sym) {
+        return -1;
+    }
+
+    public int cmp(UnnamedSymbol sym) {
+        return -1;
+    }
+
+    public int cmp(SuffixedSymbol sym) {
+        return -1;
     }
 }

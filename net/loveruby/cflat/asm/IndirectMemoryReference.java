@@ -43,6 +43,10 @@ public class IndirectMemoryReference extends MemoryReference {
         base.collectStatistics(stats);
     }
 
+    public void fixStackOffset(long diff) {
+        offset = offset.plus(diff);
+    }
+
     public String toString() {
         return toSource(SymbolTable.dummy());
     }
@@ -53,5 +57,23 @@ public class IndirectMemoryReference extends MemoryReference {
         }
         return (offset.isZero() ? "" : offset.toSource(table))
                 + "(" + base.toSource(table) + ")";
+    }
+
+    public int compareTo(MemoryReference mem) {
+        return -(mem.cmp(this));
+    }
+
+    protected int cmp(DirectMemoryReference mem) {
+        return -1;
+    }
+
+    protected int cmp(IndirectMemoryReference mem) {
+        int c = base.baseName().compareTo(mem.base.baseName());
+        if (c != 0) {
+            return c;
+        }
+        else {
+            return offset.compareTo(mem.offset);
+        }
     }
 }

@@ -22,4 +22,16 @@ public class DirectMemoryReference extends MemoryReference {
     public String toSource(SymbolTable table) {
         return this.value.toSource(table);
     }
+
+    public int compareTo(MemoryReference mem) {
+        return -(mem.cmp(this));
+    }
+
+    protected int cmp(IndirectMemoryReference mem) {
+        return 1;
+    }
+
+    protected int cmp(DirectMemoryReference mem) {
+        return value.compareTo(mem.value);
+    }
 }

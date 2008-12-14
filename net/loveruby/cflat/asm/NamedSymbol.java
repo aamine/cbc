@@ -22,4 +22,24 @@ public class NamedSymbol extends BaseSymbol {
     public String toString() {
         return "#" + name;
     }
+
+    public int compareTo(Literal lit) {
+        return -(lit.compareTo(this));
+    }
+
+    public int cmp(IntegerLiteral i) {
+        return 1;
+    }
+
+    public int cmp(NamedSymbol sym) {
+        return name.compareTo(sym.name);
+    }
+
+    public int cmp(UnnamedSymbol sym) {
+        return -1;
+    }
+
+    public int cmp(SuffixedSymbol sym) {
+        return toString().compareTo(sym.toString());
+    }
 }

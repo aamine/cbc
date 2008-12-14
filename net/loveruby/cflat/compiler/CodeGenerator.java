@@ -286,6 +286,51 @@ public class CodeGenerator
     // Compile Function
     //
 
+    /* Standard IA-32 stack frame layout (after prologue)
+     *
+     * ======================= esp #3 (stack top just before function call)
+     * next arg 1
+     * ---------------------
+     * next arg 2
+     * ---------------------
+     * next arg 3
+     * ---------------------   esp #2 (stack top after alloca call)
+     * alloca area
+     * ---------------------   esp #1 (stack top just after prelude)
+     * temporary
+     * variables...
+     * ---------------------   -16(%ebp)
+     * lvar 3
+     * ---------------------   -12(%ebp)
+     * lvar 2
+     * ---------------------   -8(%ebp)
+     * lvar 1
+     * ---------------------   -4(%ebp)
+     * callee-saved register
+     * ======================= 0(%ebp)
+     * saved ebp
+     * ---------------------   4(%ebp)
+     * return address
+     * ---------------------   8(%ebp)
+     * arg 1
+     * ---------------------   12(%ebp)
+     * arg 2
+     * ---------------------   16(%ebp)
+     * arg 3
+     * ...
+     * ...
+     * ======================= stack bottom
+     */
+
+    /*
+     * Platform Dependent Stack Parameters
+     */
+    static final protected boolean stackGrowsLower = true;
+    static final protected long stackWordSize = 4;
+    static final protected long stackAlignment = stackWordSize;
+    // +1 for return address, +1 for saved bp
+    static final protected long paramStartWord = 2;
+
     /** Compiles a function. */
     // #@@range/compileFunction{
     protected void compileFunction(DefinedFunction func) {
@@ -304,19 +349,71 @@ public class CodeGenerator
     // #@@}
 
     protected void compileFunctionBody(DefinedFunction func) {
+        initVirtualStack();
         List<Assembly> bodyAsms = compileStmts(func);
+        long maxTmpBytes = maxTmpBytes();
         AsmStatistics stats = AsmStatistics.collect(bodyAsms);
         bodyAsms = reduceLabels(bodyAsms, stats);
         List<Register> saveRegs = usedCalleeSavedRegistersWithoutBP(stats);
-        long lvarBytes = allocateLocalVariables(func.body().scope(),
-                                                saveRegs.size());
-        prologue(func, saveRegs, lvarBytes);
+        long saveRegsBytes = saveRegs.size() * stackWordSize;
+        long lvarBytes = allocateLocalVariables(
+                func.body().scope(), saveRegsBytes);
+        fixTmpOffsets(bodyAsms, saveRegsBytes + lvarBytes);
+
+        if (options.isVerboseAsm()) {
+            printStackFrameLayout(
+                    saveRegsBytes, lvarBytes, maxTmpBytes,
+                    func.localVariables());
+        }
+
+        initVirtualStack();
+        prologue(func, saveRegs, saveRegsBytes + lvarBytes + maxTmpBytes);
         if (options.isPositionIndependent()
                 && stats.doesRegisterUsed(GOTBaseReg())) {
             loadGOTBaseAddress(GOTBaseReg());
         }
         as.addAll(bodyAsms);
         epilogue(func, saveRegs, lvarBytes);
+    }
+
+    protected void printStackFrameLayout(
+            long saveRegsBytes, long lvarBytes, long maxTmpBytes,
+            List<DefinedVariable> lvars) {
+        List<MemInfo> vars = new ArrayList<MemInfo>();
+        for (DefinedVariable var : lvars) {
+            vars.add(new MemInfo(var.memref(), var.name()));
+        }
+        vars.add(new MemInfo(mem(0, bp()), "return address"));
+        vars.add(new MemInfo(mem(4, bp()), "saved %ebp"));
+        if (saveRegsBytes > 0) {
+            vars.add(new MemInfo(mem(-saveRegsBytes, bp()),
+                "saved callee-saved registers (" + saveRegsBytes + " bytes)"));
+        }
+        if (maxTmpBytes > 0) {
+            long offset = -(saveRegsBytes + lvarBytes + maxTmpBytes);
+            vars.add(new MemInfo(mem(offset, bp()),
+                "tmp variables (" + maxTmpBytes + " bytes)"));
+        }
+        Collections.sort(vars, new Comparator<MemInfo>() {
+            public int compare(MemInfo x, MemInfo y) {
+                return x.mem.compareTo(y.mem);
+            }
+        });
+        comment("---- Stack Frame Layout -----------");
+        for (MemInfo info : vars) {
+            comment(info.mem.toString() + ": " + info.name);
+        }
+        comment("-----------------------------------");
+    }
+
+    class MemInfo {
+        MemoryReference mem;
+        String name;
+
+        MemInfo(MemoryReference mem, String name) {
+            this.mem = mem;
+            this.name = name;
+        }
     }
 
     protected List<Assembly> compileStmts(DefinedFunction func) {
@@ -379,56 +476,14 @@ public class CodeGenerator
         return calleeSavedRegistersCache;
     }
 
-    /* Standard IA-32 stack frame layout (after prologue)
-     *
-     * ======================= esp (stack top)
-     * temporary
-     * variables...
-     * ---------------------   ebp-(4*4)
-     * lvar 3
-     * ---------------------   ebp-(4*3)
-     * lvar 2
-     * ---------------------   ebp-(4*2)
-     * lvar 1
-     * ---------------------   ebp-(4*1)
-     * callee-saved register
-     * ======================= ebp
-     * saved ebp
-     * ---------------------   ebp+(4*1)
-     * return address
-     * ---------------------   ebp+(4*2)
-     * arg 1
-     * ---------------------   ebp+(4*3)
-     * arg 2
-     * ---------------------   ebp+(4*4)
-     * arg 3
-     * ...
-     * ...
-     * ======================= stack bottom
-     */
-
-    /*
-     * Platform Dependent Stack Parameters
-     */
-    static final protected boolean stackGrowsLower = true;
-    static final protected long stackWordSize = 4;
-    static final protected long stackAlignment = stackWordSize;
-    // +1 for return address, +1 for saved bp
-    static final protected long paramStartWord = 2;
-
     // #@@range/prologue{
     protected void prologue(DefinedFunction func,
                             List<Register> saveRegs,
-                            long lvarBytes) {
-        push(bp());
+                            long frameSize) {
+        truePush(bp());
         mov(sp(), bp());
         saveRegisters(saveRegs);
-        extendStack(lvarBytes);
-        if (options.isVerboseAsm()) {
-            for (DefinedVariable var : func.localVariables()) {
-                comment("mem " + var.memref() + ": " + var.name());
-            }
-        }
+        extendStack(frameSize);
     }
     // #@@}
 
@@ -436,16 +491,9 @@ public class CodeGenerator
     protected void epilogue(DefinedFunction func,
                             List<Register> savedRegs,
                             long lvarBytes) {
-        //shrinkStack(lvarBytes);
-        if (! savedRegs.isEmpty()) {
-            long offset = stackGrowsLower
-                    ? -1 * savedRegs.size() * stackWordSize
-                    : (savedRegs.size() - 1) * stackWordSize;
-            lea(mem(offset, bp()), sp());
-            restoreRegisters(savedRegs);
-        }
+        restoreRegisters(savedRegs);
         mov(bp(), sp());
-        pop(bp());
+        truePop(bp());
         ret();
     }
     // #@@}
@@ -491,8 +539,7 @@ public class CodeGenerator
      * Returns byte-length of the local variable area.
      * Note that numSavedRegs includes bp.
      */
-    protected long allocateLocalVariables(LocalScope scope, long numSavedRegs) {
-        long initLen = numSavedRegs * stackWordSize;
+    protected long allocateLocalVariables(LocalScope scope, long initLen) {
         long maxLen = allocateScope(scope, initLen);
         return maxLen - initLen;
     }
@@ -525,13 +572,75 @@ public class CodeGenerator
 
     protected void extendStack(long len) {
         if (len > 0) {
-            add(imm(len * (stackGrowsLower ? -1 : 1)), sp());
+            if (stackGrowsLower) {
+                sub(imm(len), sp());
+            }
+            else {
+                add(imm(len), sp());
+            }
         }
     }
 
-    protected void shrinkStack(long len) {
+    protected void rewindStack(long len) {
         if (len > 0) {
-            add(imm(len * (stackGrowsLower ? 1 : -1)), sp());
+            if (stackGrowsLower) {
+                add(imm(len), sp());
+            }
+            else {
+                sub(imm(len), sp());
+            }
+        }
+    }
+
+    protected long stackPointer;
+    protected long stackPointerMax;
+
+    protected void initVirtualStack() {
+        stackPointer = 0;
+        stackPointerMax = stackPointer;
+    }
+
+    protected long maxTmpBytes() {
+        return stackPointerMax;
+    }
+
+    protected IndirectMemoryReference stackTop() {
+        if (stackGrowsLower) {
+            return mem(-stackPointer, bp());
+        }
+        else {
+            return mem(stackPointer - stackWordSize, bp());
+        }
+    }
+
+    protected void push(Register reg) {
+        extendVirtualStack(stackWordSize);
+        as.relocatableMov(reg, stackTop());
+        if (options.isVerboseAsm()) {
+            comment("push " + reg.name() + " -> " + stackTop());
+        }
+    }
+
+    protected void pop(Register reg) {
+        if (options.isVerboseAsm()) {
+            comment("pop  " + reg.name() + " <- " + stackTop());
+        }
+        as.relocatableMov(stackTop(), reg);
+        rewindVirtualStack(stackWordSize);
+    }
+
+    protected void extendVirtualStack(long len) {
+        stackPointer += len;
+        stackPointerMax = Math.max(stackPointerMax, stackPointer);
+    }
+
+    protected void rewindVirtualStack(long len) {
+        stackPointer -= len;
+    }
+
+    protected void fixTmpOffsets(List<Assembly> asms, long offset) {
+        for (Assembly asm : asms) {
+            asm.fixStackOffset(offset * (stackGrowsLower ? -1 : 1));
         }
     }
 
@@ -545,7 +654,7 @@ public class CodeGenerator
         ListIterator<ExprNode> args = node.finalArg();
         while (args.hasPrevious()) {
             compile(args.previous());
-            push(reg("ax"));
+            truePush(reg("ax"));
         }
         // call
         if (node.isStaticCall()) {
@@ -559,7 +668,7 @@ public class CodeGenerator
         }
         // rewind stack
         // >4 bytes arguments are not supported.
-        shrinkStack(node.numArgs() * stackWordSize);
+        rewindStack(node.numArgs() * stackWordSize);
     }
 
     public void visit(ReturnNode node) {
@@ -1250,8 +1359,8 @@ public class CodeGenerator
     public void setl(Register reg) { as.setl(reg); }
     public void setle(Register reg) { as.setle(reg); }
     public void test(Type type, Register a, Register b) { as.test(type, a, b); }
-    public void push(Register reg) { as.push(reg); }
-    public void pop(Register reg) { as.pop(reg); }
+    protected void truePush(Register reg) { as.push(reg); }
+    protected void truePop(Register reg) { as.pop(reg); }
     public void call(Symbol sym) { as.call(sym); }
     public void callAbsolute(Register reg) { as.callAbsolute(reg); }
     public void ret() { as.ret(); }

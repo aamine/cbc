@@ -17,6 +17,10 @@ public class SuffixedSymbol implements Symbol {
         base.collectStatistics(stats);
     }
 
+    public Literal plus(long n) {
+        throw new Error("must not happen: SuffixedSymbol.plus called");
+    }
+
     public String name() {
         return base.name();
     }
@@ -31,5 +35,25 @@ public class SuffixedSymbol implements Symbol {
 
     public String toString() {
         return base.toString() + suffix;
+    }
+
+    public int compareTo(Literal lit) {
+        return -(lit.compareTo(this));
+    }
+
+    public int cmp(IntegerLiteral i) {
+        return 1;
+    }
+
+    public int cmp(NamedSymbol sym) {
+        return toString().compareTo(sym.toString());
+    }
+
+    public int cmp(UnnamedSymbol sym) {
+        return -1;
+    }
+
+    public int cmp(SuffixedSymbol sym) {
+        return toString().compareTo(sym.toString());
     }
 }
