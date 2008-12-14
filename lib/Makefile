@@ -17,4 +17,4 @@ $(TARGET): $(OBJS)
 stdarg.o: stdarg.cb
 
 clean:
-	rm -f $(TARGET) *.o *.s
+	rm -f $(TARGET) *.o stdarg.s
