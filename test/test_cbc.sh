@@ -279,6 +279,10 @@ test_28_syntax() {
 
 test_29_import() {
     assert_compile_success duplicated-import.cb
+    assert_compile_success vardecl.cb &&
+    assert_status 0 ./vardecl
+    assert_compile_success -fPIC vardecl.cb &&
+    assert_status 0 ./vardecl
 }
 
 test_30_staticfunction() {
@@ -314,6 +318,9 @@ test_35_invalidstmt() {
 
 test_36_alloca() {
     assert_out "<<Hello>>" ./alloca
+    assert_out "17;17;17;17" ./alloca2
+    assert_compile_success -fPIE -pie alloca2.cb &&
+    assert_out "17;17;17;17" ./alloca2
 }
 
 ###
