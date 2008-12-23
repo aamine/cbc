@@ -98,6 +98,7 @@ public class CodeGenerator
     }
     // #@@}
 
+    // #@@range/locateConstant{
     protected void locateConstant(ConstantEntry ent, SymbolTable symbols) {
         ent.setSymbol(symbols.newSymbol());
         if (options.isPositionIndependent()) {
@@ -109,7 +110,9 @@ public class CodeGenerator
             ent.setAddress(imm(ent.symbol()));
         }
     }
+    // #@@}
 
+    // #@@range/locateGlobalVariable{
     protected void locateGlobalVariable(Entity ent) {
         Symbol sym = ent.isPrivate() ? privateSymbol(ent.symbolString())
                                      : globalSymbol(ent.symbolString());
@@ -125,12 +128,16 @@ public class CodeGenerator
             ent.setMemref(mem(sym));
         }
     }
+    // #@@}
 
+    // #@@range/locateFunction{
     protected void locateFunction(Function func) {
         func.setCallingSymbol(callingSymbol(func));
         locateGlobalVariable(func);
     }
+    // #@@}
 
+    // #@@range/callingSymbol{
     protected Symbol callingSymbol(Function func) {
         if (func.isPrivate()) {
             return privateSymbol(func.symbolString());
@@ -140,17 +147,22 @@ public class CodeGenerator
             return doesIndirectAccess(func) ? PLTSymbol(sym) : sym;
         }
     }
+    // #@@}
 
     // condition to use indirect access (using PLT to call, GOT to refer).
     // In PIC, we do use indirect access for all global variables.
     // In PIE, we do use direct access for file-local reference.
+    // #@@range/doesIndirectAccess{
     protected boolean doesIndirectAccess(Entity ent) {
         return options.isPositionIndependent() && !optimizeGvarAccess(ent);
     }
+    // #@@}
 
+    // #@@range/optimizeGvarAccess{
     protected boolean optimizeGvarAccess(Entity ent) {
         return options.isPIERequired() && ent.isDefined();
     }
+    // #@@}
 
     /** Generates initialized entries */
     // #@@range/dataEntry{
@@ -233,13 +245,35 @@ public class CodeGenerator
     // PIC/PIE related constants and codes
     //
 
-    static protected final Symbol GOT = new NamedSymbol("_GLOBAL_OFFSET_TABLE_");
+    // #@@range/pic_methods{
+    static protected final Symbol GOT =
+            new NamedSymbol("_GLOBAL_OFFSET_TABLE_");
 
     protected void loadGOTBaseAddress(Register reg) {
         call(PICThunkSymbol(reg));
         add(imm(GOT), reg);
     }
 
+    protected Register GOTBaseReg() {
+        return reg("bx");
+    }
+    // #@@}
+
+    // #@@range/pic_symbols{
+    protected Symbol globalGOTSymbol(Symbol base) {
+        return new SuffixedSymbol(base, "@GOT");
+    }
+
+    protected Symbol localGOTSymbol(Symbol base) {
+        return new SuffixedSymbol(base, "@GOTOFF");
+    }
+
+    protected Symbol PLTSymbol(Symbol base) {
+        return new SuffixedSymbol(base, "@PLT");
+    }
+    // #@@}
+
+    // #@@range/pic_thunk_helper{
     protected Symbol PICThunkSymbol(Register reg) {
         return new NamedSymbol("__i686.get_pc_thunk." + reg.baseName());
     }
@@ -248,18 +282,22 @@ public class CodeGenerator
     PICThunkSectionFlags = SectionFlag_allocatable
                          + SectionFlag_executable
                          + SectionFlag_sectiongroup;
+    // #@@}
 
+    /**
+     * Output PIC thunk.
+     * ELF section declaration format is:
+     *
+     *     .section NAME, FLAGS, TYPE, flag_arguments
+     *
+     * FLAGS, TYPE, flag_arguments are optional.
+     * For "M" flag (a member of a section group),
+     * following format is used:
+     *
+     *     .section NAME, "...M", TYPE, section_group_name, linkage
+     */
+    // #@@range/PICThunk{
     protected void PICThunk(Register reg) {
-        // ELF section declaration; format:
-        //
-        //     .section NAME, FLAGS, TYPE, flag_arguments
-        //
-        // FLAGS, TYPE, flag_arguments are optional.
-        // For "M" flag (a member of a section group),
-        // format is:
-        //
-        //     .section NAME, "...M", TYPE, section_group_name, linkage
-        //
         Symbol sym = PICThunkSymbol(reg);
         _section(".text" + "." + sym.toSource(),
                  "\"" + PICThunkSectionFlags + "\"",
@@ -273,28 +311,13 @@ public class CodeGenerator
         mov(mem(sp()), reg);    // fetch saved EIP to the GOT base register
         ret();
     }
-
-    protected Register GOTBaseReg() {
-        return reg("bx");
-    }
-
-    protected Symbol globalGOTSymbol(Symbol base) {
-        return new SuffixedSymbol(base, "@GOT");
-    }
-
-    protected Symbol localGOTSymbol(Symbol base) {
-        return new SuffixedSymbol(base, "@GOTOFF");
-    }
-
-    protected Symbol PLTSymbol(Symbol base) {
-        return new SuffixedSymbol(base, "@PLT");
-    }
+    // #@@}
 
     //
     // Compile Function
     //
 
-    /* Standard IA-32 stack frame layout (after prologue)
+    /* Standard IA-32 stack frame layout
      *
      * ======================= esp #3 (stack top just before function call)
      * next arg 1
@@ -333,11 +356,13 @@ public class CodeGenerator
     /*
      * Platform Dependent Stack Parameters
      */
+    // #@@range/stackParams{
     static final protected boolean stackGrowsLower = true;
     static final protected long stackWordSize = 4;
     static final protected long stackAlignment = stackWordSize;
-    // +1 for return address, +1 for saved bp
     static final protected long paramStartWord = 2;
+                                    // return addr and saved bp
+    // #@@}
 
     /** Compiles a function. */
     // #@@range/compileFunction{
@@ -356,6 +381,7 @@ public class CodeGenerator
     }
     // #@@}
 
+    // #@@range/compileFunctionBody{
     protected void compileFunctionBody(DefinedFunction func) {
         initVirtualStack();
         List<Assembly> bodyAsms = compileStmts(func);
@@ -383,6 +409,7 @@ public class CodeGenerator
         as.addAll(bodyAsms);
         epilogue(func, saveRegs, lvarBytes);
     }
+    // #@@}
 
     protected void printStackFrameLayout(
             long saveRegsBytes, long lvarBytes, long maxTmpBytes,
@@ -424,6 +451,7 @@ public class CodeGenerator
         }
     }
 
+    // #@@range/compileStmts{
     protected List<Assembly> compileStmts(DefinedFunction func) {
         pushAssembler();
         currentFunction = func;
@@ -432,7 +460,9 @@ public class CodeGenerator
         currentFunction = null;
         return options.optimizer().optimize(popAssembler().assemblies());
     }
+    // #@@}
 
+    // #@@range/reduceLabels{
     protected List<Assembly> reduceLabels(List<Assembly> assemblies, AsmStatistics stats) {
         List<Assembly> result = new ArrayList<Assembly>();
         for (Assembly asm : assemblies) {
@@ -445,6 +475,7 @@ public class CodeGenerator
         }
         return result;
     }
+    // #@@}
 
     // #@@range/compile{
     protected void compile(Node n) {
@@ -472,6 +503,7 @@ public class CodeGenerator
 
     protected List<Register> calleeSavedRegistersCache = null;
 
+    // platform dependent
     protected List<Register> calleeSavedRegisters() {
         if (calleeSavedRegistersCache == null) {
             List<Register> regs = new ArrayList<Register>();
@@ -956,7 +988,7 @@ public class CodeGenerator
         else if (op.equals("-")) {
             sub(t, right, reg("ax", t));
         }
-    // #@@}
+    // #@@range/compileBinaryOp_begin}
         else if (op.equals("*")) {
             imul(t, right, reg("ax", t));
         }
@@ -1482,6 +1514,7 @@ public class CodeGenerator
     public void _text() { as._text(); }
     public void _data() { as._data(); }
     public void _section(String name) { as._section(name); }
+    // #@@}
     public void _section(String name, String flags, String type, String group, String linkage) { as._section(name, flags, type, group, linkage); }
     public void _globl(Symbol sym) { as._globl(sym); }
     public void _local(Symbol sym) { as._local(sym); }
@@ -1500,7 +1533,6 @@ public class CodeGenerator
     public void _string(String str) { as._string(str); }
     public void label(Symbol sym) { as.label(sym); }
     public void label(Label label) { as.label(label); }
-    // #@@}
 
     public void jmp(Label label) { as.jmp(label); }
     public void jz(Label label) { as.jz(label); }
