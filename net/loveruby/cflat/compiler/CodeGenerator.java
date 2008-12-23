@@ -777,7 +777,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/compile_If{
+    // #@@range/compile_CondExpr{
     public void visit(CondExprNode node) {
         compile(node.cond());
         testCond(node.cond().type(), reg("ax"));
@@ -864,6 +864,7 @@ public class CodeGenerator
         label(node.endLabel());
     }
 
+    // #@@range/compile_For{
     public void visit(ForNode node) {
         compileStmt(node.init());
         label(node.begLabel());
@@ -876,6 +877,7 @@ public class CodeGenerator
         jmp(node.begLabel());
         label(node.endLabel());
     }
+    // #@@}
 
     // #@@range/compile_Break{
     public void visit(BreakNode node) {
@@ -945,24 +947,19 @@ public class CodeGenerator
     // #@@}
 
     // spills: dx
-    // #@@range/compileBinaryOp{
+    // #@@range/compileBinaryOp_begin{
     protected void compileBinaryOp(String op, Type t, AsmOperand right) {
-        // #@@range/compileBinaryOp_add{
+        // #@@range/compileBinaryOp_arithops{
         if (op.equals("+")) {
             add(t, right, reg("ax", t));
         }
-        // #@@}
-        // #@@range/compileBinaryOp_sub{
         else if (op.equals("-")) {
             sub(t, right, reg("ax", t));
         }
-        // #@@}
-        // #@@range/compileBinaryOp_mul{
+    // #@@}
         else if (op.equals("*")) {
             imul(t, right, reg("ax", t));
         }
-        // #@@}
-        // #@@range/compileBinaryOp_div{
         else if (op.equals("/") || op.equals("%")) {
             if (t.isSigned()) {
                 cltd();
@@ -977,6 +974,7 @@ public class CodeGenerator
             }
         }
         // #@@}
+        // #@@range/compileBinaryOp_bitops{
         else if (op.equals("&")) {
             and(t, right, reg("ax", t));
         }
@@ -997,7 +995,8 @@ public class CodeGenerator
         else if (op.equals("<<")) {
             sal(t, cl(), reg("ax", t));
         }
-        // #@@range/compileBinaryOp_cmp{
+        // #@@}
+        // #@@range/compileBinaryOp_cmpops{
         else {
             // Comparison operators
             cmp(t, right, reg("ax", t));
@@ -1026,6 +1025,7 @@ public class CodeGenerator
             movzb(t, al(), reg("ax", t));
         }
         // #@@}
+    // #@@range/compileBinaryOp_end{
     }
     // #@@}
 
