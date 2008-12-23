@@ -323,6 +323,10 @@ test_36_alloca() {
     assert_out "17;17;17;17" ./alloca2
 }
 
+test_37_setjmp() {
+    assert_out "OK" ./setjmptest
+}
+
 ###
 ### Local Assertions
 ###

@@ -1,3 +1,9 @@
+Wed Dec 24 02:54:06 2008  Minero Aoki  <aamine@loveruby.net>
+
+	* import/setjmp.hb: new file to support setjmp.
+
+	* test: test setjmp.
+
 Mon Dec 15 00:05:16 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* introduce virtual stack again, for only local variables and tmp
