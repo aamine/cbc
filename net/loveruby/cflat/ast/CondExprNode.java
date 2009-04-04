@@ -27,16 +27,14 @@ public class CondExprNode extends ExprNode {
         return thenExpr;
     }
 
-    public void setThenExpr(ExprNode node) {
-        thenExpr = node;
-    }
-
     public ExprNode elseExpr() {
         return elseExpr;
     }
 
-    public void setElseExpr(ExprNode node) {
-        elseExpr = node;
+    public void setExprs(ExprNode cond, ExprNode thenExpr, ExprNode elseExpr) {
+        this.cond = cond;
+        this.thenExpr = thenExpr;
+        this.elseExpr = elseExpr;
     }
 
     public Label elseLabel() {
@@ -57,7 +55,7 @@ public class CondExprNode extends ExprNode {
         d.printMember("elseExpr", elseExpr);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public CondExprNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

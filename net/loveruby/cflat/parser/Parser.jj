@@ -587,7 +587,7 @@ BlockNode block():
 {
     Token t;
     List<DefinedVariable> vars;
-    List<Node> stmts;
+    List<StmtNode> stmts;
 }
 {
     t="{" vars=defvar_list() stmts=stmts() "}"
@@ -813,10 +813,10 @@ TypedefNode typedef():
 // #@@}
 
 // #@@range/stmts{
-List<Node> stmts():
+List<StmtNode> stmts():
 {
-    List<Node> ss = new ArrayList<Node>();
-    Node s;
+    List<StmtNode> ss = new ArrayList<StmtNode>();
+    StmtNode s;
 }
 {
     (s=stmt() { if (s != null) ss.add(s); })*
@@ -827,12 +827,15 @@ List<Node> stmts():
 // #@@}
 
 // #@@range/stmt{
-Node stmt():
-{ Node n = null; }
+StmtNode stmt():
+{
+    StmtNode n = null;
+    ExprNode e = null;
+}
 {
     ( ";"
     | LOOKAHEAD(2) n=labeled_stmt()
-    | n=expr() ";"
+    | e=expr() ";" { n = new ExprStmtNode(e.location(), e); }
     | n=block()
     | n=if_stmt()
     | n=while_stmt()
@@ -853,7 +856,7 @@ Node stmt():
 LabelNode labeled_stmt():
 {
     Token t;
-    Node n;
+    StmtNode n;
 }
 {
     t=<IDENTIFIER> ":" n=stmt()
@@ -867,7 +870,7 @@ IfNode if_stmt():
 {
     Token t;
     ExprNode cond;
-    Node thenBody, elseBody = null;
+    StmtNode thenBody, elseBody = null;
 }
 {
     t=<IF> "(" cond=expr() ")" thenBody=stmt()
@@ -883,7 +886,7 @@ WhileNode while_stmt():
 {
     Token t;
     ExprNode cond;
-    Node body;
+    StmtNode body;
 }
 {
     t=<WHILE> "(" cond=expr() ")" body=stmt()
@@ -897,7 +900,7 @@ DoWhileNode dowhile_stmt():
 {
     Token t;
     ExprNode cond;
-    Node body;
+    StmtNode body;
 }
 {
     t=<DO> body=stmt() <WHILE> "(" cond=expr() ")" ";"
@@ -910,7 +913,7 @@ ForNode for_stmt():
 {
     Token t;
     ExprNode init = null, cond = null, incr = null;
-    Node body;
+    StmtNode body;
 }
 {
     t=<FOR> "(" [init=expr()] ";"
@@ -982,8 +985,8 @@ CaseNode default_clause():
 
 BlockNode case_body():
 {
-    LinkedList<Node> stmts = new LinkedList<Node>();
-    Node s;
+    LinkedList<StmtNode> stmts = new LinkedList<StmtNode>();
+    StmtNode s;
 }
 {
     (s=stmt() { if (s != null) stmts.add(s); })+

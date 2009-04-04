@@ -53,7 +53,7 @@ public class BinaryOpNode extends ExprNode {
         d.printMember("right", right);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public BinaryOpNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

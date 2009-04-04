@@ -31,39 +31,46 @@ public class JumpResolver extends Visitor {
     }
     // #@@}
 
-    protected void resolve(Node n) {
-        visitNode(n);
+    protected void resolve(StmtNode n) {
+        n.accept(this);
     }
 
-    public void visit(SwitchNode node) {
+    protected void resolve(ExprNode n) {
+        n.accept(this);
+    }
+
+    public SwitchNode visit(SwitchNode node) {
         resolve(node.cond());
         breakTargetStack.add(node);
-        visitNodeList(node.cases());
+        visitStmts(node.cases());
         breakTargetStack.removeLast();
+        return null;
     }
 
     // #@@range/_while{
-    public void visit(WhileNode node) {
+    public WhileNode visit(WhileNode node) {
         resolve(node.cond());
         breakTargetStack.add(node);
         continueTargetStack.add(node);
         resolve(node.body());
         continueTargetStack.removeLast();
         breakTargetStack.removeLast();
+        return null;
     }
     // #@@}
 
-    public void visit(DoWhileNode node) {
+    public DoWhileNode visit(DoWhileNode node) {
         breakTargetStack.add(node);
         continueTargetStack.add(node);
         resolve(node.body());
         continueTargetStack.removeLast();
         breakTargetStack.removeLast();
         resolve(node.cond());
+        return null;
     }
 
     // #@@range/_for{
-    public void visit(ForNode node) {
+    public ForNode visit(ForNode node) {
         resolve(node.init());
         resolve(node.cond());
         breakTargetStack.add(node);
@@ -72,34 +79,37 @@ public class JumpResolver extends Visitor {
         resolve(node.incr());
         continueTargetStack.removeLast();
         breakTargetStack.removeLast();
+        return null;
     }
     // #@@}
 
     // #@@range/_break{
-    public void visit(BreakNode node) {
+    public BreakNode visit(BreakNode node) {
         if (breakTargetStack.isEmpty()) {
-            errorHandler.error(node.location(), 
+            errorHandler.error(node.location(),
                     "break from out of while/do-while/for/switch");
-            return;
+            return null;
         }
         BreakableStmt target = breakTargetStack.getLast();
         node.setTargetLabel(target.endLabel());
+        return null;
     }
     // #@@}
 
     // #@@range/_continue{
-    public void visit(ContinueNode node) {
+    public ContinueNode visit(ContinueNode node) {
         if (breakTargetStack.isEmpty()) {
             errorHandler.error(node.location(),
                         "continue from out of while/do-while/for");
-            return;
+            return null;
         }
         ContinueableStmt target = continueTargetStack.getLast();
         node.setTargetLabel(target.continueLabel());
+        return null;
     }
     // #@@}
 
-    public void visit(LabelNode node) {
+    public LabelNode visit(LabelNode node) {
         try {
             Label label = currentFunction.defineLabel(node.name(),
                                                       node.location());
@@ -108,13 +118,16 @@ public class JumpResolver extends Visitor {
         catch (SemanticException ex) {
             errorHandler.error(node.location(), ex.getMessage());
         }
+        return null;
     }
 
-    public void visit(GotoNode node) {
+    public GotoNode visit(GotoNode node) {
         node.setTargetLabel(currentFunction.referLabel(node.target()));
+        return null;
     }
 
-    public void visit(ReturnNode node) {
+    public ReturnNode visit(ReturnNode node) {
         node.setFunction(currentFunction);
+        return null;
     }
 }

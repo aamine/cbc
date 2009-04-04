@@ -18,6 +18,10 @@ public class SwitchNode extends StmtNode implements BreakableStmt {
         return cond;
     }
 
+    public void setCond(ExprNode cond) {
+        this.cond = cond;
+    }
+
     public List<CaseNode> cases() {
         return cases;
     }
@@ -31,7 +35,7 @@ public class SwitchNode extends StmtNode implements BreakableStmt {
         d.printNodeList("cases", cases);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public SwitchNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

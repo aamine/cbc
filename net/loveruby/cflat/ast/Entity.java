@@ -89,4 +89,6 @@ abstract public class Entity extends Node {
     public Location location() {
         return typeNode.location();
     }
+
+    abstract public Entity accept(ASTVisitor visitor);
 }

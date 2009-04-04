@@ -29,7 +29,7 @@ public class IntegerLiteralNode extends LiteralNode {
         d.printMember("value", value);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public IntegerLiteralNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

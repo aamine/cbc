@@ -64,8 +64,8 @@ public class PtrMemberNode extends ExprNode {
         d.printMember("member", member);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public PtrMemberNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 
     public void acceptLHS(ASTLHSVisitor visitor) {

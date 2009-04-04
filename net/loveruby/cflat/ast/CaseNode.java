@@ -18,6 +18,10 @@ public class CaseNode extends StmtNode {
         return values;
     }
 
+    public void setValues(List<ExprNode> values) {
+        this.values = values;
+    }
+
     public boolean isDefault() {
         return values.isEmpty();
     }
@@ -35,7 +39,7 @@ public class CaseNode extends StmtNode {
         d.printMember("body", body);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public CaseNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

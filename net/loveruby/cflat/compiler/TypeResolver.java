@@ -18,15 +18,15 @@ public class TypeResolver extends Visitor {
     public void resolve(AST ast) {
         this.typeTable = ast.typeTable();
         defineTypes(ast.types());
-        resolveNodeList(ast.types());
-        resolveNodeList(ast.declarations());
-        resolveNodeList(ast.entities());
-    }
-    // #@@}
-
-    // #@@range/resolveNodeList{
-    protected void resolveNodeList(List<? extends Node> nodes) {
-        visitNodeList(nodes);
+        for (TypeDefinition t : ast.types()) {
+            t.accept(this);
+        }
+        for (Entity d : ast.declarations()) {
+            d.accept(this);
+        }
+        for (Entity e : ast.entities()) {
+            e.accept(this);
+        }
     }
     // #@@}
 
@@ -51,14 +51,16 @@ public class TypeResolver extends Visitor {
     // #@@}
 
     // #@@range/StructNode{
-    public void visit(StructNode struct) {
+    public StructNode visit(StructNode struct) {
         resolveCompositeType(struct);
+        return null;
     }
     // #@@}
 
     // #@@range/UnionNode{
-    public void visit(UnionNode union) {
+    public UnionNode visit(UnionNode union) {
         resolveCompositeType(union);
+        return null;
     }
     // #@@}
 
@@ -75,32 +77,37 @@ public class TypeResolver extends Visitor {
     // #@@}
 
     // #@@range/TypedefNode{
-    public void visit(TypedefNode typedef) {
+    public TypedefNode visit(TypedefNode typedef) {
         bindType(typedef.typeNode());
         bindType(typedef.realTypeNode());
+        return null;
     }
     // #@@}
 
     // #@@range/DefinedVariable{
-    public void visit(DefinedVariable var) {
+    public DefinedVariable visit(DefinedVariable var) {
         bindType(var.typeNode());
         super.visit(var);       // resolve initializer
+        return null;
     }
     // #@@}
 
-    public void visit(UndefinedVariable var) {
+    public UndefinedVariable visit(UndefinedVariable var) {
         bindType(var.typeNode());
+        return null;
     }
 
     // #@@range/DefinedFunction{
-    public void visit(DefinedFunction func) {
+    public DefinedFunction visit(DefinedFunction func) {
         resolveFunctionHeader(func);
-        visitNode(func.body());
+        visitStmt(func.body());
+        return null;
     }
     // #@@}
 
-    public void visit(UndefinedFunction func) {
+    public UndefinedFunction visit(UndefinedFunction func) {
         resolveFunctionHeader(func);
+        return null;
     }
 
     // #@@range/resolveFunctionHeader{
@@ -117,7 +124,7 @@ public class TypeResolver extends Visitor {
     }
     // #@@}
 
-    public void visit(AddressNode node) {
+    public AddressNode visit(AddressNode node) {
         super.visit(node);
         // to avoid SemanticError which occurs when getting type of
         // expr which is not assignable.
@@ -134,30 +141,36 @@ public class TypeResolver extends Visitor {
             Type t = typeTable.pointerTo(typeTable.voidType());
             node.setType(t);
         }
+        return null;
     }
 
-    public void visit(CastNode node) {
+    public CastNode visit(CastNode node) {
         bindType(node.typeNode());
         super.visit(node);
+        return null;
     }
 
-    public void visit(SizeofExprNode node) {
+    public SizeofExprNode visit(SizeofExprNode node) {
         bindType(node.typeNode());
         super.visit(node);
+        return null;
     }
 
-    public void visit(SizeofTypeNode node) {
+    public SizeofTypeNode visit(SizeofTypeNode node) {
         bindType(node.operandTypeNode());
         bindType(node.typeNode());
         super.visit(node);
+        return null;
     }
 
-    public void visit(IntegerLiteralNode node) {
+    public IntegerLiteralNode visit(IntegerLiteralNode node) {
         bindType(node.typeNode());
+        return null;
     }
 
-    public void visit(StringLiteralNode node) {
+    public StringLiteralNode visit(StringLiteralNode node) {
         bindType(node.typeNode());
+        return null;
     }
 
     protected void error(Node node, String msg) {

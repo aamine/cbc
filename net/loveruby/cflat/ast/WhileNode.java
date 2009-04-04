@@ -2,20 +2,14 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.Label;
 
 public class WhileNode extends LoopNode {
-    protected ExprNode cond;
-    protected Node body;
+    protected StmtNode body;
 
-    public WhileNode(Location loc, ExprNode cond, Node body) {
-        super(loc);
-        this.cond = cond;
+    public WhileNode(Location loc, ExprNode cond, StmtNode body) {
+        super(loc, cond);
         this.body = body;
     }
 
-    public ExprNode cond() {
-        return cond;
-    }
-
-    public Node body() {
+    public StmtNode body() {
         return body;
     }
 
@@ -28,7 +22,7 @@ public class WhileNode extends LoopNode {
         d.printMember("body", body);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public WhileNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

@@ -26,7 +26,7 @@ public class BreakNode extends StmtNode {
     protected void _dump(Dumper d) {
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public BreakNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

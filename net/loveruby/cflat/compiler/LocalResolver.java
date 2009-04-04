@@ -15,8 +15,12 @@ public class LocalResolver extends Visitor {
     }
     // #@@}
 
-    protected void resolve(Node n) {
-        visitNode(n);
+    protected void resolve(StmtNode n) {
+        n.accept(this);
+    }
+
+    protected void resolve(ExprNode n) {
+        n.accept(this);
     }
 
     // #@@range/resolve{
@@ -66,10 +70,11 @@ public class LocalResolver extends Visitor {
     // #@@}
 
     // #@@range/BlockNode{
-    public void visit(BlockNode node) {
+    public BlockNode visit(BlockNode node) {
         pushScope(node.variables());
         super.visit(node);
         node.setScope(popScope());
+        return null;
     }
     // #@@}
 
@@ -101,13 +106,14 @@ public class LocalResolver extends Visitor {
     // #@@}
 
     // #@@range/StringLiteralNode{
-    public void visit(StringLiteralNode node) {
+    public StringLiteralNode visit(StringLiteralNode node) {
         node.setEntry(constantTable.intern(node.value()));
+        return null;
     }
     // #@@}
 
     // #@@range/VariableNode{
-    public void visit(VariableNode node) {
+    public VariableNode visit(VariableNode node) {
         try {
             Entity ent = currentScope().get(node.name());
             ent.refered();
@@ -116,6 +122,7 @@ public class LocalResolver extends Visitor {
         catch (SemanticException ex) {
             error(node, ex.getMessage());
         }
+        return null;
     }
     // #@@}
 

@@ -3,10 +3,10 @@ import java.util.*;
 
 public class BlockNode extends StmtNode {
     protected List<DefinedVariable> variables;
-    protected List<Node> stmts;
+    protected List<StmtNode> stmts;
     protected LocalScope scope;
 
-    public BlockNode(Location loc, List<DefinedVariable> vars, List<Node> stmts) {
+    public BlockNode(Location loc, List<DefinedVariable> vars, List<StmtNode> stmts) {
         super(loc);
         this.variables = vars;
         this.stmts = stmts;
@@ -16,11 +16,11 @@ public class BlockNode extends StmtNode {
         return variables;
     }
 
-    public List<Node> stmts() {
+    public List<StmtNode> stmts() {
         return stmts;
     }
 
-    public Node tailStmt() {
+    public StmtNode tailStmt() {
         if (stmts.isEmpty()) return null;
         return stmts.get(stmts.size() - 1);
     }
@@ -38,7 +38,7 @@ public class BlockNode extends StmtNode {
         d.printNodeList("stmts", stmts);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public BlockNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

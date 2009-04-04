@@ -110,7 +110,7 @@ public class AST extends Node {
         d.printNodeList("functions", definedFunctions());
     }
 
-    public void accept(ASTVisitor visitor) {
+    public Node accept(ASTVisitor visitor) {
         throw new Error("must not happen: AST#accept called");
     }
 }

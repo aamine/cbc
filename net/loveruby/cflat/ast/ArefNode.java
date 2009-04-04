@@ -60,8 +60,8 @@ public class ArefNode extends ExprNode {
         d.printMember("index", index);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public ArefNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 
     public void acceptLHS(ASTLHSVisitor visitor) {

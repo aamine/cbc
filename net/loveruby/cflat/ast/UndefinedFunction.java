@@ -25,7 +25,7 @@ public class UndefinedFunction extends Function {
         d.printMember("params", params);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public UndefinedFunction accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

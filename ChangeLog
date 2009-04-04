@@ -1,3 +1,21 @@
+Sat Apr  4 23:47:02 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/ASTVisitor.java: #visit returns a node
+	  which has same type with the argument, to allow non-destructive
+	  AST rewriting.
+
+	* net/loveruby/cflat/ast/*Node.java (#accept): ditto.
+
+	* net/loveruby/cflat/compiler/Visitor.java: ditto.
+
+	* net/loveruby/cflat/compiler/*.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: make
+	  non-destructive.
+
+	* net/loveruby/cflat/parser/Parser.jj: use StmtNode/ExprNode
+	  instead of Node.
+
 Wed Dec 24 03:43:14 2008  Minero Aoki  <aamine@loveruby.net>
 
 	* lib/sizeof_jmpbuf.c: new analysis program.

@@ -6,13 +6,23 @@ abstract public class Visitor implements ASTVisitor {
     public Visitor() {
     }
 
-    protected void visitNode(Node node) {
-        node.accept(this);
+    protected void visitStmt(StmtNode stmt) {
+        stmt.accept(this);
     }
 
-    protected void visitNodeList(List<? extends Node> nodes) {
-        for (Node n : nodes) {
-            visitNode(n);
+    protected void visitStmts(List<? extends StmtNode> stmts) {
+        for (StmtNode s : stmts) {
+            visitStmt(s);
+        }
+    }
+
+    protected void visitExpr(ExprNode expr) {
+        expr.accept(this);
+    }
+
+    protected void visitExprs(List<? extends ExprNode> exprs) {
+        for (ExprNode e : exprs) {
+            visitExpr(e);
         }
     }
 
@@ -20,187 +30,232 @@ abstract public class Visitor implements ASTVisitor {
     // Declarations
     //
 
-    public void visit(DefinedVariable var) {
+    public DefinedVariable visit(DefinedVariable var) {
         if (var.hasInitializer()) {
-            visitNode(var.initializer());
+            visitExpr(var.initializer());
         }
+        return null;
     }
 
-    public void visit(UndefinedVariable var) {
+    public UndefinedVariable visit(UndefinedVariable var) {
+        return null;
     }
 
-    public void visit(DefinedFunction func) {
+    public DefinedFunction visit(DefinedFunction func) {
+        return null;
     }
 
-    public void visit(UndefinedFunction func) {
+    public UndefinedFunction visit(UndefinedFunction func) {
+        return null;
     }
 
-    public void visit(StructNode struct) {
+    public StructNode visit(StructNode struct) {
+        return null;
     }
 
-    public void visit(UnionNode union) {
+    public UnionNode visit(UnionNode union) {
+        return null;
     }
 
-    public void visit(TypedefNode typedef) {
+    public TypedefNode visit(TypedefNode typedef) {
+        return null;
     }
 
     //
     // Statements
     //
 
-    public void visit(BlockNode node) {
+    public BlockNode visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
             visit(var);
         }
-        visitNodeList(node.stmts());
+        visitStmts(node.stmts());
+        return null;
     }
 
-    public void visit(IfNode n) {
-        visitNode(n.cond());
-        visitNode(n.thenBody());
+    public ExprStmtNode visit(ExprStmtNode node) {
+        visitExpr(node.expr());
+        return null;
+    }
+
+    public IfNode visit(IfNode n) {
+        visitExpr(n.cond());
+        visitStmt(n.thenBody());
         if (n.elseBody() != null) {
-            visitNode(n.elseBody());
+            visitStmt(n.elseBody());
         }
+        return null;
     }
 
-    public void visit(SwitchNode n) {
-        visitNode(n.cond());
-        visitNodeList(n.cases());
+    public SwitchNode visit(SwitchNode n) {
+        visitExpr(n.cond());
+        visitStmts(n.cases());
+        return null;
     }
 
-    public void visit(CaseNode n) {
-        visitNodeList(n.values());
-        visitNode(n.body());
+    public CaseNode visit(CaseNode n) {
+        visitExprs(n.values());
+        visitStmt(n.body());
+        return null;
     }
 
-    public void visit(WhileNode n) {
-        visitNode(n.cond());
-        visitNode(n.body());
+    public WhileNode visit(WhileNode n) {
+        visitExpr(n.cond());
+        visitStmt(n.body());
+        return null;
     }
 
-    public void visit(DoWhileNode n) {
-        visitNode(n.body());
-        visitNode(n.cond());
+    public DoWhileNode visit(DoWhileNode n) {
+        visitStmt(n.body());
+        visitExpr(n.cond());
+        return null;
     }
 
-    public void visit(ForNode n) {
-        visitNode(n.init());
-        visitNode(n.cond());
-        visitNode(n.incr());
-        visitNode(n.body());
+    public ForNode visit(ForNode n) {
+        visitStmt(n.init());
+        visitExpr(n.cond());
+        visitStmt(n.incr());
+        visitStmt(n.body());
+        return null;
     }
 
-    public void visit(BreakNode n) {
+    public BreakNode visit(BreakNode n) {
+        return null;
     }
 
-    public void visit(ContinueNode n) {
+    public ContinueNode visit(ContinueNode n) {
+        return null;
     }
 
-    public void visit(GotoNode n) {
+    public GotoNode visit(GotoNode n) {
+        return null;
     }
 
-    public void visit(LabelNode n) {
-        visitNode(n.stmt());
+    public LabelNode visit(LabelNode n) {
+        visitStmt(n.stmt());
+        return null;
     }
 
-    public void visit(ReturnNode n) {
+    public ReturnNode visit(ReturnNode n) {
         if (n.expr() != null) {
-            visitNode(n.expr());
+            visitExpr(n.expr());
         }
+        return null;
     }
 
     //
     // Expressions
     //
 
-    public void visit(CondExprNode n) {
-        visitNode(n.cond());
-        visitNode(n.thenExpr());
+    public CondExprNode visit(CondExprNode n) {
+        visitExpr(n.cond());
+        visitExpr(n.thenExpr());
         if (n.elseExpr() != null) {
-            visitNode(n.elseExpr());
+            visitExpr(n.elseExpr());
         }
+        return null;
     }
 
-    public void visit(LogicalOrNode node) {
-        visitNode(node.left());
-        visitNode(node.right());
+    public LogicalOrNode visit(LogicalOrNode node) {
+        visitExpr(node.left());
+        visitExpr(node.right());
+        return null;
     }
 
-    public void visit(LogicalAndNode node) {
-        visitNode(node.left());
-        visitNode(node.right());
+    public LogicalAndNode visit(LogicalAndNode node) {
+        visitExpr(node.left());
+        visitExpr(node.right());
+        return null;
     }
 
-    public void visit(AssignNode n) {
-        visitNode(n.lhs());
-        visitNode(n.rhs());
+    public AssignNode visit(AssignNode n) {
+        visitExpr(n.lhs());
+        visitExpr(n.rhs());
+        return null;
     }
 
-    public void visit(OpAssignNode n) {
-        visitNode(n.lhs());
-        visitNode(n.rhs());
+    public OpAssignNode visit(OpAssignNode n) {
+        visitExpr(n.lhs());
+        visitExpr(n.rhs());
+        return null;
     }
 
-    public void visit(BinaryOpNode n) {
-        visitNode(n.left());
-        visitNode(n.right());
+    public BinaryOpNode visit(BinaryOpNode n) {
+        visitExpr(n.left());
+        visitExpr(n.right());
+        return null;
     }
 
-    public void visit(UnaryOpNode node) {
-        visitNode(node.expr());
+    public UnaryOpNode visit(UnaryOpNode node) {
+        visitExpr(node.expr());
+        return null;
     }
 
-    public void visit(PrefixOpNode node) {
-        visitNode(node.expr());
+    public PrefixOpNode visit(PrefixOpNode node) {
+        visitExpr(node.expr());
+        return null;
     }
 
-    public void visit(SuffixOpNode node) {
-        visitNode(node.expr());
+    public SuffixOpNode visit(SuffixOpNode node) {
+        visitExpr(node.expr());
+        return null;
     }
 
-    public void visit(FuncallNode node) {
-        visitNode(node.expr());
-        visitNodeList(node.arguments());
+    public FuncallNode visit(FuncallNode node) {
+        visitExpr(node.expr());
+        visitExprs(node.arguments());
+        return null;
     }
 
-    public void visit(ArefNode node) {
-        visitNode(node.expr());
-        visitNode(node.index());
+    public ArefNode visit(ArefNode node) {
+        visitExpr(node.expr());
+        visitExpr(node.index());
+        return null;
     }
 
-    public void visit(MemberNode node) {
-        visitNode(node.expr());
+    public MemberNode visit(MemberNode node) {
+        visitExpr(node.expr());
+        return null;
     }
 
-    public void visit(PtrMemberNode node) {
-        visitNode(node.expr());
+    public PtrMemberNode visit(PtrMemberNode node) {
+        visitExpr(node.expr());
+        return null;
     }
 
-    public void visit(DereferenceNode node) {
-        visitNode(node.expr());
+    public DereferenceNode visit(DereferenceNode node) {
+        visitExpr(node.expr());
+        return null;
     }
 
-    public void visit(AddressNode node) {
-        visitNode(node.expr());
+    public AddressNode visit(AddressNode node) {
+        visitExpr(node.expr());
+        return null;
     }
 
-    public void visit(CastNode node) {
-        visitNode(node.expr());
+    public CastNode visit(CastNode node) {
+        visitExpr(node.expr());
+        return null;
     }
 
-    public void visit(SizeofExprNode node) {
-        visitNode(node.expr());
+    public SizeofExprNode visit(SizeofExprNode node) {
+        visitExpr(node.expr());
+        return null;
     }
 
-    public void visit(SizeofTypeNode node) {
+    public SizeofTypeNode visit(SizeofTypeNode node) {
+        return null;
     }
 
-    public void visit(VariableNode node) {
+    public VariableNode visit(VariableNode node) {
+        return null;
     }
 
-    public void visit(IntegerLiteralNode node) {
+    public IntegerLiteralNode visit(IntegerLiteralNode node) {
+        return null;
     }
 
-    public void visit(StringLiteralNode node) {
+    public StringLiteralNode visit(StringLiteralNode node) {
+        return null;
     }
 }

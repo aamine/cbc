@@ -66,7 +66,7 @@ public class CastNode extends ExprNode {
         d.printMember("expr", expr);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public CastNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

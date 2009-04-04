@@ -36,7 +36,7 @@ public class TypedefNode extends TypeDefinition {
         d.printMember("typeNode", typeNode);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public TypedefNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

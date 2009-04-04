@@ -12,7 +12,7 @@ public class OpAssignNode extends AbstractAssignNode {
         return operator;
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public OpAssignNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

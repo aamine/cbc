@@ -3,10 +3,10 @@ import net.loveruby.cflat.asm.Label;
 
 public class LabelNode extends StmtNode {
     protected String name;
-    protected Node stmt;
+    protected StmtNode stmt;
     protected Label label;
 
-    public LabelNode(Location loc, String name, Node stmt) {
+    public LabelNode(Location loc, String name, StmtNode stmt) {
         super(loc);
         this.name = name;
         this.stmt = stmt;
@@ -16,7 +16,7 @@ public class LabelNode extends StmtNode {
         return name;
     }
 
-    public Node stmt() {
+    public StmtNode stmt() {
         return stmt;
     }
 
@@ -34,7 +34,7 @@ public class LabelNode extends StmtNode {
         d.printMember("stmt", stmt);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public LabelNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

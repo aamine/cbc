@@ -14,6 +14,10 @@ public class SizeofExprNode extends ExprNode {
         return this.expr;
     }
 
+    public void setExpr(ExprNode expr) {
+        this.expr = expr;
+    }
+
     public Type type() {
         return this.type.type();
     }
@@ -30,7 +34,7 @@ public class SizeofExprNode extends ExprNode {
         d.printMember("expr", expr);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public SizeofExprNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

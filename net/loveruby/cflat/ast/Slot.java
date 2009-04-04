@@ -56,8 +56,4 @@ public class Slot extends Node {
         d.printMember("name", name);
         d.printMember("typeNode", typeNode);
     }
-
-    public void accept(ASTVisitor visitor) {
-        throw new Error("Slot#accept");
-    }
 }

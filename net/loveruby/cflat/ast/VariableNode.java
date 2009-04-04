@@ -73,8 +73,8 @@ public class VariableNode extends ExprNode {
         d.printMember("name", name, isResolved());
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public VariableNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 
     public void acceptLHS(ASTLHSVisitor visitor) {

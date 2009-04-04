@@ -8,6 +8,10 @@ public class UnaryArithmeticOpNode extends UnaryOpNode {
         amount = 1;
     }
 
+    public void setExpr(ExprNode expr) {
+        this.expr = expr;
+    }
+
     public long amount() {
         return this.amount;
     }

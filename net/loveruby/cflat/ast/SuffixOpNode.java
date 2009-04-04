@@ -5,7 +5,7 @@ public class SuffixOpNode extends UnaryArithmeticOpNode {
         super(op, expr);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public SuffixOpNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

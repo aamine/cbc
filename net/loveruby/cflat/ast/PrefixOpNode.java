@@ -5,7 +5,7 @@ public class PrefixOpNode extends UnaryArithmeticOpNode {
         super(op, expr);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public PrefixOpNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

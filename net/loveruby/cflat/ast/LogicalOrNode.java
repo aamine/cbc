@@ -9,8 +9,8 @@ public class LogicalOrNode extends BinaryOpNode {
         this.endLabel = new Label();
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public LogicalOrNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 
     public Label endLabel() {

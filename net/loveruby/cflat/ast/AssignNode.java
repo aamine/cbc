@@ -5,7 +5,7 @@ public class AssignNode extends AbstractAssignNode {
         super(lhs, rhs);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public AssignNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

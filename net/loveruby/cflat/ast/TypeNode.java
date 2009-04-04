@@ -42,7 +42,7 @@ public class TypeNode extends Node {
         d.printMember("type", type);
     }
 
-    public void accept(ASTVisitor visitor) {
+    public TypeNode accept(ASTVisitor visitor) {
         throw new Error("do not call TypeNode#accept");
     }
 }

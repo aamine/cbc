@@ -27,7 +27,7 @@ public class GotoNode extends StmtNode {
         d.printMember("target", target);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public GotoNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

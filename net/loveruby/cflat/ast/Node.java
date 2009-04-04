@@ -22,8 +22,6 @@ abstract public class Node {
 
     abstract protected void _dump(Dumper d);
 
-    abstract public void accept(ASTVisitor visitor);
-
     public void acceptLHS(ASTLHSVisitor visitor) {
         throw new Error("wrong node for acceptLHS: " + getClass().getSimpleName());
     }

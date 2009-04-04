@@ -2,33 +2,29 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.Label;
 
 public class ForNode extends LoopNode {
-    protected ExprNode init, cond, incr;
-    protected Node body;
+    protected StmtNode init;
+    protected StmtNode incr;
+    protected StmtNode body;
     protected Label continueLabel;
 
     public ForNode(Location loc, 
-                   ExprNode init, ExprNode cond, ExprNode incr, Node body) {
-        super(loc);
-        this.init = init;
-        this.cond = cond;
-        this.incr = incr;
+                   ExprNode init, ExprNode cond, ExprNode incr, StmtNode body) {
+        super(loc, cond);
+        this.init = new ExprStmtNode(init.location(), init);
+        this.incr = new ExprStmtNode(incr.location(), incr);
         this.body = body;
         this.continueLabel = new Label();
     }
 
-    public ExprNode init() {
+    public StmtNode init() {
         return init;
     }
 
-    public ExprNode cond() {
-        return cond;
-    }
-
-    public ExprNode incr() {
+    public StmtNode incr() {
         return incr;
     }
 
-    public Node body() {
+    public StmtNode body() {
         return body;
     }
 
@@ -43,7 +39,7 @@ public class ForNode extends LoopNode {
         d.printMember("body", body);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public ForNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

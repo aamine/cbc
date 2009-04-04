@@ -3,12 +3,12 @@ import net.loveruby.cflat.asm.Label;
 
 public class IfNode extends StmtNode {
     protected ExprNode cond;
-    protected Node thenBody;
-    protected Node elseBody;
+    protected StmtNode thenBody;
+    protected StmtNode elseBody;
     protected Label elseLabel;
     protected Label endLabel;
 
-    public IfNode(Location loc, ExprNode c, Node t, Node e) {
+    public IfNode(Location loc, ExprNode c, StmtNode t, StmtNode e) {
         super(loc);
         this.cond = c;
         this.thenBody = t;
@@ -21,11 +21,15 @@ public class IfNode extends StmtNode {
         return cond;
     }
 
-    public Node thenBody() {
+    public void setCond(ExprNode cond) {
+        this.cond = cond;
+    }
+
+    public StmtNode thenBody() {
         return thenBody;
     }
 
-    public Node elseBody() {
+    public StmtNode elseBody() {
         return elseBody;
     }
 
@@ -43,7 +47,7 @@ public class IfNode extends StmtNode {
         d.printMember("elseBody", elseBody);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public IfNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

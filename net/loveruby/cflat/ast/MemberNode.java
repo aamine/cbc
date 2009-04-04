@@ -56,8 +56,8 @@ public class MemberNode extends ExprNode {
         d.printMember("member", member);
     }
 
-    public void accept(ASTVisitor visitor) {
-        visitor.visit(this);
+    public MemberNode accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 
     public void acceptLHS(ASTLHSVisitor visitor) {

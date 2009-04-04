@@ -48,8 +48,4 @@ abstract public class ParamSlots<T> extends Node {
     protected void _dump(Dumper d) {
         throw new Error("must not happen: ParamSlots#_dump");
     }
-
-    public void accept(ASTVisitor visitor) {
-        throw new Error("must not happen: ParamSlots#accept");
-    }
 }
