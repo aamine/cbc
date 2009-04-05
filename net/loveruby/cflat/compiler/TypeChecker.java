@@ -7,6 +7,7 @@ import java.util.*;
 class TypeChecker implements ASTVisitor {
     protected TypeTable typeTable;
     protected ErrorHandler errorHandler;
+    private DefinedFunction currentFunction;
 
     // #@@range/ctor{
     public TypeChecker(ErrorHandler errorHandler) {
@@ -30,6 +31,7 @@ class TypeChecker implements ASTVisitor {
     // #@@}
 
     public DefinedFunction visit(DefinedFunction f) {
+        currentFunction = f;
         checkReturnType(f);
         checkParamTypes(f);
         checkStmt(f.body());
@@ -183,7 +185,7 @@ class TypeChecker implements ASTVisitor {
         if (node.expr() != null) {
             node.setExpr(checkExpr(node.expr()));
         }
-        if (node.function().isVoid()) {
+        if (currentFunction.isVoid()) {
             if (node.expr() != null) {
                 error(node, "returning value from void function");
             }
@@ -197,7 +199,7 @@ class TypeChecker implements ASTVisitor {
                 error(node, "returning void");
                 return null;
             }
-            node.setExpr(implicitCast(node.function().returnType(),
+            node.setExpr(implicitCast(currentFunction.returnType(),
                                       node.expr()));
         }
         return null;

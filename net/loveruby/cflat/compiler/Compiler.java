@@ -113,6 +113,7 @@ public class Compiler {
                 ast.dump();
                 return;
             }
+            new JumpResolver(errorHandler).resolve(ast);
             String asm = generateAssembly(ast, opts);
             if (opts.mode() == CompilerMode.DumpAsm) {
                 System.out.println(asm);
@@ -171,7 +172,6 @@ public class Compiler {
 
     protected void semanticAnalysis(AST ast, Options opts)
                                         throws SemanticException {
-        new JumpResolver(errorHandler).resolve(ast);
         new LocalResolver(errorHandler).resolve(ast);
         new TypeResolver(errorHandler).resolve(ast);
         ast.typeTable().semanticCheck(errorHandler);

@@ -1,3 +1,12 @@
+Mon Apr  6 07:04:30 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: call JumpResolver at
+	  last.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: TypeChecker has
+	  required ReturnNode.function, provide "current function" by
+	  myself.
+
 Sat Apr  4 23:47:02 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/ASTVisitor.java: #visit returns a node
