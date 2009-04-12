@@ -1,50 +1,50 @@
 package net.loveruby.cflat.ast;
 
-public interface ASTVisitor {
+public interface ASTVisitor<S, E> {
     // Declarations
-    public DefinedVariable visit(DefinedVariable var);
-    public UndefinedVariable visit(UndefinedVariable var);
-    public DefinedFunction visit(DefinedFunction func);
-    public UndefinedFunction visit(UndefinedFunction func);
-    public StructNode visit(StructNode struct);
-    public UnionNode visit(UnionNode union);
-    public TypedefNode visit(TypedefNode typedef);
+    public S visit(DefinedVariable var);
+    public S visit(UndefinedVariable var);
+    public S visit(DefinedFunction func);
+    public S visit(UndefinedFunction func);
+    public S visit(StructNode struct);
+    public S visit(UnionNode union);
+    public S visit(TypedefNode typedef);
 
     // Statements
-    public BlockNode visit(BlockNode node);
-    public ExprStmtNode visit(ExprStmtNode node);
-    public IfNode visit(IfNode node);
-    public SwitchNode visit(SwitchNode node);
-    public CaseNode visit(CaseNode node);
-    public WhileNode visit(WhileNode node);
-    public DoWhileNode visit(DoWhileNode node);
-    public ForNode visit(ForNode node);
-    public BreakNode visit(BreakNode node);
-    public ContinueNode visit(ContinueNode node);
-    public GotoNode visit(GotoNode node);
-    public LabelNode visit(LabelNode node);
-    public ReturnNode visit(ReturnNode node);
+    public S visit(BlockNode node);
+    public S visit(ExprStmtNode node);
+    public S visit(IfNode node);
+    public S visit(SwitchNode node);
+    public S visit(CaseNode node);
+    public S visit(WhileNode node);
+    public S visit(DoWhileNode node);
+    public S visit(ForNode node);
+    public S visit(BreakNode node);
+    public S visit(ContinueNode node);
+    public S visit(GotoNode node);
+    public S visit(LabelNode node);
+    public S visit(ReturnNode node);
 
     // Expressions
-    public AssignNode visit(AssignNode node);
-    public OpAssignNode visit(OpAssignNode node);
-    public CondExprNode visit(CondExprNode node);
-    public LogicalOrNode visit(LogicalOrNode node);
-    public LogicalAndNode visit(LogicalAndNode node);
-    public BinaryOpNode visit(BinaryOpNode node);
-    public UnaryOpNode visit(UnaryOpNode node);
-    public PrefixOpNode visit(PrefixOpNode node);
-    public SuffixOpNode visit(SuffixOpNode node);
-    public ArefNode visit(ArefNode node);
-    public MemberNode visit(MemberNode node);
-    public PtrMemberNode visit(PtrMemberNode node);
-    public FuncallNode visit(FuncallNode node);
-    public DereferenceNode visit(DereferenceNode node);
-    public AddressNode visit(AddressNode node);
-    public CastNode visit(CastNode node);
-    public SizeofExprNode visit(SizeofExprNode node);
-    public SizeofTypeNode visit(SizeofTypeNode node);
-    public VariableNode visit(VariableNode node);
-    public IntegerLiteralNode visit(IntegerLiteralNode node);
-    public StringLiteralNode visit(StringLiteralNode node);
+    public E visit(AssignNode node);
+    public E visit(OpAssignNode node);
+    public E visit(CondExprNode node);
+    public E visit(LogicalOrNode node);
+    public E visit(LogicalAndNode node);
+    public E visit(BinaryOpNode node);
+    public E visit(UnaryOpNode node);
+    public E visit(PrefixOpNode node);
+    public E visit(SuffixOpNode node);
+    public E visit(ArefNode node);
+    public E visit(MemberNode node);
+    public E visit(PtrMemberNode node);
+    public E visit(FuncallNode node);
+    public E visit(DereferenceNode node);
+    public E visit(AddressNode node);
+    public E visit(CastNode node);
+    public E visit(SizeofExprNode node);
+    public E visit(SizeofTypeNode node);
+    public E visit(VariableNode node);
+    public E visit(IntegerLiteralNode node);
+    public E visit(StringLiteralNode node);
 }

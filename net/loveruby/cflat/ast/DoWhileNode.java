@@ -24,7 +24,7 @@ public class DoWhileNode extends LoopNode {
         d.printMember("cond", cond);
     }
 
-    public DoWhileNode accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

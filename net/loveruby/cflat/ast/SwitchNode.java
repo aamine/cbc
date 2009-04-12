@@ -35,7 +35,7 @@ public class SwitchNode extends StmtNode implements BreakableStmt {
         d.printNodeList("cases", cases);
     }
 
-    public SwitchNode accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

@@ -13,7 +13,7 @@ public class DereferenceNode extends UnaryOpNode {
     public boolean isAssignable() { return true; }
     public boolean isConstantAddress() { return false; }
 
-    public DereferenceNode accept(ASTVisitor visitor) {
+    public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 

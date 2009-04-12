@@ -55,7 +55,7 @@ public class CondExprNode extends ExprNode {
         d.printMember("elseExpr", elseExpr);
     }
 
-    public CondExprNode accept(ASTVisitor visitor) {
+    public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

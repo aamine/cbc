@@ -115,7 +115,7 @@ public class DefinedFunction extends Function {
         d.printMember("body", body);
     }
 
-    public DefinedFunction accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

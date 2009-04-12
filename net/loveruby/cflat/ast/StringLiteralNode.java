@@ -51,7 +51,7 @@ public class StringLiteralNode extends LiteralNode {
         d.printMember("value", value);
     }
 
-    public StringLiteralNode accept(ASTVisitor visitor) {
+    public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

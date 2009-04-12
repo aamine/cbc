@@ -4,7 +4,7 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
-class TypeChecker implements ASTVisitor {
+class TypeChecker implements ASTVisitor<Node, ExprNode> {
     protected TypeTable typeTable;
     protected ErrorHandler errorHandler;
     private DefinedFunction currentFunction;

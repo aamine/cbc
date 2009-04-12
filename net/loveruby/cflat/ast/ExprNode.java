@@ -62,5 +62,5 @@ abstract public class ExprNode extends Node {
         throw new Error("ExprNode#memref called");
     }
 
-    abstract public ExprNode accept(ASTVisitor visitor);
+    abstract public <S,E> E accept(ASTVisitor<S,E> visitor);
 }

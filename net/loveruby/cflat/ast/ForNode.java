@@ -39,7 +39,7 @@ public class ForNode extends LoopNode {
         d.printMember("body", body);
     }
 
-    public ForNode accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

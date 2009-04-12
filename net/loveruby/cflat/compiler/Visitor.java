@@ -2,7 +2,7 @@ package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ast.*;
 import java.util.*;
 
-abstract public class Visitor implements ASTVisitor {
+abstract public class Visitor implements ASTVisitor<Node, ExprNode> {
     public Visitor() {
     }
 
@@ -228,34 +228,34 @@ abstract public class Visitor implements ASTVisitor {
         return null;
     }
 
-    public AddressNode visit(AddressNode node) {
+    public ExprNode visit(AddressNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public CastNode visit(CastNode node) {
+    public ExprNode visit(CastNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public SizeofExprNode visit(SizeofExprNode node) {
+    public ExprNode visit(SizeofExprNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public SizeofTypeNode visit(SizeofTypeNode node) {
+    public ExprNode visit(SizeofTypeNode node) {
         return null;
     }
 
-    public VariableNode visit(VariableNode node) {
+    public ExprNode visit(VariableNode node) {
         return null;
     }
 
-    public IntegerLiteralNode visit(IntegerLiteralNode node) {
+    public ExprNode visit(IntegerLiteralNode node) {
         return null;
     }
 
-    public StringLiteralNode visit(StringLiteralNode node) {
+    public ExprNode visit(StringLiteralNode node) {
         return null;
     }
 }

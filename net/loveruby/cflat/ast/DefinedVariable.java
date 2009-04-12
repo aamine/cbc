@@ -50,7 +50,7 @@ public class DefinedVariable extends Variable {
         d.printMember("initializer", initializer);
     }
 
-    public DefinedVariable accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

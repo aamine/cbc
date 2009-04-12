@@ -21,7 +21,7 @@ public class StructNode extends CompositeTypeDefinition {
     }
     // #@@}
 
-    public StructNode accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

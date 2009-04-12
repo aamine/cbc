@@ -24,7 +24,7 @@ public class AddressNode extends UnaryOpNode {
         this.type = type;
     }
 
-    public AddressNode accept(ASTVisitor visitor) {
+    public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

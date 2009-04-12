@@ -90,5 +90,5 @@ abstract public class Entity extends Node {
         return typeNode.location();
     }
 
-    abstract public Entity accept(ASTVisitor visitor);
+    abstract public <S,E> S accept(ASTVisitor<S,E> visitor);
 }

@@ -64,7 +64,7 @@ public class PtrMemberNode extends ExprNode {
         d.printMember("member", member);
     }
 
-    public PtrMemberNode accept(ASTVisitor visitor) {
+    public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 

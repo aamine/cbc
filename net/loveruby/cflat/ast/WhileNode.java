@@ -22,7 +22,7 @@ public class WhileNode extends LoopNode {
         d.printMember("body", body);
     }
 
-    public WhileNode accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

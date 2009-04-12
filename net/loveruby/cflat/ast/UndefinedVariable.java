@@ -16,7 +16,7 @@ public class UndefinedVariable extends Variable {
         d.printMember("typeNode", typeNode);
     }
 
-    public UndefinedVariable accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

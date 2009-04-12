@@ -9,7 +9,7 @@ public class LogicalAndNode extends BinaryOpNode {
         this.endLabel = new Label();
     }
 
-    public LogicalAndNode accept(ASTVisitor visitor) {
+    public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 

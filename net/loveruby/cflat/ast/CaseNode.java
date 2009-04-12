@@ -39,7 +39,7 @@ public class CaseNode extends StmtNode {
         d.printMember("body", body);
     }
 
-    public CaseNode accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

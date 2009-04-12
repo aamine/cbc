@@ -20,7 +20,7 @@ public class ExprStmtNode extends StmtNode {
         d.printMember("expr", expr);
     }
 
-    public ExprStmtNode accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

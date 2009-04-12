@@ -21,7 +21,7 @@ public class UnionNode extends CompositeTypeDefinition {
     }
     // #@@}
 
-    public UnionNode accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

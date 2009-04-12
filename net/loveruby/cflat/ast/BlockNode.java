@@ -38,7 +38,7 @@ public class BlockNode extends StmtNode {
         d.printNodeList("stmts", stmts);
     }
 
-    public BlockNode accept(ASTVisitor visitor) {
+    public <S,E> S accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 }

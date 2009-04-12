@@ -33,5 +33,5 @@ abstract public class TypeDefinition extends Node {
     }
 
     abstract public Type definingType();
-    abstract public TypeDefinition accept(ASTVisitor visitor);
+    abstract public <S,E> S accept(ASTVisitor<S,E> visitor);
 }
