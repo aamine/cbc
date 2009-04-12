@@ -1,3 +1,21 @@
+Mon Apr 13 01:53:25 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: generates IR
+	  (intermediate representation) tree (work is still incomplete but
+	  commit for logging).
+
+	* net/loveruby/cflat/ir: new package to hold IR tree nodes.
+
+	* net/loveruby/cflat/ir/IRTree.java: new class.
+
+	* net/loveruby/cflat/ir/Stmt.java: new class.
+
+	* net/loveruby/cflat/ir/StmtKind.java: new enum.
+
+	* net/loveruby/cflat/ir/Expr.java: new class.
+
+	* net/loveruby/cflat/ir/ExprKind.java: new enum.
+
 Sun Apr 12 17:49:19 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: split IRGenerator.
