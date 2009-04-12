@@ -159,11 +159,10 @@ class TypeChecker extends Visitor {
         super.visit(node);
         if (! checkLHS(node.lhs())) return null;
         if (! checkRHS(node.rhs())) return null;
-        if (node.operator().equals("+")
-                || node.operator().equals("-")) {
-            if (node.lhs().type().isPointer()) {
-                if (! mustBeInteger(node.rhs(), node.operator())) return null;
-                node.setRHS(multiplyPtrBaseSize(node.rhs(), node.lhs()));
+        if (node.operator().equals("+") || node.operator().equals("-")) {
+            if (node.lhs().type().isDereferable()) {
+                mustBeInteger(node.rhs(), node.operator());
+                node.setRHS(integralPromotedExpr(node.rhs()));
                 return null;
             }
         }
@@ -293,7 +292,8 @@ class TypeChecker extends Visitor {
                 return;
             }
             mustBeInteger(node.right(), node.operator());
-            node.setRight(multiplyPtrBaseSize(node.right(), node.left()));
+            // promote integer for pointer calculation
+            node.setRight(integralPromotedExpr(node.right()));
             node.setType(node.left().type());
         }
         else if (node.right().type().isDereferable()) {
@@ -306,16 +306,13 @@ class TypeChecker extends Visitor {
                 return;
             }
             mustBeInteger(node.left(), node.operator());
-            node.setLeft(multiplyPtrBaseSize(node.left(), node.right()));
+            // promote integer for pointer calculation
+            node.setLeft(integralPromotedExpr(node.left()));
             node.setType(node.right().type());
         }
         else {
             expectsSameInteger(node);
         }
-    }
-
-    protected BinaryOpNode multiplyPtrBaseSize(ExprNode expr, ExprNode ptr) {
-        return new BinaryOpNode(integralPromotedExpr(expr), "*", ptrBaseSize(ptr));
     }
 
     protected ExprNode integralPromotedExpr(ExprNode expr) {
@@ -326,22 +323,6 @@ class TypeChecker extends Visitor {
         else {
             return new CastNode(t, expr);
         }
-    }
-
-    protected IntegerLiteralNode ptrBaseSize(ExprNode ptr) {
-        return integerLiteral(ptr.location(),
-                              typeTable.ptrDiffTypeRef(),
-                              ptr.type().baseType().size());
-    }
-
-    protected IntegerLiteralNode integerLiteral(Location loc, TypeRef ref, long n) {
-        IntegerLiteralNode node = new IntegerLiteralNode(loc, ref, n);
-        bindType(node.typeNode());
-        return node;
-    }
-
-    protected void bindType(TypeNode t) {
-        t.setType(typeTable.get(t.typeRef()));
     }
 
     // +, -, *, /, %, &, |, ^, <<, >>

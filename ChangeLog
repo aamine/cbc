@@ -1,3 +1,11 @@
+Sun Apr 12 17:49:19 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: split IRGenerator.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: new class.
+
+	* net/loveruby/cflat/compiler/Compiler.java: call IRGenerator.
+
 Sun Apr 12 16:48:14 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: simplify BinaryOp
