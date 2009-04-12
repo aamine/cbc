@@ -1,3 +1,8 @@
+Sun Apr 12 16:48:14 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: simplify BinaryOp
+	  checking, utilizing destructive methods.
+
 Sun Apr 12 16:37:16 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Visitor.java: make destructive
