@@ -1,3 +1,24 @@
+Sun Apr 12 16:37:16 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Visitor.java: make destructive
+	  again.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/LocalResolver.java: ditto.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/JumpResolver.java: ditto.
+
+	* net/loveruby/cflat/ast/AbstractAssignNode.java: ditto.
+
+	* net/loveruby/cflat/ast/CondExprNode.java: ditto.
+
 Sun Apr 12 15:31:07 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Visitor.java: make all return types

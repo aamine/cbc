@@ -2,7 +2,8 @@ package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ast.*;
 import java.util.*;
 
-abstract public class Visitor implements ASTVisitor<Node, ExprNode> {
+// We do not use return value of methods.
+abstract public class Visitor implements ASTVisitor<Void, Void> {
     public Visitor() {
     }
 
@@ -30,34 +31,34 @@ abstract public class Visitor implements ASTVisitor<Node, ExprNode> {
     // Declarations
     //
 
-    public DefinedVariable visit(DefinedVariable var) {
+    public Void visit(DefinedVariable var) {
         if (var.hasInitializer()) {
             visitExpr(var.initializer());
         }
         return null;
     }
 
-    public UndefinedVariable visit(UndefinedVariable var) {
+    public Void visit(UndefinedVariable var) {
         return null;
     }
 
-    public DefinedFunction visit(DefinedFunction func) {
+    public Void visit(DefinedFunction func) {
         return null;
     }
 
-    public UndefinedFunction visit(UndefinedFunction func) {
+    public Void visit(UndefinedFunction func) {
         return null;
     }
 
-    public StructNode visit(StructNode struct) {
+    public Void visit(StructNode struct) {
         return null;
     }
 
-    public UnionNode visit(UnionNode union) {
+    public Void visit(UnionNode union) {
         return null;
     }
 
-    public TypedefNode visit(TypedefNode typedef) {
+    public Void visit(TypedefNode typedef) {
         return null;
     }
 
@@ -65,7 +66,7 @@ abstract public class Visitor implements ASTVisitor<Node, ExprNode> {
     // Statements
     //
 
-    public BlockNode visit(BlockNode node) {
+    public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
             visit(var);
         }
@@ -73,12 +74,12 @@ abstract public class Visitor implements ASTVisitor<Node, ExprNode> {
         return null;
     }
 
-    public ExprStmtNode visit(ExprStmtNode node) {
+    public Void visit(ExprStmtNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public IfNode visit(IfNode n) {
+    public Void visit(IfNode n) {
         visitExpr(n.cond());
         visitStmt(n.thenBody());
         if (n.elseBody() != null) {
@@ -87,31 +88,31 @@ abstract public class Visitor implements ASTVisitor<Node, ExprNode> {
         return null;
     }
 
-    public SwitchNode visit(SwitchNode n) {
+    public Void visit(SwitchNode n) {
         visitExpr(n.cond());
         visitStmts(n.cases());
         return null;
     }
 
-    public CaseNode visit(CaseNode n) {
+    public Void visit(CaseNode n) {
         visitExprs(n.values());
         visitStmt(n.body());
         return null;
     }
 
-    public WhileNode visit(WhileNode n) {
+    public Void visit(WhileNode n) {
         visitExpr(n.cond());
         visitStmt(n.body());
         return null;
     }
 
-    public DoWhileNode visit(DoWhileNode n) {
+    public Void visit(DoWhileNode n) {
         visitStmt(n.body());
         visitExpr(n.cond());
         return null;
     }
 
-    public ForNode visit(ForNode n) {
+    public Void visit(ForNode n) {
         visitStmt(n.init());
         visitExpr(n.cond());
         visitStmt(n.incr());
@@ -119,24 +120,24 @@ abstract public class Visitor implements ASTVisitor<Node, ExprNode> {
         return null;
     }
 
-    public BreakNode visit(BreakNode n) {
+    public Void visit(BreakNode n) {
         return null;
     }
 
-    public ContinueNode visit(ContinueNode n) {
+    public Void visit(ContinueNode n) {
         return null;
     }
 
-    public GotoNode visit(GotoNode n) {
+    public Void visit(GotoNode n) {
         return null;
     }
 
-    public LabelNode visit(LabelNode n) {
+    public Void visit(LabelNode n) {
         visitStmt(n.stmt());
         return null;
     }
 
-    public ReturnNode visit(ReturnNode n) {
+    public Void visit(ReturnNode n) {
         if (n.expr() != null) {
             visitExpr(n.expr());
         }
@@ -147,7 +148,7 @@ abstract public class Visitor implements ASTVisitor<Node, ExprNode> {
     // Expressions
     //
 
-    public CondExprNode visit(CondExprNode n) {
+    public Void visit(CondExprNode n) {
         visitExpr(n.cond());
         visitExpr(n.thenExpr());
         if (n.elseExpr() != null) {
@@ -156,106 +157,106 @@ abstract public class Visitor implements ASTVisitor<Node, ExprNode> {
         return null;
     }
 
-    public LogicalOrNode visit(LogicalOrNode node) {
+    public Void visit(LogicalOrNode node) {
         visitExpr(node.left());
         visitExpr(node.right());
         return null;
     }
 
-    public LogicalAndNode visit(LogicalAndNode node) {
+    public Void visit(LogicalAndNode node) {
         visitExpr(node.left());
         visitExpr(node.right());
         return null;
     }
 
-    public AssignNode visit(AssignNode n) {
+    public Void visit(AssignNode n) {
         visitExpr(n.lhs());
         visitExpr(n.rhs());
         return null;
     }
 
-    public OpAssignNode visit(OpAssignNode n) {
+    public Void visit(OpAssignNode n) {
         visitExpr(n.lhs());
         visitExpr(n.rhs());
         return null;
     }
 
-    public BinaryOpNode visit(BinaryOpNode n) {
+    public Void visit(BinaryOpNode n) {
         visitExpr(n.left());
         visitExpr(n.right());
         return null;
     }
 
-    public UnaryOpNode visit(UnaryOpNode node) {
+    public Void visit(UnaryOpNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public PrefixOpNode visit(PrefixOpNode node) {
+    public Void visit(PrefixOpNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public SuffixOpNode visit(SuffixOpNode node) {
+    public Void visit(SuffixOpNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public FuncallNode visit(FuncallNode node) {
+    public Void visit(FuncallNode node) {
         visitExpr(node.expr());
         visitExprs(node.arguments());
         return null;
     }
 
-    public ArefNode visit(ArefNode node) {
+    public Void visit(ArefNode node) {
         visitExpr(node.expr());
         visitExpr(node.index());
         return null;
     }
 
-    public MemberNode visit(MemberNode node) {
+    public Void visit(MemberNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public PtrMemberNode visit(PtrMemberNode node) {
+    public Void visit(PtrMemberNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public DereferenceNode visit(DereferenceNode node) {
+    public Void visit(DereferenceNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public ExprNode visit(AddressNode node) {
+    public Void visit(AddressNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public ExprNode visit(CastNode node) {
+    public Void visit(CastNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public ExprNode visit(SizeofExprNode node) {
+    public Void visit(SizeofExprNode node) {
         visitExpr(node.expr());
         return null;
     }
 
-    public ExprNode visit(SizeofTypeNode node) {
+    public Void visit(SizeofTypeNode node) {
         return null;
     }
 
-    public ExprNode visit(VariableNode node) {
+    public Void visit(VariableNode node) {
         return null;
     }
 
-    public ExprNode visit(IntegerLiteralNode node) {
+    public Void visit(IntegerLiteralNode node) {
         return null;
     }
 
-    public ExprNode visit(StringLiteralNode node) {
+    public Void visit(StringLiteralNode node) {
         return null;
     }
 }

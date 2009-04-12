@@ -4,7 +4,7 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
-class TypeChecker implements ASTVisitor<Node, ExprNode> {
+class TypeChecker extends Visitor {
     protected TypeTable typeTable;
     protected ErrorHandler errorHandler;
     private DefinedFunction currentFunction;
@@ -15,52 +15,31 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
     }
     // #@@}
 
+    protected void check(StmtNode node) {
+        visitStmt(node);
+    }
+
+    protected void check(ExprNode node) {
+        visitExpr(node);
+    }
+
     // #@@range/check_AST{
     public void check(AST ast) throws SemanticException {
         this.typeTable = ast.typeTable();
         for (DefinedVariable var : ast.definedVariables()) {
-            visit(var);
+            checkVariable(var);
         }
         for (DefinedFunction f : ast.definedFunctions()) {
-            visit(f);
+            currentFunction = f;
+            checkReturnType(f);
+            checkParamTypes(f);
+            check(f.body());
         }
         if (errorHandler.errorOccured()) {
             throw new SemanticException("compile failed.");
         }
     }
     // #@@}
-
-    public DefinedFunction visit(DefinedFunction f) {
-        currentFunction = f;
-        checkReturnType(f);
-        checkParamTypes(f);
-        checkStmt(f.body());
-        return null;
-    }
-
-    public UndefinedFunction visit(UndefinedFunction var) {
-        throw new Error("must not happen: TypeChecker.visit:UndefinedFunction");
-    }
-
-    public DefinedVariable visit(DefinedVariable var) {
-        if (isInvalidVariableType(var.type())) {
-            error(var, "invalid variable type");
-            return null;
-        }
-        if (var.hasInitializer()) {
-            if (isInvalidLHSType(var.type())) {
-                error(var, "invalid LHS type: " + var.type());
-                return null;
-            }
-            var.setInitializer(implicitCast(var.type(),
-                            checkExpr(var.initializer())));
-        }
-        return null;
-    }
-
-    public UndefinedVariable visit(UndefinedVariable var) {
-        throw new Error("must not happen: TypeChecker.visit:UndefinedVariable");
-    }
 
     protected void checkReturnType(DefinedFunction f) {
         if (isInvalidReturnType(f.returnType())) {
@@ -76,115 +55,74 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
         }
     }
 
-    protected void checkStmt(StmtNode node) {
-        node.accept(this);
-    }
-
-    protected ExprNode checkExpr(ExprNode node) {
-        if (node == null) return null;
-        return node.accept(this);
-    }
-
     //
-    // Declarations
+    // Statements
     //
 
-    public StructNode visit(StructNode node) {
-        return null;
-    }
-
-    public UnionNode visit(UnionNode node) {
-        return null;
-    }
-
-    public TypedefNode visit(TypedefNode node) {
-        return null;
-    }
-
-    //
-    // Statements: replaces expr and returns null.
-    //
-
-    public BlockNode visit(BlockNode node) {
+    public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
-            visit(var);
+            checkVariable(var);
         }
         for (StmtNode n : node.stmts()) {
-            checkStmt(n);
+            check(n);
         }
         return null;
     }
 
-    public ExprStmtNode visit(ExprStmtNode node) {
-        ExprNode expr = checkExpr(node.expr());
-        if (isInvalidStatementType(expr.type())) {
-            error(expr, "invalid statement type: " + expr.type());
+    protected void checkVariable(DefinedVariable var) {
+        if (isInvalidVariableType(var.type())) {
+            error(var, "invalid variable type");
+            return;
+        }
+        if (var.hasInitializer()) {
+            if (isInvalidLHSType(var.type())) {
+                error(var, "invalid LHS type: " + var.type());
+                return;
+            }
+            check(var.initializer());
+            var.setInitializer(implicitCast(var.type(), var.initializer()));
+        }
+    }
+
+    public Void visit(ExprStmtNode node) {
+        check(node.expr());
+        if (isInvalidStatementType(node.expr().type())) {
+            error(node, "invalid statement type: " + node.expr().type());
             return null;
         }
-        node.setExpr(expr);
         return null;
     }
 
-    public IfNode visit(IfNode node) {
-        node.setCond(checkCond(node.cond()));
-        checkStmt(node.thenBody());
-        if (node.elseBody() != null) {
-            checkStmt(node.elseBody());
-        }
+    public Void visit(IfNode node) {
+        super.visit(node);
+        checkCond(node.cond());
         return null;
     }
 
-    public WhileNode visit(WhileNode node) {
-        node.setCond(checkCond(node.cond()));
-        checkStmt(node.body());
+    public Void visit(WhileNode node) {
+        super.visit(node);
+        checkCond(node.cond());
         return null;
     }
 
-    public DoWhileNode visit(DoWhileNode node) {
-        checkStmt(node.body());
-        node.setCond(checkCond(node.cond()));
+    public Void visit(ForNode node) {
+        super.visit(node);
+        checkCond(node.cond());
         return null;
     }
 
-    public ForNode visit(ForNode node) {
-        checkStmt(node.init());
-        node.setCond(checkCond(node.cond()));
-        checkStmt(node.incr());
-        checkStmt(node.body());
+    protected void checkCond(ExprNode cond) {
+        mustBeScalar(cond, "condition expression");
+    }
+
+    public Void visit(SwitchNode node) {
+        super.visit(node);
+        mustBeInteger(node.cond(), "condition expression");
         return null;
     }
 
-    protected ExprNode checkCond(ExprNode cond) {
-        ExprNode expr = checkExpr(cond);
-        mustBeScalar(expr, "condition expression");
-        return expr;
-    }
-
-    public SwitchNode visit(SwitchNode node) {
-        ExprNode expr = checkExpr(node.cond());
-        mustBeInteger(expr, "condition expression");
-        node.setCond(expr);
-        for (CaseNode n : node.cases()) {
-            checkStmt(n);
-        }
-        return null;
-    }
-
-    public CaseNode visit(CaseNode node) {
-        List<ExprNode> exprs = new ArrayList<ExprNode>();
-        for (ExprNode expr : node.values()) {
-            ExprNode e = checkExpr(expr);
-            mustBeInteger(e, "case");
-            exprs.add(e);
-        }
-        node.setValues(exprs);
-        return null;
-    }
-
-    public ReturnNode visit(ReturnNode node) {
-        if (node.expr() != null) {
-            node.setExpr(checkExpr(node.expr()));
-        }
+    public Void visit(ReturnNode node) {
+        super.visit(node);
         if (currentFunction.isVoid()) {
             if (node.expr() != null) {
                 error(node, "returning value from void function");
@@ -205,61 +143,45 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
         return null;
     }
 
-    public LabelNode visit(LabelNode node) {
-        checkStmt(node.stmt());
-        return null;
-    }
-
-    public GotoNode visit(GotoNode node) {
-        return null;
-    }
-
-    public ContinueNode visit(ContinueNode node) {
-        return null;
-    }
-
-    public BreakNode visit(BreakNode node) {
-        return null;
-    }
-
     //
     // Assignment Expressions
     //
 
-    public AssignNode visit(AssignNode node) {
-        return new AssignNode(checkLHS(node.lhs()), checkRHS(node.rhs()));
+    public Void visit(AssignNode node) {
+        super.visit(node);
+        if (! checkLHS(node.lhs())) return null;
+        if (! checkRHS(node.rhs())) return null;
+        node.setRHS(implicitCast(node.lhs().type(), node.rhs()));
+        return null;
     }
 
-    public OpAssignNode visit(OpAssignNode node) {
-        ExprNode lhs = checkLHS(node.lhs());
-        ExprNode rhs = checkRHS(node.rhs());
-        if (node.operator().equals("+") || node.operator().equals("-")) {
-            if (lhs.type().isPointer()) {
-                if (! mustBeInteger(rhs, node.operator())) {
-                    return node;
-                }
-                return new OpAssignNode(
-                    lhs, node.operator(), multiplyPtrBaseSize(rhs, lhs));
+    public Void visit(OpAssignNode node) {
+        super.visit(node);
+        if (! checkLHS(node.lhs())) return null;
+        if (! checkRHS(node.rhs())) return null;
+        if (node.operator().equals("+")
+                || node.operator().equals("-")) {
+            if (node.lhs().type().isPointer()) {
+                if (! mustBeInteger(node.rhs(), node.operator())) return null;
+                node.setRHS(multiplyPtrBaseSize(node.rhs(), node.lhs()));
+                return null;
             }
         }
-        if (!mustBeInteger(lhs, node.operator())
-                || !mustBeInteger(rhs, node.operator())) {
-            return new OpAssignNode(lhs, node.operator(), rhs);
-        }
-        Type l = integralPromotion(lhs.type());
-        Type r = integralPromotion(rhs.type());
+        if (! mustBeInteger(node.lhs(), node.operator())) return null;
+        if (! mustBeInteger(node.rhs(), node.operator())) return null;
+        Type l = integralPromotion(node.lhs().type());
+        Type r = integralPromotion(node.rhs().type());
         Type opType = usualArithmeticConversion(l, r);
         if (! opType.isCompatible(l)
-                && ! isSafeIntegerCast(rhs, opType)) {
+                && ! isSafeIntegerCast(node.rhs(), opType)) {
             warn(node, "incompatible implicit cast from "
                        + opType + " to " + l);
         }
-        if (r.isSameType(opType)) {
-            return new OpAssignNode(lhs, node.operator(), rhs);
+        if (! r.isSameType(opType)) {
+            // cast RHS
+            node.setRHS(new CastNode(opType, node.rhs()));
         }
-        else {   // cast RHS
-            return new OpAssignNode(lhs, node.operator(), new CastNode(opType, rhs));
-        }
+        return null;
     }
 
     /** allow safe implicit cast from integer literal like:
@@ -276,37 +198,48 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
         return t.isInDomain(n.value());
     }
 
+    protected boolean checkLHS(ExprNode lhs) {
+        if (lhs.isParameter()) {
+            // parameter is always assignable.
+            return true;
+        }
+        else if (isInvalidLHSType(lhs.type())) {
+            error(lhs, "invalid LHS expression type: " + lhs.type());
+            return false;
+        }
+        return true;
+    }
+
     //
     // Expressions
     //
 
-    public CondExprNode visit(CondExprNode node) {
-        ExprNode c = checkCond(node.cond());
-        ExprNode t = checkExpr(node.thenExpr());
-        ExprNode e = checkExpr(node.elseExpr());
-        if (t.type().isSameType(e.type())) {
-            node.setExprs(c, t, e);
+    public Void visit(CondExprNode node) {
+        super.visit(node);
+        checkCond(node.cond());
+        Type t = node.thenExpr().type();
+        Type e = node.elseExpr().type();
+        if (t.isSameType(e)) {
+            return null;
         }
-        else if (t.type().isCompatible(e.type())) {   // insert cast on thenExpr
-            node.setExprs(c, new CastNode(e.type(), t), e);
+        else if (t.isCompatible(e)) {   // insert cast on thenBody
+            node.setThenExpr(new CastNode(e, node.thenExpr()));
         }
-        else if (e.type().isCompatible(t.type())) {   // insert cast on elseExpr
-            node.setExprs(c, t, new CastNode(t.type(), e));
+        else if (e.isCompatible(t)) {   // insert cast on elseBody
+            node.setElseExpr(new CastNode(t, node.elseExpr()));
         }
         else {
-            invalidCastError(t, e.type(), t.type());
+            invalidCastError(node.thenExpr(), e, t);
         }
-        return node;
+        return null;
     }
 
     // #@@range/BinaryOpNode{
-    public BinaryOpNode visit(BinaryOpNode node) {
-        node.setLeft(checkExpr(node.left()));
-        node.setRight(checkExpr(node.right()));
-        if (node.operator().equals("+")
-                || node.operator().equals("-")) {
-            expectsSameIntegerOrPointerDiff(node);
-            return node;
+    public Void visit(BinaryOpNode node) {
+        super.visit(node);
+        if (node.operator().equals("+") || node.operator().equals("-")) {
+            Type t = expectsSameIntegerOrPointerDiff(node);
+            if (t != null) node.setType(t);
         }
         else if (node.operator().equals("*")
                 || node.operator().equals("/")
@@ -316,8 +249,8 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
                 || node.operator().equals("^")
                 || node.operator().equals("<<")
                 || node.operator().equals(">>")) {
-            expectsSameInteger(node);
-            return node;
+            Type t = expectsSameInteger(node);
+            if (t != null) node.setType(t);
         }
         else if (node.operator().equals("==")
                 || node.operator().equals("!=")
@@ -325,27 +258,28 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
                 || node.operator().equals("<=")
                 || node.operator().equals(">")
                 || node.operator().equals(">=")) {
-            expectsComparableScalars(node);
-            return node;
+            Type t = expectsComparableScalars(node);
+            if (t != null) node.setType(t);
         }
         else {
             throw new Error("unknown binary operator: " + node.operator());
         }
+        return null;
     }
     // #@@}
 
-    public LogicalAndNode visit(LogicalAndNode node) {
-        node.setLeft(checkExpr(node.left()));
-        node.setRight(checkExpr(node.right()));
-        expectsComparableScalars(node);
-        return node;
+    public Void visit(LogicalAndNode node) {
+        super.visit(node);
+        Type t = expectsComparableScalars(node);
+        if (t != null) node.setType(t);
+        return null;
     }
 
-    public LogicalOrNode visit(LogicalOrNode node) {
-        node.setLeft(checkExpr(node.left()));
-        node.setRight(checkExpr(node.right()));
-        expectsComparableScalars(node);
-        return node;
+    public Void visit(LogicalOrNode node) {
+        super.visit(node);
+        Type t = expectsComparableScalars(node);
+        if (t != null) node.setType(t);
+        return null;
     }
 
     /**
@@ -357,31 +291,31 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
      *   * integer - integer
      *   * pointer - integer
      */
-    protected void expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
+    protected Type expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
         if (node.left().type().isDereferable()) {
             if (node.left().type().baseType().isVoid()) {
                 wrongTypeError(node.left(), node.operator());
-                return;
+                return null;
             }
             mustBeInteger(node.right(), node.operator());
-            node.setType(node.left().type());
             node.setRight(multiplyPtrBaseSize(node.right(), node.left()));
+            return node.left().type();
         }
         else if (node.right().type().isDereferable()) {
             if (node.operator().equals("-")) {
                 error(node, "invalid operation integer-pointer");
-                return;
+                return null;
             }
             if (node.right().type().baseType().isVoid()) {
                 wrongTypeError(node.right(), node.operator());
-                return;
+                return null;
             }
             mustBeInteger(node.left(), node.operator());
-            node.setType(node.right().type());
             node.setLeft(multiplyPtrBaseSize(node.left(), node.right()));
+            return node.right().type();
         }
         else {
-            expectsSameInteger(node);
+            return expectsSameInteger(node);
         }
     }
 
@@ -417,28 +351,28 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
 
     // +, -, *, /, %, &, |, ^, <<, >>
     // #@@range/expectsSameInteger{
-    protected void expectsSameInteger(BinaryOpNode bin) {
-        if (! mustBeInteger(bin.left(), bin.operator())) return;
-        if (! mustBeInteger(bin.right(), bin.operator())) return;
-        arithmeticImplicitCast(bin);
+    protected Type expectsSameInteger(BinaryOpNode node) {
+        if (! mustBeInteger(node.left(), node.operator())) return null;
+        if (! mustBeInteger(node.right(), node.operator())) return null;
+        return arithmeticImplicitCast(node);
     }
     // #@@}
 
     // ==, !=, >, >=, <, <=, &&, ||
-    protected void expectsComparableScalars(BinaryOpNode bin) {
-        if (! mustBeScalar(bin.left(), bin.operator())) return;
-        if (! mustBeScalar(bin.right(), bin.operator())) return;
-        if (bin.left().type().isDereferable()) {
-            bin.setType(bin.left().type());
-            bin.setRight(forcePointerType(bin.left(), bin.right()));
-            return;
+    protected Type expectsComparableScalars(BinaryOpNode node) {
+        if (! mustBeScalar(node.left(), node.operator())) return null;
+        if (! mustBeScalar(node.right(), node.operator())) return null;
+        if (node.left().type().isDereferable()) {
+            ExprNode right = forcePointerType(node.left(), node.right());
+            node.setRight(right);
+            return node.left().type();
         }
-        if (bin.right().type().isDereferable()) {
-            bin.setType(bin.right().type());
-            bin.setLeft(forcePointerType(bin.right(), bin.left()));
-            return;
+        if (node.right().type().isDereferable()) {
+            ExprNode left = forcePointerType(node.right(), node.left());
+            node.setLeft(left);
+            return node.right().type();
         }
-        arithmeticImplicitCast(bin);
+        return arithmeticImplicitCast(node);
     }
 
     // cast slave node to master node.
@@ -456,44 +390,46 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
 
     // Processes usual arithmetic conversion for binary operations.
     // #@@range/arithmeticImplicitCast{
-    protected void arithmeticImplicitCast(BinaryOpNode bin) {
-        Type r = integralPromotion(bin.right().type());
-        Type l = integralPromotion(bin.left().type());
+    protected Type arithmeticImplicitCast(BinaryOpNode node) {
+        Type r = integralPromotion(node.right().type());
+        Type l = integralPromotion(node.left().type());
         Type target = usualArithmeticConversion(l, r);
-        bin.setType(target);
         if (! l.isSameType(target)) {
-            bin.setLeft(new CastNode(target, bin.left()));
+            // insert cast on left expr
+            node.setLeft(new CastNode(target, node.left()));
         }
         if (! r.isSameType(target)) {
-            bin.setRight(new CastNode(target, bin.right()));
+            // insert cast on right expr
+            node.setRight(new CastNode(target, node.right()));
         }
+        return target;
     }
     // #@@}
 
     // +, -, !, ~
-    public UnaryOpNode visit(UnaryOpNode un) {
-        ExprNode expr = checkExpr(un.expr());
-        if (un.operator().equals("!")) {
-            mustBeScalar(expr, un.operator());
+    public Void visit(UnaryOpNode node) {
+        super.visit(node);
+        if (node.operator().equals("!")) {
+            mustBeScalar(node.expr(), node.operator());
         }
         else {
-            mustBeInteger(expr, un.operator());
+            mustBeInteger(node.expr(), node.operator());
         }
-        return new UnaryOpNode(un.operator(), expr);
+        return null;
     }
 
     // ++x, --x
-    public PrefixOpNode visit(PrefixOpNode pre) {
-        pre.setExpr(checkExpr(pre.expr()));
-        expectsScalarLHS(pre);
-        return pre;
+    public Void visit(PrefixOpNode node) {
+        super.visit(node);
+        expectsScalarLHS(node);
+        return null;
     }
 
     // x++, x--
-    public SuffixOpNode visit(SuffixOpNode suf) {
-        suf.setExpr(checkExpr(suf.expr()));
-        expectsScalarLHS(suf);
-        return suf;
+    public Void visit(SuffixOpNode node) {
+        super.visit(node);
+        expectsScalarLHS(node);
+        return null;
     }
 
     protected void expectsScalarLHS(UnaryArithmeticOpNode node) {
@@ -508,7 +444,6 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
         else {
             mustBeScalar(node.expr(), node.operator());
         }
-
         if (node.expr().type().isInteger()) {
             Type opType = integralPromotion(node.expr().type());
             if (! node.expr().type().isSameType(opType)) {
@@ -536,102 +471,51 @@ class TypeChecker implements ASTVisitor<Node, ExprNode> {
      *   * ARG matches function prototype.
      *   * ARG is neither a struct nor an union.
      */
-    public FuncallNode visit(FuncallNode node) {
-        ExprNode expr = checkExpr(node.expr());
+    public Void visit(FuncallNode node) {
+        super.visit(node);
         FunctionType type = node.functionType();
         if (! type.acceptsArgc(node.numArgs())) {
             error(node, "wrong number of argments: " + node.numArgs());
-            return node;
+            return null;
         }
-
         // Check type of only mandatory parameters.
         Iterator<ExprNode> args = node.arguments().iterator();
         List<ExprNode> newArgs = new ArrayList<ExprNode>();
         for (Type param : type.paramTypes()) {
-            ExprNode arg = checkRHS(args.next());
-            newArgs.add(isInvalidRHSType(arg.type()) ? arg : implicitCast(param, arg));
+            ExprNode arg = args.next();
+            newArgs.add(checkRHS(arg) ? implicitCast(param, arg) : arg);
         }
         while (args.hasNext()) {
-            newArgs.add(checkRHS(args.next()));
+            newArgs.add(args.next());
         }
-
-        return new FuncallNode(expr, newArgs);
+        node.replaceArgs(newArgs);
+        return null;
     }
 
-    public ArefNode visit(ArefNode node) {
-        ExprNode expr = checkExpr(node.expr());
-        ExprNode index = checkExpr(node.index());
-        mustBeInteger(index, "[]");
-        return new ArefNode(expr, index);
+    public Void visit(ArefNode node) {
+        super.visit(node);
+        mustBeInteger(node.index(), "[]");
+        return null;
     }
 
-    public CastNode visit(CastNode node) {
-        ExprNode expr = checkExpr(node.expr());
-        if (! expr.type().isCastableTo(node.type())) {
-            invalidCastError(node, expr.type(), node.type());
+    public Void visit(CastNode node) {
+        super.visit(node);
+        if (! node.expr().type().isCastableTo(node.type())) {
+            invalidCastError(node, node.expr().type(), node.type());
         }
-        return new CastNode(node.typeNode(), expr);
-    }
-
-    public AddressNode visit(AddressNode node) {
-        node.setExpr(checkExpr(node.expr()));
-        return node;
-    }
-
-    public DereferenceNode visit(DereferenceNode node) {
-        return new DereferenceNode(checkExpr(node.expr()));
-    }
-
-    public MemberNode visit(MemberNode node) {
-        return new MemberNode(checkExpr(node.expr()), node.member());
-    }
-
-    public PtrMemberNode visit(PtrMemberNode node) {
-        return new PtrMemberNode(checkExpr(node.expr()), node.member());
-    }
-
-    public SizeofExprNode visit(SizeofExprNode node) {
-        node.setExpr(checkExpr(node.expr()));
-        return node;
-    }
-
-    public SizeofTypeNode visit(SizeofTypeNode node) {
-        return node;
-    }
-
-    public VariableNode visit(VariableNode node) {
-        return node;
-    }
-
-    public IntegerLiteralNode visit(IntegerLiteralNode node) {
-        return node;
-    }
-
-    public StringLiteralNode visit(StringLiteralNode node) {
-        return node;
+        return null;
     }
 
     //
     // Utilities
     //
 
-    protected ExprNode checkLHS(ExprNode expr) {
-        ExprNode lhs = checkExpr(expr);
-        if (lhs.isParameter()) {
-            ;   // parameter is always assignable.
-        }
-        else if (isInvalidLHSType(lhs.type())) {
-            error(lhs, "invalid LHS expression type: " + lhs.type());
-        }
-        return lhs;
-    }
-
-    protected ExprNode checkRHS(ExprNode expr) {
-        ExprNode rhs = checkExpr(expr);
+    protected boolean checkRHS(ExprNode rhs) {
         if (isInvalidRHSType(rhs.type())) {
             error(rhs, "invalid RHS expression type: " + rhs.type());
+            return false;
         }
-        return rhs;
+        return true;
     }
 
     // Processes forced-implicit-cast.

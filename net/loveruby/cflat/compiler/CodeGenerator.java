@@ -710,7 +710,7 @@ public class CodeGenerator
      *    * Rewind stack by caller.
      */
     // #@@range/compile_Funcall{
-    public FuncallNode visit(FuncallNode node) {
+    public Void visit(FuncallNode node) {
         // compile function arguments from right to left.
         ListIterator<ExprNode> args = node.finalArg();
         while (args.hasPrevious()) {
@@ -735,7 +735,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Return{
-    public ReturnNode visit(ReturnNode node) {
+    public Void visit(ReturnNode node) {
         if (node.expr() != null) {
             compile(node.expr());
         }
@@ -749,7 +749,7 @@ public class CodeGenerator
     //
 
     // #@@range/compile_Block{
-    public BlockNode visit(BlockNode node) {
+    public Void visit(BlockNode node) {
         for (DefinedVariable var : node.scope().localVariables()) {
             if (var.initializer() != null) {
                 compile(var.initializer());
@@ -772,7 +772,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    public ExprStmtNode visit(ExprStmtNode node) {
+    public Void visit(ExprStmtNode node) {
         compile(node.expr());
         return null;
     }
@@ -784,7 +784,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_If{
-    public IfNode visit(IfNode node) {
+    public Void visit(IfNode node) {
         compile(node.cond());
         testCond(node.cond().type(), reg("ax"));
         if (node.elseBody() != null) {
@@ -805,7 +805,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_CondExpr{
-    public CondExprNode visit(CondExprNode node) {
+    public Void visit(CondExprNode node) {
         compile(node.cond());
         testCond(node.cond().type(), reg("ax"));
         jz(node.elseLabel());
@@ -819,7 +819,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Switch{
-    public SwitchNode visit(SwitchNode node) {
+    public Void visit(SwitchNode node) {
         compile(node.cond());
         Type t = typeTable.signedInt();
         for (CaseNode cn : node.cases()) {
@@ -845,7 +845,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Case{
-    public CaseNode visit(CaseNode node) {
+    public Void visit(CaseNode node) {
         label(node.beginLabel());
         compileStmt(node.body());
         return null;
@@ -853,7 +853,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_LogicalAnd{
-    public LogicalAndNode visit(LogicalAndNode node) {
+    public Void visit(LogicalAndNode node) {
         compile(node.left());
         testCond(node.left().type(), reg("ax"));
         jz(node.endLabel());
@@ -864,7 +864,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_LogicalOr{
-    public LogicalOrNode visit(LogicalOrNode node) {
+    public Void visit(LogicalOrNode node) {
         compile(node.left());
         testCond(node.left().type(), reg("ax"));
         jnz(node.endLabel());
@@ -875,7 +875,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_While{
-    public WhileNode visit(WhileNode node) {
+    public Void visit(WhileNode node) {
         label(node.begLabel());
         compile(node.cond());
         testCond(node.cond().type(), reg("ax"));
@@ -887,7 +887,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    public DoWhileNode visit(DoWhileNode node) {
+    public Void visit(DoWhileNode node) {
         label(node.begLabel());
         compileStmt(node.body());
         label(node.continueLabel());
@@ -899,7 +899,7 @@ public class CodeGenerator
     }
 
     // #@@range/compile_For{
-    public ForNode visit(ForNode node) {
+    public Void visit(ForNode node) {
         compileStmt(node.init());
         label(node.begLabel());
         compile(node.cond());
@@ -915,21 +915,21 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Break{
-    public BreakNode visit(BreakNode node) {
+    public Void visit(BreakNode node) {
         jmp(node.targetLabel());
         return null;
     }
     // #@@}
 
     // #@@range/compile_Continue{
-    public ContinueNode visit(ContinueNode node) {
+    public Void visit(ContinueNode node) {
         jmp(node.targetLabel());
         return null;
     }
     // #@@}
 
     // #@@range/compile_Label{
-    public LabelNode visit(LabelNode node) {
+    public Void visit(LabelNode node) {
         label(node.label());
         compileStmt(node.stmt());
         return null;
@@ -937,7 +937,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Goto{
-    public GotoNode visit(GotoNode node) {
+    public Void visit(GotoNode node) {
         jmp(node.targetLabel());
         return null;
     }
@@ -962,7 +962,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_BinaryOp{
-    public BinaryOpNode visit(BinaryOpNode node) {
+    public Void visit(BinaryOpNode node) {
         AsmOperand right = null;
         if (!doesRequireRegister(node.operator()) && node.right().isConstant()){
             compile(node.left());
@@ -1084,7 +1084,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_UnaryOp{
-    public UnaryOpNode visit(UnaryOpNode node) {
+    public Void visit(UnaryOpNode node) {
         compile(node.expr());
         if (node.operator().equals("+")) {
             ;
@@ -1105,7 +1105,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_PrefixOp{
-    public PrefixOpNode visit(PrefixOpNode node) {
+    public Void visit(PrefixOpNode node) {
         if (node.expr().isConstantAddress()) {
             load(node.expr().type(), node.expr().memref(), reg("ax"));
             compileUnaryArithmetic(node, reg("ax"));
@@ -1123,7 +1123,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_SuffixOp{
-    public SuffixOpNode visit(SuffixOpNode node) {
+    public Void visit(SuffixOpNode node) {
         if (node.expr().isConstantAddress()) {
             load(node.expr().type(), node.expr().memref(), reg("ax"));
             mov(reg("ax"), reg("cx"));
@@ -1159,7 +1159,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Cast{
-    public CastNode visit(CastNode node) {
+    public Void visit(CastNode node) {
         compile(node.expr());
         // We need not execute downcast because we can cast big value
         // to small value by just cutting off higer bits.
@@ -1180,7 +1180,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_SizeofExpr{
-    public SizeofExprNode visit(SizeofExprNode node) {
+    public Void visit(SizeofExprNode node) {
         long val = node.expr().type().allocSize();
         mov(node.type(), imm(val), reg("ax", node.type()));
         return null;
@@ -1188,7 +1188,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_SizeofType{
-    public SizeofTypeNode visit(SizeofTypeNode node) {
+    public Void visit(SizeofTypeNode node) {
         long val = node.operand().allocSize();
         mov(node.type(), imm(val), reg("ax", node.type()));
         return null;
@@ -1196,21 +1196,21 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Variable{
-    public VariableNode visit(VariableNode node) {
+    public Void visit(VariableNode node) {
         loadVariable(node, reg("ax"));
         return null;
     }
     // #@@}
 
     // #@@range/compile_IntegerLiteral{
-    public IntegerLiteralNode visit(IntegerLiteralNode node) {
+    public Void visit(IntegerLiteralNode node) {
         loadConstant(node, reg("ax"));
         return null;
     }
     // #@@}
 
     // #@@range/compile_StringLiteral{
-    public StringLiteralNode visit(StringLiteralNode node) {
+    public Void visit(StringLiteralNode node) {
         loadConstant(node, reg("ax"));
         return null;
     }
@@ -1221,7 +1221,7 @@ public class CodeGenerator
     //
 
     // #@@range/compile_Assign{
-    public AssignNode visit(AssignNode node) {
+    public Void visit(AssignNode node) {
         if (node.lhs().isConstantAddress() && node.lhs().memref() != null) {
             compile(node.rhs());
             save(node.type(), reg("ax"), node.lhs().memref());
@@ -1245,7 +1245,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_OpAssign{
-    public OpAssignNode visit(OpAssignNode node) {
+    public Void visit(OpAssignNode node) {
         if (node.lhs().isConstantAddress() && node.lhs().memref() != null) {
             // const += ANY
             compile(node.rhs());
@@ -1291,7 +1291,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Aref{
-    public ArefNode visit(ArefNode node) {
+    public Void visit(ArefNode node) {
         compileLHS(node);
         load(node.type(), mem(reg("ax")), reg("ax"));
         return null;
@@ -1299,7 +1299,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Member{
-    public MemberNode visit(MemberNode node) {
+    public Void visit(MemberNode node) {
         compileLHS(node.expr());
         if (node.shouldEvaluatedToAddress()) {
             add(imm(node.offset()), reg("ax"));
@@ -1312,7 +1312,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_PtrMember{
-    public PtrMemberNode visit(PtrMemberNode node) {
+    public Void visit(PtrMemberNode node) {
         compile(node.expr());
         if (node.shouldEvaluatedToAddress()) {
             add(imm(node.offset()), reg("ax"));
@@ -1325,7 +1325,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Dereference{
-    public DereferenceNode visit(DereferenceNode node) {
+    public Void visit(DereferenceNode node) {
         compile(node.expr());
         load(node.type(), mem(reg("ax")), reg("ax"));
         return null;
@@ -1333,7 +1333,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compile_Address{
-    public AddressNode visit(AddressNode node) {
+    public Void visit(AddressNode node) {
         compileLHS(node.expr());
         return null;
     }

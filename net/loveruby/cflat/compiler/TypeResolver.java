@@ -51,14 +51,14 @@ public class TypeResolver extends Visitor {
     // #@@}
 
     // #@@range/StructNode{
-    public StructNode visit(StructNode struct) {
+    public Void visit(StructNode struct) {
         resolveCompositeType(struct);
         return null;
     }
     // #@@}
 
     // #@@range/UnionNode{
-    public UnionNode visit(UnionNode union) {
+    public Void visit(UnionNode union) {
         resolveCompositeType(union);
         return null;
     }
@@ -77,7 +77,7 @@ public class TypeResolver extends Visitor {
     // #@@}
 
     // #@@range/TypedefNode{
-    public TypedefNode visit(TypedefNode typedef) {
+    public Void visit(TypedefNode typedef) {
         bindType(typedef.typeNode());
         bindType(typedef.realTypeNode());
         return null;
@@ -85,27 +85,27 @@ public class TypeResolver extends Visitor {
     // #@@}
 
     // #@@range/DefinedVariable{
-    public DefinedVariable visit(DefinedVariable var) {
+    public Void visit(DefinedVariable var) {
         bindType(var.typeNode());
         super.visit(var);       // resolve initializer
         return null;
     }
     // #@@}
 
-    public UndefinedVariable visit(UndefinedVariable var) {
+    public Void visit(UndefinedVariable var) {
         bindType(var.typeNode());
         return null;
     }
 
     // #@@range/DefinedFunction{
-    public DefinedFunction visit(DefinedFunction func) {
+    public Void visit(DefinedFunction func) {
         resolveFunctionHeader(func);
         visitStmt(func.body());
         return null;
     }
     // #@@}
 
-    public UndefinedFunction visit(UndefinedFunction func) {
+    public Void visit(UndefinedFunction func) {
         resolveFunctionHeader(func);
         return null;
     }
@@ -124,7 +124,7 @@ public class TypeResolver extends Visitor {
     }
     // #@@}
 
-    public AddressNode visit(AddressNode node) {
+    public Void visit(AddressNode node) {
         super.visit(node);
         // to avoid SemanticError which occurs when getting type of
         // expr which is not assignable.
@@ -144,31 +144,31 @@ public class TypeResolver extends Visitor {
         return null;
     }
 
-    public CastNode visit(CastNode node) {
+    public Void visit(CastNode node) {
         bindType(node.typeNode());
         super.visit(node);
         return null;
     }
 
-    public SizeofExprNode visit(SizeofExprNode node) {
+    public Void visit(SizeofExprNode node) {
         bindType(node.typeNode());
         super.visit(node);
         return null;
     }
 
-    public SizeofTypeNode visit(SizeofTypeNode node) {
+    public Void visit(SizeofTypeNode node) {
         bindType(node.operandTypeNode());
         bindType(node.typeNode());
         super.visit(node);
         return null;
     }
 
-    public IntegerLiteralNode visit(IntegerLiteralNode node) {
+    public Void visit(IntegerLiteralNode node) {
         bindType(node.typeNode());
         return null;
     }
 
-    public StringLiteralNode visit(StringLiteralNode node) {
+    public Void visit(StringLiteralNode node) {
         bindType(node.typeNode());
         return null;
     }

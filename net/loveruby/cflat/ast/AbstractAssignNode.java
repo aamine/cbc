@@ -18,8 +18,16 @@ abstract public class AbstractAssignNode extends ExprNode {
         return lhs;
     }
 
+    public void setLHS(ExprNode expr) {
+        this.lhs = expr;
+    }
+
     public ExprNode rhs() {
         return rhs;
+    }
+
+    public void setRHS(ExprNode expr) {
+        this.rhs = expr;
     }
 
     public Location location() {

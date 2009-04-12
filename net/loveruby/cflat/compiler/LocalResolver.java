@@ -70,7 +70,7 @@ public class LocalResolver extends Visitor {
     // #@@}
 
     // #@@range/BlockNode{
-    public BlockNode visit(BlockNode node) {
+    public Void visit(BlockNode node) {
         pushScope(node.variables());
         super.visit(node);
         node.setScope(popScope());
@@ -106,14 +106,14 @@ public class LocalResolver extends Visitor {
     // #@@}
 
     // #@@range/StringLiteralNode{
-    public StringLiteralNode visit(StringLiteralNode node) {
+    public Void visit(StringLiteralNode node) {
         node.setEntry(constantTable.intern(node.value()));
         return null;
     }
     // #@@}
 
     // #@@range/VariableNode{
-    public VariableNode visit(VariableNode node) {
+    public Void visit(VariableNode node) {
         try {
             Entity ent = currentScope().get(node.name());
             ent.refered();

@@ -27,14 +27,16 @@ public class CondExprNode extends ExprNode {
         return thenExpr;
     }
 
+    public void setThenExpr(ExprNode expr) {
+        this.thenExpr = expr;
+    }
+
     public ExprNode elseExpr() {
         return elseExpr;
     }
 
-    public void setExprs(ExprNode cond, ExprNode thenExpr, ExprNode elseExpr) {
-        this.cond = cond;
-        this.thenExpr = thenExpr;
-        this.elseExpr = elseExpr;
+    public void setElseExpr(ExprNode expr) {
+        this.elseExpr = expr;
     }
 
     public Label elseLabel() {

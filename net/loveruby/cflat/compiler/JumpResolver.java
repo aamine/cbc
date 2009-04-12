@@ -39,7 +39,7 @@ public class JumpResolver extends Visitor {
         n.accept(this);
     }
 
-    public SwitchNode visit(SwitchNode node) {
+    public Void visit(SwitchNode node) {
         resolve(node.cond());
         breakTargetStack.add(node);
         visitStmts(node.cases());
@@ -48,7 +48,7 @@ public class JumpResolver extends Visitor {
     }
 
     // #@@range/_while{
-    public WhileNode visit(WhileNode node) {
+    public Void visit(WhileNode node) {
         resolve(node.cond());
         breakTargetStack.add(node);
         continueTargetStack.add(node);
@@ -59,7 +59,7 @@ public class JumpResolver extends Visitor {
     }
     // #@@}
 
-    public DoWhileNode visit(DoWhileNode node) {
+    public Void visit(DoWhileNode node) {
         breakTargetStack.add(node);
         continueTargetStack.add(node);
         resolve(node.body());
@@ -70,7 +70,7 @@ public class JumpResolver extends Visitor {
     }
 
     // #@@range/_for{
-    public ForNode visit(ForNode node) {
+    public Void visit(ForNode node) {
         resolve(node.init());
         resolve(node.cond());
         breakTargetStack.add(node);
@@ -84,7 +84,7 @@ public class JumpResolver extends Visitor {
     // #@@}
 
     // #@@range/_break{
-    public BreakNode visit(BreakNode node) {
+    public Void visit(BreakNode node) {
         if (breakTargetStack.isEmpty()) {
             errorHandler.error(node.location(),
                     "break from out of while/do-while/for/switch");
@@ -97,7 +97,7 @@ public class JumpResolver extends Visitor {
     // #@@}
 
     // #@@range/_continue{
-    public ContinueNode visit(ContinueNode node) {
+    public Void visit(ContinueNode node) {
         if (breakTargetStack.isEmpty()) {
             errorHandler.error(node.location(),
                         "continue from out of while/do-while/for");
@@ -109,7 +109,7 @@ public class JumpResolver extends Visitor {
     }
     // #@@}
 
-    public LabelNode visit(LabelNode node) {
+    public Void visit(LabelNode node) {
         try {
             Label label = currentFunction.defineLabel(node.name(),
                                                       node.location());
@@ -121,12 +121,12 @@ public class JumpResolver extends Visitor {
         return null;
     }
 
-    public GotoNode visit(GotoNode node) {
+    public Void visit(GotoNode node) {
         node.setTargetLabel(currentFunction.referLabel(node.target()));
         return null;
     }
 
-    public ReturnNode visit(ReturnNode node) {
+    public Void visit(ReturnNode node) {
         node.setFunction(currentFunction);
         return null;
     }

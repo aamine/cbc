@@ -35,7 +35,7 @@ class DereferenceChecker extends Visitor {
     // Statements
     //
 
-    public BlockNode visit(BlockNode node) {
+    public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
             checkVariable(var);
         }
@@ -65,13 +65,13 @@ class DereferenceChecker extends Visitor {
     // Assignment Expressions
     //
 
-    public AssignNode visit(AssignNode node) {
+    public Void visit(AssignNode node) {
         super.visit(node);
         checkAssignment(node);
         return null;
     }
 
-    public OpAssignNode visit(OpAssignNode node) {
+    public Void visit(OpAssignNode node) {
         super.visit(node);
         checkAssignment(node);
         return null;
@@ -87,7 +87,7 @@ class DereferenceChecker extends Visitor {
     // Expressions
     //
 
-    public PrefixOpNode visit(PrefixOpNode node) {
+    public Void visit(PrefixOpNode node) {
         super.visit(node);
         if (! node.expr().isAssignable()) {
             semanticError(node.expr(), "cannot increment/decrement");
@@ -95,7 +95,7 @@ class DereferenceChecker extends Visitor {
         return null;
     }
 
-    public SuffixOpNode visit(SuffixOpNode node) {
+    public Void visit(SuffixOpNode node) {
         super.visit(node);
         if (! node.expr().isAssignable()) {
             semanticError(node.expr(), "cannot increment/decrement");
@@ -103,7 +103,7 @@ class DereferenceChecker extends Visitor {
         return null;
     }
 
-    public FuncallNode visit(FuncallNode node) {
+    public Void visit(FuncallNode node) {
         super.visit(node);
         if (! node.expr().isCallable()) {
             semanticError(node, "calling object is not a function");
@@ -111,7 +111,7 @@ class DereferenceChecker extends Visitor {
         return null;
     }
 
-    public ArefNode visit(ArefNode node) {
+    public Void visit(ArefNode node) {
         super.visit(node);
         if (! node.expr().isDereferable()) {
             semanticError(node, "indexing non-array/pointer expression");
@@ -119,13 +119,13 @@ class DereferenceChecker extends Visitor {
         return null;
     }
 
-    public MemberNode visit(MemberNode node) {
+    public Void visit(MemberNode node) {
         super.visit(node);
         checkMemberRef(node, node.expr().type(), node.member());
         return null;
     }
 
-    public PtrMemberNode visit(PtrMemberNode node) {
+    public Void visit(PtrMemberNode node) {
         super.visit(node);
         if (! node.expr().isDereferable()) {
             undereferableError(node);
@@ -146,7 +146,7 @@ class DereferenceChecker extends Visitor {
         }
     }
 
-    public DereferenceNode visit(DereferenceNode node) {
+    public Void visit(DereferenceNode node) {
         super.visit(node);
         if (! node.expr().isDereferable()) {
             undereferableError(node);
@@ -154,7 +154,7 @@ class DereferenceChecker extends Visitor {
         return null;
     }
 
-    public AddressNode visit(AddressNode node) {
+    public Void visit(AddressNode node) {
         super.visit(node);
         if (! node.expr().isAssignable()) {
             semanticError(node, "invalid LHS expression for &");
