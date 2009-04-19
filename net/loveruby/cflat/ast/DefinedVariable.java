@@ -15,6 +15,10 @@ public class DefinedVariable extends Variable {
         sequence = -1;
     }
 
+    static public DefinedVariable tmp(Type t) {
+        return new DefinedVariable(false, new TypeNode(t), "@tmp", null);
+    }
+
     public boolean isDefined() {
         return true;
     }

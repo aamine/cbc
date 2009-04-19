@@ -14,6 +14,10 @@ public class VariableNode extends ExprNode {
         this.name = name;
     }
 
+    public VariableNode(DefinedVariable var) {
+        this.entity = var;
+    }
+
     public String name() {
         return name;
     }

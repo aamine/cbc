@@ -1,20 +1,22 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.Label;
 
-public class WhileNode extends LoopNode {
+public class WhileNode extends StmtNode {
     protected StmtNode body;
+    protected ExprNode cond;
 
     public WhileNode(Location loc, ExprNode cond, StmtNode body) {
-        super(loc, cond);
+        super(loc);
+        this.cond = cond;
         this.body = body;
+    }
+
+    public ExprNode cond() {
+        return cond;
     }
 
     public StmtNode body() {
         return body;
-    }
-
-    public Label continueLabel() {
-        return begLabel();
     }
 
     protected void _dump(Dumper d) {

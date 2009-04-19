@@ -114,7 +114,10 @@ public class Compiler {
                 return;
             }
             AST ir = new Simplifier(errorHandler).transform(ast);
-            new JumpResolver(errorHandler).resolve(ir);
+            if (opts.mode() == CompilerMode.DumpIR) {
+                ir.dump();
+                return;
+            }
             String asm = generateAssembly(ir, opts);
             if (opts.mode() == CompilerMode.DumpAsm) {
                 System.out.println(asm);

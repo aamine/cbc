@@ -6,19 +6,6 @@ public class ContinueNode extends StmtNode {
         super(loc);
     }
 
-    protected Label label;
-
-    public void setTargetLabel(Label label) {
-        this.label = label;
-    }
-
-    public Label targetLabel() {
-        if (label == null) {
-            throw new Error("continue target label is null");
-        }
-        return label;
-    }
-
     protected void _dump(Dumper d) {
     }
 

@@ -12,16 +12,17 @@ public class LabelNode extends StmtNode {
         this.stmt = stmt;
     }
 
+    public LabelNode(Label label) {
+        super(null);
+        this.label = label;
+    }
+
     public String name() {
         return name;
     }
 
     public StmtNode stmt() {
         return stmt;
-    }
-
-    public void setLabel(Label label) {
-        this.label = label;
     }
 
     public Label label() {

@@ -5,24 +5,16 @@ public class IfNode extends StmtNode {
     protected ExprNode cond;
     protected StmtNode thenBody;
     protected StmtNode elseBody;
-    protected Label elseLabel;
-    protected Label endLabel;
 
     public IfNode(Location loc, ExprNode c, StmtNode t, StmtNode e) {
         super(loc);
         this.cond = c;
         this.thenBody = t;
         this.elseBody = e;
-        this.elseLabel = new Label();
-        this.endLabel = new Label();
     }
 
     public ExprNode cond() {
         return cond;
-    }
-
-    public void setCond(ExprNode cond) {
-        this.cond = cond;
     }
 
     public StmtNode thenBody() {
@@ -31,14 +23,6 @@ public class IfNode extends StmtNode {
 
     public StmtNode elseBody() {
         return elseBody;
-    }
-
-    public Label elseLabel() {
-        return elseLabel;
-    }
-
-    public Label endLabel() {
-        return endLabel;
     }
 
     protected void _dump(Dumper d) {

@@ -16,6 +16,10 @@ public class FuncallNode extends ExprNode {
         return expr;
     }
 
+    public void setExpr(ExprNode expr) {
+        this.expr = expr;
+    }
+
     /** Returns true if this funcall is NOT a function pointer call. */
     public boolean isStaticCall() {
         return (expr instanceof VariableNode) &&

@@ -10,16 +10,16 @@ public class GotoNode extends StmtNode {
         this.target = target;
     }
 
+    public GotoNode(Label target) {
+        super(null);
+        label = target;
+    }
+
     public String target() {
         return target;
     }
 
-    public void setTargetLabel(Label label) {
-        this.label = label;
-    }
-
-    public Label targetLabel() {
-        if (label == null) throw new Error("goto target label is null");
+    public Label label() {
         return label;
     }
 

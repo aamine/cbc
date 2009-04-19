@@ -31,6 +31,10 @@ public class UnaryOpNode extends ExprNode {
         return expr;
     }
 
+    public void setExpr(ExprNode expr) {
+        this.expr = expr;
+    }
+
     public Location location() {
         return expr.location();
     }

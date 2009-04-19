@@ -8,9 +8,9 @@ import java.util.*;
 public class DefinedFunction extends Function {
     protected Params params;
     protected BlockNode body;
-    protected Map<String, JumpEntry> jumpMap;
     protected LocalScope scope;
     protected Label epilogueLabel;
+    protected List<StmtNode> ir;
 
     public DefinedFunction(boolean priv,
                            TypeNode type,
@@ -20,7 +20,6 @@ public class DefinedFunction extends Function {
         super(priv, type, name);
         this.params = params;
         this.body = body;
-        this.jumpMap = new HashMap<String, JumpEntry>();
         this.epilogueLabel = new Label();
     }
 
@@ -34,6 +33,14 @@ public class DefinedFunction extends Function {
 
     public BlockNode body() {
         return body;
+    }
+
+    public List<StmtNode> ir() {
+        return ir;
+    }
+
+    public void setIR(List<StmtNode> ir) {
+        this.ir = ir;
     }
 
     public void setScope(LocalScope scope) {
@@ -51,61 +58,6 @@ public class DefinedFunction extends Function {
 
     public Label epilogueLabel() {
         return this.epilogueLabel;
-    }
-
-    class JumpEntry {
-        public Label label;
-        public long numRefered;
-        public boolean isDefined;
-        public Location location;
-
-        public JumpEntry(Label label) {
-            this.label = label;
-            numRefered = 0;
-            isDefined = false;
-        }
-    }
-
-    public Label defineLabel(String name, Location loc)
-                                    throws SemanticException {
-        JumpEntry ent = getJumpEntry(name);
-        if (ent.isDefined) {
-            throw new SemanticException(
-                "duplicated jump labels in " + name + "(): " + name);
-        }
-        ent.isDefined = true;
-        ent.location = loc;
-        return ent.label;
-    }
-
-    public Label referLabel(String name) {
-        JumpEntry ent = getJumpEntry(name);
-        ent.numRefered++;
-        return ent.label;
-    }
-
-    protected JumpEntry getJumpEntry(String name) {
-        JumpEntry ent = jumpMap.get(name);
-        if (ent == null) {
-            ent = new JumpEntry(new Label());
-            jumpMap.put(name, ent);
-        }
-        return ent;
-    }
-
-    public void checkJumpLinks(ErrorHandler handler) {
-        for (Map.Entry<String, JumpEntry> ent : jumpMap.entrySet()) {
-            String labelName = ent.getKey();
-            JumpEntry jump = ent.getValue();
-            if (!jump.isDefined) {
-                handler.error(jump.location,
-                              name + ": undefined label: " + labelName);
-            }
-            if (jump.numRefered == 0) {
-                handler.warn(jump.location,
-                             name + ": useless label: " + labelName);
-            }
-        }
     }
 
     protected void _dump(Dumper d) {

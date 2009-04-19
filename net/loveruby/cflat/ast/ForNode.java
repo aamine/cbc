@@ -1,23 +1,27 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.asm.Label;
 
-public class ForNode extends LoopNode {
+public class ForNode extends StmtNode {
     protected StmtNode init;
+    protected ExprNode cond;
     protected StmtNode incr;
     protected StmtNode body;
-    protected Label continueLabel;
 
     public ForNode(Location loc, 
                    ExprNode init, ExprNode cond, ExprNode incr, StmtNode body) {
-        super(loc, cond);
+        super(loc);
         this.init = new ExprStmtNode(init.location(), init);
+        this.cond = cond;
         this.incr = new ExprStmtNode(incr.location(), incr);
         this.body = body;
-        this.continueLabel = new Label();
     }
 
     public StmtNode init() {
         return init;
+    }
+
+    public ExprNode cond() {
+        return cond;
     }
 
     public StmtNode incr() {
@@ -26,10 +30,6 @@ public class ForNode extends LoopNode {
 
     public StmtNode body() {
         return body;
-    }
-
-    public Label continueLabel() {
-        return continueLabel;
     }
 
     protected void _dump(Dumper d) {

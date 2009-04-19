@@ -10,6 +10,10 @@ public class DereferenceNode extends UnaryOpNode {
         return expr().type().baseType();
     }
 
+    public void setExpr(ExprNode expr) {
+        this.expr = expr;
+    }
+
     public boolean isAssignable() { return true; }
     public boolean isConstantAddress() { return false; }
 

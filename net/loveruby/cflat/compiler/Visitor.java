@@ -259,4 +259,16 @@ abstract public class Visitor implements ASTVisitor<Void, Void> {
     public Void visit(StringLiteralNode node) {
         return null;
     }
+
+    //
+    // IR tree
+    //
+
+    public Void visit(AssignStmtNode n) {
+        throw new Error("must not happen");
+    }
+
+    public Void visit(BranchIfNode n) {
+        throw new Error("must not happen");
+    }
 }

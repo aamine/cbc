@@ -47,4 +47,8 @@ public interface ASTVisitor<S, E> {
     public E visit(VariableNode node);
     public E visit(IntegerLiteralNode node);
     public E visit(StringLiteralNode node);
+
+    // does exists only in IR tree
+    public S visit(AssignStmtNode node);
+    public S visit(BranchIfNode node);
 }

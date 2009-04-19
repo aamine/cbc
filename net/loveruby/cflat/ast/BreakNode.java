@@ -6,19 +6,6 @@ public class BreakNode extends StmtNode {
         super(loc);
     }
 
-    protected Label label;
-
-    public void setTargetLabel(Label label) {
-        this.label = label;
-    }
-
-    public Label targetLabel() {
-        if (label == null) {
-            throw new Error("break label is null");
-        }
-        return label;
-    }
-
     public Location location() {
         return location;
     }
