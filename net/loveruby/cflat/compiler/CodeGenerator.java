@@ -23,7 +23,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
 
     /** Compiles IR and generates assembly code. */
     // #@@range/generate{
-    public String generate(AST ir) {
+    public String generate(IR ir) {
         this.typeTable = ir.typeTable();
         pushAssembler();
         SymbolTable constSymbols = new SymbolTable(Assembler.CONST_SYMBOL_BASE);
@@ -63,7 +63,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     // #@@}
 
     // #@@range/compileIR{
-    public void compileIR(AST ir) {
+    public void compileIR(IR ir) {
         _file(ir.fileName());
         // .data
         List<DefinedVariable> gvars = ir.definedGlobalVariables();

@@ -1,3 +1,7 @@
+Mon Apr 20 00:39:13 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/IR.java: new class to represents IR.
+
 Sun Apr 19 23:52:37 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* new class Simplifier (it is really a IR generator).  Passes

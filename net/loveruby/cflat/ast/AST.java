@@ -18,8 +18,8 @@ public class AST extends Node {
         this.constantTable = new ConstantTable();
     }
 
-    public String fileName() {
-        return source.sourceName();
+    public Location location() {
+        return source;
     }
 
     public CflatToken sourceTokens() {
@@ -63,54 +63,28 @@ public class AST extends Node {
         return declarations.defvars();
     }
 
-    public boolean functionDefined() {
-        return !declarations.defuns().isEmpty();
-    }
-
     public List<DefinedFunction> definedFunctions() {
         return declarations.defuns();
-    }
-
-    public List<Function> allFunctions() {
-        List<Function> result = new ArrayList<Function>();
-        result.addAll(declarations.defuns());
-        result.addAll(declarations.funcdecls());
-        return result;
     }
 
     public ToplevelScope scope() {
         return scope;
     }
 
-    /** a list of all defined/declared global-scope variables */
-    public List<Variable> allGlobalVariables() {
-        return scope.allGlobalVariables();
-    }
-
-    /** a list of defined initialized global variables */
-    public List<DefinedVariable> definedGlobalVariables() {
-        return scope.definedGlobalVariables();
-    }
-
-    /** a list of defined uninitialized global variables */
-    public List<DefinedVariable> definedCommonSymbols() {
-        return scope.definedCommonSymbols();
-    }
-
     public ConstantTable constantTable() {
         return constantTable;
     }
 
-    public Location location() {
-        return source;
+    public IR ir() {
+        return new IR(source,
+                declarations.defvars(),
+                declarations.defuns(),
+                declarations.funcdecls(),
+                scope, constantTable, typeTable);
     }
 
     protected void _dump(Dumper d) {
         d.printNodeList("variables", definedVariables());
         d.printNodeList("functions", definedFunctions());
-    }
-
-    public Node accept(ASTVisitor visitor) {
-        throw new Error("must not happen: AST#accept called");
     }
 }

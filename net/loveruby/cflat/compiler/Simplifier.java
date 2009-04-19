@@ -18,10 +18,10 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     // #@@}
 
     // #@@range/transform{
-    public AST transform(AST ast) throws SemanticException {
+    public IR transform(AST ast) throws SemanticException {
         typeTable = ast.typeTable();
         for (DefinedVariable var : ast.definedVariables()) {
-            visit(var);
+            transformInitializer(var);
         }
         for (DefinedFunction f : ast.definedFunctions()) {
             visit(f);
@@ -29,9 +29,15 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
         if (errorHandler.errorOccured()) {
             throw new SemanticException("Simplify failed.");
         }
-        return ast;
+        return ast.ir();
     }
     // #@@}
+
+    private void transformInitializer(DefinedVariable var) {
+        if (var.initializer() != null) {
+            var.setInitializer(transform(var.initializer()));
+        }
+    }
 
     //
     // Definitions
@@ -136,7 +142,7 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
             if (var.initializer() != null) {
-                addExprStmt(var.initializer());
+                assign(ref(var), var.initializer());
             }
         }
         for (StmtNode s : node.stmts()) {
@@ -579,12 +585,7 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     }
 
     public ExprNode visit(VariableNode node) {
-        if (node.shouldEvaluatedToAddress()) {
-            return addressOf(node);
-        }
-        else {
-            return node;
-        }
+        return node.shouldEvaluatedToAddress() ? addressOf(node) : node;
     }
 
     public ExprNode visit(IntegerLiteralNode node) {
@@ -611,11 +612,14 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
 
     // add AddressNode on top of the expr.
     private ExprNode addressOf(ExprNode expr) {
-        if (expr instanceof AddressNode) {
-            return ((AddressNode)expr).expr();
+        if (expr instanceof DereferenceNode) {
+            return ((DereferenceNode)expr).expr();
         }
         else {
-            return new AddressNode(expr);
+            AddressNode n = new AddressNode(expr);
+            Type base = expr.type();
+            n.setType(expr.shouldEvaluatedToAddress() ? base : typeTable.pointerTo(base));
+            return n;
         }
     }
 

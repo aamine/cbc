@@ -64,7 +64,12 @@ public class DefinedFunction extends Function {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate);
         d.printMember("params", params);
-        d.printMember("body", body);
+        if (ir == null) {
+            d.printMember("body", body);
+        }
+        else {
+            d.printNodeList("ir", ir);
+        }
     }
 
     public <S,E> S accept(ASTVisitor<S,E> visitor) {

@@ -113,7 +113,7 @@ public class Compiler {
                 ast.dump();
                 return;
             }
-            AST ir = new Simplifier(errorHandler).transform(ast);
+            IR ir = new Simplifier(errorHandler).transform(ast);
             if (opts.mode() == CompilerMode.DumpIR) {
                 ir.dump();
                 return;
@@ -187,9 +187,9 @@ public class Compiler {
         new TypeChecker(errorHandler).check(ast);
     }
 
-    protected String generateAssembly(AST ast, Options opts) {
+    protected String generateAssembly(IR ir, Options opts) {
         CodeGenerator gen = new CodeGenerator(opts.genOptions(), errorHandler);
-        return gen.generate(ast);
+        return gen.generate(ir);
     }
 
     protected void assemble(String srcPath,
