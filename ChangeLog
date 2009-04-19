@@ -1,3 +1,22 @@
+Mon Apr 20 03:52:10 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* now many tests work (30/1709 failed).
+
+	* net/loveruby/cflat/compiler/Simplifier.java: set location of
+	  AssignStmtNode.
+
+	* net/loveruby/cflat/compiler/Simplifier.java: allocate tmp
+	  variable in scope.
+
+	* net/loveruby/cflat/compiler/Simplifier.java: opAssign/inc/dec
+	  handling was completely wrong (there still be some problems yet).
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (compileLHS):
+	  implemented for IR.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (loadVarible):
+	  implemented for IR.
+
 Mon Apr 20 00:39:13 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/IR.java: new class to represents IR.

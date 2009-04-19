@@ -3,8 +3,8 @@ package net.loveruby.cflat.ast;
 public class AssignStmtNode extends StmtNode {
     protected ExprNode lhs, rhs;
 
-    public AssignStmtNode(ExprNode lhs, ExprNode rhs) {
-        super(null);
+    public AssignStmtNode(Location loc, ExprNode lhs, ExprNode rhs) {
+        super(loc);
         this.lhs = lhs;
         this.rhs = rhs;
     }

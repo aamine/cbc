@@ -44,12 +44,14 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     //
 
     private List<StmtNode> stmts;
+    private LinkedList<LocalScope> scopeStack;
     private LinkedList<Label> breakStack;
     private LinkedList<Label> continueStack;
     private Map<String, JumpEntry> jumpMap;
 
     public Void visit(DefinedFunction f) {
         stmts = new ArrayList<StmtNode>();
+        scopeStack = new LinkedList<LocalScope>();
         breakStack = new LinkedList<Label>();
         continueStack = new LinkedList<Label>();
         jumpMap = new HashMap<String, JumpEntry>();
@@ -80,7 +82,7 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
 
     // insert node before the current statement.
     private void assignBeforeStmt(ExprNode lhs, ExprNode rhs) {
-        stmts.add(beforeStmt, new AssignStmtNode(lhs, rhs));
+        stmts.add(beforeStmt, new AssignStmtNode(null, lhs, rhs));
         beforeStmt++;
     }
 
@@ -142,12 +144,14 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
             if (var.initializer() != null) {
-                assign(ref(var), var.initializer());
+                assign(var.location(), ref(var), var.initializer());
             }
         }
+        scopeStack.add(node.scope());
         for (StmtNode s : node.stmts()) {
             transform(s);
         }
+        scopeStack.removeLast();
         return null;
     }
 
@@ -284,7 +288,9 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     }
 
     public Void visit(ReturnNode node) {
-        node.setExpr(transform(node.expr()));
+        if (node.expr() != null) {
+            node.setExpr(transform(node.expr()));
+        }
         stmts.add(node);
         return null;
     }
@@ -295,12 +301,15 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     }
 
     private void assign(ExprNode lhs, ExprNode rhs) {
-        stmts.add(new AssignStmtNode(lhs, rhs));
+        assign(null, lhs, rhs);
+    }
+
+    private void assign(Location loc, ExprNode lhs, ExprNode rhs) {
+        stmts.add(new AssignStmtNode(loc, lhs, rhs));
     }
 
     private DefinedVariable tmpVar(Type t) {
-        // FIXME: allocate in scope??
-        return DefinedVariable.tmp(t);
+        return scopeStack.getLast().allocateTmp(t);
     }
 
     class JumpEntry {
@@ -429,13 +438,26 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     private ExprNode transformOpAssign(ExprNode lhs, String op, ExprNode rhs) {
         rhs = expandPointerArithmetic(rhs, op, lhs);
         if (isStatement()) {
-            assignBeforeStmt(lhs, rhs);
+            if (lhs.isConstantAddress()) {
+                // lhs = lhs op rhs
+                assign(lhs, binaryOp(lhs, op, rhs));
+            }
+            else {
+                // a = &lhs, *a = *a op rhs
+                ExprNode addr = addressOf(lhs);
+                DefinedVariable a = tmpVar(addr.type());
+                assign(ref(a), addr);
+                assign(deref(a), binaryOp(deref(a), op, rhs));
+            }
             return null;
         }
         else {
-            DefinedVariable tmp = tmpVar(rhs.type());
-            assignBeforeStmt(ref(tmp), rhs);
-            return ref(tmp);
+            // a = &lhs, *a = *a op rhs, *a
+            ExprNode addr = addressOf(lhs);
+            DefinedVariable a = tmpVar(addr.type());
+            assignBeforeStmt(ref(a), addr);
+            assignBeforeStmt(deref(a), binaryOp(deref(a), op, rhs));
+            return deref(a);
         }
     }
 
@@ -529,7 +551,7 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     public ExprNode visit(ArefNode node) {
         ExprNode offset = binaryOp(intValue(node.elementSize()),
                             "*", transformArrayIndex(node));
-        return binaryOp(transform(node.baseExpr()), "+", offset);
+        return deref(binaryOp(transform(node.baseExpr()), "+", offset));
     }
 
     // For multidimension array: t[e][d][c][b][a];
@@ -627,14 +649,14 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
         return new VariableNode(var);
     }
 
+    // add DereferenceNode on top of the var.
+    private DereferenceNode deref(DefinedVariable var) {
+        return deref(ref(var));
+    }
+
     // add DereferenceNode on top of the expr.
     private DereferenceNode deref(ExprNode expr) {
         return new DereferenceNode(expr);
-    }
-
-    // add DereferenceNode on top of the var.
-    private DereferenceNode deref(DefinedVariable var) {
-        return new DereferenceNode(new VariableNode(var));
     }
 
     private BinaryOpNode binaryOp(ExprNode left, String op, ExprNode right) {

@@ -1067,11 +1067,19 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     //
 
     private void compileLHS(ExprNode lhs) {
-        // FIXME FIXME FIXME
-        // for variables: apply loadVariableAddress
-        // for *expr: remove DereferenceNode
-        // otherwise: fatal error
-        compile(lhs);
+        if (lhs instanceof VariableNode) {
+            // for variables: apply loadVariableAddress
+            loadVariableAddress((VariableNode)lhs, reg("ax"));
+        }
+        else if (lhs instanceof DereferenceNode) {
+            // for *expr: remove DereferenceNode
+            DereferenceNode n = (DereferenceNode)lhs;
+            compile(n.expr());
+        }
+        else {
+            // otherwise: fatal error
+            throw new Error("must not happen");
+        }
     }
 
     // #@@range/compile_Assign{
@@ -1141,12 +1149,13 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
      */
     // #@@range/loadVariable{
     protected void loadVariable(ExprNode node, Register dest) {
+        /*
         if (node.shouldEvaluatedToAddress()) {
             // "int[4] a; a" implies &a
             // "x = puts" implies &puts
             loadVariableAddress(node, dest);
         }
-        else if (node.memref() == null) {
+        else*/ if (node.memref() == null) {
             mov(node.address(), dest);
             load(node.type(), mem(dest), dest);
         }

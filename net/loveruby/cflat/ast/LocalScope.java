@@ -1,6 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.compiler.ErrorHandler;
 import net.loveruby.cflat.exception.*;
+import net.loveruby.cflat.type.Type;
 import java.util.*;
 
 public class LocalScope extends Scope {
@@ -43,6 +44,12 @@ public class LocalScope extends Scope {
         variables.put(var.name(), var);
     }
     // #@@}
+
+    public DefinedVariable allocateTmp(Type t) {
+        DefinedVariable var = DefinedVariable.tmp(t);
+        defineVariable(var);
+        return var;
+    }
 
     // #@@range/get{
     public Entity get(String name) throws SemanticException {

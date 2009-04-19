@@ -15,8 +15,11 @@ public class DefinedVariable extends Variable {
         sequence = -1;
     }
 
+    static private long tmpSeq = 0;
+
     static public DefinedVariable tmp(Type t) {
-        return new DefinedVariable(false, new TypeNode(t), "@tmp", null);
+        return new DefinedVariable(false,
+                new TypeNode(t), "@tmp" + tmpSeq++, null);
     }
 
     public boolean isDefined() {
