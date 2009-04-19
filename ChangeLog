@@ -1,3 +1,10 @@
+Sun Apr 19 14:57:22 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* refactoring: rename class: compiler/Simplifier.java ->
+	  IRGenerator.java.
+
+	* compiler/Compiler.java: ditto.
+
 Sun Apr 12 17:49:19 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeChecker.java: split IRGenerator.

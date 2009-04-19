@@ -113,8 +113,7 @@ public class Compiler {
                 ast.dump();
                 return;
             }
-            // FIXME: generate IR tree
-            AST ir = new IRGenerator(errorHandler).compile(ast);
+            AST ir = new Simplifier(errorHandler).transform(ast);
             new JumpResolver(errorHandler).resolve(ir);
             String asm = generateAssembly(ir, opts);
             if (opts.mode() == CompilerMode.DumpAsm) {

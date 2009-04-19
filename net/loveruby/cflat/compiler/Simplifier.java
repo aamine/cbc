@@ -4,12 +4,12 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
-class IRGenerator extends Visitor {
+class Simplifier extends Visitor {
     protected ErrorHandler errorHandler;
     protected TypeTable typeTable;
 
     // #@@range/ctor{
-    public IRGenerator(ErrorHandler errorHandler) {
+    public Simplifier(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
     }
     // #@@}
@@ -22,9 +22,8 @@ class IRGenerator extends Visitor {
         visitExpr(node);
     }
 
-    // FIXME: generate IR tree
-    // #@@range/check_AST{
-    public AST compile(AST ast) throws SemanticException {
+    // #@@range/transform{
+    public AST transform(AST ast) throws SemanticException {
         typeTable = ast.typeTable();
         for (DefinedVariable var : ast.definedVariables()) {
             visit(var);
