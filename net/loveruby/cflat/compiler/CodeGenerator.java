@@ -752,7 +752,12 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     // #@@range/compileStmt{
     protected void compileStmt(StmtNode node) {
         if (options.isVerboseAsm()) {
-            comment(node.location().numberedLine());
+            if (node.location() == null) {
+                comment("(null)");
+            }
+            else {
+                comment(node.location().numberedLine());
+            }
         }
         node.accept(this);
     }

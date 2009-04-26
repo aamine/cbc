@@ -154,7 +154,7 @@ class IRGenerator implements ASTVisitor<Void, ExprNode> {
     public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
             if (var.initializer() != null) {
-                assign(var.location(), ref(var), var.initializer());
+                assign(var.location(), ref(var), transform(var.initializer()));
             }
         }
         scopeStack.add(node.scope());
@@ -612,7 +612,14 @@ class IRGenerator implements ASTVisitor<Void, ExprNode> {
     }
 
     public ExprNode visit(AddressNode node) {
-        node.setExpr(transform(node.expr()));
+        ExprNode e = transform(node.expr());
+        if (node.expr().shouldEvaluatedToAddress()
+                && e instanceof AddressNode) {
+            node.setExpr(((AddressNode)e).expr());
+        }
+        else {
+            node.setExpr(e);
+        }
         return node;
     }
 

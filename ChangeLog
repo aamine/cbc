@@ -1,3 +1,14 @@
+Sun Apr 26 17:24:42 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: must compile
+	  initializer.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: f = &puts
+	  generated addr(addr(puts)), so remove redundant AddressNode.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: now
+	  --verbose-asm works.
+
 Sun Apr 26 16:51:02 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: treat LHS
