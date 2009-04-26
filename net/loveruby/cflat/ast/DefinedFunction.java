@@ -10,7 +10,6 @@ public class DefinedFunction extends Function {
     protected Params params;
     protected BlockNode body;
     protected LocalScope scope;
-    protected Label epilogueLabel;
     protected List<Stmt> ir;
 
     public DefinedFunction(boolean priv,
@@ -21,7 +20,6 @@ public class DefinedFunction extends Function {
         super(priv, type, name);
         this.params = params;
         this.body = body;
-        this.epilogueLabel = new Label();
     }
 
     public boolean isDefined() {
@@ -55,10 +53,6 @@ public class DefinedFunction extends Function {
      */
     public List<DefinedVariable> localVariables() {
         return scope.allLocalVariables();
-    }
-
-    public Label epilogueLabel() {
-        return this.epilogueLabel;
     }
 
     protected void _dump(Dumper d) {
