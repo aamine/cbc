@@ -12,7 +12,7 @@ public class TypeTable {
 
     static private TypeTable newTable(int charsize, int shortsize,
                                       int intsize, int longsize, int ptrsize) {
-        TypeTable table = new TypeTable(ptrsize);
+        TypeTable table = new TypeTable(intsize, ptrsize);
         table.put(new VoidTypeRef(), new VoidType());
         table.put(IntegerTypeRef.charRef(),
                   new IntegerType(charsize,  true, "char"));
@@ -33,12 +33,14 @@ public class TypeTable {
         return table;
     }
 
+    protected int intSize;
     protected int pointerSize;
     protected Map<TypeRef, Type> table;
 
-    public TypeTable(int ptrsize) {
-        pointerSize = ptrsize;
-        table = new HashMap<TypeRef, Type>();
+    public TypeTable(int intSize, int pointerSize) {
+        this.intSize = intSize;
+        this.pointerSize = pointerSize;
+        this.table = new HashMap<TypeRef, Type>();
     }
 
     public boolean isDefined(TypeRef ref) {
@@ -88,7 +90,15 @@ public class TypeTable {
         return type;
     }
 
-    public long pointerSize() {
+    public int intSize() {
+        return this.intSize;
+    }
+
+    public int pointerSize() {
+        return this.pointerSize;
+    }
+
+    public int maxIntSize() {
         return this.pointerSize;
     }
 

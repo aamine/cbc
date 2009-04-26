@@ -1,5 +1,5 @@
 package net.loveruby.cflat.ir;
-import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.asm.Type;
 import net.loveruby.cflat.ast.Function;
 import java.util.List;
 import java.util.ListIterator;

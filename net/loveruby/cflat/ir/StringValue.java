@@ -1,5 +1,4 @@
 package net.loveruby.cflat.ir;
-import net.loveruby.cflat.type.Type;
 import net.loveruby.cflat.ast.ConstantEntry;
 import net.loveruby.cflat.asm.*;
 

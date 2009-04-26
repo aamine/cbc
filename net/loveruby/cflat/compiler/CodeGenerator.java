@@ -1,6 +1,5 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ir.*;
-import net.loveruby.cflat.type.Type;
 import net.loveruby.cflat.ast.LocalScope;
 import net.loveruby.cflat.ast.ConstantEntry;
 import net.loveruby.cflat.ast.Entity;
@@ -176,16 +175,16 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
         as._type(sym, "@object");
         as._size(sym, ent.allocSize());
         as.label(sym);
-        compileImmediate(ent.type(), ent.ir());
+        compileImmediate(ent.type().allocSize(), ent.ir());
     }
     // #@@}
 
     /** Generates immediate values for .data section */
     // #@@range/compileImmediates{
-    protected void compileImmediate(Type type, Expr node) {
+    protected void compileImmediate(long size, Expr node) {
         if (node instanceof IntValue) {
             IntValue expr = (IntValue)node;
-            switch ((int)type.allocSize()) {
+            switch ((int)size) {
             case 1: as._byte(expr.value());    break;
             case 2: as._value(expr.value());   break;
             case 4: as._long(expr.value());    break;
@@ -196,7 +195,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
         }
         else if (node instanceof StringValue) {
             StringValue expr = (StringValue)node;
-            switch ((int)type.allocSize()) {
+            switch ((int)size) {
             case 4: as._long(expr.symbol());   break;
             case 8: as._quad(expr.symbol());   break;
             default:
@@ -840,7 +839,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
         }
         else if (node.right().isConstantAddress()) {
             compile(node.left());
-            loadVariable(node.right(), reg("cx"));
+            loadVariable((Var)node.right(), reg("cx"));
             right = reg("cx", node.type());
         }
         else {
@@ -937,7 +936,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
         default:
             // Comparison operators
             as.cmp(t, right, reg("ax", t));
-            if (!t.isPointer() && t.isSigned()) {
+            if (t.isSigned()) {
                 switch (op) {
                 case EQ:        as.sete (al()); break;
                 case NEQ:       as.setne(al()); break;
@@ -1108,7 +1107,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
      * by #isConstantAddress before calling this method.
      */
     // #@@range/loadVariable{
-    protected void loadVariable(Expr node, Register dest) {
+    protected void loadVariable(Var node, Register dest) {
         if (node.memref() == null) {
             as.mov(node.address(), dest);
             load(node.type(), mem(dest), dest);
@@ -1191,7 +1190,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
 
     // #@@range/load{
     protected void load(Type type, MemoryReference mem, Register reg) {
-        switch ((int)type.size()) {
+        switch (type.size()) {
         case 1:
             if (type.isSigned()) {  // signed char
                 as.movsbl(mem, reg);
@@ -1206,9 +1205,12 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
                 as.movzwl(mem, reg);
             }
             break;
-        default:                    // int, long, long_long
+        case 4:
+        case 8:                     // int, long, long_long
             as.mov(type, mem, reg.forType(type));
             break;
+        default:
+            throw new Error("unloadable value size: " + type.size());
         }
     }
     // #@@}

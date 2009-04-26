@@ -7,8 +7,7 @@ import net.loveruby.cflat.ast.DefinedFunction;
 import net.loveruby.cflat.ast.UndefinedFunction;
 import net.loveruby.cflat.ast.ConstantTable;
 import net.loveruby.cflat.ast.ToplevelScope;
-import net.loveruby.cflat.type.TypeTable;
-import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.asm.Type;
 import java.io.PrintStream;
 import java.util.*;
 
@@ -19,15 +18,13 @@ public class IR {
     protected List<UndefinedFunction> funcdecls;
     protected ToplevelScope scope;
     protected ConstantTable constantTable;
-    protected TypeTable typeTable;
 
     public IR(Location source,
             List<DefinedVariable> defvars,
             List<DefinedFunction> defuns,
             List<UndefinedFunction> funcdecls,
             ToplevelScope scope,
-            ConstantTable constantTable,
-            TypeTable typeTable) {
+            ConstantTable constantTable) {
         super();
         this.source = source;
         this.defvars = defvars;
@@ -35,7 +32,6 @@ public class IR {
         this.funcdecls = funcdecls;
         this.scope = scope;
         this.constantTable = constantTable;
-        this.typeTable = typeTable;
     }
 
     public String fileName() {
@@ -88,8 +84,9 @@ public class IR {
         return constantTable;
     }
 
-    public Type naturalType() {
-        return this.typeTable.unsignedLong();
+    public net.loveruby.cflat.asm.Type naturalType() {
+        // platform dependent!!!
+        return Type.S_INT32;
     }
 
     public void dump() {

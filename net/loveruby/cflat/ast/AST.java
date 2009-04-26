@@ -81,7 +81,8 @@ public class AST extends Node {
                 declarations.defvars(),
                 declarations.defuns(),
                 declarations.funcdecls(),
-                scope, constantTable, typeTable);
+                scope,
+                constantTable);
     }
 
     protected void _dump(Dumper d) {

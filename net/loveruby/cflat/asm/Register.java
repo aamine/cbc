@@ -1,5 +1,4 @@
 package net.loveruby.cflat.asm;
-import net.loveruby.cflat.type.*;
 
 public class Register extends AsmOperand {
     protected int size;
@@ -18,11 +17,11 @@ public class Register extends AsmOperand {
     }
 
     public Register forType(Type t) {
-        switch ((int)t.size()) {
+        switch (t.size()) {
         case 1:
         case 2:
         case 4:
-            return new Register((int)t.size(), name);
+            return new Register(t.size(), name);
         default:
             throw new Error("invalid register size: " + t.size());
         }

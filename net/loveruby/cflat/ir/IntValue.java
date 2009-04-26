@@ -1,8 +1,5 @@
 package net.loveruby.cflat.ir;
-import net.loveruby.cflat.type.Type;
-import net.loveruby.cflat.asm.IntegerLiteral;
-import net.loveruby.cflat.asm.ImmediateValue;
-import net.loveruby.cflat.asm.MemoryReference;
+import net.loveruby.cflat.asm.*;
 
 public class IntValue extends Expr {
     protected long value;

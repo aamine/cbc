@@ -2,7 +2,6 @@ package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ast.*;
 import net.loveruby.cflat.ir.*;
 import net.loveruby.cflat.type.Type;
-import net.loveruby.cflat.type.TypeRef;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.asm.Label;
 import net.loveruby.cflat.exception.*;
@@ -463,11 +462,14 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         // evaluate rhs before lhs.
         Expr rhs = transform(node.rhs());
         Expr lhs = transformLHS(node.lhs());
-        return transformOpAssign(lhs, Op.internBinary(node.operator()), rhs);
+        return transformOpAssign(lhs,
+                Op.internBinary(node.operator()),
+                rhs,
+                node.lhs().type());
     }
 
-    private Expr transformOpAssign(Expr lhs, Op op, Expr _rhs) {
-        Expr rhs = expandPointerArithmetic(_rhs, op, lhs.type());
+    private Expr transformOpAssign(Expr lhs, Op op, Expr _rhs, Type lhsType) {
+        Expr rhs = expandPointerArithmetic(_rhs, op, lhsType);
         if (isStatement()) {
             if (lhs.isConstantAddress()) {
                 // lhs = lhs op rhs
@@ -476,7 +478,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             else {
                 // a = &lhs, *a = *a op rhs
                 Expr addr = addressOf(lhs);
-                DefinedVariable a = tmpVar(addr.type());
+                DefinedVariable a = tmpVar(pointerTo(lhsType));
                 assign(ref(a), addr);
                 assign(deref(a), new Bin(lhs.type(), op, deref(a), rhs));
             }
@@ -485,7 +487,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         else {
             // a = &lhs, *a = *a op rhs, *a
             Expr addr = addressOf(lhs);
-            DefinedVariable a = tmpVar(addr.type());
+            DefinedVariable a = tmpVar(pointerTo(lhsType));
             assignBeforeStmt(ref(a), addr);
             assignBeforeStmt(deref(a), new Bin(lhs.type(), op, deref(a), rhs));
             return deref(a);
@@ -508,7 +510,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     public Expr visit(PrefixOpNode node) {
         return transformOpAssign(transformLHS(node.expr()),
                 binOp(node.operator()),
-                intValue(1));
+                intValue(1),
+                node.expr().type());
     }
 
     public Expr visit(SuffixOpNode node) {
@@ -516,27 +519,29 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Op op = binOp(node.operator());
         if (isStatement()) {
             // expr++; -> expr += 1;
-            return transformOpAssign(lhs, op, intValue(1));
+            return transformOpAssign(lhs, op, intValue(1), node.expr().type());
         }
         else if (lhs.isConstantAddress()) {
             // f(expr++) -> v = expr; expr = expr + 1, f(v)
-            DefinedVariable v = tmpVar(lhs.type());
+            DefinedVariable v = tmpVar(node.expr().type());
             assignBeforeStmt(ref(v), lhs);
-            Expr rhs = expandPointerArithmetic(intValue(1), op, lhs.type());
+            Expr rhs = expandPointerArithmetic(intValue(1),
+                    op, node.expr().type());
             assignBeforeStmt(lhs, new Bin(lhs.type(), op, lhs, rhs));
             return ref(v);
         }
         else {
             // f(expr++) -> a = &expr, v = *a; *a = *a + 1, f(v)
             Expr addr = addressOf(lhs);
-            DefinedVariable a = tmpVar(addr.type());
-            DefinedVariable v = tmpVar(lhs.type());
+            DefinedVariable a = tmpVar(pointerTo(node.expr().type()));
+            DefinedVariable v = tmpVar(node.expr().type());
             assignBeforeStmt(ref(a), addr);
             assignBeforeStmt(ref(v), deref(a));
             assignBeforeStmt(deref(a),
                 new Bin(lhs.type(), op,
                     deref(a),
-                    expandPointerArithmetic(intValue(1), op, lhs.type())));
+                    expandPointerArithmetic(intValue(1),
+                            op, node.expr().type())));
             return ref(v);
         }
     }
@@ -547,7 +552,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         while (args.hasPrevious()) {
             newArgs.add(0, transform(args.previous()));
         }
-        return new Call(node.type(), transform(node.expr()), newArgs);
+        return new Call(asmType(node.type()), transform(node.expr()), newArgs);
     }
 
     //
@@ -559,16 +564,18 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr left = transform(node.left());
         Expr right = transform(node.right());
         if (node.operator().equals("+") || node.operator().equals("-")) {
-            if (left.type().isDereferable()) {
-                right = new Bin(right.type(), Op.MUL,
-                        right, ptrDiff(left.type().baseType().size()));
+            if (node.left().type().isDereferable()) {
+                right = new Bin(ptrDiffType(), Op.MUL,
+                        right, ptrDiff(node.left().type().baseType().size()));
             }
-            else if (right.type().isDereferable()) {
-                left = new Bin(left.type(), Op.MUL,
-                        left, ptrDiff(right.type().baseType().size()));
+            else if (node.right().type().isDereferable()) {
+                left = new Bin(ptrDiffType(), Op.MUL,
+                        left, ptrDiff(node.right().type().baseType().size()));
             }
         }
-        return new Bin(node.type(), Op.internBinary(node.operator()), left, right);
+        return new Bin(asmType(node.type()),
+                Op.internBinary(node.operator()),
+                left, right);
     }
     // #@@}
 
@@ -578,17 +585,18 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             return transform(node.expr());
         }
         else {
-            return new Uni(node.type(), Op.internUnary(node.operator()),
+            return new Uni(asmType(node.type()),
+                    Op.internUnary(node.operator()),
                     transform(node.expr()));
         }
     }
 
     public Expr visit(ArefNode node) {
-        Expr offset = new Bin(typeTable.signedInt(), Op.MUL,
+        Expr offset = new Bin(signedInt(), Op.MUL,
                 intValue(node.elementSize()), transformArrayIndex(node));
         return deref(
-            new Bin(pointerTo(node.type()), Op.ADD,
-                transform(node.baseExpr()), offset));
+            new Bin(pointer(), Op.ADD, transform(node.baseExpr()), offset),
+            node.type());
     }
 
     // For multidimension array: t[e][d][c][b][a];
@@ -599,10 +607,9 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     // #@@range/transformArrayIndex{
     private Expr transformArrayIndex(ArefNode node) {
         if (node.isMultiDimension()) {
-            return new Bin(
-                    typeTable.signedInt(), Op.ADD,
+            return new Bin(signedInt(), Op.ADD,
                     transform(node.index()),
-                    new Bin(typeTable.signedInt(), Op.MUL,
+                    new Bin(signedInt(), Op.MUL,
                             intValue(node.length()),
                             transformArrayIndex((ArefNode)node.expr())));
         }
@@ -613,21 +620,21 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     // #@@}
 
     public Expr visit(MemberNode node) {
-        Expr addr = new Bin(pointerTo(node.type()), Op.ADD,
+        Expr addr = new Bin(pointer(), Op.ADD,
             addressOf(transform(node.expr())),
             intValue(node.offset()));
-        return node.shouldEvaluatedToAddress() ? addr : deref(addr);
+        return node.shouldEvaluatedToAddress() ? addr : deref(addr, node.type());
     }
 
     public Expr visit(PtrMemberNode node) {
-        Expr addr = new Bin(pointerTo(node.type()), Op.ADD,
+        Expr addr = new Bin(pointer(), Op.ADD,
             transform(node.expr()),
             intValue(node.offset()));
-        return node.shouldEvaluatedToAddress() ? addr : deref(addr);
+        return node.shouldEvaluatedToAddress() ? addr : deref(addr, node.type());
     }
 
     public Expr visit(DereferenceNode node) {
-        return new Mem(node.type(), transform(node.expr()));
+        return new Mem(asmType(node.type()), transform(node.expr()));
     }
 
     public Expr visit(AddressNode node) {
@@ -642,7 +649,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     public Expr visit(CastNode node) {
         if (node.isEffectiveCast()) {
-            return new Uni(node.type(), Op.CAST, transform(node.expr()));
+            return new Uni(asmType(node.type()),
+                    Op.CAST, transform(node.expr()));
         }
         else {
             return transform(node.expr());
@@ -658,16 +666,16 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     public Expr visit(VariableNode node) {
-        Var var = new Var(node.entity());
+        Var var = new Var(varType(node.type()), node.entity());
         return node.shouldEvaluatedToAddress() ? addressOf(var) : var;
     }
 
     public Expr visit(IntegerLiteralNode node) {
-        return new IntValue(node.type(), node.value());
+        return new IntValue(asmType(node.type()), node.value());
     }
 
     public Expr visit(StringLiteralNode node) {
-        return new StringValue(node.type(), node.entry());
+        return new StringValue(asmType(node.type()), node.entry());
     }
 
     //
@@ -685,45 +693,68 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             return ((Mem)expr).expr();
         }
         else {
-            Type base = expr.type();
-            Type t = shouldEvalutedToAddress(expr) ? base : pointerTo(base);
-            return new Addr(t, expr);
+            return new Addr(pointer(), expr);
         }
     }
 
-    private boolean shouldEvalutedToAddress(Expr expr) {
-        return expr.type().isArray()
-            || ((expr instanceof Var) && ((Var)expr).entity().cannotLoad());
-    }
-
     private Var ref(DefinedVariable var) {
-        return new Var(var);
+        return new Var(varType(var.type()), var);
     }
 
     // add DereferenceNode on top of the var.
     private Mem deref(DefinedVariable var) {
-        return deref(ref(var));
+        return deref(ref(var), var.type().baseType());
     }
 
     // add DereferenceNode on top of the expr.
-    private Mem deref(Expr expr) {
-        return new Mem(expr.type().baseType(), expr);
+    private Mem deref(Expr expr, Type t) {
+        return new Mem(asmType(t), expr);
+    }
+
+    private IntValue intValue(long n) {
+        return new IntValue(signedInt(), n);
+    }
+
+    private IntValue ptrDiff(long n) {
+        return new IntValue(ptrDiffType(), n);
     }
 
     private Type pointerTo(Type t) {
         return typeTable.pointerTo(t);
     }
 
-    private IntValue intValue(long n) {
-        return new IntValue(typeTable.signedInt(), n);
+    private net.loveruby.cflat.asm.Type asmType(Type t) {
+        if (t.isVoid()) return signedInt();
+        return net.loveruby.cflat.asm.Type.get(
+                t.isInteger() && t.isSigned(),
+                t.size());
     }
 
-    private IntValue ptrDiff(long n) {
-        return new IntValue(typeTable.ptrDiffType(), n);
+    private net.loveruby.cflat.asm.Type varType(Type t) {
+        if (t.size() == 0 || t.size() > typeTable.maxIntSize()) {
+            return null;
+        }
+        return net.loveruby.cflat.asm.Type.get(
+                t.isInteger() && t.isSigned(),
+                t.size());
     }
 
-    private void bindType(TypeNode t) {
-        t.setType(typeTable.get(t.typeRef()));
+    private net.loveruby.cflat.asm.Type signedInt() {
+        return net.loveruby.cflat.asm.Type.get(
+                true,
+                (int)typeTable.intSize());
+    }
+
+    private net.loveruby.cflat.asm.Type pointer() {
+        return net.loveruby.cflat.asm.Type.get(
+                false,
+                (int)typeTable.pointerSize());
+    }
+
+    private net.loveruby.cflat.asm.Type ptrDiffType() {
+        return net.loveruby.cflat.asm.Type.get(
+                true,
+                (int)typeTable.pointerSize());
     }
 
     private void error(Node n, String msg) {

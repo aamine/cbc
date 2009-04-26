@@ -1,5 +1,4 @@
 package net.loveruby.cflat.asm;
-import net.loveruby.cflat.type.Type;
 
 public class Instruction extends Assembly {
     protected String mnemonic;

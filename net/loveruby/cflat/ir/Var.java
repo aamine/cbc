@@ -1,14 +1,20 @@
 package net.loveruby.cflat.ir;
 import net.loveruby.cflat.ast.Entity;
-import net.loveruby.cflat.asm.AsmOperand;
-import net.loveruby.cflat.asm.MemoryReference;
+import net.loveruby.cflat.asm.*;
 
 public class Var extends Expr {
     protected Entity entity;
 
-    public Var(Entity entity) {
-        super(entity.type());
+    public Var(Type type, Entity entity) {
+        super(type);
         this.entity = entity;
+    }
+
+    public Type type() {
+        if (super.type() == null) {
+            throw new Error("Var is too big to load by 1 insn");
+        }
+        return super.type();
     }
 
     public String name() { return entity.name(); }

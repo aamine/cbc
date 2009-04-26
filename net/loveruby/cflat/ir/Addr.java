@@ -1,5 +1,5 @@
 package net.loveruby.cflat.ir;
-import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.asm.Type;
 
 public class Addr extends Expr {
     protected Expr expr;

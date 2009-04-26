@@ -1,5 +1,4 @@
 package net.loveruby.cflat.asm;
-import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.utils.*;
 import java.util.*;
 
@@ -92,7 +91,7 @@ public class Assembler {
     }
 
     protected String typeSuffix(Type t) {
-        switch ((int)t.size()) {
+        switch (t.size()) {
         case 1: return "b";
         case 2: return "w";
         case 4: return "l";

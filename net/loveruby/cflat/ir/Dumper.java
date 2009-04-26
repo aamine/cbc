@@ -2,8 +2,7 @@ package net.loveruby.cflat.ir;
 import net.loveruby.cflat.ast.DefinedVariable;
 import net.loveruby.cflat.ast.DefinedFunction;
 import net.loveruby.cflat.ast.Location;
-import net.loveruby.cflat.asm.Label;
-import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.asm.*;
 import java.util.List;
 import java.io.PrintStream;
 
@@ -46,7 +45,11 @@ public class Dumper {
         printPair(name, memb.toString());
     }
 
-    public void printMember(String name, Type memb) {
+    public void printMember(String name, net.loveruby.cflat.asm.Type memb) {
+        printPair(name, memb.toString());
+    }
+
+    public void printMember(String name, net.loveruby.cflat.type.Type memb) {
         printPair(name, memb.toString());
     }
 

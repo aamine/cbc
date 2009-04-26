@@ -1,3 +1,17 @@
+Mon Apr 27 02:04:26 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/Type.java: new class representing
+	  assembly integer types.
+
+	* net/loveruby/cflat/asm/*.java: support it.
+
+	* net/loveruby/cflat/ir/*.java: support it.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: convert ast Type
+	  -> asm Type.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: use asm Type.
+
 Mon Apr 27 00:24:24 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: remove simple
