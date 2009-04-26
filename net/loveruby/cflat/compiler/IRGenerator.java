@@ -494,21 +494,35 @@ class IRGenerator implements ASTVisitor<Void, ExprNode> {
     }
 
     public ExprNode visit(SuffixOpNode node) {
+        ExprNode lhs = transformLHS(node.expr());
         if (isStatement()) {
-            return transformOpAssign(transformLHS(node.expr()),
-                    binOp(node.operator()),
-                    intValue(1));
+            // expr++; -> expr += 1;
+            return transformOpAssign(lhs, binOp(node.operator()), intValue(1));
+        }
+        else if (lhs.isConstantAddress()) {
+            // f(expr++) -> v = expr; expr = expr + 1, f(v)
+            DefinedVariable v = tmpVar(lhs.type());
+            assignBeforeStmt(ref(v), lhs);
+            String op = binOp(node.operator());
+            assignBeforeStmt(lhs,
+                binaryOp(lhs,
+                    op, 
+                    expandPointerArithmetic(intValue(1), op, lhs)));
+            return ref(v);
         }
         else {
-            // f(expr++) -> a = &expr, *a += 1, f(*a - 1)
-            // f(expr--) -> a = &expr, *a -= 1, f(*a + 1)
-            ExprNode addr = addressOf(transformLHS(node.expr()));
-            DefinedVariable tmp = tmpVar(addr.type());
+            // f(expr++) -> a = &expr, v = *a; *a = *a + 1, f(v)
+            ExprNode addr = addressOf(lhs);
+            DefinedVariable a = tmpVar(addr.type());
+            DefinedVariable v = tmpVar(lhs.type());
+            assignBeforeStmt(ref(a), addr);
+            assignBeforeStmt(ref(v), deref(a));
             String op = binOp(node.operator());
-            assignBeforeStmt(ref(tmp), addr);
-            ExprNode lhs = transformOpAssign(deref(tmp), op, intValue(1));
-            ExprNode rhs = expandPointerArithmetic(intValue(1), op, lhs);
-            return binaryOp(lhs, invert(op), rhs);
+            assignBeforeStmt(deref(a),
+                binaryOp(deref(a),
+                    op,
+                    expandPointerArithmetic(intValue(1), op, lhs)));
+            return ref(v);
         }
     }
 
