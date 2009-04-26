@@ -22,8 +22,11 @@ public class FuncallNode extends ExprNode {
 
     /** Returns true if this funcall is NOT a function pointer call. */
     public boolean isStaticCall() {
-        return (expr instanceof VariableNode) &&
-            (((VariableNode)expr).entity() instanceof Function);
+        if (! (expr instanceof AddressNode)) return false;
+        ExprNode var = ((AddressNode)expr).expr();
+        if (! (var instanceof VariableNode)) return false;
+        Entity e = ((VariableNode)var).entity();
+        return (e instanceof Function);
     }
 
     /**
@@ -31,7 +34,9 @@ public class FuncallNode extends ExprNode {
      * This method expects this is static function call (isStaticCall()).
      */
     public Function function() {
-        return (Function)((VariableNode)expr).entity();
+        AddressNode a = (AddressNode)expr;
+        VariableNode var = (VariableNode)a.expr();
+        return (Function)var.entity();
     }
 
     /**
