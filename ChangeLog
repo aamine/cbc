@@ -1,3 +1,10 @@
+Sun Apr 26 22:08:35 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* now IR nodes are separated from AST.  Sources are compilable but
+	  not tested yet.
+
+	* ir/*: new classes.
+
 Sun Apr 26 18:06:52 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* ast/ASTVisitor.java: fork DeclarationVisitor.

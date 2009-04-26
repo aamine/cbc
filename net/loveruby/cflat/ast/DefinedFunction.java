@@ -1,6 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.compiler.ErrorHandler;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.ir.Stmt;
 import net.loveruby.cflat.asm.Label;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
@@ -10,7 +11,7 @@ public class DefinedFunction extends Function {
     protected BlockNode body;
     protected LocalScope scope;
     protected Label epilogueLabel;
-    protected List<StmtNode> ir;
+    protected List<Stmt> ir;
 
     public DefinedFunction(boolean priv,
                            TypeNode type,
@@ -35,11 +36,11 @@ public class DefinedFunction extends Function {
         return body;
     }
 
-    public List<StmtNode> ir() {
+    public List<Stmt> ir() {
         return ir;
     }
 
-    public void setIR(List<StmtNode> ir) {
+    public void setIR(List<Stmt> ir) {
         this.ir = ir;
     }
 
@@ -64,12 +65,13 @@ public class DefinedFunction extends Function {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate);
         d.printMember("params", params);
-        if (ir == null) {
-            d.printMember("body", body);
-        }
-        else {
-            d.printNodeList("ir", ir);
-        }
+        d.printMember("body", body);
+    }
+
+    protected void _dump(net.loveruby.cflat.ir.Dumper d) {
+        d.printMember("name", name);
+        d.printMember("isPrivate", isPrivate);
+        d.printStmts("ir", ir);
     }
 
     public <T> T accept(DeclarationVisitor<T> visitor) {

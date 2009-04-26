@@ -1,6 +1,6 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.AsmOperand;
+import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.type.CompositeType;
 import net.loveruby.cflat.exception.*;
 
 public class MemberNode extends ExprNode {
@@ -58,9 +58,5 @@ public class MemberNode extends ExprNode {
 
     public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
-    }
-
-    public void acceptLHS(ASTLHSVisitor visitor) {
-        visitor.visitLHS(this);
     }
 }

@@ -10,18 +10,10 @@ public class DereferenceNode extends UnaryOpNode {
         return expr().type().baseType();
     }
 
-    public void setExpr(ExprNode expr) {
-        this.expr = expr;
-    }
-
     public boolean isAssignable() { return true; }
     public boolean isConstantAddress() { return false; }
 
     public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
-    }
-
-    public void acceptLHS(ASTLHSVisitor visitor) {
-        visitor.visitLHS(this);
     }
 }

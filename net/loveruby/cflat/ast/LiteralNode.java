@@ -1,7 +1,6 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.ImmediateValue;
-import net.loveruby.cflat.asm.MemoryReference;
+import net.loveruby.cflat.type.TypeRef;
+import net.loveruby.cflat.type.Type;
 
 abstract public class LiteralNode extends ExprNode {
     protected Location location;
@@ -24,11 +23,4 @@ abstract public class LiteralNode extends ExprNode {
     public TypeNode typeNode() {
         return typeNode;
     }
-
-    public boolean isConstant() {
-        return true;
-    }
-
-    abstract public ImmediateValue asmValue();
-    abstract public MemoryReference memref();
 }

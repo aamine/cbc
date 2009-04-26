@@ -1,6 +1,7 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.parser.*;
 import net.loveruby.cflat.ast.*;
+import net.loveruby.cflat.ir.IR;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.utils.*;
 import net.loveruby.cflat.exception.*;

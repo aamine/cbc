@@ -1,8 +1,18 @@
-package net.loveruby.cflat.ast;
+package net.loveruby.cflat.ir;
+import net.loveruby.cflat.ast.Location;
+import net.loveruby.cflat.ast.Variable;
+import net.loveruby.cflat.ast.DefinedVariable;
+import net.loveruby.cflat.ast.Function;
+import net.loveruby.cflat.ast.DefinedFunction;
+import net.loveruby.cflat.ast.UndefinedFunction;
+import net.loveruby.cflat.ast.ConstantTable;
+import net.loveruby.cflat.ast.ToplevelScope;
+import net.loveruby.cflat.ast.Scope;
 import net.loveruby.cflat.type.TypeTable;
+import java.io.PrintStream;
 import java.util.*;
 
-public class IR extends Node {
+public class IR {
     protected Location source;
     protected List<DefinedVariable> defvars;
     protected List<DefinedFunction> defuns;
@@ -82,8 +92,16 @@ public class IR extends Node {
         return this.typeTable;
     }
 
+    public void dump() {
+        dump(System.err);
+    }
+
+    public void dump(PrintStream s) {
+        throw new Error("FIXME: IR#dump");
+    }
+
     protected void _dump(Dumper d) {
-        d.printNodeList("variables", defvars);
-        d.printNodeList("functions", defuns);
+        d.printVariables("variables", defvars);
+        d.printFunctions("functions", defuns);
     }
 }

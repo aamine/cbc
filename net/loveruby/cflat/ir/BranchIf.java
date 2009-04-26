@@ -1,12 +1,13 @@
-package net.loveruby.cflat.ast;
+package net.loveruby.cflat.ir;
+import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.asm.Label;
 
-public class BranchIfNode extends StmtNode {
-    protected ExprNode cond;
+public class BranchIf extends Stmt {
+    protected Expr cond;
     protected Label thenLabel;
     protected Label elseLabel;
 
-    public BranchIfNode(Location loc, ExprNode cond,
+    public BranchIf(Location loc, Expr cond,
                     Label thenLabel, Label elseLabel) {
         super(loc);
         this.cond = cond;
@@ -14,7 +15,7 @@ public class BranchIfNode extends StmtNode {
         this.elseLabel = elseLabel;
     }
 
-    public ExprNode cond() {
+    public Expr cond() {
         return cond;
     }
 
@@ -26,7 +27,7 @@ public class BranchIfNode extends StmtNode {
         return elseLabel;
     }
 
-    public <S,E> S accept(ASTVisitor<S,E> visitor) {
+    public <S,E> S accept(IRVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 

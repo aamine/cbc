@@ -1,8 +1,5 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.ImmediateValue;
-import net.loveruby.cflat.asm.MemoryReference;
-import net.loveruby.cflat.asm.AsmOperand;
 
 public class CastNode extends ExprNode {
     protected TypeNode typeNode;
@@ -33,28 +30,12 @@ public class CastNode extends ExprNode {
         return expr.shouldEvaluatedToAddress();
     }
 
-    public boolean isConstant() {
-        return expr.isConstant();
-    }
-
-    public ImmediateValue asmValue() {
-        return expr.asmValue();
-    }
-
     public boolean isEffectiveCast() {
         return type().size() > expr.type().size();
     }
 
     public boolean isConstantAddress() {
         return expr.isConstantAddress() && !isEffectiveCast();
-    }
-
-    public MemoryReference memref() {
-        return expr.memref();
-    }
-
-    public AsmOperand address() {
-        return expr.address();
     }
 
     public Location location() {

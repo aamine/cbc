@@ -1,6 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.parser.Token;
 import net.loveruby.cflat.type.TypeTable;
+import net.loveruby.cflat.ir.IR;
 import java.util.*;
 
 public class AST extends Node {

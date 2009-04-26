@@ -8,10 +8,6 @@ public class AddressNode extends UnaryOpNode {
         super("&", n);
     }
 
-    public void setExpr(ExprNode expr) {
-        this.expr = expr;
-    }
-
     public Type type() {
         if (type == null) throw new Error("type is null");
         return type;

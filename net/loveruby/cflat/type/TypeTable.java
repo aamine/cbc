@@ -92,6 +92,10 @@ public class TypeTable {
         return this.pointerSize;
     }
 
+    public Type ptrDiffType() {
+        return get(ptrDiffTypeRef());
+    }
+
     // returns a IntegerTypeRef whose size is equals to pointer.
     public TypeRef ptrDiffTypeRef() {
         return new IntegerTypeRef(ptrDiffTypeName());

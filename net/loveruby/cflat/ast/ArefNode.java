@@ -63,8 +63,4 @@ public class ArefNode extends ExprNode {
     public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
-
-    public void acceptLHS(ASTLHSVisitor visitor) {
-        visitor.visitLHS(this);
-    }
 }

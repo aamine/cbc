@@ -1,10 +1,12 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.ir.Expr;
 import net.loveruby.cflat.asm.Symbol;
 import net.loveruby.cflat.asm.NamedSymbol;
 
 public class DefinedVariable extends Variable {
     protected ExprNode initializer;
+    protected Expr ir;
     protected long sequence;
     protected Symbol symbol;
 
@@ -49,6 +51,12 @@ public class DefinedVariable extends Variable {
     public void setInitializer(ExprNode expr) {
         this.initializer = expr;
     }
+
+    public void setIR(Expr expr) {
+        this.ir = expr;
+    }
+
+    public Expr ir() { return ir; }
 
     protected void _dump(Dumper d) {
         d.printMember("name", name);

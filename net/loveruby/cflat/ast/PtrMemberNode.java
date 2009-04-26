@@ -1,5 +1,7 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.type.CompositeType;
+import net.loveruby.cflat.type.PointerType;
 import net.loveruby.cflat.exception.*;
 
 public class PtrMemberNode extends ExprNode {
@@ -66,9 +68,5 @@ public class PtrMemberNode extends ExprNode {
 
     public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);
-    }
-
-    public void acceptLHS(ASTLHSVisitor visitor) {
-        visitor.visitLHS(this);
     }
 }

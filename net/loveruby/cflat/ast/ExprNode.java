@@ -1,8 +1,5 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.Type;
-import net.loveruby.cflat.asm.ImmediateValue;
-import net.loveruby.cflat.asm.AsmOperand;
-import net.loveruby.cflat.asm.MemoryReference;
 import net.loveruby.cflat.exception.*;
 
 abstract public class ExprNode extends Node {
@@ -42,24 +39,9 @@ abstract public class ExprNode extends Node {
         return type().isArray();
     }
 
-    public boolean isConstant() {
-        return false;
-    }
-
-    public ImmediateValue asmValue() {
-        throw new Error("ExprNode#asmValue called");
-    }
-
+    // used by IRGenerator
     public boolean isConstantAddress() {
         return false;
-    }
-
-    public AsmOperand address() {
-        throw new Error("ExprNode#address called");
-    }
-
-    public MemoryReference memref() {
-        throw new Error("ExprNode#memref called");
     }
 
     abstract public <S,E> E accept(ASTVisitor<S,E> visitor);

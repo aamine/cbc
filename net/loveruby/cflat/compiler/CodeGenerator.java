@@ -1,10 +1,11 @@
 package net.loveruby.cflat.compiler;
-import net.loveruby.cflat.ast.*;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.ast.*;
+import net.loveruby.cflat.ir.*;
 import net.loveruby.cflat.asm.*;
 import java.util.*;
 
-public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
+public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     // #@@range/ctor{
     protected CodeGeneratorOptions options;
     protected ErrorHandler errorHandler;
@@ -83,7 +84,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
         if (ir.functionDefined()) {
             _text();
             for (DefinedFunction func : ir.definedFunctions()) {
-                visit(func);
+                compileFunction(func);
             }
         }
         // .bss
@@ -174,15 +175,15 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
         _type(sym, "@object");
         _size(sym, ent.allocSize());
         label(sym);
-        compileImmediate(ent.type(), ent.initializer());
+        compileImmediate(ent.type(), ent.ir());
     }
     // #@@}
 
     /** Generates immediate values for .data section */
     // #@@range/compileImmediates{
-    protected void compileImmediate(Type type, ExprNode node) {
-        if (node instanceof IntegerLiteralNode) {
-            IntegerLiteralNode expr = (IntegerLiteralNode)node;
+    protected void compileImmediate(Type type, Expr node) {
+        if (node instanceof IntValue) {
+            IntValue expr = (IntValue)node;
             switch ((int)type.allocSize()) {
             case 1: _byte(expr.value());    break;
             case 2: _value(expr.value());   break;
@@ -192,8 +193,8 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
                 throw new Error("entry size must be 1,2,4,8");
             }
         }
-        else if (node instanceof StringLiteralNode) {
-            StringLiteralNode expr = (StringLiteralNode)node;
+        else if (node instanceof StringValue) {
+            StringValue expr = (StringValue)node;
             switch ((int)type.allocSize()) {
             case 4: _long(expr.symbol());   break;
             case 8: _quad(expr.symbol());   break;
@@ -365,7 +366,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
 
     /** Compiles a function. */
     // #@@range/compileFunction{
-    public Void visit(DefinedFunction func) {
+    public void compileFunction(DefinedFunction func) {
         allocateParameters(func);
         allocateLocalVariablesTemp(func.body().scope());
 
@@ -377,7 +378,6 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
         label(sym);
         compileFunctionBody(func);
         _size(sym, ".-" + sym.toSource());
-        return null;
     }
     // #@@}
 
@@ -455,7 +455,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     protected List<Assembly> compileStmts(DefinedFunction func) {
         pushAssembler();
         epilogue = new Label();
-        for (StmtNode s : func.ir()) {
+        for (Stmt s : func.ir()) {
             compileStmt(s);
         }
         label(epilogue);
@@ -711,9 +711,9 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
      *    * Rewind stack by caller.
      */
     // #@@range/compile_Funcall{
-    public Void visit(FuncallNode node) {
+    public Void visit(Call node) {
         // compile function arguments from right to left.
-        ListIterator<ExprNode> args = node.finalArg();
+        ListIterator<Expr> args = node.finalArg();
         while (args.hasPrevious()) {
             compile(args.previous());
             truePush(reg("ax"));
@@ -736,7 +736,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     // #@@}
 
     // #@@range/compile_Return{
-    public Void visit(ReturnNode node) {
+    public Void visit(Return node) {
         if (node.expr() != null) {
             compile(node.expr());
         }
@@ -750,21 +750,21 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     //
 
     // #@@range/compileStmt{
-    protected void compileStmt(StmtNode node) {
+    protected void compileStmt(Stmt stmt) {
         if (options.isVerboseAsm()) {
-            if (node.location() == null) {
+            if (stmt.location() == null) {
                 comment("(null)");
             }
             else {
-                comment(node.location().numberedLine());
+                comment(stmt.location().numberedLine());
             }
         }
-        node.accept(this);
+        stmt.accept(this);
     }
     // #@@}
 
-    public Void visit(ExprStmtNode node) {
-        compile(node.expr());
+    public Void visit(ExprStmt stmt) {
+        compile(stmt.expr());
         return null;
     }
 
@@ -775,7 +775,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     // #@@}
 
     // #@@range/compile_BranchIf{
-    public Void visit(BranchIfNode node) {
+    public Void visit(BranchIf node) {
         compile(node.cond());
         testCond(node.cond().type(), reg("ax"));
         jnz(node.thenLabel());
@@ -785,59 +785,39 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     // #@@}
 
     // #@@range/compile_Switch{
-    public Void visit(SwitchNode node) {
+    public Void visit(Switch node) {
         compile(node.cond());
         Type t = typeTable.signedInt();
-        for (CaseNode cn : node.cases()) {
-            if (! cn.isDefault()) {
-                for (ExprNode ex : cn.values()) {
-                    IntegerLiteralNode ival = (IntegerLiteralNode)ex;
-                    mov(imm(ival.value()), reg("cx"));
-                    cmp(t, reg("cx", t), reg("ax", t));
-                    je(cn.beginLabel());
-                }
-            }
-            else {
-                jmp(cn.beginLabel());
-            }
+        for (Case c : node.cases()) {
+            mov(imm(c.value), reg("cx"));
+            cmp(t, reg("cx", t), reg("ax", t));
+            je(c.label);
         }
-        jmp(node.endLabel());
+        jmp(node.defaultLabel());
         return null;
     }
     // #@@}
 
-    // #@@range/compile_Label{
-    public Void visit(LabelNode node) {
+    // #@@range/compile_LabelStmt{
+    public Void visit(LabelStmt node) {
         label(node.label());
         return null;
     }
     // #@@}
 
-    // #@@range/compile_Goto{
-    public Void visit(GotoNode node) {
+    // #@@range/compile_Jump{
+    public Void visit(Jump node) {
         jmp(node.label());
         return null;
     }
     // #@@}
-
-    public Void visit(BlockNode node) { throw new Error("BlockNode"); }
-    public Void visit(IfNode node) { throw new Error("IfNode"); }
-    public Void visit(CondExprNode node) { throw new Error("CondExprNode"); }
-    public Void visit(CaseNode node) { throw new Error("CaseNode"); }
-    public Void visit(LogicalAndNode node) { throw new Error("LogicalAndNode");}
-    public Void visit(LogicalOrNode node) { throw new Error("LogicalOrNode"); }
-    public Void visit(WhileNode node) { throw new Error("WhileNode"); }
-    public Void visit(DoWhileNode node) { throw new Error("DoWhileNode"); }
-    public Void visit(ForNode node) { throw new Error("ForNode"); }
-    public Void visit(BreakNode node) { throw new Error("BreakNode"); }
-    public Void visit(ContinueNode node) { throw new Error("ContinueNode"); }
 
     //
     // Expressions
     //
 
     // #@@range/compile{
-    protected void compile(ExprNode n) {
+    protected void compile(Expr n) {
         if (options.isVerboseAsm()) {
             comment(n.getClass().getSimpleName() + " {");
             as.indentComment();
@@ -850,10 +830,10 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     }
     // #@@}
 
-    // #@@range/compile_BinaryOp{
-    public Void visit(BinaryOpNode node) {
+    // #@@range/compile_Bin{
+    public Void visit(Bin node) {
         AsmOperand right = null;
-        if (!doesRequireRegister(node.operator()) && node.right().isConstant()){
+        if (!doesRequireRegister(node.op()) && node.right().isConstant()){
             compile(node.left());
             right = node.right().asmValue();
         }
@@ -869,41 +849,54 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
             pop(reg("cx"));
             right = reg("cx", node.type());
         }
-        compileBinaryOp(node.operator(), node.type(), right);
+        compileBinaryOp(node.op(), node.type(), right);
         return null;
     }
     // #@@}
 
     // #@@range/doesRequireRegister{
-    protected boolean doesRequireRegister(String op) {
-        return op.equals("/")
-                || op.equals("%")
-                || op.equals(">>")
-                || op.equals("<<");
+    protected boolean doesRequireRegister(Op op) {
+        switch (op) {
+        case DIV:
+        case MOD:
+        case LSHIFT:
+        case RSHIFT:
+            return true;
+        default:
+            return false;
+        }
     }
     // #@@}
 
     // #@@range/doesSpillDX{
-    protected boolean doesSpillDX(String op) {
-        return op.equals("/") || op.equals("%");
+    protected boolean doesSpillDX(Op op) {
+        switch (op) {
+        case DIV:
+        case MOD:
+            return true;
+        default:
+            return false;
+        }
     }
     // #@@}
 
     // spills: dx
     // #@@range/compileBinaryOp_begin{
-    protected void compileBinaryOp(String op, Type t, AsmOperand right) {
+    protected void compileBinaryOp(Op op, Type t, AsmOperand right) {
         // #@@range/compileBinaryOp_arithops{
-        if (op.equals("+")) {
+        switch (op) {
+        case ADD:
             add(t, right, reg("ax", t));
-        }
-        else if (op.equals("-")) {
+            break;
+        case SUB:
             sub(t, right, reg("ax", t));
-        }
+            break;
     // #@@range/compileBinaryOp_begin}
-        else if (op.equals("*")) {
+        case MUL:
             imul(t, right, reg("ax", t));
-        }
-        else if (op.equals("/") || op.equals("%")) {
+            break;
+        case DIV:
+        case MOD:
             if (t.isSigned()) {
                 cltd();
                 idiv(t, reg("cx", t));
@@ -915,53 +908,54 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
             if (op.equals("%")) {
                 mov(reg("dx"), reg("ax"));
             }
-        }
+            break;
         // #@@}
         // #@@range/compileBinaryOp_bitops{
-        else if (op.equals("&")) {
+        case BIT_AND:
             and(t, right, reg("ax", t));
-        }
-        else if (op.equals("|")) {
+            break;
+        case BIT_OR:
             or(t, right, reg("ax", t));
-        }
-        else if (op.equals("^")) {
+            break;
+        case BIT_XOR:
             xor(t, right, reg("ax", t));
-        }
-        else if (op.equals(">>")) {
+            break;
+        case RSHIFT:
             if (t.isSigned()) {
                 sar(t, cl(), reg("ax", t));
             }
             else {
                 shr(t, cl(), reg("ax", t));
             }
-        }
-        else if (op.equals("<<")) {
+            break;
+        case LSHIFT:
             sal(t, cl(), reg("ax", t));
-        }
         // #@@}
         // #@@range/compileBinaryOp_cmpops{
-        else {
+        default:
             // Comparison operators
             cmp(t, right, reg("ax", t));
             if (!t.isPointer() && t.isSigned()) {
-                if      (op.equals("=="))   sete (al());
-                else if (op.equals("!="))   setne(al());
-                else if (op.equals(">"))    setg (al());
-                else if (op.equals(">="))   setge(al());
-                else if (op.equals("<"))    setl (al());
-                else if (op.equals("<="))   setle(al());
-                else {
+                switch (op) {
+                case EQ:        sete (al()); break;
+                case NEQ:       setne(al()); break;
+                case GT:        setg (al()); break;
+                case GTEQ:      setge(al()); break;
+                case LT:        setl (al()); break;
+                case LTEQ:      setle(al()); break;
+                default:
                     throw new Error("unknown binary operator: " + op);
                 }
             }
             else {
-                if      (op.equals("=="))   sete (al());
-                else if (op.equals("!="))   setne(al());
-                else if (op.equals(">"))    seta (al());
-                else if (op.equals(">="))   setae(al());
-                else if (op.equals("<"))    setb (al());
-                else if (op.equals("<="))   setbe(al());
-                else {
+                switch (op) {
+                case EQ:        sete (al()); break;
+                case NEQ:       setne(al()); break;
+                case GT:        seta (al()); break;
+                case GTEQ:      setae(al()); break;
+                case LT:        setb (al()); break;
+                case LTEQ:      setbe(al()); break;
+                default:
                     throw new Error("unknown binary operator: " + op);
                 }
             }
@@ -972,49 +966,22 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     }
     // #@@}
 
-    // #@@range/compile_UnaryOp{
-    public Void visit(UnaryOpNode node) {
+    // #@@range/compile_Uni{
+    public Void visit(Uni node) {
         compile(node.expr());
-        if (node.operator().equals("+")) {
-            throw new Error("unary +");
-        }
-        else if (node.operator().equals("-")) {
+        switch (node.op()) {
+        case UMINUS:
             neg(node.expr().type(), reg("ax", node.expr().type()));
-        }
-        else if (node.operator().equals("~")) {
+            break;
+        case BIT_NOT:
             not(node.expr().type(), reg("ax", node.expr().type()));
-        }
-        else if (node.operator().equals("!")) {
+            break;
+        case NOT:
             testCond(node.expr().type(), reg("ax"));
             sete(al());
             movzbl(al(), reg("ax"));
-        }
-        return null;
-    }
-    // #@@}
-
-    // spills: (none)
-    // #@@range/compile_UnaryArithmetic{
-    protected void compileUnaryArithmetic(UnaryArithmeticOpNode node,
-                                          AsmOperand dest) {
-        if (node.operator().equals("++")) {
-            add(imm(node.amount()), dest);
-        }
-        else if (node.operator().equals("--")) {
-            sub(imm(node.amount()), dest);
-        }
-        else {
-            throw new Error("unknown unary operator: " + node.operator());
-        }
-    }
-    // #@@}
-
-    // #@@range/compile_Cast{
-    public Void visit(CastNode node) {
-        compile(node.expr());
-        // We need not execute downcast because we can cast big value
-        // to small value by just cutting off higer bits.
-        if (node.isEffectiveCast()) {
+            break;
+        case CAST:
             Type src = node.expr().type();
             Type dest = node.type();
             if (src.isSigned()) {
@@ -1025,64 +992,56 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
                 movzx(src, dest,
                       reg("ax").forType(src), reg("ax").forType(dest));
             }
+            break;
+        default:
+            throw new Error("unknown unary operator: " + node.op());
         }
         return null;
     }
     // #@@}
 
-    // #@@range/compile_Variable{
-    public Void visit(VariableNode node) {
+    // #@@range/compile_Var{
+    public Void visit(Var node) {
         loadVariable(node, reg("ax"));
         return null;
     }
     // #@@}
 
-    // #@@range/compile_IntegerLiteral{
-    public Void visit(IntegerLiteralNode node) {
+    // #@@range/compile_IntValue{
+    public Void visit(IntValue node) {
         loadConstant(node, reg("ax"));
         return null;
     }
     // #@@}
 
-    // #@@range/compile_StringLiteral{
-    public Void visit(StringLiteralNode node) {
+    // #@@range/compile_StringValue{
+    public Void visit(StringValue node) {
         loadConstant(node, reg("ax"));
         return null;
     }
     // #@@}
-
-    public Void visit(PrefixOpNode node) { throw new Error("PrefixOpNode"); }
-    public Void visit(SuffixOpNode node) { throw new Error("SuffixOpNode"); }
-    public Void visit(ArefNode node) { throw new Error("ArefNode"); }
-    public Void visit(MemberNode node) { throw new Error("MemberNode"); }
-    public Void visit(PtrMemberNode node) { throw new Error("PtrMemberNode"); }
-    public Void visit(SizeofExprNode node) { throw new Error("SizeofExprNode");}
-    public Void visit(SizeofTypeNode node) { throw new Error("SizeofTypeNode");}
-    public Void visit(AssignNode node) { throw new Error("AssignNode"); }
-    public Void visit(OpAssignNode node) { throw new Error("OpAssignNode"); }
 
     //
     // Assignable expressions
     //
 
-    private void compileLHS(ExprNode lhs) {
-        if (lhs instanceof VariableNode) {
+    private void compileLHS(Expr lhs) {
+        if (lhs instanceof Var) {
             // for variables: apply loadVariableAddress
-            loadVariableAddress((VariableNode)lhs, reg("ax"));
+            loadVariableAddress((Var)lhs, reg("ax"));
         }
-        else if (lhs instanceof DereferenceNode) {
-            // for *expr: remove DereferenceNode
-            DereferenceNode n = (DereferenceNode)lhs;
-            compile(n.expr());
+        else if (lhs instanceof Mem) {
+            // for *expr: remove Mem
+            compile(((Mem)lhs).expr());
         }
         else {
             // otherwise: fatal error
-            throw new Error("must not happen");
+            throw new Error("must not happen: " + lhs.getClass());
         }
     }
 
     // #@@range/compile_Assign{
-    public Void visit(AssignStmtNode node) {
+    public Void visit(Assign node) {
         if (node.lhs().isConstantAddress() && node.lhs().memref() != null) {
             compile(node.rhs());
             save(node.lhs().type(), reg("ax"), node.lhs().memref());
@@ -1105,16 +1064,16 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     }
     // #@@}
 
-    // #@@range/compile_Dereference{
-    public Void visit(DereferenceNode node) {
+    // #@@range/compile_Mem{
+    public Void visit(Mem node) {
         compile(node.expr());
         load(node.type(), mem(reg("ax")), reg("ax"));
         return null;
     }
     // #@@}
 
-    // #@@range/compile_Address{
-    public Void visit(AddressNode node) {
+    // #@@range/compile_Addr{
+    public Void visit(Addr node) {
         compileLHS(node.expr());
         return null;
     }
@@ -1129,7 +1088,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
      * before calling this method.
      */
     // #@@range/loadConstant{
-    protected void loadConstant(ExprNode node, Register reg) {
+    protected void loadConstant(Expr node, Register reg) {
         if (node.asmValue() != null) {
             mov(node.asmValue(), reg);
         }
@@ -1147,7 +1106,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
      * by #isConstantAddress before calling this method.
      */
     // #@@range/loadVariable{
-    protected void loadVariable(ExprNode node, Register dest) {
+    protected void loadVariable(Expr node, Register dest) {
         /*
         if (node.shouldEvaluatedToAddress()) {
             // "int[4] a; a" implies &a
@@ -1171,7 +1130,7 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
      * calling this method.
      */
     // #@@range/loadVariableAddress{
-    protected void loadVariableAddress(ExprNode node, Register dest) {
+    protected void loadVariableAddress(Expr node, Register dest) {
         if (node.address() != null) {
             mov(node.address(), dest);
         }
