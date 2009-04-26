@@ -1,3 +1,13 @@
+Mon Apr 27 00:24:24 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: remove simple
+	  delegators (to Assembler).
+
+	* net/loveruby/cflat/asm/Assembler.java: add _byte(long), etc.
+
+	* net/loveruby/cflat/ir/IR.java: do not export typeTable, provide
+	  natural type instead.
+
 Sun Apr 26 23:54:47 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: use

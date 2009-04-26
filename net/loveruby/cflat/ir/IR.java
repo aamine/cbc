@@ -7,8 +7,8 @@ import net.loveruby.cflat.ast.DefinedFunction;
 import net.loveruby.cflat.ast.UndefinedFunction;
 import net.loveruby.cflat.ast.ConstantTable;
 import net.loveruby.cflat.ast.ToplevelScope;
-import net.loveruby.cflat.ast.Scope;
 import net.loveruby.cflat.type.TypeTable;
+import net.loveruby.cflat.type.Type;
 import java.io.PrintStream;
 import java.util.*;
 
@@ -88,8 +88,8 @@ public class IR {
         return constantTable;
     }
 
-    public TypeTable typeTable() {
-        return this.typeTable;
+    public Type naturalType() {
+        return this.typeTable.unsignedLong();
     }
 
     public void dump() {

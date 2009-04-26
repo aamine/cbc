@@ -157,6 +157,22 @@ public class Assembler {
         directive("\t.size\t" + sym.name() + "," + size);
     }
 
+    public void _byte(long val) {
+        directive(".byte\t" + new IntegerLiteral((byte)val).toSource());
+    }
+
+    public void _value(long val) {
+        directive(".value\t" + new IntegerLiteral((short)val).toSource());
+    }
+
+    public void _long(long val) {
+        directive(".long\t" + new IntegerLiteral((int)val).toSource());
+    }
+
+    public void _quad(long val) {
+        directive(".quad\t" + new IntegerLiteral(val).toSource());
+    }
+
     public void _byte(Literal val) {
         directive(".byte\t" + val.toSource());
     }
