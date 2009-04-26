@@ -1,3 +1,8 @@
+Sun Apr 26 12:17:51 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/PeepholeOptimizer.java: fix bad operator
+	  mnemonic. (fixes 4E)
+
 Mon Apr 20 03:52:10 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* now many tests work (30/1709 failed).

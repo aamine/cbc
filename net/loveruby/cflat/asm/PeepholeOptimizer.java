@@ -123,7 +123,7 @@ public class PeepholeOptimizer implements AsmOptimizer {
             new InsnPattern("imul", imm(0), reg()),
             new InsnTransform() {
                 public Instruction apply(Instruction insn) {
-                    return insn.build("xorl", insn.operand2(), insn.operand2());
+                    return insn.build("xor", insn.operand2(), insn.operand2());
                 }
             }
         ));
