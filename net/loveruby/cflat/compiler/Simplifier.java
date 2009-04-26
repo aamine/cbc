@@ -490,7 +490,7 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
             DefinedVariable tmp = tmpVar(addr.type());
             String op = binOp(node.operator());
             assignBeforeStmt(ref(tmp), addr);
-            ExprNode lhs = transformOpAssign(ref(tmp), op, intValue(1));
+            ExprNode lhs = transformOpAssign(deref(tmp), op, intValue(1));
             ExprNode rhs = expandPointerArithmetic(intValue(1), op, lhs);
             return binaryOp(lhs, invert(op), rhs);
         }
@@ -573,24 +573,28 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     // #@@}
 
     public ExprNode visit(MemberNode node) {
-        ExprNode addr = binaryOp(addressOf(transform(node.expr())),
-                                "+", intValue(node.offset()));
+        ExprNode addr = binaryOp(pointerTo(node.type()),
+            addressOf(transform(node.expr())),
+            "+",
+            intValue(node.offset()));
         return node.shouldEvaluatedToAddress() ? addr : deref(addr);
     }
 
     public ExprNode visit(PtrMemberNode node) {
-        ExprNode addr = binaryOp(transform(node.expr()),
-                                "+", intValue(node.offset()));
+        ExprNode addr = binaryOp(pointerTo(node.type()),
+            transform(node.expr()),
+            "+",
+            intValue(node.offset()));
         return node.shouldEvaluatedToAddress() ? addr : deref(addr);
     }
 
     public ExprNode visit(DereferenceNode node) {
-        node.setExpr(node.expr());
+        node.setExpr(transform(node.expr()));
         return node;
     }
 
     public ExprNode visit(AddressNode node) {
-        node.setExpr(node.expr());
+        node.setExpr(transform(node.expr()));
         return node;
     }
 
@@ -640,7 +644,7 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
         else {
             AddressNode n = new AddressNode(expr);
             Type base = expr.type();
-            n.setType(expr.shouldEvaluatedToAddress() ? base : typeTable.pointerTo(base));
+            n.setType(expr.shouldEvaluatedToAddress() ? base : pointerTo(base));
             return n;
         }
     }
@@ -659,8 +663,16 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
         return new DereferenceNode(expr);
     }
 
+    private Type pointerTo(Type t) {
+        return typeTable.pointerTo(t);
+    }
+
     private BinaryOpNode binaryOp(ExprNode left, String op, ExprNode right) {
         return new BinaryOpNode(left, op, right);
+    }
+
+    private BinaryOpNode binaryOp(Type t, ExprNode left, String op, ExprNode right) {
+        return new BinaryOpNode(t, left, op, right);
     }
 
     private IntegerLiteralNode intValue(long n) {

@@ -1,3 +1,22 @@
+Sun Apr 26 13:22:39 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Simplifier.java (SuffixOp): too few
+	  deref.
+
+	* net/loveruby/cflat/compiler/Simplifier.java (MemberNode): should
+	  set type.
+
+	* net/loveruby/cflat/compiler/Simplifier.java (PtrMemberNode):
+	  should set type.
+
+	* net/loveruby/cflat/compiler/Simplifier.java (Deref, Addr):
+	  should compile child expr.
+
+	* net/loveruby/cflat/ast/BinaryOpNode.java (ctor): accept type.
+
+	* net/loveruby/cflat/ast/TypeNode.java (location): do not raise
+	  exception when no typeRef exist.
+
 Sun Apr 26 12:17:51 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm/PeepholeOptimizer.java: fix bad operator

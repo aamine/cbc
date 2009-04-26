@@ -13,6 +13,14 @@ public class BinaryOpNode extends ExprNode {
         this.right = right;
     }
 
+    public BinaryOpNode(Type t, ExprNode left, String op, ExprNode right) {
+        super();
+        this.operator = op;
+        this.left = left;
+        this.right = right;
+        this.type = t;
+    }
+
     public String operator() {
         return operator;
     }

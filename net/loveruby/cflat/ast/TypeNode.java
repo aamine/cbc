@@ -34,7 +34,7 @@ public class TypeNode extends Node {
     }
 
     public Location location() {
-        return typeRef.location();
+        return typeRef == null ? null : typeRef.location();
     }
 
     protected void _dump(Dumper d) {
