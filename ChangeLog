@@ -1,3 +1,9 @@
+Sun Apr 26 16:51:02 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: treat LHS
+	  specially and remove AddressNode at the top of the LHS tree (e.g.
+	  printf = 0 generates &printf = 0).
+
 Sun Apr 26 16:19:31 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Simplifier.java -> IRGenerator.java

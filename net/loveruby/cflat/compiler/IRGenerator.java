@@ -76,6 +76,16 @@ class IRGenerator implements ASTVisitor<Void, ExprNode> {
         return e;
     }
 
+    private ExprNode transformLHS(ExprNode node) {
+        ExprNode result = transform(node);
+        if (result instanceof AddressNode) {
+            return ((AddressNode)result).expr();
+        }
+        else {
+            return result;
+        }
+    }
+
     private boolean isStatement() {
         return (exprNestLevel <= 1);
     }
@@ -423,13 +433,13 @@ class IRGenerator implements ASTVisitor<Void, ExprNode> {
 
     public ExprNode visit(AssignNode node) {
         if (isStatement()) {
-            assign(transform(node.lhs()), transform(node.rhs()));
+            assign(transformLHS(node.lhs()), transform(node.rhs()));
             return null;
         }
         else {
             DefinedVariable tmp = tmpVar(node.rhs().type());
             assignBeforeStmt(ref(tmp), transform(node.rhs()));
-            assignBeforeStmt(transform(node.lhs()), ref(tmp));
+            assignBeforeStmt(transformLHS(node.lhs()), ref(tmp));
             return ref(tmp);
         }
     }
@@ -437,7 +447,7 @@ class IRGenerator implements ASTVisitor<Void, ExprNode> {
     public ExprNode visit(OpAssignNode node) {
         // evaluate rhs before lhs.
         ExprNode rhs = transform(node.rhs());
-        ExprNode lhs = transform(node.lhs());
+        ExprNode lhs = transformLHS(node.lhs());
         return transformOpAssign(lhs, node.operator(), rhs);
     }
 
@@ -478,21 +488,21 @@ class IRGenerator implements ASTVisitor<Void, ExprNode> {
 
     // transform node into: lhs += 1 or lhs -= 1
     public ExprNode visit(PrefixOpNode node) {
-        return transformOpAssign(transform(node.expr()),
+        return transformOpAssign(transformLHS(node.expr()),
                 binOp(node.operator()),
                 intValue(1));
     }
 
     public ExprNode visit(SuffixOpNode node) {
         if (isStatement()) {
-            return transformOpAssign(transform(node.expr()),
+            return transformOpAssign(transformLHS(node.expr()),
                     binOp(node.operator()),
                     intValue(1));
         }
         else {
             // f(expr++) -> a = &expr, *a += 1, f(*a - 1)
             // f(expr--) -> a = &expr, *a -= 1, f(*a + 1)
-            ExprNode addr = addressOf(transform(node.expr()));
+            ExprNode addr = addressOf(transformLHS(node.expr()));
             DefinedVariable tmp = tmpVar(addr.type());
             String op = binOp(node.operator());
             assignBeforeStmt(ref(tmp), addr);
