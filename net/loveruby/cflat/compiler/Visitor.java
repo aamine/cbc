@@ -28,47 +28,14 @@ abstract public class Visitor implements ASTVisitor<Void, Void> {
     }
 
     //
-    // Declarations
-    //
-
-    public Void visit(DefinedVariable var) {
-        if (var.hasInitializer()) {
-            visitExpr(var.initializer());
-        }
-        return null;
-    }
-
-    public Void visit(UndefinedVariable var) {
-        return null;
-    }
-
-    public Void visit(DefinedFunction func) {
-        return null;
-    }
-
-    public Void visit(UndefinedFunction func) {
-        return null;
-    }
-
-    public Void visit(StructNode struct) {
-        return null;
-    }
-
-    public Void visit(UnionNode union) {
-        return null;
-    }
-
-    public Void visit(TypedefNode typedef) {
-        return null;
-    }
-
-    //
     // Statements
     //
 
     public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
-            visit(var);
+            if (var.hasInitializer()) {
+                visitExpr(var.initializer());
+            }
         }
         visitStmts(node.stmts());
         return null;

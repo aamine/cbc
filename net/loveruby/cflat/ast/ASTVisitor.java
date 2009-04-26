@@ -1,15 +1,6 @@
 package net.loveruby.cflat.ast;
 
 public interface ASTVisitor<S, E> {
-    // Declarations
-    public S visit(DefinedVariable var);
-    public S visit(UndefinedVariable var);
-    public S visit(DefinedFunction func);
-    public S visit(UndefinedFunction func);
-    public S visit(StructNode struct);
-    public S visit(UnionNode union);
-    public S visit(TypedefNode typedef);
-
     // Statements
     public S visit(BlockNode node);
     public S visit(ExprStmtNode node);

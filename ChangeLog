@@ -1,3 +1,35 @@
+Sun Apr 26 18:06:52 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* ast/ASTVisitor.java: fork DeclarationVisitor.
+
+	* ast/DeclarationVisitor.java: new class.
+
+	* compiler/Visitor.java: do not visit declarations.
+
+	* compiler/TypeResolver.java: visit declarations explicitly.
+
+	* compiler/IRGenerator.java: remove useless declarations acceptor.
+
+	* compiler/CodeGenerator.java: ditto.
+
+	* ast/Entity.java: accept DeclarationVisitor.
+
+	* ast/DefinedFunction.java: ditto.
+
+	* ast/UndefinedFunction.java: ditto.
+
+	* ast/DefinedVariable.java: ditto.
+
+	* ast/UndefinedVariable.java: ditto.
+
+	* ast/TypeDefinition.java: ditto.
+
+	* ast/StructNode.java: ditto.
+
+	* ast/UnionNode.java: ditto.
+
+	* ast/TypedefNode.java: ditto.
+
 Sun Apr 26 17:44:14 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java (SuffixOp): do not

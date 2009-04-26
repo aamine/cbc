@@ -72,7 +72,7 @@ public class DefinedFunction extends Function {
         }
     }
 
-    public <S,E> S accept(ASTVisitor<S,E> visitor) {
+    public <T> T accept(DeclarationVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

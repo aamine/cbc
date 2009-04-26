@@ -4,7 +4,7 @@ import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
-public class TypeResolver extends Visitor {
+public class TypeResolver extends Visitor implements DeclarationVisitor<Void> {
     // #@@range/ctor{
     protected TypeTable typeTable;
     protected ErrorHandler errorHandler;
@@ -50,6 +50,10 @@ public class TypeResolver extends Visitor {
     }
     // #@@}
 
+    //
+    // Declarations
+    //
+
     // #@@range/StructNode{
     public Void visit(StructNode struct) {
         resolveCompositeType(struct);
@@ -84,10 +88,16 @@ public class TypeResolver extends Visitor {
     }
     // #@@}
 
+    //
+    // Entities
+    //
+
     // #@@range/DefinedVariable{
     public Void visit(DefinedVariable var) {
         bindType(var.typeNode());
-        super.visit(var);       // resolve initializer
+        if (var.hasInitializer()) {
+            visitExpr(var.initializer());
+        }
         return null;
     }
     // #@@}
@@ -123,6 +133,18 @@ public class TypeResolver extends Visitor {
         }
     }
     // #@@}
+
+    //
+    // Expressions
+    //
+
+    public Void visit(BlockNode node) {
+        for (DefinedVariable var : node.variables()) {
+            var.accept(this);
+        }
+        visitStmts(node.stmts());
+        return null;
+    }
 
     public Void visit(AddressNode node) {
         super.visit(node);

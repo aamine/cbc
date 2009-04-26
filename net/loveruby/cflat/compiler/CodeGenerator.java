@@ -831,12 +831,6 @@ public class CodeGenerator implements ASTVisitor<Void,Void>, ELFConstants {
     public Void visit(ForNode node) { throw new Error("ForNode"); }
     public Void visit(BreakNode node) { throw new Error("BreakNode"); }
     public Void visit(ContinueNode node) { throw new Error("ContinueNode"); }
-    public Void visit(UndefinedFunction f) { throw new Error("UndefinedFunction"); }
-    public Void visit(DefinedVariable v) { throw new Error("DefinedVariable"); }
-    public Void visit(UndefinedVariable v){throw new Error("UndefinedVariable");}
-    public Void visit(StructNode node) { throw new Error("StructNode"); }
-    public Void visit(UnionNode node) { throw new Error("UnionNode"); }
-    public Void visit(TypedefNode node) { throw new Error("TypedefNode"); }
 
     //
     // Expressions

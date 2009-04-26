@@ -741,30 +741,6 @@ class IRGenerator implements ASTVisitor<Void, ExprNode> {
     // must not reached
     //
 
-    public Void visit(UndefinedFunction func) {
-        throw new Error("must not happen");
-    }
-
-    public Void visit(DefinedVariable var) {
-        throw new Error("must not happen");
-    }
-
-    public Void visit(UndefinedVariable func) {
-        throw new Error("must not happen");
-    }
-
-    public Void visit(StructNode struct) {
-        throw new Error("must not happen");
-    }
-
-    public Void visit(UnionNode union) {
-        throw new Error("must not happen");
-    }
-
-    public Void visit(TypedefNode typedef) {
-        throw new Error("must not happen");
-    }
-
     public Void visit(AssignStmtNode node) {
         throw new Error("must not happen");
     }

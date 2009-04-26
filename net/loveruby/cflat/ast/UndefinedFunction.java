@@ -25,7 +25,7 @@ public class UndefinedFunction extends Function {
         d.printMember("params", params);
     }
 
-    public <S,E> S accept(ASTVisitor<S,E> visitor) {
+    public <T> T accept(DeclarationVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }
