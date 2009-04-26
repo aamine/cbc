@@ -1,5 +1,7 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.entity.Entity;
+import net.loveruby.cflat.entity.DefinedVariable;
 
 public class VariableNode extends ExprNode {
     protected Location location;

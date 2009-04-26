@@ -1,5 +1,6 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ast.*;
+import net.loveruby.cflat.entity.DefinedVariable;
 import java.util.*;
 
 // We do not use return value of methods.

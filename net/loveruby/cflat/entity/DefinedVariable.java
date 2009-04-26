@@ -1,5 +1,7 @@
-package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.*;
+package net.loveruby.cflat.entity;
+import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.ast.TypeNode;
+import net.loveruby.cflat.ast.ExprNode;
 import net.loveruby.cflat.ir.Expr;
 import net.loveruby.cflat.asm.Symbol;
 import net.loveruby.cflat.asm.NamedSymbol;
@@ -58,14 +60,14 @@ public class DefinedVariable extends Variable {
 
     public Expr ir() { return ir; }
 
-    protected void _dump(Dumper d) {
+    protected void _dump(net.loveruby.cflat.ast.Dumper d) {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate);
         d.printMember("typeNode", typeNode);
         d.printMember("initializer", initializer);
     }
 
-    public <T> T accept(DeclarationVisitor<T> visitor) {
+    public <T> T accept(EntityVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

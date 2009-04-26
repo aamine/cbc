@@ -1,12 +1,8 @@
 package net.loveruby.cflat.ir;
+import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.ast.Location;
-import net.loveruby.cflat.ast.Variable;
-import net.loveruby.cflat.ast.DefinedVariable;
-import net.loveruby.cflat.ast.Function;
-import net.loveruby.cflat.ast.DefinedFunction;
-import net.loveruby.cflat.ast.UndefinedFunction;
 import net.loveruby.cflat.ast.ConstantTable;
-import net.loveruby.cflat.ast.ToplevelScope;
+import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.asm.Type;
 import java.io.PrintStream;
 import java.util.*;

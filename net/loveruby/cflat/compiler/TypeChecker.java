@@ -1,5 +1,6 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ast.*;
+import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
@@ -43,14 +44,15 @@ class TypeChecker extends Visitor {
 
     protected void checkReturnType(DefinedFunction f) {
         if (isInvalidReturnType(f.returnType())) {
-            error(f, "returns invalid type: " + f.returnType());
+            error(f.location(), "returns invalid type: " + f.returnType());
         }
     }
 
     protected void checkParamTypes(DefinedFunction f) {
         for (Parameter param : f.parameters()) {
             if (isInvalidParameterType(param.type())) {
-                error(param, "invalid parameter type: " + param.type());
+                error(param.location(),
+                        "invalid parameter type: " + param.type());
             }
         }
     }
@@ -71,12 +73,12 @@ class TypeChecker extends Visitor {
 
     protected void checkVariable(DefinedVariable var) {
         if (isInvalidVariableType(var.type())) {
-            error(var, "invalid variable type");
+            error(var.location(), "invalid variable type");
             return;
         }
         if (var.hasInitializer()) {
             if (isInvalidLHSType(var.type())) {
-                error(var, "invalid LHS type: " + var.type());
+                error(var.location(), "invalid LHS type: " + var.type());
                 return;
             }
             check(var.initializer());
@@ -615,5 +617,9 @@ class TypeChecker extends Visitor {
 
     protected void error(Node n, String msg) {
         errorHandler.error(n.location(), msg);
+    }
+
+    protected void error(Location loc, String msg) {
+        errorHandler.error(loc, msg);
     }
 }

@@ -1,4 +1,5 @@
-package net.loveruby.cflat.ast;
+package net.loveruby.cflat.entity;
+import net.loveruby.cflat.ast.TypeNode;
 
 public class Parameter extends DefinedVariable {
     public Parameter(TypeNode type, String name) {
@@ -9,7 +10,7 @@ public class Parameter extends DefinedVariable {
         return true;
     }
 
-    protected void _dump(Dumper d) {
+    protected void _dump(net.loveruby.cflat.ast.Dumper d) {
         d.printMember("name", name);
         d.printMember("typeNode", typeNode);
     }

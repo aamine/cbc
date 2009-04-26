@@ -1,4 +1,5 @@
 package net.loveruby.cflat.ast;
+import net.loveruby.cflat.entity.*;
 import java.util.*;
 
 public class Declarations {

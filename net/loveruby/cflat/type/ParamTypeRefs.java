@@ -1,5 +1,5 @@
 package net.loveruby.cflat.type;
-import net.loveruby.cflat.ast.ParamSlots;
+import net.loveruby.cflat.entity.ParamSlots;
 import net.loveruby.cflat.ast.Location;
 import java.util.*;
 

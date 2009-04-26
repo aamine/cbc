@@ -1,13 +1,9 @@
 package net.loveruby.cflat.compiler;
-import net.loveruby.cflat.ir.*;
-import net.loveruby.cflat.ast.LocalScope;
+import net.loveruby.cflat.ast.ConstantTable;
 import net.loveruby.cflat.ast.ConstantEntry;
-import net.loveruby.cflat.ast.Entity;
-import net.loveruby.cflat.ast.Variable;
-import net.loveruby.cflat.ast.DefinedVariable;
-import net.loveruby.cflat.ast.Function;
-import net.loveruby.cflat.ast.DefinedFunction;
-import net.loveruby.cflat.ast.Parameter;
+import net.loveruby.cflat.ast.Location;
+import net.loveruby.cflat.entity.*;
+import net.loveruby.cflat.ir.*;
 import net.loveruby.cflat.asm.*;
 import java.util.*;
 

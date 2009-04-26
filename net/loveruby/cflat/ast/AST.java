@@ -1,8 +1,10 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.parser.Token;
 import net.loveruby.cflat.type.TypeTable;
+import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.ir.IR;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class AST extends Node {
     protected Location source;

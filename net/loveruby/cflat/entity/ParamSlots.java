@@ -1,8 +1,8 @@
-package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.*;
+package net.loveruby.cflat.entity;
+import net.loveruby.cflat.ast.Location;
 import java.util.*;
 
-abstract public class ParamSlots<T> extends Node {
+abstract public class ParamSlots<T> {
     protected Location location;
     protected List<T> paramDescriptors;
     protected boolean vararg;
@@ -43,9 +43,5 @@ abstract public class ParamSlots<T> extends Node {
 
     public Location location() {
         return location;
-    }
-
-    protected void _dump(Dumper d) {
-        throw new Error("must not happen: ParamSlots#_dump");
     }
 }

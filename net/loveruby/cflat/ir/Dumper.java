@@ -1,7 +1,6 @@
 package net.loveruby.cflat.ir;
-import net.loveruby.cflat.ast.DefinedVariable;
-import net.loveruby.cflat.ast.DefinedFunction;
 import net.loveruby.cflat.ast.Location;
+import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.asm.*;
 import java.util.List;
 import java.io.PrintStream;

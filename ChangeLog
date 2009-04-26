@@ -1,3 +1,13 @@
+Mon Apr 27 02:55:41 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/entity: new package.
+
+	* net/loveruby/cflat/ast: move Entity and its subclasses under
+	  entity/.
+
+	* net/loveruby/cflat/ast: move Scope and its subclasses under
+	  entity/.
+
 Mon Apr 27 02:09:09 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/DefinedFunction.java: remove unused

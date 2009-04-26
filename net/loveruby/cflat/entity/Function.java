@@ -1,8 +1,10 @@
-package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.*;
+package net.loveruby.cflat.entity;
+import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.type.FunctionType;
+import net.loveruby.cflat.ast.TypeNode;
 import net.loveruby.cflat.asm.Symbol;
 import net.loveruby.cflat.asm.Label;
-import java.util.*;
+import java.util.List;
 
 abstract public class Function extends Entity {
     protected Symbol callingSymbol;

@@ -1,9 +1,12 @@
-package net.loveruby.cflat.ast;
+package net.loveruby.cflat.entity;
 import net.loveruby.cflat.type.TypeRef;
 import net.loveruby.cflat.type.ParamTypeRefs;
-import java.util.*;
+import net.loveruby.cflat.ast.Location;
+import java.util.List;
+import java.util.ArrayList;
 
-public class Params extends ParamSlots<Parameter> {
+public class Params extends ParamSlots<Parameter>
+        implements net.loveruby.cflat.ast.Dumpable {
     public Params(Location loc, List<Parameter> paramDescs) {
         super(loc, paramDescs, false);
     }
@@ -29,7 +32,7 @@ public class Params extends ParamSlots<Parameter> {
                 && other.paramDescriptors.equals(paramDescriptors);
     }
     
-    protected void _dump(Dumper d) {
+    public void dump(net.loveruby.cflat.ast.Dumper d) {
         d.printNodeList("parameters", parameters());
     }
 }

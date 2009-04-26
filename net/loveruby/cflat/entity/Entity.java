@@ -1,10 +1,13 @@
-package net.loveruby.cflat.ast;
+package net.loveruby.cflat.entity;
 import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.ast.TypeNode;
+import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.asm.Symbol;
 import net.loveruby.cflat.asm.AsmOperand;
 import net.loveruby.cflat.asm.MemoryReference;
 
-abstract public class Entity extends Node {
+abstract public class Entity
+        implements net.loveruby.cflat.ast.Dumpable {
     protected String name;
     protected boolean isPrivate;
     protected TypeNode typeNode;
@@ -90,5 +93,12 @@ abstract public class Entity extends Node {
         return typeNode.location();
     }
 
-    abstract public <T> T accept(DeclarationVisitor<T> visitor);
+    abstract public <T> T accept(EntityVisitor<T> visitor);
+
+    public void dump(net.loveruby.cflat.ast.Dumper d) {
+        d.printClass(this, location());
+        _dump(d);
+    }
+
+    abstract protected void _dump(net.loveruby.cflat.ast.Dumper d);
 }

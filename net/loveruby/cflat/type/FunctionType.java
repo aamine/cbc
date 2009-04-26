@@ -1,5 +1,5 @@
 package net.loveruby.cflat.type;
-import net.loveruby.cflat.ast.Params;
+import net.loveruby.cflat.entity.Params;
 import java.util.*;
 
 public class FunctionType extends Type {

@@ -1,5 +1,6 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ast.*;
+import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;

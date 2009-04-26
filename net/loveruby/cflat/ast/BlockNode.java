@@ -1,4 +1,6 @@
 package net.loveruby.cflat.ast;
+import net.loveruby.cflat.entity.DefinedVariable;
+import net.loveruby.cflat.entity.LocalScope;
 import java.util.*;
 
 public class BlockNode extends StmtNode {

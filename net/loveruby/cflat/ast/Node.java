@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ast;
-import java.io.*;
+import java.io.PrintStream;
 
-abstract public class Node {
+abstract public class Node implements Dumpable {
     public Node() {
     }
 

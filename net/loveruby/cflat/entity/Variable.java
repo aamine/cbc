@@ -1,4 +1,5 @@
-package net.loveruby.cflat.ast;
+package net.loveruby.cflat.entity;
+import net.loveruby.cflat.ast.TypeNode;
 import net.loveruby.cflat.type.*;
 
 abstract public class Variable extends Entity {

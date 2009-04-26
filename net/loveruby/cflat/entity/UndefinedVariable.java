@@ -1,5 +1,5 @@
-package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.*;
+package net.loveruby.cflat.entity;
+import net.loveruby.cflat.ast.TypeNode;
 
 public class UndefinedVariable extends Variable {
     public UndefinedVariable(TypeNode t, String name) {
@@ -10,13 +10,13 @@ public class UndefinedVariable extends Variable {
     public boolean isPrivate() { return false; }
     public boolean isInitialized() { return false; }
 
-    protected void _dump(Dumper d) {
+    protected void _dump(net.loveruby.cflat.ast.Dumper d) {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate());
         d.printMember("typeNode", typeNode);
     }
 
-    public <T> T accept(DeclarationVisitor<T> visitor) {
+    public <T> T accept(EntityVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

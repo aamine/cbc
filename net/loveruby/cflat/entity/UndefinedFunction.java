@@ -1,6 +1,6 @@
-package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.*;
-import java.util.*;
+package net.loveruby.cflat.entity;
+import net.loveruby.cflat.ast.TypeNode;
+import java.util.List;
 
 public class UndefinedFunction extends Function {
     protected Params params;
@@ -18,14 +18,14 @@ public class UndefinedFunction extends Function {
         return false;
     }
 
-    protected void _dump(Dumper d) {
+    protected void _dump(net.loveruby.cflat.ast.Dumper d) {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate());
         d.printMember("typeNode", typeNode);
         d.printMember("params", params);
     }
 
-    public <T> T accept(DeclarationVisitor<T> visitor) {
+    public <T> T accept(EntityVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

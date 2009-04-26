@@ -1,6 +1,6 @@
 package net.loveruby.cflat.type;
-import net.loveruby.cflat.ast.ParamSlots;
 import net.loveruby.cflat.ast.Location;
+import net.loveruby.cflat.entity.ParamSlots;
 import java.util.*;
 
 public class ParamTypes extends ParamSlots<Type> {

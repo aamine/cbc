@@ -1,7 +1,7 @@
-package net.loveruby.cflat.ast;
-import net.loveruby.cflat.compiler.ErrorHandler;
+package net.loveruby.cflat.entity;
 import net.loveruby.cflat.exception.*;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
 abstract public class Scope {
     protected List<LocalScope> children;

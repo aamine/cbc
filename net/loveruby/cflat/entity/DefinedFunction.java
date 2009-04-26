@@ -1,10 +1,12 @@
-package net.loveruby.cflat.ast;
+package net.loveruby.cflat.entity;
 import net.loveruby.cflat.compiler.ErrorHandler;
-import net.loveruby.cflat.type.*;
+import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.ast.TypeNode;
+import net.loveruby.cflat.ast.BlockNode;
 import net.loveruby.cflat.ir.Stmt;
 import net.loveruby.cflat.asm.Label;
 import net.loveruby.cflat.exception.*;
-import java.util.*;
+import java.util.List;
 
 public class DefinedFunction extends Function {
     protected Params params;
@@ -12,11 +14,8 @@ public class DefinedFunction extends Function {
     protected LocalScope scope;
     protected List<Stmt> ir;
 
-    public DefinedFunction(boolean priv,
-                           TypeNode type,
-                           String name,
-                           Params params,
-                           BlockNode body) {
+    public DefinedFunction(boolean priv, TypeNode type,
+            String name, Params params, BlockNode body) {
         super(priv, type, name);
         this.params = params;
         this.body = body;
@@ -55,14 +54,14 @@ public class DefinedFunction extends Function {
         return scope.allLocalVariables();
     }
 
-    protected void _dump(Dumper d) {
+    protected void _dump(net.loveruby.cflat.ast.Dumper d) {
         d.printMember("name", name);
         d.printMember("isPrivate", isPrivate);
         d.printMember("params", params);
         d.printMember("body", body);
     }
 
-    public <T> T accept(DeclarationVisitor<T> visitor) {
+    public <T> T accept(EntityVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

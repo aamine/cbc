@@ -18,11 +18,11 @@ public class Dumper {
         stream.println("<<" + obj.getClass().getSimpleName() + ">> (" + loc + ")");
     }
 
-    public void printNodeList(String name, List<? extends Node> nodes) {
+    public void printNodeList(String name, List<? extends Dumpable> nodes) {
         printIndent();
         stream.println(name + ":");
         indent();
-        for (Node n : nodes) {
+        for (Dumpable n : nodes) {
             n.dump(this);
         }
         unindent();
@@ -68,7 +68,7 @@ public class Dumper {
                        + (n.isResolved() ? " (resolved)" : ""));
     }
 
-    public void printMember(String name, Node n) {
+    public void printMember(String name, Dumpable n) {
         printIndent();
         if (n == null) {
             stream.println(name + ": null");

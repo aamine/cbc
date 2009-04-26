@@ -1,10 +1,12 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ast.*;
+import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
-public class TypeResolver extends Visitor implements DeclarationVisitor<Void> {
+public class TypeResolver extends Visitor
+        implements EntityVisitor<Void>, DeclarationVisitor<Void> {
     // #@@range/ctor{
     protected TypeTable typeTable;
     protected ErrorHandler errorHandler;

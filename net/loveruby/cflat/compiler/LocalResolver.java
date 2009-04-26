@@ -1,5 +1,6 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.ast.*;
+import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
@@ -83,7 +84,8 @@ public class LocalResolver extends Visitor {
         LocalScope scope = new LocalScope(currentScope());
         for (DefinedVariable var : vars) {
             if (scope.isDefinedLocally(var.name())) {
-                error(var, "duplicated variable in scope: " + var.name());
+                error(var.location(),
+                    "duplicated variable in scope: " + var.name());
             }
             else {
                 scope.defineVariable(var);
@@ -128,5 +130,9 @@ public class LocalResolver extends Visitor {
 
     protected void error(Node node, String message) {
         errorHandler.error(node.location(), message);
+    }
+
+    protected void error(Location loc, String message) {
+        errorHandler.error(loc, message);
     }
 }
