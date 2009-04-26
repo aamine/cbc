@@ -65,11 +65,14 @@ public class FunctionType extends Type {
     }
 
     public String toString() {
+        String sep = "";
         StringBuffer buf = new StringBuffer();
         buf.append(returnType.toString());
         buf.append(" (*)(");
         for (Type t : paramTypes.types()) {
+            buf.append(sep);
             buf.append(t.toString());
+            sep = ", ";
         }
         buf.append(")");
         return buf.toString();

@@ -35,6 +35,7 @@ abstract public class Expr implements Dumpable {
 
     public void dump(Dumper d) {
         d.printClass(this);
+        d.printMember("type", type);
         _dump(d);
     }
 

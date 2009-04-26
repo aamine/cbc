@@ -1,3 +1,10 @@
+Sun Apr 26 23:39:56 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ir/Expr.java: show Expr type on dump.
+
+	* net/loveruby/cflat/type/FunctionType.java: FunctionType#toString
+	  should separate each argument types by ",".
+
 Sun Apr 26 23:35:07 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ir: implement IR#dump.
