@@ -1,3 +1,9 @@
+Sun Apr 26 16:19:31 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Simplifier.java -> IRGenerator.java
+
+	* net/loveruby/cflat/compiler/Compiler.java: rename class.
+
 Sun Apr 26 16:10:27 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Simplifier.java (SwitchNode):

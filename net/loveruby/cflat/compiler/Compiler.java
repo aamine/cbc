@@ -113,7 +113,7 @@ public class Compiler {
                 ast.dump();
                 return;
             }
-            IR ir = new Simplifier(errorHandler).transform(ast);
+            IR ir = new IRGenerator(errorHandler).generate(ast);
             if (opts.mode() == CompilerMode.DumpIR) {
                 ir.dump();
                 return;

@@ -7,18 +7,18 @@ import net.loveruby.cflat.asm.Label;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
-class Simplifier implements ASTVisitor<Void, ExprNode> {
+class IRGenerator implements ASTVisitor<Void, ExprNode> {
     private ErrorHandler errorHandler;
     private TypeTable typeTable;
 
     // #@@range/ctor{
-    public Simplifier(ErrorHandler errorHandler) {
+    public IRGenerator(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
     }
     // #@@}
 
-    // #@@range/transform{
-    public IR transform(AST ast) throws SemanticException {
+    // #@@range/generate{
+    public IR generate(AST ast) throws SemanticException {
         typeTable = ast.typeTable();
         for (DefinedVariable var : ast.definedVariables()) {
             transformInitializer(var);
@@ -180,7 +180,7 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     }
 
     public Void visit(SwitchNode node) {
-        Label endLabel = new Label();
+        Label endLabel = node.endLabel();  // FIXME
 
         stmts.add(node);
         node.setCond(transform(node.cond()));
@@ -188,7 +188,6 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
         for (CaseNode c : node.cases()) {
             label(c.beginLabel());
             transform(c.body());
-            jump(endLabel);
         }
         popBreak();
         label(endLabel);
