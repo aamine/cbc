@@ -39,5 +39,8 @@ public class Switch extends Stmt {
 
     protected void _dump(Dumper d) {
         d.printMember("cond", cond);
+        d.printMembers("cases", cases);
+        d.printMember("defaultLabel", defaultLabel);
+        d.printMember("endLabel", endLabel);
     }
 }

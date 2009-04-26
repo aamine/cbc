@@ -19,4 +19,10 @@ public class Bin extends Expr {
     public <S,E> E accept(IRVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
+
+    protected void _dump(Dumper d) {
+        d.printMember("op", op.toString());
+        d.printMember("left", left);
+        d.printMember("right", right);
+    }
 }

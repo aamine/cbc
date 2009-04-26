@@ -33,5 +33,7 @@ public class BranchIf extends Stmt {
 
     protected void _dump(Dumper d) {
         d.printMember("cond", cond);
+        d.printMember("thenLabel", thenLabel);
+        d.printMember("elseLabel", elseLabel);
     }
 }

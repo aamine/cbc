@@ -19,5 +19,6 @@ public class LabelStmt extends Stmt {
     }
 
     protected void _dump(Dumper d) {
+        d.printMember("label", label);
     }
 }

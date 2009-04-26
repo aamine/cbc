@@ -19,5 +19,6 @@ public class Jump extends Stmt {
     }
 
     protected void _dump(Dumper d) {
+        d.printMember("label", label);
     }
 }

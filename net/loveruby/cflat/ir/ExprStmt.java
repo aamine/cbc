@@ -13,11 +13,11 @@ public class ExprStmt extends Stmt {
         return expr;
     }
 
-    protected void _dump(Dumper d) {
-        d.printMember("expr", expr);
-    }
-
     public <S,E> S accept(IRVisitor<S,E> visitor) {
         return visitor.visit(this);
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("expr", expr);
     }
 }

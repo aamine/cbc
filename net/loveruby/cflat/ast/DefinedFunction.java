@@ -68,12 +68,6 @@ public class DefinedFunction extends Function {
         d.printMember("body", body);
     }
 
-    protected void _dump(net.loveruby.cflat.ir.Dumper d) {
-        d.printMember("name", name);
-        d.printMember("isPrivate", isPrivate);
-        d.printStmts("ir", ir);
-    }
-
     public <T> T accept(DeclarationVisitor<T> visitor) {
         return visitor.visit(this);
     }

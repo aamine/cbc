@@ -93,15 +93,13 @@ public class IR {
     }
 
     public void dump() {
-        dump(System.err);
+        dump(System.out);
     }
 
     public void dump(PrintStream s) {
-        throw new Error("FIXME: IR#dump");
-    }
-
-    protected void _dump(Dumper d) {
-        d.printVariables("variables", defvars);
-        d.printFunctions("functions", defuns);
+        Dumper d = new Dumper(s);
+        d.printClass(this, source);
+        d.printVars("variables", defvars);
+        d.printFuncs("functions", defuns);
     }
 }

@@ -14,7 +14,6 @@ public class StringValue extends Expr {
     public ConstantEntry entry() { return entry; }
 
     public Symbol symbol() {
-        checkEntry();
         return entry.symbol();
     }
 
@@ -32,13 +31,11 @@ public class StringValue extends Expr {
         return entry.address();
     }
 
-    protected void checkEntry() {
-        if (entry == null) {
-            throw new Error("StringLiteralNode#entry not resolved");
-        }
-    }
-
     public <S,E> E accept(IRVisitor<S,E> visitor) {
         return visitor.visit(this);
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("entry", entry.toString());
     }
 }
