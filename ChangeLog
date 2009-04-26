@@ -1,3 +1,8 @@
+Sun Apr 26 16:10:27 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Simplifier.java (SwitchNode):
+	  missing end label.
+
 Sun Apr 26 15:48:10 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/FuncallNode.java: make a static funcall

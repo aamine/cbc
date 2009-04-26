@@ -180,13 +180,18 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     }
 
     public Void visit(SwitchNode node) {
+        Label endLabel = new Label();
+
         stmts.add(node);
         node.setCond(transform(node.cond()));
+        pushBreak(endLabel);
         for (CaseNode c : node.cases()) {
             label(c.beginLabel());
             transform(c.body());
-            jump(node.endLabel());
+            jump(endLabel);
         }
+        popBreak();
+        label(endLabel);
         return null;
     }
 
@@ -198,6 +203,7 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
         Label begLabel = new Label();
         Label bodyLabel = new Label();
         Label endLabel = new Label();
+
         label(begLabel);
         branch(transform(node.cond()), bodyLabel, endLabel);
         label(bodyLabel);
