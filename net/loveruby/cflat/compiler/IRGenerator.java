@@ -149,8 +149,14 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
-            if (var.initializer() != null) {
-                assign(var.location(), ref(var), transform(var.initializer()));
+            if (var.hasInitializer()) {
+                if (var.isPrivate()) {
+                    // static variables
+                    var.setIR(transform(var.initializer()));
+                }
+                else {
+                    assign(var.location(), ref(var), transform(var.initializer()));
+                }
             }
         }
         scopeStack.add(node.scope());
@@ -193,25 +199,25 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Label defaultLabel = endLabel;
 
         Expr cond = transform(node.cond());
-        pushBreak(endLabel);
         for (CaseNode c : node.cases()) {
-            Label caseLabel = new Label();
-            label(caseLabel);
-            transform(c.body());
-
             if (c.isDefault()) {
-                defaultLabel = caseLabel;
+                defaultLabel = c.label();
             }
             else {
                 for (ExprNode val : c.values()) {
                     Expr v = transform(val);
-                    cases.add(new Case(((IntValue)v).value(), caseLabel));
+                    cases.add(new Case(((IntValue)v).value(), c.label()));
                 }
             }
         }
+        stmts.add(new Switch(node.location(), cond, cases, defaultLabel, endLabel));
+        pushBreak(endLabel);
+        for (CaseNode c : node.cases()) {
+            label(c.label());
+            transform(c.body());
+        }
         popBreak();
         label(endLabel);
-        stmts.add(new Switch(node.location(), cond, cases, defaultLabel, endLabel));
         return null;
     }
 

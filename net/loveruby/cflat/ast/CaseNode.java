@@ -3,7 +3,7 @@ import net.loveruby.cflat.asm.Label;
 import java.util.*;
 
 public class CaseNode extends StmtNode {
-    protected Label beginLabel;
+    protected Label label;
     protected List<ExprNode> values;
     protected BlockNode body;
 
@@ -11,15 +11,11 @@ public class CaseNode extends StmtNode {
         super(loc);
         this.values = values;
         this.body = body;
-        this.beginLabel = new Label();
+        this.label = new Label();
     }
 
     public List<ExprNode> values() {
         return values;
-    }
-
-    public void setValues(List<ExprNode> values) {
-        this.values = values;
     }
 
     public boolean isDefault() {
@@ -30,8 +26,8 @@ public class CaseNode extends StmtNode {
         return body;
     }
 
-    public Label beginLabel() {
-        return beginLabel;
+    public Label label() {
+        return label;
     }
 
     protected void _dump(Dumper d) {

@@ -905,7 +905,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
                 mov(imm(0), reg("dx"));
                 div(t, reg("cx", t));
             }
-            if (op.equals("%")) {
+            if (op == Op.MOD) {
                 mov(reg("dx"), reg("ax"));
             }
             break;
@@ -930,6 +930,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
             break;
         case LSHIFT:
             sal(t, cl(), reg("ax", t));
+            break;
         // #@@}
         // #@@range/compileBinaryOp_cmpops{
         default:

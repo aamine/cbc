@@ -1,3 +1,18 @@
+Sun Apr 26 22:41:08 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java (BlockNode): static
+	  variables are special case.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java (SwitchNode):
+	  Switch must precedes Case bodies to prevent programs from infinite
+	  loop.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (Bin): fix MOD
+	  problem.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java (Bin): fix LSHIFT
+	  problem.
+
 Sun Apr 26 22:08:35 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* now IR nodes are separated from AST.  Sources are compilable but
