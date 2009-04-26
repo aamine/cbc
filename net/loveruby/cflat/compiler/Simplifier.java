@@ -206,6 +206,7 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
         transform(node.body());
         popBreak();
         popContinue();
+        jump(begLabel);
         label(endLabel);
         return null;
     }
