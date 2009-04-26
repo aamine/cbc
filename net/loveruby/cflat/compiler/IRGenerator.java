@@ -616,14 +616,14 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr addr = new Bin(pointerTo(node.type()), Op.ADD,
             addressOf(transform(node.expr())),
             intValue(node.offset()));
-        return isImplicitPointer(node) ? addr : deref(addr);
+        return node.shouldEvaluatedToAddress() ? addr : deref(addr);
     }
 
     public Expr visit(PtrMemberNode node) {
         Expr addr = new Bin(pointerTo(node.type()), Op.ADD,
             transform(node.expr()),
             intValue(node.offset()));
-        return isImplicitPointer(node) ? addr : deref(addr);
+        return node.shouldEvaluatedToAddress() ? addr : deref(addr);
     }
 
     public Expr visit(DereferenceNode node) {
@@ -632,7 +632,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     public Expr visit(AddressNode node) {
         Expr e = transform(node.expr());
-        if (isImplicitPointer(e) && (e instanceof Addr)) {
+        if (node.expr().shouldEvaluatedToAddress() && (e instanceof Addr)) {
             return e;
         }
         else {
@@ -659,7 +659,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     public Expr visit(VariableNode node) {
         Var var = new Var(node.entity());
-        return isImplicitPointer(var) ? addressOf(var) : var;
+        return node.shouldEvaluatedToAddress() ? addressOf(var) : var;
     }
 
     public Expr visit(IntegerLiteralNode node) {
@@ -686,17 +686,14 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         }
         else {
             Type base = expr.type();
-            Type t = isImplicitPointer(expr) ? base : pointerTo(base);
+            Type t = shouldEvalutedToAddress(expr) ? base : pointerTo(base);
             return new Addr(t, expr);
         }
     }
 
-    private boolean isImplicitPointer(ExprNode node) {
-        return node.shouldEvaluatedToAddress();
-    }
-
-    private boolean isImplicitPointer(Expr expr) {
-        return expr.type().isArray();
+    private boolean shouldEvalutedToAddress(Expr expr) {
+        return expr.type().isArray()
+            || ((expr instanceof Var) && ((Var)expr).entity().cannotLoad());
     }
 
     private Var ref(DefinedVariable var) {
