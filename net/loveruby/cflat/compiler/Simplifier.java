@@ -552,7 +552,9 @@ class Simplifier implements ASTVisitor<Void, ExprNode> {
     public ExprNode visit(ArefNode node) {
         ExprNode offset = binaryOp(intValue(node.elementSize()),
                             "*", transformArrayIndex(node));
-        return deref(binaryOp(transform(node.baseExpr()), "+", offset));
+        return deref(
+            binaryOp(pointerTo(node.type()),
+                transform(node.baseExpr()), "+", offset));
     }
 
     // For multidimension array: t[e][d][c][b][a];

@@ -1,3 +1,10 @@
+Sun Apr 26 15:48:10 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/FuncallNode.java: make a static funcall
+	  really static funcall (not use pointer).
+
+	net/loveruby/cflat/compiler/Simplifier.java: set aref result type.
+
 Sun Apr 26 13:50:54 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/FuncallNode.java: detect static call.
