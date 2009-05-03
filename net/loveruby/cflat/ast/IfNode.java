@@ -1,5 +1,4 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.asm.Label;
 
 public class IfNode extends StmtNode {
     protected ExprNode cond;

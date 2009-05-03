@@ -1,18 +1,14 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.asm.Label;
 
 public class CondExprNode extends ExprNode {
     protected ExprNode cond, thenExpr, elseExpr;
-    protected Label elseLabel, endLabel;
 
     public CondExprNode(ExprNode cond, ExprNode t, ExprNode e) {
         super();
         this.cond = cond;
         this.thenExpr = t;
         this.elseExpr = e;
-        this.elseLabel = new Label();
-        this.endLabel = new Label();
     }
 
     public Type type() {
@@ -37,14 +33,6 @@ public class CondExprNode extends ExprNode {
 
     public void setElseExpr(ExprNode expr) {
         this.elseExpr = expr;
-    }
-
-    public Label elseLabel() {
-        return elseLabel;
-    }
-
-    public Label endLabel() {
-        return endLabel;
     }
 
     public Location location() {
