@@ -1,4 +1,9 @@
-Sun Aug 31 23:59:36 2008  Minero Aoki  <aamine@loveruby.net>
+Thu Apr 30 22:04:07 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/AbstractAssignNode.java: remove unused
+	  setter setLHS.
+
+Thu Apr 30 21:49:07 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/*.java: remove unused reference to
 	  asm.Label.
