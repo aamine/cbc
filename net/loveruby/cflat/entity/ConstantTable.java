@@ -1,4 +1,4 @@
-package net.loveruby.cflat.ast;
+package net.loveruby.cflat.entity;
 import java.util.*;
 
 public class ConstantTable implements Iterable<ConstantEntry> {

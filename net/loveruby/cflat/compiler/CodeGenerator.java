@@ -1,6 +1,4 @@
 package net.loveruby.cflat.compiler;
-import net.loveruby.cflat.ast.ConstantTable;
-import net.loveruby.cflat.ast.ConstantEntry;
 import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.ir.*;

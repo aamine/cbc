@@ -1,4 +1,4 @@
-package net.loveruby.cflat.ast;
+package net.loveruby.cflat.entity;
 import net.loveruby.cflat.asm.Symbol;
 import net.loveruby.cflat.asm.ImmediateValue;
 import net.loveruby.cflat.asm.MemoryReference;

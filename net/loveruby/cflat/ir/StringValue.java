@@ -1,5 +1,5 @@
 package net.loveruby.cflat.ir;
-import net.loveruby.cflat.ast.ConstantEntry;
+import net.loveruby.cflat.entity.ConstantEntry;
 import net.loveruby.cflat.asm.*;
 
 public class StringValue extends Expr {

@@ -1,8 +1,6 @@
 package net.loveruby.cflat.ir;
-import net.loveruby.cflat.type.TypeTable;
-import net.loveruby.cflat.ast.Location;
-import net.loveruby.cflat.ast.ConstantTable;
 import net.loveruby.cflat.entity.*;
+import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.asm.Type;
 import java.io.PrintStream;
 import java.util.*;

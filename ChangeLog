@@ -1,3 +1,17 @@
+Thu Apr 30 22:19:12 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ast/ConstantTable.java: move under entity/.
+
+	* net/loveruby/cflat/ast/ConstantEntry.java: ditto.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: follow it.
+
+	* net/loveruby/cflat/ast/StringLiteralNode.java: follow it.
+
+	* net/loveruby/cflat/ir/StringValue.java: follow it.
+
+	* net/loveruby/cflat/ir/IR.java: follow it.
+
 Thu Apr 30 22:04:07 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/AbstractAssignNode.java: remove unused

@@ -1,5 +1,6 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.TypeRef;
+import net.loveruby.cflat.entity.ConstantEntry;
 
 public class StringLiteralNode extends LiteralNode {
     protected String value;
