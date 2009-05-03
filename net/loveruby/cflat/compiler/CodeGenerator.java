@@ -827,7 +827,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     // #@@range/compile_Bin{
     public Void visit(Bin node) {
         AsmOperand right = null;
-        if (!doesRequireRegister(node.op()) && node.right().isConstant()){
+        if (!doesSpillRegister(node.op()) && node.right().isConstant()){
             compile(node.left());
             right = node.right().asmValue();
         }
@@ -843,13 +843,13 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
             virtualPop(reg("cx"));
             right = reg("cx", node.type());
         }
-        compileBinaryOp(node.op(), node.type(), right);
+        compileBinaryOp(node.type(), node.op(), reg("ax", node.type()), right);
         return null;
     }
     // #@@}
 
-    // #@@range/doesRequireRegister{
-    protected boolean doesRequireRegister(Op op) {
+    // #@@range/doesSpillRegister{
+    protected boolean doesSpillRegister(Op op) {
         switch (op) {
         case DIV:
         case MOD:
@@ -862,32 +862,20 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     }
     // #@@}
 
-    // #@@range/doesSpillDX{
-    protected boolean doesSpillDX(Op op) {
-        switch (op) {
-        case DIV:
-        case MOD:
-            return true;
-        default:
-            return false;
-        }
-    }
-    // #@@}
-
-    // spills: dx
     // #@@range/compileBinaryOp_begin{
-    protected void compileBinaryOp(Op op, Type t, AsmOperand right) {
+    protected void compileBinaryOp(Type t, Op op,
+            Register left, AsmOperand right) {
         // #@@range/compileBinaryOp_arithops{
         switch (op) {
         case ADD:
-            as.add(t, right, reg("ax", t));
+            as.add(t, right, left);
             break;
         case SUB:
-            as.sub(t, right, reg("ax", t));
+            as.sub(t, right, left);
             break;
     // #@@range/compileBinaryOp_begin}
         case MUL:
-            as.imul(t, right, reg("ax", t));
+            as.imul(t, right, left);
             break;
         case DIV:
         case MOD:
@@ -900,30 +888,30 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
                 as.div(t, reg("cx", t));
             }
             if (op == Op.MOD) {
-                as.mov(reg("dx"), reg("ax"));
+                as.mov(reg("dx"), left);
             }
             break;
         // #@@}
         // #@@range/compileBinaryOp_bitops{
         case BIT_AND:
-            as.and(t, right, reg("ax", t));
+            as.and(t, right, left);
             break;
         case BIT_OR:
-            as.or(t, right, reg("ax", t));
+            as.or(t, right, left);
             break;
         case BIT_XOR:
-            as.xor(t, right, reg("ax", t));
+            as.xor(t, right, left);
             break;
         case RSHIFT:
             if (t.isSigned()) {
-                as.sar(t, cl(), reg("ax", t));
+                as.sar(t, cl(), left);
             }
             else {
-                as.shr(t, cl(), reg("ax", t));
+                as.shr(t, cl(), left);
             }
             break;
         case LSHIFT:
-            as.sal(t, cl(), reg("ax", t));
+            as.sal(t, cl(), left);
             break;
         // #@@}
         // #@@range/compileBinaryOp_cmpops{

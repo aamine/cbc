@@ -1,3 +1,11 @@
+Thu Apr 30 22:53:10 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: remove unused
+	  method #doesSpillDX.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: add "left"
+	  argument to #compileBinaryOp.
+
 Thu Apr 30 22:19:12 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast/ConstantTable.java: move under entity/.
