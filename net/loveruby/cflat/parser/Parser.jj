@@ -354,13 +354,13 @@ MORE: { <"'"> : IN_CHARACTER }                         // rule1
 
 // string literal
 // #@@range/lex_string{
-MORE: { <"\""> : IN_STRING }
+MORE: { <"\""> : IN_STRING }                           // rule1
 <IN_STRING> MORE: {
-      <(~["\"", "\\", "\n", "\r"])+>
-    | <"\\" (["0"-"7"]){3}>
-    | <"\\" ~[]>
+      <(~["\"", "\\", "\n", "\r"])+>                   // rule2
+    | <"\\" (["0"-"7"]){3}>                            // rule3
+    | <"\\" ~[]>                                       // rule4
 }
-<IN_STRING> TOKEN: { <STRING: "\""> : DEFAULT }
+<IN_STRING> TOKEN: { <STRING: "\""> : DEFAULT }        // rule5
 // #@@}
 
 /*
