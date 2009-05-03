@@ -1,3 +1,11 @@
+Sun May  3 19:08:07 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: sizeof TYPE requires one
+	  more lookahead because EXPR of "sizeof EXPR" may have parentheses,
+	  too.  We can distinguish type and expr by 1 look ahead, because
+	  Head of type() == head of typeref() == head of typeref_base().
+	  typeref_base has unique terminal on head.
+
 Sat May  2 09:49:23 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: refactoring: rename
