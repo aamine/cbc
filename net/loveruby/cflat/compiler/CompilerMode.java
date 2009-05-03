@@ -8,6 +8,7 @@ enum CompilerMode {
     DumpTokens ("--dump-tokens"),
     DumpAST ("--dump-ast"),
     DumpStmt ("--dump-stmt"),
+    DumpExpr ("--dump-expr"),
     DumpSemantic ("--dump-semantic"),
     DumpReference ("--dump-reference"),
     DumpIR ("--dump-ir"),
@@ -23,6 +24,7 @@ enum CompilerMode {
         modes.put("--dump-tokens", DumpTokens);
         modes.put("--dump-ast", DumpAST);
         modes.put("--dump-stmt", DumpStmt);
+        modes.put("--dump-expr", DumpExpr);
         modes.put("--dump-semantic", DumpSemantic);
         modes.put("--dump-reference", DumpReference);
         modes.put("--dump-ir", DumpIR);

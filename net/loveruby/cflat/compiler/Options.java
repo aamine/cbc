@@ -297,6 +297,7 @@ class Options {
         out.println("  --check-syntax   Checks syntax and quit.");
         out.println("  --dump-tokens    Dumps tokens and quit.");
         // --dump-stmt is a hidden option.
+        // --dump-expr is a hidden option.
         out.println("  --dump-ast       Dumps AST and quit.");
         out.println("  --dump-semantic  Dumps AST after semantic check and quit.");
         // --dump-reference is a hidden option.

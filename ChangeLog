@@ -1,3 +1,11 @@
+Sun May  3 22:17:57 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: new method dumpExpr
+	  to dump single expression.
+
+	* net/loveruby/cflat/compiler/CompilerMode.java: add enum value
+	  DumpExpr: define new option --dump-expr.
+
 Sun May  3 19:08:07 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: sizeof TYPE requires one

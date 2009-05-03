@@ -114,6 +114,9 @@ public class Compiler {
             case DumpStmt:
                 findStmt(ast).dump();
                 return;
+            case DumpExpr:
+                findExpr(ast).dump();
+                return;
             }
             ast.setTypeTable(opts.typeTable);
             semanticAnalysis(ast, opts);
@@ -163,10 +166,10 @@ public class Compiler {
         s.println(value);
     }
 
-    protected Node findStmt(AST ast) {
+    protected StmtNode findStmt(AST ast) {
         for (DefinedFunction f : ast.definedFunctions()) {
             if (f.name().equals("main")) {
-                Node stmt = f.body().stmts().get(0);
+                StmtNode stmt = f.body().stmts().get(0);
                 if (stmt == null) {
                     errorExit("main() has no stmt");
                 }
@@ -175,6 +178,20 @@ public class Compiler {
         }
         errorExit("source file does not contains main()");
         return null;   // never reach
+    }
+
+    protected ExprNode findExpr(AST ast) {
+        StmtNode stmt = findStmt(ast);
+        if (stmt instanceof ExprStmtNode) {
+            return ((ExprStmtNode)stmt).expr();
+        }
+        else if (stmt instanceof ReturnNode) {
+            return ((ReturnNode)stmt).expr();
+        }
+        else {
+            errorExit("source file does not contains single expression");
+            return null;   // never reach
+        }
     }
 
     protected AST parseFile(SourceFile src, Options opts)
