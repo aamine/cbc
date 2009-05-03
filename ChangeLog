@@ -1,3 +1,8 @@
+Sat May  2 09:30:51 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java (commandMain):
+	  refactoring: extract method: #buildTarget.
+
 Thu Apr 30 22:53:10 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: remove unused

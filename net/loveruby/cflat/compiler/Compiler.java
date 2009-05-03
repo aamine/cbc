@@ -53,16 +53,7 @@ public class Compiler {
         }
         else {
             try {
-                for (SourceFile src : srcs) {
-                    compileFile(src, opts);
-                }
-                if (! opts.isLinkRequired()) System.exit(0);
-                if (! opts.isGeneratingSharedLibrary()) {
-                    generateExecutable(opts);
-                }
-                else {
-                    generateSharedLibrary(opts);
-                }
+                buildTarget(srcs, opts);
                 System.exit(0);
             }
             catch (CompileException ex) {
@@ -90,6 +81,22 @@ public class Compiler {
             return false;
         }
     }
+
+    // #@@range/buildTarget{
+    protected void buildTarget(List<SourceFile> srcs, Options opts)
+                                        throws CompileException {
+        for (SourceFile src : srcs) {
+            compileFile(src, opts);
+        }
+        if (! opts.isLinkRequired()) System.exit(0);
+        if (! opts.isGeneratingSharedLibrary()) {
+            generateExecutable(opts);
+        }
+        else {
+            generateSharedLibrary(opts);
+        }
+    }
+    // #@@}
 
     protected void compileFile(SourceFile src, Options opts)
                                         throws CompileException {
