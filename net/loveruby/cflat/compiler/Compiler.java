@@ -10,11 +10,12 @@ import java.util.*;
 import java.io.*;
 
 public class Compiler {
-    static final public String ProgramID = "cbc";
+    // #@@range/main{
+    static final public String ProgramName = "cbc";
     static final public String Version = "1.0.0";
 
     static public void main(String[] args) {
-        new Compiler(ProgramID).commandMain(args);
+        new Compiler(ProgramName).commandMain(args);
     }
 
     protected ErrorHandler errorHandler;
@@ -22,6 +23,7 @@ public class Compiler {
     public Compiler(String programName) {
         this.errorHandler = new ErrorHandler(programName);
     }
+    // #@@}
 
     private TypeTable defaultTypeTable() {
         return TypeTable.ilp32();

@@ -222,8 +222,8 @@ class Options {
                     verbose = true;
                 }
                 else if (arg.equals("--version")) {
-                    System.out.println(Compiler.ProgramID
-                                       + " version " + Compiler.Version);
+                    System.out.printf("%s version %s",
+                        Compiler.ProgramName, Compiler.Version);
                     System.exit(0);
                 }
                 else if (arg.equals("--help")) {
