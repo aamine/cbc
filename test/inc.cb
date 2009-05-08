@@ -17,7 +17,15 @@ main(int argc, char **argv)
     j = i++;
     printf(";%d", j);   // 3
     printf(";%d", i);   // 4
+    printf(";%d", inc(i)); // 5
+    printf(";%d", inc(i)); // 5
     puts("");
 
     return 0;
+}
+
+static int
+inc(int i)
+{
+    return ++i;
 }
