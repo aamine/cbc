@@ -1,0 +1,35 @@
+import stdio;
+import string;
+
+struct s {
+        char[8] str;
+};
+
+int
+main(int argc, char** argv)
+{
+        struct s s;
+        struct s * sp;
+        char *str;
+
+        str = s.str;
+        strcpy(str, "OK");
+        printf("%s", str);
+
+        str = &s.str;
+        strcpy(str, "OK");
+        printf(";%s", str);
+
+        sp = &s;
+        str = sp->str;
+        strcpy(str, "OK");
+        printf(";%s", str);
+
+        sp = &s;
+        str = &sp->str;
+        strcpy(str, "OK");
+        printf(";%s", str);
+
+        puts("");
+        return 0;
+}
