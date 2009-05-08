@@ -20,6 +20,7 @@ public class TypeResolver extends Visitor
     public void resolve(AST ast) {
         this.typeTable = ast.typeTable();
         defineTypes(ast.types());
+        // #@@range/resolveProgram_core{
         for (TypeDefinition t : ast.types()) {
             t.accept(this);
         }
@@ -29,6 +30,7 @@ public class TypeResolver extends Visitor
         for (Entity e : ast.entities()) {
             e.accept(this);
         }
+        // #@@}
     }
     // #@@}
 
