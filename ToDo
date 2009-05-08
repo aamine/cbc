@@ -2,6 +2,10 @@
 
 == Current
 
+- generate IR
+- simplify IR node name: IntValue -> Int, StringValue -> Str.
+* make operators signed, instead of having signed value types.
+
 == Done
 
 - generate resolved AST
