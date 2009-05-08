@@ -118,6 +118,14 @@ public class TypeTable {
         throw new Error("must not happen: integer.size != pointer.size");
     }
 
+    public Type signedStackType() {
+        return signedLong();
+    }
+
+    public Type unsignedStackType() {
+        return unsignedLong();
+    }
+
     public Collection<Type> types() {
         return table.values();
     }

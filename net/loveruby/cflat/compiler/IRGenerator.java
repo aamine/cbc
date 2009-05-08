@@ -471,7 +471,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr rhs = transformExpr(node.rhs());
         Expr lhs = transformLHS(node.lhs());
         return transformOpAssign(lhs,
-                Op.internBinary(node.operator()),
+                Op.internBinary(node.operator(), node.rhs().type().isSigned()),
                 rhs,
                 node.lhs().type());
     }
@@ -572,7 +572,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             }
         }
         return new Bin(asmType(node.type()),
-                Op.internBinary(node.operator()),
+                Op.internBinary(node.operator(), node.type().isSigned()),
                 left, right);
     }
     // #@@}
@@ -651,7 +651,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     public Expr visit(CastNode node) {
         if (node.isEffectiveCast()) {
             return new Uni(asmType(node.type()),
-                    Op.CAST, transformExpr(node.expr()));
+                    node.expr().type().isSigned() ? Op.S_CAST : Op.U_CAST,
+                    transformExpr(node.expr()));
         }
         else {
             return transformExpr(node.expr());
@@ -726,36 +727,26 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     private net.loveruby.cflat.asm.Type asmType(Type t) {
         if (t.isVoid()) return signedInt();
-        return net.loveruby.cflat.asm.Type.get(
-                t.isInteger() && t.isSigned(),
-                t.size());
+        return net.loveruby.cflat.asm.Type.get(t.size());
     }
 
     private net.loveruby.cflat.asm.Type varType(Type t) {
         if (t.size() == 0 || t.size() > typeTable.maxIntSize()) {
             return null;
         }
-        return net.loveruby.cflat.asm.Type.get(
-                t.isInteger() && t.isSigned(),
-                t.size());
+        return net.loveruby.cflat.asm.Type.get(t.size());
     }
 
     private net.loveruby.cflat.asm.Type signedInt() {
-        return net.loveruby.cflat.asm.Type.get(
-                true,
-                (int)typeTable.intSize());
+        return net.loveruby.cflat.asm.Type.get((int)typeTable.intSize());
     }
 
     private net.loveruby.cflat.asm.Type pointer() {
-        return net.loveruby.cflat.asm.Type.get(
-                false,
-                (int)typeTable.pointerSize());
+        return net.loveruby.cflat.asm.Type.get((int)typeTable.pointerSize());
     }
 
     private net.loveruby.cflat.asm.Type ptrDiffType() {
-        return net.loveruby.cflat.asm.Type.get(
-                true,
-                (int)typeTable.pointerSize());
+        return net.loveruby.cflat.asm.Type.get((int)typeTable.pointerSize());
     }
 
     private void error(Node n, String msg) {

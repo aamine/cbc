@@ -851,10 +851,13 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     // #@@range/doesSpillRegister{
     protected boolean doesSpillRegister(Op op) {
         switch (op) {
-        case DIV:
-        case MOD:
-        case LSHIFT:
-        case RSHIFT:
+        case S_DIV:
+        case U_DIV:
+        case S_MOD:
+        case U_MOD:
+        case BIT_LSHIFT:
+        case BIT_RSHIFT:
+        case ARITH_RSHIFT:
             return true;
         default:
             return false;
@@ -877,17 +880,19 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
         case MUL:
             as.imul(t, right, left);
             break;
-        case DIV:
-        case MOD:
-            if (t.isSigned()) {
-                as.cltd();
-                as.idiv(t, reg("cx", t));
+        case S_DIV:
+        case S_MOD:
+            as.cltd();
+            as.idiv(t, reg("cx", t));
+            if (op == Op.S_MOD) {
+                as.mov(reg("dx"), left);
             }
-            else {
-                as.mov(imm(0), reg("dx"));
-                as.div(t, reg("cx", t));
-            }
-            if (op == Op.MOD) {
+            break;
+        case U_DIV:
+        case U_MOD:
+            as.mov(imm(0), reg("dx"));
+            as.div(t, reg("cx", t));
+            if (op == Op.U_MOD) {
                 as.mov(reg("dx"), left);
             }
             break;
@@ -902,45 +907,33 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
         case BIT_XOR:
             as.xor(t, right, left);
             break;
-        case RSHIFT:
-            if (t.isSigned()) {
-                as.sar(t, cl(), left);
-            }
-            else {
-                as.shr(t, cl(), left);
-            }
-            break;
-        case LSHIFT:
+        case BIT_LSHIFT:
             as.sal(t, cl(), left);
+            break;
+        case BIT_RSHIFT:
+            as.shr(t, cl(), left);
+            break;
+        case ARITH_RSHIFT:
+            as.sar(t, cl(), left);
             break;
         // #@@}
         // #@@range/compileBinaryOp_cmpops{
         default:
             // Comparison operators
             as.cmp(t, right, reg("ax", t));
-            if (t.isSigned()) {
-                switch (op) {
-                case EQ:        as.sete (al()); break;
-                case NEQ:       as.setne(al()); break;
-                case GT:        as.setg (al()); break;
-                case GTEQ:      as.setge(al()); break;
-                case LT:        as.setl (al()); break;
-                case LTEQ:      as.setle(al()); break;
-                default:
-                    throw new Error("unknown binary operator: " + op);
-                }
-            }
-            else {
-                switch (op) {
-                case EQ:        as.sete (al()); break;
-                case NEQ:       as.setne(al()); break;
-                case GT:        as.seta (al()); break;
-                case GTEQ:      as.setae(al()); break;
-                case LT:        as.setb (al()); break;
-                case LTEQ:      as.setbe(al()); break;
-                default:
-                    throw new Error("unknown binary operator: " + op);
-                }
+            switch (op) {
+            case EQ:        as.sete (al()); break;
+            case NEQ:       as.setne(al()); break;
+            case S_GT:      as.setg (al()); break;
+            case S_GTEQ:    as.setge(al()); break;
+            case S_LT:      as.setl (al()); break;
+            case S_LTEQ:    as.setle(al()); break;
+            case U_GT:      as.seta (al()); break;
+            case U_GTEQ:    as.setae(al()); break;
+            case U_LT:      as.setb (al()); break;
+            case U_LTEQ:    as.setbe(al()); break;
+            default:
+                throw new Error("unknown binary operator: " + op);
             }
             as.movzb(t, al(), reg("ax", t));
         }
@@ -964,14 +957,18 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
             as.sete(al());
             as.movzbl(al(), reg("ax"));
             break;
-        case CAST:
-            Type src = node.expr().type();
-            Type dest = node.type();
-            if (src.isSigned()) {
+        case S_CAST:
+            {
+                Type src = node.expr().type();
+                Type dest = node.type();
                 as.movsx(src, dest,
                       reg("ax").forType(src), reg("ax").forType(dest));
             }
-            else {
+            break;
+        case U_CAST:
+            {
+                Type src = node.expr().type();
+                Type dest = node.type();
                 as.movzx(src, dest,
                       reg("ax").forType(src), reg("ax").forType(dest));
             }
@@ -1172,28 +1169,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
 
     // #@@range/load{
     protected void load(Type type, MemoryReference mem, Register reg) {
-        switch (type.size()) {
-        case 1:
-            if (type.isSigned()) {  // signed char
-                as.movsbl(mem, reg);
-            } else {                // unsigned char
-                as.movzbl(mem, reg);
-            }
-            break;
-        case 2:
-            if (type.isSigned()) {  // signed short
-                as.movswl(mem, reg);
-            } else {                // unsigned short
-                as.movzwl(mem, reg);
-            }
-            break;
-        case 4:
-        case 8:                     // int, long, long_long
-            as.mov(type, mem, reg.forType(type));
-            break;
-        default:
-            throw new Error("unloadable value size: " + type.size());
-        }
+        as.mov(type, mem, reg.forType(type));
     }
     // #@@}
 

@@ -1,3 +1,24 @@
+Wed May  6 15:50:22 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/Type.java: types should not know signed
+	  or not.
+
+	* net/loveruby/cflat/ir/Op.java: have signed/unsigned information.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: use new op and
+	  type.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java (FuncallNode):
+	  should check optional argument types.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: now use simple
+	  mov to load values from memory (and cast it later).
+
+	* net/loveruby/cflat/type/TypeTable.java: provide stack value
+	  type.
+
 Wed May  6 14:54:27 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: isStatement() did

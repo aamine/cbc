@@ -458,18 +458,30 @@ class TypeChecker extends Visitor {
             error(node, "wrong number of argments: " + node.numArgs());
             return null;
         }
-        // Check type of only mandatory parameters.
         Iterator<ExprNode> args = node.arguments().iterator();
         List<ExprNode> newArgs = new ArrayList<ExprNode>();
+        // mandatory args
         for (Type param : type.paramTypes()) {
             ExprNode arg = args.next();
             newArgs.add(checkRHS(arg) ? implicitCast(param, arg) : arg);
         }
+        // optional args
         while (args.hasNext()) {
-            newArgs.add(args.next());
+            ExprNode arg = args.next();
+            newArgs.add(checkRHS(arg) ? castOptionalArg(arg) : arg);
         }
         node.replaceArgs(newArgs);
         return null;
+    }
+
+    private ExprNode castOptionalArg(ExprNode arg) {
+        if (! arg.type().isInteger()) {
+            return arg;
+        }
+        Type t = arg.type().isSigned()
+            ? typeTable.signedStackType()
+            : typeTable.unsignedStackType();
+        return arg.type().size() < t.size() ? implicitCast(t, arg) : arg;
     }
 
     public Void visit(ArefNode node) {

@@ -80,7 +80,7 @@ public class IR {
 
     public net.loveruby.cflat.asm.Type naturalType() {
         // platform dependent!!!
-        return Type.S_INT32;
+        return Type.INT32;
     }
 
     public void dump() {
