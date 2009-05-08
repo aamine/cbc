@@ -41,7 +41,7 @@ public class Dumper {
     }
 
     public void printMember(String name, Label memb) {
-        printPair(name, memb.toString());
+        printPair(name, Integer.toHexString(memb.hashCode()));
     }
 
     public void printMember(String name, net.loveruby.cflat.asm.Type memb) {
