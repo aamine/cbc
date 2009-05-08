@@ -6,12 +6,15 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 class DereferenceChecker extends Visitor {
+    // #@@range/ctor{
     protected ErrorHandler errorHandler;
 
     public DereferenceChecker(ErrorHandler h) {
         this.errorHandler = h;
     }
+    // #@@}
 
+    // #@@range/check_AST{
     public void check(AST ast) throws SemanticException {
         for (DefinedVariable var : ast.definedVariables()) {
             checkVariable(var);
@@ -23,6 +26,7 @@ class DereferenceChecker extends Visitor {
             throw new SemanticException("compile failed.");
         }
     }
+    // #@@}
 
     // #@@range/check{
     protected void check(StmtNode node) {
@@ -38,6 +42,7 @@ class DereferenceChecker extends Visitor {
     // Statements
     //
 
+    // #@@range/BlockNode{
     public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
             checkVariable(var);
@@ -52,6 +57,7 @@ class DereferenceChecker extends Visitor {
         }
         return null;
     }
+    // #@@}
 
     protected void checkVariable(DefinedVariable var) {
         if (var.hasInitializer()) {
@@ -149,6 +155,7 @@ class DereferenceChecker extends Visitor {
         }
     }
 
+    // #@@range/DereferenceNode{
     public Void visit(DereferenceNode node) {
         super.visit(node);
         if (! node.expr().isDereferable()) {
@@ -156,7 +163,9 @@ class DereferenceChecker extends Visitor {
         }
         return null;
     }
+    // #@@}
 
+    // #@@range/AddressNode{
     public Void visit(AddressNode node) {
         super.visit(node);
         if (! node.expr().isAssignable()) {
@@ -164,6 +173,7 @@ class DereferenceChecker extends Visitor {
         }
         return null;
     }
+    // #@@}
 
     //
     // Utilities

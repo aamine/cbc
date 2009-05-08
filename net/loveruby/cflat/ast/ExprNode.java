@@ -18,6 +18,7 @@ abstract public class ExprNode extends Node {
         }
     }
 
+    // #@@range/isDereferable{
     public boolean isDereferable() {
         try {
             return type().isDereferable();
@@ -26,6 +27,7 @@ abstract public class ExprNode extends Node {
             return false;
         }
     }
+    // #@@}
 
     public boolean isAssignable() {
         return false;
