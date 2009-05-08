@@ -567,8 +567,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     // #@@range/BinaryOp{
     public Expr visit(BinaryOpNode node) {
-        Expr left = transformExpr(node.left());
         Expr right = transformExpr(node.right());
+        Expr left = transformExpr(node.left());
         if (node.operator().equals("+") || node.operator().equals("-")) {
             if (node.left().type().isDereferable()) {
                 right = new Bin(ptrDiffType(), Op.MUL,

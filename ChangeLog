@@ -1,3 +1,8 @@
+Thu May  7 11:06:48 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java (BinaryOpNode):
+	  evaluate RIGHT before LEFT.
+
 Thu May  7 10:31:12 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: fix compile error.
