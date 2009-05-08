@@ -565,7 +565,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     // Expressions (no side effects)
     //
 
-    // #@@range/BinaryOpNode{
+    // #@@range/BinaryOp{
     public Expr visit(BinaryOpNode node) {
         Expr left = transformExpr(node.left());
         Expr right = transformExpr(node.right());
@@ -585,6 +585,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
     // #@@}
 
+    // #@@range/UnaryOp{
     public Expr visit(UnaryOpNode node) {
         if (node.operator().equals("+")) {
             // +expr -> expr
@@ -596,6 +597,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
                     transformExpr(node.expr()));
         }
     }
+    // #@@}
 
     public Expr visit(ArefNode node) {
         Expr offset = new Bin(signedInt(), Op.MUL,
@@ -611,7 +613,6 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     //     = &a + edcb*a0 + edc*b0 + ed*c0 + e*d0 + e0
     //     = &a + (((((a0)*b + b0)*c + c0)*d + d0)*e + e0) * sizeof(t)
     //
-    // #@@range/transformArrayIndex{
     private Expr transformArrayIndex(ArefNode node) {
         if (node.isMultiDimension()) {
             return new Bin(signedInt(), Op.ADD,
@@ -624,8 +625,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             return transformExpr(node.index());
         }
     }
-    // #@@}
 
+    // #@@range/Member{
     public Expr visit(MemberNode node) {
         Expr addr = new Bin(pointer(), Op.ADD,
             addressOf(transformExpr(node.expr())),
@@ -634,6 +635,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
                 ? addr
                 : deref(addr, node.type());
     }
+    // #@@}
 
     public Expr visit(PtrMemberNode node) {
         Expr addr = new Bin(pointer(), Op.ADD,
@@ -702,6 +704,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     // add AddressNode on top of the expr.
+    // #@@range/addressOf{
     private Expr addressOf(Expr expr) {
         if (expr instanceof Mem) {
             return ((Mem)expr).expr();
@@ -710,6 +713,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             return new Addr(pointer(), expr);
         }
     }
+    // #@@}
 
     private Var ref(DefinedVariable var) {
         return new Var(varType(var.type()), var);
@@ -725,9 +729,11 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         return new Mem(asmType(t), expr);
     }
 
+    // #@@range/intValue{
     private Int intValue(long n) {
         return new Int(signedInt(), n);
     }
+    // #@@}
 
     private Int ptrDiff(long n) {
         return new Int(ptrDiffType(), n);
