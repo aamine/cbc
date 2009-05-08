@@ -1081,35 +1081,28 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     }
     // #@@}
 
-    /**
-     * Loads variable value to the register.  You must check node
-     * by #isConstantAddress before calling this method.
-     */
+    /** Loads variable value to the register. */
     // #@@range/loadVariable{
-    protected void loadVariable(Var node, Register dest) {
-        if (node.memref() == null) {
-            as.mov(node.address(), dest);
-            load(node.type(), mem(dest), dest);
+    protected void loadVariable(Var var, Register dest) {
+        if (var.memref() == null) {
+            as.mov(var.address(), dest);
+            load(var.type(), mem(dest), dest);
         }
         else {
             // regular variable
-            load(node.type(), node.memref(), dest);
+            load(var.type(), var.memref(), dest);
         }
     }
     // #@@}
 
-    /**
-     * Loads an address of the variable to the register.
-     * You must check node by #isConstantAddress before
-     * calling this method.
-     */
+    /** Loads the address of the variable to the register. */
     // #@@range/loadVariableAddress{
-    protected void loadVariableAddress(Expr node, Register dest) {
-        if (node.address() != null) {
-            as.mov(node.address(), dest);
+    protected void loadVariableAddress(Var var, Register dest) {
+        if (var.address() != null) {
+            as.mov(var.address(), dest);
         }
         else {
-            as.lea(node.memref(), dest);
+            as.lea(var.memref(), dest);
         }
     }
     // #@@}

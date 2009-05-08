@@ -1,3 +1,8 @@
+Wed May  6 17:08:40 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: refactoring:
+	  rename variables.
+
 Wed May  6 15:50:22 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm/Type.java: types should not know signed
