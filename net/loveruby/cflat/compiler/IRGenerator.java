@@ -414,7 +414,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         assign(ref(var), transformExpr(node.elseExpr()));
         jump(endLabel);
         label(endLabel);
-        return ref(var);
+        return isStatement() ? null : ref(var);
     }
 
     public Expr visit(LogicalAndNode node) {
@@ -427,7 +427,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         label(rightLabel);
         assign(ref(var), transformExpr(node.right()));
         label(endLabel);
-        return ref(var);
+        return isStatement() ? null : ref(var);
     }
 
     public Expr visit(LogicalOrNode node) {
@@ -440,7 +440,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         label(rightLabel);
         assign(ref(var), transformExpr(node.right()));
         label(endLabel);
-        return ref(var);
+        return isStatement() ? null : ref(var);
     }
 
     public Expr visit(AssignNode node) {
@@ -472,16 +472,18 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     private Expr transformOpAssign(Expr lhs, Op op, Expr _rhs, Type lhsType) {
         Expr rhs = expandPointerArithmetic(_rhs, op, lhsType);
         if (lhs.isConstantAddress()) {
-            // lhs = lhs op rhs
+            // lhs = lhs op rhs, lhs
             assign(lhs, new Bin(lhs.type(), op, lhs, rhs));
             return isStatement() ? null : lhs;
         }
-        // a = &lhs, *a = *a op rhs, *a
-        Expr addr = addressOf(lhs);
-        DefinedVariable a = tmpVar(pointerTo(lhsType));
-        assign(ref(a), addr);
-        assign(deref(a), new Bin(lhs.type(), op, deref(a), rhs));
-        return deref(a);
+        else {
+            // a = &lhs, *a = *a op rhs, *a
+            Expr addr = addressOf(lhs);
+            DefinedVariable a = tmpVar(pointerTo(lhsType));
+            assign(ref(a), addr);
+            assign(deref(a), new Bin(lhs.type(), op, deref(a), rhs));
+            return isStatement() ? null : deref(a);
+        }
     }
 
     private Expr expandPointerArithmetic(Expr rhs, Op op, Type lhsType) {
@@ -509,7 +511,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Op op = binOp(node.operator());
         if (isStatement()) {
             // expr++; -> expr += 1;
-            return transformOpAssign(lhs, op, intValue(1), node.expr().type());
+            transformOpAssign(lhs, op, intValue(1), node.expr().type());
+            return null;
         }
         else if (lhs.isConstantAddress()) {
             // f(expr++) -> v = expr; expr = expr + 1, f(v)
