@@ -2,10 +2,10 @@ package net.loveruby.cflat.ir;
 import net.loveruby.cflat.entity.ConstantEntry;
 import net.loveruby.cflat.asm.*;
 
-public class StringValue extends Expr {
+public class Str extends Expr {
     protected ConstantEntry entry;
 
-    public StringValue(Type type, ConstantEntry entry) {
+    public Str(Type type, ConstantEntry entry) {
         super(type);
         this.entry = entry;
     }

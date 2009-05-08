@@ -1,10 +1,10 @@
 package net.loveruby.cflat.ir;
 import net.loveruby.cflat.asm.*;
 
-public class IntValue extends Expr {
+public class Int extends Expr {
     protected long value;
 
-    public IntValue(Type type, long value) {
+    public Int(Type type, long value) {
         super(type);
         this.value = value;
     }

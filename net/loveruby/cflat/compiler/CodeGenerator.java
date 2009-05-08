@@ -176,8 +176,8 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     /** Generates immediate values for .data section */
     // #@@range/compileImmediates{
     protected void compileImmediate(long size, Expr node) {
-        if (node instanceof IntValue) {
-            IntValue expr = (IntValue)node;
+        if (node instanceof Int) {
+            Int expr = (Int)node;
             switch ((int)size) {
             case 1: as._byte(expr.value());    break;
             case 2: as._value(expr.value());   break;
@@ -187,8 +187,8 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
                 throw new Error("entry size must be 1,2,4,8");
             }
         }
-        else if (node instanceof StringValue) {
-            StringValue expr = (StringValue)node;
+        else if (node instanceof Str) {
+            Str expr = (Str)node;
             switch ((int)size) {
             case 4: as._long(expr.symbol());   break;
             case 8: as._quad(expr.symbol());   break;
@@ -990,15 +990,15 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     }
     // #@@}
 
-    // #@@range/compile_IntValue{
-    public Void visit(IntValue node) {
+    // #@@range/compile_Int{
+    public Void visit(Int node) {
         loadConstant(node, reg("ax"));
         return null;
     }
     // #@@}
 
-    // #@@range/compile_StringValue{
-    public Void visit(StringValue node) {
+    // #@@range/compile_Str{
+    public Void visit(Str node) {
         loadConstant(node, reg("ax"));
         return null;
     }

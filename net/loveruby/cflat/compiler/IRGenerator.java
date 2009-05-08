@@ -206,7 +206,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             else {
                 for (ExprNode val : c.values()) {
                     Expr v = transform(val);
-                    cases.add(new Case(((IntValue)v).value(), c.label()));
+                    cases.add(new Case(((Int)v).value(), c.label()));
                 }
             }
         }
@@ -672,11 +672,11 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     public Expr visit(IntegerLiteralNode node) {
-        return new IntValue(asmType(node.type()), node.value());
+        return new Int(asmType(node.type()), node.value());
     }
 
     public Expr visit(StringLiteralNode node) {
-        return new StringValue(asmType(node.type()), node.entry());
+        return new Str(asmType(node.type()), node.entry());
     }
 
     //
@@ -712,12 +712,12 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         return new Mem(asmType(t), expr);
     }
 
-    private IntValue intValue(long n) {
-        return new IntValue(signedInt(), n);
+    private Int intValue(long n) {
+        return new Int(signedInt(), n);
     }
 
-    private IntValue ptrDiff(long n) {
-        return new IntValue(ptrDiffType(), n);
+    private Int ptrDiff(long n) {
+        return new Int(ptrDiffType(), n);
     }
 
     private Type pointerTo(Type t) {
