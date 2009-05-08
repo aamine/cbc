@@ -650,7 +650,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     public Expr visit(AddressNode node) {
         Expr e = transformExpr(node.expr());
-        if (node.expr().shouldEvaluatedToAddress() && (e instanceof Addr)) {
+        if (node.expr().shouldEvaluatedToAddress()) {
             return e;
         }
         else {
