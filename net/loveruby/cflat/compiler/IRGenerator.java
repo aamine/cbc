@@ -662,10 +662,12 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
                     node.expr().type().isSigned() ? Op.S_CAST : Op.U_CAST,
                     transformExpr(node.expr()));
         }
+        else if (isStatement()) {
+            transformStmt(node.expr());
+            return null;
+        }
         else {
-            return isStatement()
-                ? transformStmt(node.expr())
-                : transformExpr(node.expr());
+            return transformExpr(node.expr());
         }
     }
 
