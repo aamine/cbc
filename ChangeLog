@@ -1,3 +1,9 @@
+Wed May  6 14:54:27 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: isStatement() did
+	  not work correctly; e.g. return ++argc failed to return value,
+	  because ++argc was wrongly judged as statemen (is really expr).
+
 Wed May  6 14:19:12 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ir/StringValue.java -> Str.java
