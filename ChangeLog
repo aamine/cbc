@@ -1,3 +1,13 @@
+Thu May  7 10:01:41 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: emit statement
+	  info for casted stmt.
+
+Thu May  7 10:00:38 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ir/Dumper.java (printMember): simplify Label
+	  dump.
+
 Wed May  6 18:41:06 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: assignBeforeStmt

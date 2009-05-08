@@ -663,7 +663,9 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
                     transformExpr(node.expr()));
         }
         else {
-            return transformExpr(node.expr());
+            return isStatement()
+                ? transformStmt(node.expr())
+                : transformExpr(node.expr());
         }
     }
 
