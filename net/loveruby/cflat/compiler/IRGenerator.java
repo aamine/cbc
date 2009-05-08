@@ -57,11 +57,9 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         return stmts;
     }
 
-    private int beforeStmt;
     private int exprNestLevel = 0;
 
     private void transformStmt(StmtNode node) {
-        beforeStmt = stmts.size();
         node.accept(this);
     }
 
@@ -88,19 +86,6 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     private boolean isStatement() {
         return (exprNestLevel == 0);
-    }
-
-    // insert node before the current statement.
-    private void assignBeforeStmt(Expr lhs, Expr rhs) {
-        stmts.add(beforeStmt, new Assign(null, lhs, rhs));
-        beforeStmt++;
-    }
-
-    private void addExprStmt(ExprNode expr) {
-        Expr e = expr.accept(this);
-        if (e != null) {
-            stmts.add(new ExprStmt(expr.location(), e));
-        }
     }
 
     private void label(Label label) {
@@ -152,6 +137,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     //
 
     public Void visit(BlockNode node) {
+        scopeStack.add(node.scope());
         for (DefinedVariable var : node.variables()) {
             if (var.hasInitializer()) {
                 if (var.isPrivate()) {
@@ -164,7 +150,6 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
                 }
             }
         }
-        scopeStack.add(node.scope());
         for (StmtNode s : node.stmts()) {
             transformStmt(s);
         }
@@ -173,7 +158,12 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     public Void visit(ExprStmtNode node) {
-        addExprStmt(node.expr());
+        // do not use transformStmt here, to receive compiled tree.
+        Expr e = node.expr().accept(this);
+        if (e != null) {
+            //stmts.add(new ExprStmt(node.expr().location(), e));
+            errorHandler.warn(node.location(), "useless expression");
+        }
         return null;
     }
 
@@ -455,19 +445,22 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     public Expr visit(AssignNode node) {
         if (isStatement()) {
-            assign(transformLHS(node.lhs()), transformExpr(node.rhs()));
+            // Evaluate RHS before LHS.
+            Expr rhs = transformExpr(node.rhs());
+            assign(transformLHS(node.lhs()), rhs);
             return null;
         }
         else {
+            // lhs = rhs -> tmp = rhs, lhs = tmp, tmp
             DefinedVariable tmp = tmpVar(node.rhs().type());
-            assignBeforeStmt(ref(tmp), transformExpr(node.rhs()));
-            assignBeforeStmt(transformLHS(node.lhs()), ref(tmp));
+            assign(ref(tmp), transformExpr(node.rhs()));
+            assign(transformLHS(node.lhs()), ref(tmp));
             return ref(tmp);
         }
     }
 
     public Expr visit(OpAssignNode node) {
-        // evaluate rhs before lhs.
+        // Evaluate RHS before LHS.
         Expr rhs = transformExpr(node.rhs());
         Expr lhs = transformLHS(node.lhs());
         return transformOpAssign(lhs,
@@ -486,8 +479,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         // a = &lhs, *a = *a op rhs, *a
         Expr addr = addressOf(lhs);
         DefinedVariable a = tmpVar(pointerTo(lhsType));
-        assignBeforeStmt(ref(a), addr);
-        assignBeforeStmt(deref(a), new Bin(lhs.type(), op, deref(a), rhs));
+        assign(ref(a), addr);
+        assign(deref(a), new Bin(lhs.type(), op, deref(a), rhs));
         return deref(a);
     }
 
@@ -521,10 +514,10 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         else if (lhs.isConstantAddress()) {
             // f(expr++) -> v = expr; expr = expr + 1, f(v)
             DefinedVariable v = tmpVar(node.expr().type());
-            assignBeforeStmt(ref(v), lhs);
+            assign(ref(v), lhs);
             Expr rhs = expandPointerArithmetic(intValue(1),
                     op, node.expr().type());
-            assignBeforeStmt(lhs, new Bin(lhs.type(), op, lhs, rhs));
+            assign(lhs, new Bin(lhs.type(), op, lhs, rhs));
             return ref(v);
         }
         else {
@@ -532,9 +525,9 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             Expr addr = addressOf(lhs);
             DefinedVariable a = tmpVar(pointerTo(node.expr().type()));
             DefinedVariable v = tmpVar(node.expr().type());
-            assignBeforeStmt(ref(a), addr);
-            assignBeforeStmt(ref(v), deref(a));
-            assignBeforeStmt(deref(a),
+            assign(ref(a), addr);
+            assign(ref(v), deref(a));
+            assign(deref(a),
                 new Bin(lhs.type(), op,
                     deref(a),
                     expandPointerArithmetic(intValue(1),
@@ -549,8 +542,23 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         while (args.hasPrevious()) {
             newArgs.add(0, transformExpr(args.previous()));
         }
-        return new Call(asmType(node.type()),
-                transformExpr(node.expr()), newArgs);
+        if (isStatement()) {
+            stmts.add(
+                new ExprStmt(node.location(),
+                    new Call(asmType(node.type()),
+                            transformExpr(node.expr()),
+                            newArgs)));
+            return null;
+        }
+        else {
+            DefinedVariable tmp = tmpVar(node.type());
+            assign(node.location(),
+                ref(tmp),
+                new Call(asmType(node.type()),
+                        transformExpr(node.expr()),
+                        newArgs));
+            return ref(tmp);
+        }
     }
 
     //

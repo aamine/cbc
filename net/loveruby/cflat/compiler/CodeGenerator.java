@@ -746,10 +746,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     // #@@range/compileStmt{
     protected void compileStmt(Stmt stmt) {
         if (options.isVerboseAsm()) {
-            if (stmt.location() == null) {
-                as.comment("(null)");
-            }
-            else {
+            if (stmt.location() != null) {
                 as.comment(stmt.location().numberedLine());
             }
         }

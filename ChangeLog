@@ -1,3 +1,18 @@
+Wed May  6 18:41:06 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: assignBeforeStmt
+	  is useless.  Use assign instead.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: should be able to
+	  create tmp in variable initializers for also function toplevel
+	  block.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: move funcall
+	  before stmt.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: do not display
+	  "(null)" location.
+
 Wed May  6 17:08:40 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/CodeGenerator.java: refactoring:
