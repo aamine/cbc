@@ -17,8 +17,6 @@ public class AST extends Node {
         super();
         this.source = source;
         this.declarations = declarations;
-        this.scope = new ToplevelScope();
-        this.constantTable = new ConstantTable();
     }
 
     public Location location() {
@@ -27,17 +25,6 @@ public class AST extends Node {
 
     public CflatToken sourceTokens() {
         return source.token();
-    }
-
-    public void setTypeTable(TypeTable table) {
-        if (typeTable != null) {
-            throw new Error("must not happen: typeTable != null");
-        }
-        this.typeTable = table;
-    }
-
-    public TypeTable typeTable() {
-        return this.typeTable;
     }
 
     public List<TypeDefinition> types() {
@@ -70,11 +57,48 @@ public class AST extends Node {
         return declarations.defuns();
     }
 
+    // called by Compiler
+    public void setTypeTable(TypeTable table) {
+        if (typeTable != null) {
+            throw new Error("must not happen: AST.typeTable set twice");
+        }
+        this.typeTable = table;
+    }
+
+    public TypeTable typeTable() {
+        if (typeTable == null) {
+            throw new Error("must not happen: AST.typeTable is null");
+        }
+        return this.typeTable;
+    }
+
+    // called by LocalResolver
+    public void setScope(ToplevelScope scope) {
+        if (this.scope != null) {
+            throw new Error("must not happen: ToplevelScope set twice");
+        }
+        this.scope = scope;
+    }
+
     public ToplevelScope scope() {
+        if (this.scope == null) {
+            throw new Error("must not happen: AST.scope is null");
+        }
         return scope;
     }
 
+    // called by LocalResolver
+    public void setConstantTable(ConstantTable table) {
+        if (this.constantTable != null) {
+            throw new Error("must not happen: ConstantTable set twice");
+        }
+        this.constantTable = table;
+    }
+
     public ConstantTable constantTable() {
+        if (this.constantTable == null) {
+            throw new Error("must not happen: AST.constantTable is null");
+        }
         return constantTable;
     }
 

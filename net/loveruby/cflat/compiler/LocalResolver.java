@@ -26,10 +26,10 @@ public class LocalResolver extends Visitor {
 
     // #@@range/resolve{
     public void resolve(AST ast) throws SemanticException {
-        toplevel = ast.scope();
+        toplevel = new ToplevelScope();
         scopeStack = new LinkedList<Scope>();
         scopeStack.add(toplevel);
-        constantTable = ast.constantTable();
+        constantTable = new ConstantTable();
 
         // #@@range/declareToplevel{
         for (Entity decl : ast.declarations()) {
@@ -47,6 +47,9 @@ public class LocalResolver extends Visitor {
         if (errorHandler.errorOccured()) {
             throw new SemanticException("compile failed.");
         }
+
+        ast.setScope(toplevel);
+        ast.setConstantTable(constantTable);
     }
     // #@@}
 

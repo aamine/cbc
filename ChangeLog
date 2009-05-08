@@ -1,3 +1,12 @@
+Mon May  4 19:00:33 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/LocalResolver.java: create
+	  ToplevelScope, ConstantTable here (instead of creating them in
+	  AST).
+
+	* net/loveruby/cflat/ast/AST.java: do not create ToplevelScope,
+	  ConstantTable by myself.
+
 Sun May  3 22:17:57 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: new method dumpExpr
