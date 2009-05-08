@@ -24,6 +24,7 @@ class DereferenceChecker extends Visitor {
         }
     }
 
+    // #@@range/check{
     protected void check(StmtNode node) {
         node.accept(this);
     }
@@ -31,6 +32,7 @@ class DereferenceChecker extends Visitor {
     protected void check(ExprNode node) {
         node.accept(this);
     }
+    // #@@}
 
     //
     // Statements
