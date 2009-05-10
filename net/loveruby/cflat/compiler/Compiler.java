@@ -19,7 +19,7 @@ public class Compiler {
         new Compiler(ProgramName).commandMain(args);
     }
 
-    protected ErrorHandler errorHandler;
+    private ErrorHandler errorHandler;
 
     public Compiler(String programName) {
         this.errorHandler = new ErrorHandler(programName);
@@ -67,7 +67,7 @@ public class Compiler {
         System.exit(1);
     }
 
-    protected boolean isValidSyntax(SourceFile src, Options opts) {
+    private boolean isValidSyntax(SourceFile src, Options opts) {
         try {
             parseFile(src, opts);
             return true;
@@ -82,7 +82,7 @@ public class Compiler {
     }
 
     // #@@range/buildTarget{
-    protected void buildTarget(List<SourceFile> srcs, Options opts)
+    public void buildTarget(List<SourceFile> srcs, Options opts)
                                         throws CompileException {
         for (SourceFile src : srcs) {
             compileFile(src, opts);
@@ -97,7 +97,7 @@ public class Compiler {
     }
     // #@@}
 
-    protected void compileFile(SourceFile src, Options opts)
+    public void compileFile(SourceFile src, Options opts)
                                         throws CompileException {
         if (src.isCflatSource()) {
             AST ast = parseFile(src, opts);
@@ -163,7 +163,7 @@ public class Compiler {
         return expr;
     }
 
-    protected AST parseFile(SourceFile src, Options opts)
+    public AST parseFile(SourceFile src, Options opts)
                             throws SyntaxException, FileException {
         return Parser.parseFile(new File(src.currentName()),
                                 opts.loader(),
@@ -171,7 +171,7 @@ public class Compiler {
                                 opts.doesDebugParser());
     }
 
-    protected void semanticAnalysis(AST ast, Options opts)
+    public void semanticAnalysis(AST ast, Options opts)
                                         throws SemanticException {
         new LocalResolver(errorHandler).resolve(ast);
         new TypeResolver(errorHandler).resolve(ast);
@@ -184,129 +184,29 @@ public class Compiler {
         new TypeChecker(errorHandler).check(ast);
     }
 
-    protected String generateAssembly(IR ir, Options opts) {
+    public String generateAssembly(IR ir, Options opts) {
         CodeGenerator gen = opts.codeGenerator(errorHandler);
         return gen.generate(ir);
     }
 
-    protected void assemble(String srcPath,
+    private void assemble(String srcPath,
                             String destPath,
                             Options opts) throws IPCException {
-        List<Object> cmd = new ArrayList<Object>();
-        cmd.add("as");
-        cmd.addAll(opts.asOptions());
-        cmd.add("-o");
-        cmd.add(destPath);
-        cmd.add(srcPath);
-        invoke(cmd, opts.isVerboseMode());
+        opts.assembler(errorHandler)
+            .assemble(srcPath, destPath, opts.asOptions());
     }
 
-    static final protected String DYNAMIC_LINKER      = "/lib/ld-linux.so.2";
-    static final protected String C_RUNTIME_INIT      = "/usr/lib/crti.o";
-    static final protected String C_RUNTIME_START     = "/usr/lib/crt1.o";
-    static final protected String C_RUNTIME_START_PIE = "/usr/lib/Scrt1.o";
-    static final protected String C_RUNTIME_FINI      = "/usr/lib/crtn.o";
-
-    protected void generateExecutable(Options opts) throws IPCException {
-        List<Object> cmd = new ArrayList<Object>();
-        cmd.add("ld");
-        cmd.add("-dynamic-linker");
-        cmd.add(DYNAMIC_LINKER);
-        if (opts.isGeneratingPIE()) {
-            cmd.add("-pie");
-        }
-        if (! opts.noStartFiles()) {
-            cmd.add(opts.isGeneratingPIE()
-                    ? C_RUNTIME_START_PIE
-                    : C_RUNTIME_START);
-            cmd.add(C_RUNTIME_INIT);
-        }
-        cmd.addAll(opts.ldArgs());
-        if (! opts.noDefaultLibs()) {
-            cmd.add("-lc");
-            cmd.add("-lcbc");
-        }
-        if (! opts.noStartFiles()) {
-            cmd.add(C_RUNTIME_FINI);
-        }
-        cmd.add("-o");
-        cmd.add(opts.exeFileName());
-        invoke(cmd, opts.isVerboseMode());
+    private void generateExecutable(Options opts) throws IPCException {
+        opts.linker(errorHandler)
+            .generateExecutable(opts.exeFileName(), opts.ldOptions());
     }
 
-    protected void generateSharedLibrary(Options opts) throws IPCException {
-        List<Object> cmd = new ArrayList<Object>();
-        cmd.add("ld");
-        cmd.add("-shared");
-        if (! opts.noStartFiles()) {
-            cmd.add(C_RUNTIME_INIT);
-        }
-        cmd.addAll(opts.ldArgs());
-        if (! opts.noDefaultLibs()) {
-            cmd.add("-lc");
-            cmd.add("-lcbc");
-        }
-        if (! opts.noStartFiles()) {
-            cmd.add(C_RUNTIME_FINI);
-        }
-        cmd.add("-o");
-        cmd.add(opts.soFileName());
-        invoke(cmd, opts.isVerboseMode());
+    private void generateSharedLibrary(Options opts) throws IPCException {
+        opts.linker(errorHandler)
+            .generateSharedLibrary(opts.soFileName(), opts.ldOptions());
     }
 
-    protected void invoke(List<Object> cmdArgs, boolean debug) throws IPCException {
-        if (debug) {
-            dumpCommand(cmdArgs);
-        }
-        try {
-            String[] cmd = getStrings(cmdArgs);
-            Process proc = Runtime.getRuntime().exec(cmd);
-            proc.waitFor();
-            passThrough(proc.getInputStream());
-            passThrough(proc.getErrorStream());
-            if (proc.exitValue() != 0) {
-                errorHandler.error(cmd[0] + " failed."
-                                   + " (status " + proc.exitValue() + ")");
-                throw new IPCException("compile error");
-            }
-        }
-        catch (InterruptedException ex) {
-            errorHandler.error("gcc interrupted: " + ex.getMessage());
-            throw new IPCException("compile error");
-        }
-        catch (IOException ex) {
-            errorHandler.error(ex.getMessage());
-            throw new IPCException("compile error");
-        }
-    }
-
-    protected String[] getStrings(List<Object> list) {
-        String[] a = new String[list.size()];
-        int idx = 0;
-        for (Object o : list) {
-            a[idx++] = o.toString();
-        }
-        return a;
-    }
-
-    protected void dumpCommand(List<Object> args) {
-        String sep = "";
-        for (Object arg : args) {
-            System.out.print(sep); sep = " ";
-            System.out.print(arg.toString());
-        }
-        System.out.println("");
-    }
-
-    protected void passThrough(InputStream s) throws IOException {
-        BufferedReader r = new BufferedReader(new InputStreamReader(s));
-        String line;
-        while ((line = r.readLine()) != null) {
-            System.err.println(line);
-        }
-    }
-
-    protected void writeFile(String path, String str)
+    private void writeFile(String path, String str)
                                     throws FileException {
         try {
             BufferedWriter f = new BufferedWriter(

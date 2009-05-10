@@ -3,13 +3,13 @@ import net.loveruby.cflat.parser.LibraryLoader;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.sysdep.*;
-import net.loveruby.cflat.sysdep.x86.X86Linux;
+import net.loveruby.cflat.sysdep.X86Linux;
+import net.loveruby.cflat.utils.CommandArg;
 import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 import java.io.*;
 
-// package scope
 class Options {
     CompilerMode mode;
     LibraryLoader loader = new LibraryLoader();
@@ -18,12 +18,8 @@ class Options {
     boolean verbose = false;
     boolean debugParser = false;
     CodeGeneratorOptions genOptions = new CodeGeneratorOptions();
-    List<String> asOptions = new ArrayList<String>();
-    boolean generatingSharedLibrary = false;
-    boolean generatingPIE = false;
-    List<LdArg> ldArgs = new ArrayList<LdArg>();
-    boolean noStartFiles = false;
-    boolean noDefaultLibs = false;
+    AssemblerOptions asOptions = new AssemblerOptions();
+    LinkerOptions ldOptions = new LinkerOptions();
 
     CompilerMode mode() {
         return mode;
@@ -64,28 +60,12 @@ class Options {
 
     private List<SourceFile> sourceFiles() {
         List<SourceFile> result = new ArrayList<SourceFile>();
-        for (LdArg arg : ldArgs) {
+        for (CommandArg arg : ldOptions.args()) {
             if (arg.isSourceFile()) {
                 result.add((SourceFile)arg);
             }
         }
         return result;
-    }
-
-    Platform platform() {
-        return platform;
-    }
-
-    TypeTable typeTable() {
-        return platform.typeTable();
-    }
-
-    CodeGenerator codeGenerator(ErrorHandler errorHandler) {
-        return platform.codeGenerator(genOptions, errorHandler);
-    }
-
-    LibraryLoader loader() {
-        return this.loader;
     }
 
     String outputFileName() {
@@ -100,28 +80,36 @@ class Options {
         return this.debugParser;
     }
 
-    List<String> asOptions() {
-        return this.asOptions;
+    LibraryLoader loader() {
+        return this.loader;
+    }
+
+    TypeTable typeTable() {
+        return platform.typeTable();
+    }
+
+    CodeGenerator codeGenerator(ErrorHandler h) {
+        return platform.codeGenerator(genOptions, h);
+    }
+
+    Assembler assembler(ErrorHandler h) {
+        return platform.assembler(h);
+    }
+
+    AssemblerOptions asOptions() {
+        return asOptions;
+    }
+
+    Linker linker(ErrorHandler h) {
+        return platform.linker(h);
+    }
+
+    LinkerOptions ldOptions() {
+        return ldOptions;
     }
 
     boolean isGeneratingSharedLibrary() {
-        return this.generatingSharedLibrary;
-    }
-
-    boolean isGeneratingPIE() {
-        return this.generatingPIE;
-    }
-
-    List<LdArg> ldArgs() {
-        return this.ldArgs;
-    }
-
-    boolean noStartFiles() {
-        return this.noStartFiles;
-    }
-
-    boolean noDefaultLibs() {
-        return this.noDefaultLibs;
+        return ldOptions.generatingSharedLibrary;
     }
 
     /** Returns List<SourceFile>. */
@@ -170,54 +158,58 @@ class Options {
                     genOptions.generateVerboseAsm();
                 }
                 else if (arg.startsWith("-Wa,")) {
-                    asOptions.addAll(parseCommaSeparatedOptions(arg));
+                    for (String a : parseCommaSeparatedOptions(arg)) {
+                        asOptions.addArg(a);
+                    }
                 }
                 else if (arg.equals("-Xassembler")) {
-                    asOptions.add(nextArg(arg, args));
+                    asOptions.addArg(nextArg(arg, args));
                 }
                 else if (arg.equals("-static")) {
-                    ldArgs.add(new LdOption(arg));
+                    ldOptions.addArg(arg);
                 }
                 else if (arg.equals("-shared")) {
-                    generatingSharedLibrary = true;
+                    ldOptions.generatingSharedLibrary = true;
                 }
                 else if (arg.equals("-pie")) {
-                    generatingPIE = true;
+                    ldOptions.generatingPIE = true;
                 }
                 else if (arg.equals("--readonly-plt")) {
-                    ldArgs.add(new LdOption("-z"));
-                    ldArgs.add(new LdOption("combreloc"));
-                    ldArgs.add(new LdOption("-z"));
-                    ldArgs.add(new LdOption("now"));
-                    ldArgs.add(new LdOption("-z"));
-                    ldArgs.add(new LdOption("relro"));
+                    ldOptions.addArg("-z");
+                    ldOptions.addArg("combreloc");
+                    ldOptions.addArg("-z");
+                    ldOptions.addArg("now");
+                    ldOptions.addArg("-z");
+                    ldOptions.addArg("relro");
                 }
                 else if (arg.startsWith("-L")) {
-                    ldArgs.add(new LdOption("-L" + getOptArg(arg, args)));
+                    ldOptions.addArg("-L" + getOptArg(arg, args));
                 }
                 else if (arg.startsWith("-l")) {
-                    ldArgs.add(new LdOption("-l" + getOptArg(arg, args)));
+                    ldOptions.addArg("-l" + getOptArg(arg, args));
                 }
                 else if (arg.equals("-nostartfiles")) {
-                    noStartFiles = true;
+                    ldOptions.noStartFiles = true;
                 }
                 else if (arg.equals("-nodefaultlibs")) {
-                    noDefaultLibs = true;
+                    ldOptions.noDefaultLibs = true;
                 }
                 else if (arg.equals("-nostdlib")) {
-                    noStartFiles = true;
-                    noDefaultLibs = true;
+                    ldOptions.noStartFiles = true;
+                    ldOptions.noDefaultLibs = true;
                 }
                 else if (arg.startsWith("-Wl,")) {
                     for (String opt : parseCommaSeparatedOptions(arg)) {
-                        ldArgs.add(new LdOption(opt));
+                        ldOptions.addArg(opt);
                     }
                 }
                 else if (arg.equals("-Xlinker")) {
-                    ldArgs.add(new LdOption(nextArg(arg, args)));
+                    ldOptions.addArg(nextArg(arg, args));
                 }
                 else if (arg.equals("-v")) {
                     verbose = true;
+                    asOptions.verbose = true;
+                    ldOptions.verbose = true;
                 }
                 else if (arg.equals("--version")) {
                     System.out.printf("%s version %s",
@@ -234,12 +226,12 @@ class Options {
             }
             else {
                 // source file
-                addSourceFile(srcs, ldArgs, arg);
+                addSourceFile(srcs, arg);
             }
         }
         // args has more arguments when "--" is appeared.
         while (args.hasNext()) {
-            addSourceFile(srcs, ldArgs, args.next());
+            addSourceFile(srcs, args.next());
         }
         if (srcs.isEmpty()) parseError("no input file");
         if (mode == null) {
@@ -255,11 +247,11 @@ class Options {
         throw new OptionParseError(msg);
     }
 
-    private void addSourceFile(List<SourceFile> srcs, List<LdArg> ldArgs, String sourceName) {
+    private void addSourceFile(List<SourceFile> srcs, String sourceName) {
         SourceFile src = new SourceFile(sourceName);
         srcs.add(src);
         // Original argument order does matter when linking.
-        ldArgs.add(src);
+        ldOptions.addArg(src);
     }
 
     private String getOptArg(String opt, ListIterator<String> args) {

@@ -1,3 +1,44 @@
+Mon May 11 03:17:32 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: objectify assembler.
+
+	* net/loveruby/cflat/compiler/Compiler.java: objectify linker.
+
+	* net/loveruby/cflat/compiler/Options.java: provide #assembler,
+	  #asOptions, #linker, #ldOptions.
+
+	* net/loveruby/cflat/sysdep/x86/X86Linux.java ->
+	  sysdep/X86Linux.java
+
+	* net/loveruby/cflat/sysdep/Platform.java: provide #assembler,
+	  #linker.
+
+	* net/loveruby/cflat/sysdep/X86Linux.java: ditto.
+
+	* net/loveruby/cflat/sysdep/Assembler.java: new interface.
+
+	* net/loveruby/cflat/sysdep/AssemblerOptions.java: new class.
+
+	* net/loveruby/cflat/sysdep/GNUAssembler.java: new Assembler
+	  implementation.
+
+	* net/loveruby/cflat/sysdep/Linker.java: new interface.
+
+	* net/loveruby/cflat/sysdep/LinkerOptions.java: new clas.
+
+	* net/loveruby/cflat/sysdep/GNULinker.java: new Linker
+	  implementation.
+
+	* net/loveruby/cflat/utils/CommandUtils.java: new class.
+
+	* net/loveruby/cflat/compiler/LdArg.java -> utils/CommandArg.java
+
+	* net/loveruby/cflat/compiler/LdOption.java ->
+	  utils/CommandArgStr.java
+
+	* net/loveruby/cflat/compiler/SourceFile.java: implements
+	  CommandArg.
+
 Mon May 11 01:49:29 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: use JDK_VERSION="1.5" to

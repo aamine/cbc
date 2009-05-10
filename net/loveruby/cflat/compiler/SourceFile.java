@@ -1,10 +1,11 @@
 package net.loveruby.cflat.compiler;
+import net.loveruby.cflat.utils.CommandArg;
 import java.io.File;
 
 // package private
-class SourceFile implements LdArg {
-    protected String originalName;
-    protected String currentName;
+class SourceFile implements CommandArg {
+    private String originalName;
+    private String currentName;
 
     public SourceFile(String name) {
         this.originalName = name;
@@ -63,19 +64,19 @@ class SourceFile implements LdArg {
         return or(opts.outputFileName, replaceExt(newExt));
     }
 
-    protected String or(String x, String y) {
+    private String or(String x, String y) {
         return x != null ? x : y;
     }
 
-    protected String replaceExt(String ext) {
+    private String replaceExt(String ext) {
         return baseName(originalName, true) + ext;
     }
 
-    protected String baseName(String path) {
+    private String baseName(String path) {
         return new File(path).getName();
     }
 
-    protected String baseName(String path, boolean stripExt) {
+    private String baseName(String path, boolean stripExt) {
         if (stripExt) {
             return new File(path).getName().replaceFirst("\\.[^.]*$", "");
         }
@@ -84,7 +85,7 @@ class SourceFile implements LdArg {
         }
     }
 
-    protected String extName(String path) {
+    private String extName(String path) {
         int idx = path.lastIndexOf(".");
         if (idx < 0) return "";
         return path.substring(idx);

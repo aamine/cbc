@@ -8,7 +8,7 @@ import net.loveruby.cflat.utils.AsmUtils;
 import net.loveruby.cflat.utils.ErrorHandler;
 import java.util.*;
 
-class CodeGenerator
+public class CodeGenerator
         implements net.loveruby.cflat.sysdep.CodeGenerator,
                 IRVisitor<Void,Void>,
                 ELFConstants {
