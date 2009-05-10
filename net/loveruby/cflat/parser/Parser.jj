@@ -3,6 +3,7 @@ options {
     STATIC = false;
     DEBUG_PARSER = true;
     UNICODE_INPUT = true;
+    JDK_VERSION = "1.5";
 }
 // #@@}
 
