@@ -5,6 +5,7 @@ import net.loveruby.cflat.type.Type;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.ir.*;
 import net.loveruby.cflat.asm.Label;
+import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 

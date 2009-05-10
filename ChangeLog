@@ -1,3 +1,25 @@
+Sun May 10 23:49:24 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: define SOURCE_ENCODING here
+	  (again).
+
+	* net/loveruby/cflat/compiler/Constants.java: removed.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java ->
+	  net/loveruby/cflat/codegenerator
+
+	* net/loveruby/cflat/compiler/CodeGeneratorOptions.java ->
+	  net/loveruby/cflat/codegenerator
+
+	* net/loveruby/cflat/compiler/Platform.java ->
+	  net/loveruby/cflat/sysdep
+
+	* net/loveruby/cflat/compiler/ErrorHandler.java ->
+	  net/loveruby/cflat/utils
+
+	* net/loveruby/cflat/compiler/LibraryLoader.java ->
+	  net/loveruby/cflat/parser
+
 Sun May 10 23:04:44 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: move virtual

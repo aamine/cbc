@@ -1,4 +1,4 @@
-package net.loveruby.cflat.compiler;
+package net.loveruby.cflat.utils;
 import net.loveruby.cflat.ast.Location;
 import java.io.*;
 

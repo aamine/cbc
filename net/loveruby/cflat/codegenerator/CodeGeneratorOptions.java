@@ -1,4 +1,4 @@
-package net.loveruby.cflat.compiler;
+package net.loveruby.cflat.codegenerator;
 import net.loveruby.cflat.asm.*;
 import java.util.*;
 

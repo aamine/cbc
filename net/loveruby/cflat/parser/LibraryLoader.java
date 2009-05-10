@@ -1,6 +1,6 @@
-package net.loveruby.cflat.compiler;
-import net.loveruby.cflat.parser.*;
+package net.loveruby.cflat.parser;
 import net.loveruby.cflat.ast.Declarations;
+import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 import java.io.*;

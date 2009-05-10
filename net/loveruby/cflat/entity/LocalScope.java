@@ -1,6 +1,6 @@
 package net.loveruby.cflat.entity;
-import net.loveruby.cflat.compiler.ErrorHandler;
 import net.loveruby.cflat.type.Type;
+import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 

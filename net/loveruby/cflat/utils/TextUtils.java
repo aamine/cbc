@@ -1,13 +1,13 @@
 package net.loveruby.cflat.utils;
-import net.loveruby.cflat.compiler.Constants;
+import net.loveruby.cflat.parser.Parser;
 import java.io.*;
 
-public class TextUtils {
+abstract public class TextUtils {
     static final protected byte vtab = 013;
 
     static public String dumpString(String str) {
         try {
-            return dumpString(str, Constants.sourceEncoding);
+            return dumpString(str, Parser.SOURCE_ENCODING);
         }
         catch (UnsupportedEncodingException ex) {
             throw new Error("UTF-8 is not supported??: " + ex.getMessage());

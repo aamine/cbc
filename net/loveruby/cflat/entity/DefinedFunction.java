@@ -1,5 +1,4 @@
 package net.loveruby.cflat.entity;
-import net.loveruby.cflat.compiler.ErrorHandler;
 import net.loveruby.cflat.type.Type;
 import net.loveruby.cflat.ast.TypeNode;
 import net.loveruby.cflat.ast.BlockNode;

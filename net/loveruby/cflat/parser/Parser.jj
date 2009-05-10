@@ -8,11 +8,11 @@ options {
 
 PARSER_BEGIN(Parser)
 package net.loveruby.cflat.parser;
-import net.loveruby.cflat.compiler.*;
 import net.loveruby.cflat.ast.*;
 import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.asm.Label;
+import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -51,6 +51,8 @@ public class Parser {
     }
 
     // #@@range/newFileParser{
+    static final public String SOURCE_ENCODING = "UTF-8";
+
     static public Parser newFileParser(File file,
                                        LibraryLoader loader,
                                        ErrorHandler errorHandler,
@@ -60,7 +62,7 @@ public class Parser {
             BufferedReader r =
                 new BufferedReader(
                     new InputStreamReader(new FileInputStream(file),
-                                          Constants.sourceEncoding));
+                                          SOURCE_ENCODING));
             return new Parser(r, file.getPath(), loader, errorHandler, debug);
         }
         catch (FileNotFoundException ex) {

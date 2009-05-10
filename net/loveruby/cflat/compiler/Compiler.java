@@ -1,10 +1,11 @@
 package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.parser.*;
+import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.ast.*;
 import net.loveruby.cflat.entity.DefinedFunction;
 import net.loveruby.cflat.ir.IR;
-import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.utils.*;
+import net.loveruby.cflat.codegenerator.CodeGenerator;
+import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 import java.io.*;
