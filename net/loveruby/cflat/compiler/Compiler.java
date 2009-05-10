@@ -4,7 +4,7 @@ import net.loveruby.cflat.ast.AST;
 import net.loveruby.cflat.ast.StmtNode;
 import net.loveruby.cflat.ast.ExprNode;
 import net.loveruby.cflat.ir.IR;
-import net.loveruby.cflat.codegenerator.CodeGenerator;
+import net.loveruby.cflat.sysdep.CodeGenerator;
 import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.util.*;

@@ -1,3 +1,21 @@
+Mon May 11 01:47:51 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/codegenerator/CodeGenerator.java ->
+	  net/loveruby/cflat/sysdep
+
+	* net/loveruby/cflat/codegenerator/CodeGeneratorOptions.java ->
+	  net/loveruby/cflat/sysdep
+
+	* net/loveruby/cflat/sysdep/Platform.java: ditto.
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/sysdep/x86/X86Linux.java: ditto.
+
+	* net/loveruby/cflat/compiler/Compiler.java: ditto.
+
+	* net/loveruby/cflat/compiler/Options.java: ditto.
+
 Mon May 11 01:40:28 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: use

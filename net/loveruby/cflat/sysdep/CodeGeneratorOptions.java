@@ -1,4 +1,4 @@
-package net.loveruby.cflat.codegenerator;
+package net.loveruby.cflat.sysdep;
 
 public class CodeGeneratorOptions {
     protected int optimizeLevel;

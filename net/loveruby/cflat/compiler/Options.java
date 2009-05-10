@@ -1,10 +1,9 @@
 package net.loveruby.cflat.compiler;
-import net.loveruby.cflat.sysdep.Platform;
-import net.loveruby.cflat.sysdep.x86.X86Linux;
 import net.loveruby.cflat.parser.LibraryLoader;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.asm.*;
-import net.loveruby.cflat.codegenerator.*;
+import net.loveruby.cflat.sysdep.*;
+import net.loveruby.cflat.sysdep.x86.X86Linux;
 import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.util.*;

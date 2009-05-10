@@ -1,5 +1,5 @@
 package net.loveruby.cflat.sysdep.x86;
-import net.loveruby.cflat.codegenerator.*;
+import net.loveruby.cflat.sysdep.CodeGeneratorOptions;
 import net.loveruby.cflat.ir.*;
 import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.asm.*;
@@ -9,7 +9,7 @@ import net.loveruby.cflat.utils.ErrorHandler;
 import java.util.*;
 
 class CodeGenerator
-        implements net.loveruby.cflat.codegenerator.CodeGenerator,
+        implements net.loveruby.cflat.sysdep.CodeGenerator,
                 IRVisitor<Void,Void>,
                 ELFConstants {
     // #@@range/ctor{
