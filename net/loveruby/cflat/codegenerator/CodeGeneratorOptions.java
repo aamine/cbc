@@ -1,6 +1,4 @@
 package net.loveruby.cflat.codegenerator;
-import net.loveruby.cflat.asm.*;
-import java.util.*;
 
 public class CodeGeneratorOptions {
     protected int optimizeLevel;
@@ -19,19 +17,8 @@ public class CodeGeneratorOptions {
         this.optimizeLevel = level;
     }
 
-    public AsmOptimizer optimizer() {
-        if (optimizeLevel > 0) {
-            return PeepholeOptimizer.defaultSet();
-        }
-        else {
-            return new NullOptimizer();
-        }
-    }
-
-    class NullOptimizer implements AsmOptimizer {
-        public List<Assembly> optimize(List<Assembly> asms) {
-            return asms;
-        }
+    public int optimizeLevel() {
+        return optimizeLevel;
     }
 
     public void generateVerboseAsm() {

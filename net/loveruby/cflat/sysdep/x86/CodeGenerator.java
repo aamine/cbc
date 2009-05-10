@@ -381,8 +381,7 @@ class CodeGenerator
     private void compileFunctionBody(
             AssemblyFile file, DefinedFunction func) {
         AssemblyFile body = compileStmts(func);
-        List<Assembly> bodyAsms =
-                options.optimizer().optimize(body.assemblies());
+        List<Assembly> bodyAsms = optimize(body.assemblies());
         AsmStatistics stats = AsmStatistics.collect(bodyAsms);
         bodyAsms = reduceLabels(bodyAsms, stats);
         List<Register> saveRegs = usedCalleeSavedRegistersWithoutBP(stats);
@@ -408,6 +407,14 @@ class CodeGenerator
         epilogue(file, func, saveRegs, lvarBytes);
     }
     // #@@}
+
+    // #@@range/compileFunctionBody{
+    private List<Assembly> optimize(List<Assembly> asms) {
+        if (options.optimizeLevel() < 1) {
+            return asms;
+        }
+        return new PeepholeOptimizer().optimize(asms);
+    }
 
     private void printStackFrameLayout(
             AssemblyFile file,

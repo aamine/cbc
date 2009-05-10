@@ -1,9 +1,10 @@
-package net.loveruby.cflat.asm;
+package net.loveruby.cflat.sysdep.x86;
+import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.utils.Cursor;
 import java.util.*;
 
-public class PeepholeOptimizer implements AsmOptimizer {
-    protected Map<String, List<Filter>> filterSet;
+public class PeepholeOptimizer {
+    private Map<String, List<Filter>> filterSet;
 
     public PeepholeOptimizer() {
         this.filterSet = new HashMap<String, List<Filter>>();
@@ -42,7 +43,7 @@ public class PeepholeOptimizer implements AsmOptimizer {
         return result;
     }
 
-    protected Filter matchFilter(Cursor<Assembly> asms) {
+    private Filter matchFilter(Cursor<Assembly> asms) {
         Instruction insn = (Instruction)asms.current();
         List<Filter> filters = filterSet.get(insn.mnemonic());
         if (filters == null) return null;
@@ -61,7 +62,7 @@ public class PeepholeOptimizer implements AsmOptimizer {
         return set;
     }
 
-    protected void loadDefaultFilters() {
+    private void loadDefaultFilters() {
         PeepholeOptimizer set = this;
 
         // mov
@@ -168,11 +169,11 @@ public class PeepholeOptimizer implements AsmOptimizer {
         set.add(new JumpEliminationFilter());
     }
 
-    protected ImmediateValue imm(long n) {
+    private ImmediateValue imm(long n) {
         return new ImmediateValue(n);
     }
 
-    protected OperandPattern reg() {
+    private OperandPattern reg() {
         return new AnyRegisterPattern();
     }
 
@@ -187,8 +188,8 @@ public class PeepholeOptimizer implements AsmOptimizer {
     //
 
     class SingleInsnFilter extends Filter {
-        protected InsnPattern pattern;
-        protected InsnTransform transform;
+        private InsnPattern pattern;
+        private InsnTransform transform;
 
         public SingleInsnFilter(InsnPattern pattern, InsnTransform transform) {
             this.pattern = pattern;
@@ -215,9 +216,9 @@ public class PeepholeOptimizer implements AsmOptimizer {
     }
 
     class InsnPattern {
-        protected String name;
-        protected OperandPattern pattern1;
-        protected OperandPattern pattern2;
+        private String name;
+        private OperandPattern pattern1;
+        private OperandPattern pattern2;
 
         InsnPattern(String name, OperandPattern pat1, OperandPattern pat2) {
             this.name = name;
@@ -250,7 +251,7 @@ public class PeepholeOptimizer implements AsmOptimizer {
         public JumpEliminationFilter() {
         }
 
-        protected String[] jmpInsns() {
+        private String[] jmpInsns() {
             return new String[] { "jmp", "jz", "jne", "je", "jne" };
         }
 
@@ -279,7 +280,7 @@ public class PeepholeOptimizer implements AsmOptimizer {
          *          mov
          *          add
          */
-        protected boolean doesLabelFollows(Cursor<Assembly> asms, Symbol jmpDest) {
+        private boolean doesLabelFollows(Cursor<Assembly> asms, Symbol jmpDest) {
             while (asms.hasNext()) {
                 Assembly asm = asms.next();
                 if (asm.isLabel()) {
