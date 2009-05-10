@@ -1,17 +1,23 @@
 package net.loveruby.cflat.sysdep.x86;
 import net.loveruby.cflat.asm.*;
-import net.loveruby.cflat.utils.*;
+import net.loveruby.cflat.utils.TextUtils;
 import java.util.*;
 
 public class AssemblyFile {
-    protected List<Assembly> assemblies;
-    protected Type naturalType;
-    protected int commentIndentLevel;
+    private List<Assembly> assemblies;
+    private Type naturalType;
+    private long stackWordSize;
+    private boolean verbose;
+    private int commentIndentLevel;
 
-    public AssemblyFile(Type naturalType) {
-        this.assemblies = new ArrayList<Assembly>();
+    public AssemblyFile(
+            Type naturalType, long stackWordSize, boolean verbose) {
         this.naturalType = naturalType;
+        this.stackWordSize = stackWordSize;
+        this.verbose = verbose;
+        this.assemblies = new ArrayList<Assembly>();
         this.commentIndentLevel = 0;
+        initVirtualStack();
     }
 
     public List<Assembly> assemblies() {
@@ -184,6 +190,65 @@ public class AssemblyFile {
     public void _string(String str) {
         directive("\t.string\t" + TextUtils.dumpString(str));
     }
+
+    //
+    // Virtual Stack
+    //
+
+    // #@@range/virtual_stack{
+    private long stackPointer;
+    private long stackPointerMax;
+
+    void initVirtualStack() {
+        stackPointer = 0;
+        stackPointerMax = stackPointer;
+    }
+    // #@@}
+
+    // #@@range/maxTmpBytes{
+    long maxTmpBytes() {
+        return stackPointerMax;
+    }
+    // #@@}
+
+    // #@@range/stackTop{
+    IndirectMemoryReference stackTop() {
+        return new IndirectMemoryReference(-stackPointer, new Register("bp"));
+    }
+    // #@@}
+
+    // #@@range/virtualPush{
+    void virtualPush(Register reg) {
+        if (verbose) {
+            comment("push " + reg.name() + " -> " + stackTop());
+        }
+        extendVirtualStack(stackWordSize);
+        relocatableMov(reg, stackTop());
+    }
+    // #@@}
+
+    // #@@range/virtualPop{
+    void virtualPop(Register reg) {
+        if (verbose) {
+            comment("pop  " + reg.name() + " <- " + stackTop());
+        }
+        relocatableMov(stackTop(), reg);
+        rewindVirtualStack(stackWordSize);
+    }
+    // #@@}
+
+    // #@@range/extendVirtualStack{
+    void extendVirtualStack(long len) {
+        stackPointer += len;
+        stackPointerMax = Math.max(stackPointerMax, stackPointer);
+    }
+    // #@@}
+
+    // #@@range/rewindVirtualStack{
+    void rewindVirtualStack(long len) {
+        stackPointer -= len;
+    }
+    // #@@}
 
     //
     // Instructions

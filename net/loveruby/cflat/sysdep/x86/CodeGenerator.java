@@ -48,7 +48,8 @@ class CodeGenerator
     static final private Type NATURAL_TYPE = Type.INT32;
 
     private AssemblyFile newAssemblyFile() {
-        return new AssemblyFile(NATURAL_TYPE);
+        return new AssemblyFile(
+                NATURAL_TYPE, STACK_WORD_SIZE, options.isVerboseAsm());
     }
     // #@@}
 
@@ -379,9 +380,9 @@ class CodeGenerator
     // #@@range/compileFunctionBody{
     private void compileFunctionBody(
             AssemblyFile file, DefinedFunction func) {
-        initVirtualStack();
-        List<Assembly> bodyAsms = compileStmts(func);
-        long maxTmpBytes = maxTmpBytes();
+        AssemblyFile body = compileStmts(func);
+        List<Assembly> bodyAsms =
+                options.optimizer().optimize(body.assemblies());
         AsmStatistics stats = AsmStatistics.collect(bodyAsms);
         bodyAsms = reduceLabels(bodyAsms, stats);
         List<Register> saveRegs = usedCalleeSavedRegistersWithoutBP(stats);
@@ -392,12 +393,13 @@ class CodeGenerator
 
         if (options.isVerboseAsm()) {
             printStackFrameLayout(file,
-                    saveRegsBytes, lvarBytes, maxTmpBytes,
+                    saveRegsBytes, lvarBytes, body.maxTmpBytes(),
                     func.localVariables());
         }
 
-        initVirtualStack();
-        prologue(file, func, saveRegs, saveRegsBytes + lvarBytes + maxTmpBytes);
+        file.initVirtualStack();
+        prologue(file, func, saveRegs,
+                saveRegsBytes + lvarBytes + body.maxTmpBytes());
         if (options.isPositionIndependent()
                 && stats.doesRegisterUsed(GOTBaseReg())) {
             loadGOTBaseAddress(file, GOTBaseReg());
@@ -452,16 +454,14 @@ class CodeGenerator
     private AssemblyFile as;
     private Label epilogue;
 
-    private List<Assembly> compileStmts(DefinedFunction func) {
+    private AssemblyFile compileStmts(DefinedFunction func) {
         as = newAssemblyFile();
         epilogue = new Label();
         for (Stmt s : func.ir()) {
             compileStmt(s);
         }
         as.label(epilogue);
-        List<Assembly> asms = options.optimizer().optimize(as.assemblies());
-        as = null;
-        return asms;
+        return as;
     }
     // #@@}
 
@@ -527,7 +527,7 @@ class CodeGenerator
     // #@@range/saveRegisters{
     private void saveRegisters(AssemblyFile file, List<Register> saveRegs) {
         for (Register reg : saveRegs) {
-            virtualPush(file, reg);
+            file.virtualPush(reg);
         }
     }
     // #@@}
@@ -537,7 +537,7 @@ class CodeGenerator
             AssemblyFile file, List<Register> savedRegs) {
         ListIterator<Register> regs = savedRegs.listIterator(savedRegs.size());
         while (regs.hasPrevious()) {
-            virtualPop(file, regs.previous());
+            file.virtualPop(regs.previous());
         }
     }
     // #@@}
@@ -616,69 +616,6 @@ class CodeGenerator
         if (len > 0) {
             file.add(imm(len), sp());
         }
-    }
-    // #@@}
-
-    // #@@range/virtual_stack{
-    private long stackPointer;
-    private long stackPointerMax;
-
-    private void initVirtualStack() {
-        stackPointer = 0;
-        stackPointerMax = stackPointer;
-    }
-    // #@@}
-
-    // #@@range/maxTmpBytes{
-    private long maxTmpBytes() {
-        return stackPointerMax;
-    }
-    // #@@}
-
-    // #@@range/stackTop{
-    private IndirectMemoryReference stackTop() {
-        return mem(-stackPointer, bp());
-    }
-    // #@@}
-
-    // #@@range/virtualPush{
-    private void virtualPush(Register reg) {
-        virtualPush(as, reg);
-    }
-
-    private void virtualPush(AssemblyFile file, Register reg) {
-        if (options.isVerboseAsm()) {
-            file.comment("push " + reg.name() + " -> " + stackTop());
-        }
-        extendVirtualStack(STACK_WORD_SIZE);
-        file.relocatableMov(reg, stackTop());
-    }
-    // #@@}
-
-    // #@@range/virtualPop{
-    private void virtualPop(Register reg) {
-        virtualPop(as, reg);
-    }
-
-    private void virtualPop(AssemblyFile file, Register reg) {
-        if (options.isVerboseAsm()) {
-            file.comment("pop  " + reg.name() + " <- " + stackTop());
-        }
-        file.relocatableMov(stackTop(), reg);
-        rewindVirtualStack(STACK_WORD_SIZE);
-    }
-    // #@@}
-
-    // #@@range/extendVirtualStack{
-    private void extendVirtualStack(long len) {
-        stackPointer += len;
-        stackPointerMax = Math.max(stackPointerMax, stackPointer);
-    }
-    // #@@}
-
-    // #@@range/rewindVirtualStack{
-    private void rewindVirtualStack(long len) {
-        stackPointer -= len;
     }
     // #@@}
 
@@ -826,9 +763,9 @@ class CodeGenerator
         }
         else {
             compile(node.right());
-            virtualPush(reg("ax"));
+            as.virtualPush(reg("ax"));
             compile(node.left());
-            virtualPop(reg("cx"));
+            as.virtualPop(reg("cx"));
             right = reg("cx", node.type());
         }
         compileBinaryOp(node.type(), node.op(), reg("ax", node.type()), right);
@@ -1022,10 +959,10 @@ class CodeGenerator
         }
         else {
             compile(node.rhs());
-            virtualPush(reg("ax"));
+            as.virtualPush(reg("ax"));
             compileLHS(node.lhs());
             as.mov(reg("ax"), reg("cx"));
-            virtualPop(reg("ax"));
+            as.virtualPop(reg("ax"));
             save(node.lhs().type(), reg("ax"), mem(reg("cx")));
         }
         return null;
