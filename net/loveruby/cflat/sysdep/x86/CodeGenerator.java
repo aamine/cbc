@@ -1,15 +1,19 @@
-package net.loveruby.cflat.compiler;
-import net.loveruby.cflat.platform.Platform;
+package net.loveruby.cflat.sysdep.x86;
+import net.loveruby.cflat.compiler.CodeGeneratorOptions;
+import net.loveruby.cflat.compiler.ErrorHandler;
 import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.ir.*;
 import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.utils.AsmUtils;
 import java.util.*;
 
-public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
+public class CodeGenerator
+        implements net.loveruby.cflat.compiler.CodeGenerator,
+                IRVisitor<Void,Void>,
+                ELFConstants {
     // #@@range/ctor{
     protected CodeGeneratorOptions options;
-    protected Platform platform;
     protected ErrorHandler errorHandler;
     protected LinkedList<AssemblyFile> asStack;
     protected AssemblyFile as;
@@ -17,10 +21,8 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     protected Label epilogue;
 
     public CodeGenerator(CodeGeneratorOptions options,
-                         Platform platform,
                          ErrorHandler errorHandler) {
         this.options = options;
-        this.platform = platform;
         this.errorHandler = errorHandler;
         this.asStack = new LinkedList<AssemblyFile>();
     }
@@ -28,10 +30,12 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
 
     /** Compiles IR and generates assembly code. */
     // #@@range/generate{
+    static final private String CONST_SYMBOL_BASE = ".LC";
+    static final private String LABEL_SYMBOL_BASE = ".L";
+
     public String generate(IR ir) {
-        this.naturalType = ir.naturalType();
         pushAssembler();
-        SymbolTable constSymbols = new SymbolTable(AssemblyFile.CONST_SYMBOL_BASE);
+        SymbolTable constSymbols = new SymbolTable(CONST_SYMBOL_BASE);
         for (ConstantEntry ent : ir.constantTable().entries()) {
             locateConstant(ent, constSymbols);
         }
@@ -42,11 +46,13 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
             locateFunction(func);
         }
         compileIR(ir);
-        return popAssembler().toSource();
+        return popAssembler().toSource(new SymbolTable(LABEL_SYMBOL_BASE));
     }
     // #@@}
 
     // #@@range/pushAssembler{
+    static final private Type NATURAL_TYPE = Type.INT32;
+
     protected void pushAssembler() {
         this.as = new AssemblyFile(naturalType);
         asStack.add(this.as);
@@ -226,14 +232,12 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     // #@@}
 
     // #@@range/globalSymbol{
-    // platform dependent
     protected Symbol globalSymbol(String sym) {
         return new NamedSymbol(sym);
     }
     // #@@}
 
     // #@@range/privateSymbol{
-    // platform dependent
     protected Symbol privateSymbol(String sym) {
         return new NamedSymbol(sym);
     }
@@ -351,6 +355,18 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
      * ======================= stack bottom
      */
 
+    // #@@range/stackParams{
+    static final private long STACK_WORD_SIZE = 4;
+    // #@@}
+
+    public long alignStack(long size) {
+        return AsmUtils.align(size, STACK_WORD_SIZE);
+    }
+
+    public long stackSizeFromWordNum(long numWords) {
+        return numWords * STACK_WORD_SIZE;
+    }
+
     /** Compiles a function. */
     // #@@range/compileFunction{
     public void compileFunction(DefinedFunction func) {
@@ -376,7 +392,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
         AsmStatistics stats = AsmStatistics.collect(bodyAsms);
         bodyAsms = reduceLabels(bodyAsms, stats);
         List<Register> saveRegs = usedCalleeSavedRegistersWithoutBP(stats);
-        long saveRegsBytes = platform.stackSizeFromWordNum(saveRegs.size());
+        long saveRegsBytes = stackSizeFromWordNum(saveRegs.size());
         long lvarBytes = allocateLocalVariables(
                 func.body().scope(), saveRegsBytes);
         fixTmpOffsets(bodyAsms, saveRegsBytes + lvarBytes);
@@ -477,7 +493,6 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
 
     protected List<Register> calleeSavedRegistersCache = null;
 
-    // platform dependent
     protected List<Register> calleeSavedRegisters() {
         if (calleeSavedRegistersCache == null) {
             List<Register> regs = new ArrayList<Register>();
@@ -536,7 +551,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     protected void allocateParameters(DefinedFunction func) {
         long numWords = paramStartWordNum;
         for (Parameter var : func.parameters()) {
-            var.setMemref(mem(platform.stackSizeFromWordNum(numWords), bp()));
+            var.setMemref(mem(stackSizeFromWordNum(numWords), bp()));
             numWords++;
         }
     }
@@ -570,7 +585,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
     protected long allocateScope(LocalScope scope, long parentStackLen) {
         long len = parentStackLen;
         for (DefinedVariable var : scope.localVariables()) {
-            len = platform.alignStack(len + var.allocSize());
+            len = alignStack(len + var.allocSize());
             fixMemref((IndirectMemoryReference)var.memref(), -len);
         }
         // Allocate local variables in child scopes.
@@ -630,7 +645,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
 
     // #@@range/virtualPush{
     protected void virtualPush(Register reg) {
-        extendVirtualStack(platform.stackWordSize());
+        extendVirtualStack(STACK_WORD_SIZE);
         as.relocatableMov(reg, stackTop());
         if (options.isVerboseAsm()) {
             as.comment("push " + reg.name() + " -> " + stackTop());
@@ -644,7 +659,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
             as.comment("pop  " + reg.name() + " <- " + stackTop());
         }
         as.relocatableMov(stackTop(), reg);
-        rewindVirtualStack(platform.stackWordSize());
+        rewindVirtualStack(STACK_WORD_SIZE);
     }
     // #@@}
 
@@ -694,7 +709,7 @@ public class CodeGenerator implements IRVisitor<Void,Void>, ELFConstants {
         }
         // rewind stack
         // >4 bytes arguments are not supported.
-        rewindStack(platform.stackSizeFromWordNum(node.numArgs()));
+        rewindStack(stackSizeFromWordNum(node.numArgs()));
         return null;
     }
     // #@@}

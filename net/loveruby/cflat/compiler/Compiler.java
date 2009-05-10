@@ -212,8 +212,7 @@ public class Compiler {
     }
 
     protected String generateAssembly(IR ir, Options opts) {
-        CodeGenerator gen = new CodeGenerator(
-                opts.genOptions(), opts.platform(), errorHandler);
+        CodeGenerator gen = opts.codeGenerator(errorHandler);
         return gen.generate(ir);
     }
 

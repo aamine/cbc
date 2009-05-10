@@ -1,5 +1,5 @@
 package net.loveruby.cflat.compiler;
-import net.loveruby.cflat.platform.*;
+import net.loveruby.cflat.sysdep.x86.X86Linux;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.exception.*;
@@ -77,6 +77,10 @@ class Options {
         return platform.typeTable();
     }
 
+    CodeGenerator codeGenerator(ErrorHandler errorHandler) {
+        return platform.codeGenerator(genOptions, errorHandler);
+    }
+
     LibraryLoader loader() {
         return this.loader;
     }
@@ -91,10 +95,6 @@ class Options {
 
     boolean doesDebugParser() {
         return this.debugParser;
-    }
-
-    CodeGeneratorOptions genOptions() {
-        return genOptions;
     }
 
     List<String> asOptions() {

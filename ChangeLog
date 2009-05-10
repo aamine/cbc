@@ -1,3 +1,38 @@
+Sun May 10 22:42:07 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86: new package.
+
+	* net/loveruby/cflat/asm/ELFConstants.java ->
+	  net/loveruby/cflat/sysdep/x86
+
+	* net/loveruby/cflat/asm/AssemblyFile.java ->
+	  net/loveruby/cflat/sysdep/x86
+
+	net/loveruby/cflat/asm/Register.java
+
+	* net/loveruby/cflat/platform/X86Linux.java ->
+	  net/loveruby/cflat/sysdep/x86
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java ->
+	  net/loveruby/cflat/sysdep/x86
+
+	* net/loveruby/cflat/platform/Platform.java ->
+	  net/loveruby/cflat/compiler
+
+	* net/loveruby/cflat/sysdep/x86/Register.java: new file.
+
+	* net/loveruby/cflat/compiler/Options.java: new method
+	  #codeGenerator.
+
+	* net/loveruby/cflat/compiler/Compiler.java: get CodeGenerator
+	  from Options.
+
+	* net/loveruby/cflat/compiler/CodeGeneratorOptions.java: make
+	  public.
+
+	* net/loveruby/cflat/ir/IR.java: now naturalType is useless
+	  (provided by CodeGenerator).
+
 Sun May 10 20:24:13 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm/Assembler.java -> AssemblyFile.java

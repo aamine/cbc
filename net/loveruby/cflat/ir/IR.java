@@ -78,11 +78,6 @@ public class IR {
         return constantTable;
     }
 
-    public net.loveruby.cflat.asm.Type naturalType() {
-        // platform dependent!!!
-        return Type.INT32;
-    }
-
     public void dump() {
         dump(System.out);
     }

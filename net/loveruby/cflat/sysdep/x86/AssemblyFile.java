@@ -1,4 +1,5 @@
-package net.loveruby.cflat.asm;
+package net.loveruby.cflat.sysdep.x86;
+import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.utils.*;
 import java.util.*;
 
@@ -21,11 +22,7 @@ public class AssemblyFile {
         this.assemblies.addAll(assemblies);
     }
 
-    static final public String CODE_SYMBOL_BASE = ".L";
-    static final public String CONST_SYMBOL_BASE = ".LC";
-
-    public String toSource() {
-        SymbolTable symbolTable = new SymbolTable(CODE_SYMBOL_BASE);
+    public String toSource(SymbolTable symbolTable) {
         StringBuffer buf = new StringBuffer();
         for (Assembly asm : assemblies) {
             buf.append(asm.toSource(symbolTable));

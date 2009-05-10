@@ -1,4 +1,4 @@
-package net.loveruby.cflat.asm;
+package net.loveruby.cflat.sysdep.x86;
 
 public interface ELFConstants {
     // Flags

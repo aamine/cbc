@@ -2,7 +2,7 @@ package net.loveruby.cflat.compiler;
 import net.loveruby.cflat.asm.*;
 import java.util.*;
 
-class CodeGeneratorOptions {
+public class CodeGeneratorOptions {
     protected int optimizeLevel;
     protected boolean generatePIC;
     protected boolean generatePIE;
