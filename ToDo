@@ -9,6 +9,8 @@
 - refactoring: remove CodeGenerator.stackGrowsLower
 * refactoring: remove AssemblyFile stack.
 * refactoring: remove CodeGenerator#compileLHS (resolve in IR generation)
+* refactoring: classify Linker
+* refactoring: classify Assembler
 
 == Done
 
