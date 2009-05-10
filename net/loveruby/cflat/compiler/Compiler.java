@@ -1,8 +1,8 @@
 package net.loveruby.cflat.compiler;
-import net.loveruby.cflat.parser.*;
-import net.loveruby.cflat.type.*;
-import net.loveruby.cflat.ast.*;
-import net.loveruby.cflat.entity.DefinedFunction;
+import net.loveruby.cflat.parser.Parser;
+import net.loveruby.cflat.ast.AST;
+import net.loveruby.cflat.ast.StmtNode;
+import net.loveruby.cflat.ast.ExprNode;
 import net.loveruby.cflat.ir.IR;
 import net.loveruby.cflat.codegenerator.CodeGenerator;
 import net.loveruby.cflat.utils.ErrorHandler;
@@ -103,7 +103,7 @@ public class Compiler {
             AST ast = parseFile(src, opts);
             switch (opts.mode()) {
             case DumpTokens:
-                dumpTokens(ast.sourceTokens(), System.out);
+                ast.dumpTokens(System.out);
                 return;
             case DumpAST:
                 ast.dump();
@@ -147,48 +147,20 @@ public class Compiler {
         }
     }
 
-    protected void dumpTokens(CflatToken tokens, PrintStream s) {
-        for (CflatToken t : tokens) {
-            printPair(t.kindName(), t.dumpedImage(), s);
+    private StmtNode findStmt(AST ast) {
+        StmtNode stmt = ast.getSingleMainStmt();
+        if (stmt == null) {
+            errorExit("source file does not contains main()");
         }
+        return stmt;
     }
 
-    static final protected int numLeftColumns = 24;
-
-    protected void printPair(String key, String value, PrintStream s) {
-        s.print(key);
-        for (int n = numLeftColumns - key.length(); n > 0; n--) {
-            s.print(" ");
-        }
-        s.println(value);
-    }
-
-    protected StmtNode findStmt(AST ast) {
-        for (DefinedFunction f : ast.definedFunctions()) {
-            if (f.name().equals("main")) {
-                StmtNode stmt = f.body().stmts().get(0);
-                if (stmt == null) {
-                    errorExit("main() has no stmt");
-                }
-                return stmt;
-            }
-        }
-        errorExit("source file does not contains main()");
-        return null;   // never reach
-    }
-
-    protected ExprNode findExpr(AST ast) {
-        StmtNode stmt = findStmt(ast);
-        if (stmt instanceof ExprStmtNode) {
-            return ((ExprStmtNode)stmt).expr();
-        }
-        else if (stmt instanceof ReturnNode) {
-            return ((ReturnNode)stmt).expr();
-        }
-        else {
+    private ExprNode findExpr(AST ast) {
+        ExprNode expr = ast.getSingleMainExpr();
+        if (expr == null) {
             errorExit("source file does not contains single expression");
-            return null;   // never reach
         }
+        return expr;
     }
 
     protected AST parseFile(SourceFile src, Options opts)

@@ -1,3 +1,10 @@
+Mon May 11 01:31:29 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: move dumper code to
+	  AST to minimize Compiler code.
+
+	* net/loveruby/cflat/ast/AST.java: add dumper code.
+
 Mon May 11 01:05:58 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: generate address

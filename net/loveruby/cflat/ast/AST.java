@@ -1,10 +1,10 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.parser.Token;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.ir.IR;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.PrintStream;
 
 public class AST extends Node {
     protected Location source;
@@ -21,10 +21,6 @@ public class AST extends Node {
 
     public Location location() {
         return source;
-    }
-
-    public CflatToken sourceTokens() {
-        return source.token();
     }
 
     public List<TypeDefinition> types() {
@@ -115,4 +111,49 @@ public class AST extends Node {
         d.printNodeList("variables", definedVariables());
         d.printNodeList("functions", definedFunctions());
     }
+
+    public void dumpTokens(PrintStream s) {
+        for (CflatToken t : source.token()) {
+            printPair(t.kindName(), t.dumpedImage(), s);
+        }
+    }
+
+    static final private int NUM_LEFT_COLUMNS = 24;
+
+    private void printPair(String key, String value, PrintStream s) {
+        s.print(key);
+        for (int n = NUM_LEFT_COLUMNS - key.length(); n > 0; n--) {
+            s.print(" ");
+        }
+        s.println(value);
+    }
+
+    public StmtNode getSingleMainStmt() {
+        for (DefinedFunction f : definedFunctions()) {
+            if (f.name().equals("main")) {
+                if (f.body().stmts().isEmpty()) {
+                    return null;
+                }
+                return f.body().stmts().get(0);
+            }
+        }
+        return null;
+    }
+
+    public ExprNode getSingleMainExpr() {
+        StmtNode stmt = getSingleMainStmt();
+        if (stmt == null) {
+            return null;
+        }
+        else if (stmt instanceof ExprStmtNode) {
+            return ((ExprStmtNode)stmt).expr();
+        }
+        else if (stmt instanceof ReturnNode) {
+            return ((ReturnNode)stmt).expr();
+        }
+        else {
+            return null;
+        }
+    }
+
 }
