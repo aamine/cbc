@@ -8,23 +8,18 @@ import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.utils.AsmUtils;
 import java.util.*;
 
-public class CodeGenerator
+class CodeGenerator
         implements net.loveruby.cflat.compiler.CodeGenerator,
                 IRVisitor<Void,Void>,
                 ELFConstants {
     // #@@range/ctor{
-    protected CodeGeneratorOptions options;
-    protected ErrorHandler errorHandler;
-    protected LinkedList<AssemblyFile> asStack;
-    protected AssemblyFile as;
-    protected Type naturalType;
-    protected Label epilogue;
+    private CodeGeneratorOptions options;
+    private ErrorHandler errorHandler;
 
     public CodeGenerator(CodeGeneratorOptions options,
                          ErrorHandler errorHandler) {
         this.options = options;
         this.errorHandler = errorHandler;
-        this.asStack = new LinkedList<AssemblyFile>();
     }
     // #@@}
 
@@ -34,7 +29,6 @@ public class CodeGenerator
     static final private String LABEL_SYMBOL_BASE = ".L";
 
     public String generate(IR ir) {
-        pushAssembler();
         SymbolTable constSymbols = new SymbolTable(CONST_SYMBOL_BASE);
         for (ConstantEntry ent : ir.constantTable().entries()) {
             locateConstant(ent, constSymbols);
@@ -45,66 +39,59 @@ public class CodeGenerator
         for (Function func : ir.allFunctions()) {
             locateFunction(func);
         }
-        compileIR(ir);
-        return popAssembler().toSource(new SymbolTable(LABEL_SYMBOL_BASE));
+        AssemblyFile file = compileIR(ir);
+        return file.toSource(new SymbolTable(LABEL_SYMBOL_BASE));
     }
     // #@@}
 
-    // #@@range/pushAssembler{
+    // #@@range/newAssemblyFile{
     static final private Type NATURAL_TYPE = Type.INT32;
 
-    protected void pushAssembler() {
-        this.as = new AssemblyFile(naturalType);
-        asStack.add(this.as);
-    }
-    // #@@}
-
-    // #@@range/popAssembler{
-    protected AssemblyFile popAssembler() {
-        AssemblyFile popped = asStack.removeLast();
-        this.as = asStack.isEmpty() ? null : asStack.getLast();
-        return popped;
+    private AssemblyFile newAssemblyFile() {
+        return new AssemblyFile(NATURAL_TYPE);
     }
     // #@@}
 
     // #@@range/compileIR{
-    public void compileIR(IR ir) {
-        as._file(ir.fileName());
+    private AssemblyFile compileIR(IR ir) {
+        AssemblyFile file = newAssemblyFile();
+        file._file(ir.fileName());
         // .data
         List<DefinedVariable> gvars = ir.definedGlobalVariables();
         if (!gvars.isEmpty()) {
-            as._data();
+            file._data();
             for (DefinedVariable gvar : gvars) {
-                dataEntry(gvar);
+                dataEntry(file, gvar);
             }
         }
         if (!ir.constantTable().isEmpty()) {
-            as._section(".rodata");
+            file._section(".rodata");
             for (ConstantEntry ent : ir.constantTable()) {
-                compileStringLiteral(ent);
+                compileStringLiteral(file, ent);
             }
         }
         // .text
         if (ir.functionDefined()) {
-            as._text();
+            file._text();
             for (DefinedFunction func : ir.definedFunctions()) {
-                compileFunction(func);
+                compileFunction(file, func);
             }
         }
         // .bss
         for (DefinedVariable var : ir.definedCommonSymbols()) {
-            compileCommonSymbol(var);
+            compileCommonSymbol(file, var);
         }
         // others
         if (options.isPositionIndependent()) {
-            PICThunk(GOTBaseReg());
+            PICThunk(file, GOTBaseReg());
         }
+        return file;
     }
     // #@@}
 
     // #@@range/locateConstant{
-    protected void locateConstant(ConstantEntry ent, SymbolTable symbols) {
-        ent.setSymbol(symbols.newSymbol());
+    private void locateConstant(ConstantEntry ent, SymbolTable syms) {
+        ent.setSymbol(syms.newSymbol());
         if (options.isPositionIndependent()) {
             Symbol offset = localGOTSymbol(ent.symbol());
             ent.setMemref(mem(offset, GOTBaseReg()));
@@ -117,9 +104,8 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/locateGlobalVariable{
-    protected void locateGlobalVariable(Entity ent) {
-        Symbol sym = ent.isPrivate() ? privateSymbol(ent.symbolString())
-                                     : globalSymbol(ent.symbolString());
+    private void locateGlobalVariable(Entity ent) {
+        Symbol sym = symbol(ent.symbolString(), ent.isPrivate());
         if (options.isPositionIndependent()) {
             if (ent.isPrivate() || optimizeGvarAccess(ent)) {
                 ent.setMemref(mem(localGOTSymbol(sym), GOTBaseReg()));
@@ -135,14 +121,32 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/locateFunction{
-    protected void locateFunction(Function func) {
+    private void locateFunction(Function func) {
         func.setCallingSymbol(callingSymbol(func));
         locateGlobalVariable(func);
     }
     // #@@}
 
+    // #@@range/symbol{
+    private Symbol symbol(String sym, boolean isPrivate) {
+        return isPrivate ? privateSymbol(sym) : globalSymbol(sym);
+    }
+    // #@@}
+
+    // #@@range/globalSymbol{
+    private Symbol globalSymbol(String sym) {
+        return new NamedSymbol(sym);
+    }
+    // #@@}
+
+    // #@@range/privateSymbol{
+    private Symbol privateSymbol(String sym) {
+        return new NamedSymbol(sym);
+    }
+    // #@@}
+
     // #@@range/callingSymbol{
-    protected Symbol callingSymbol(Function func) {
+    private Symbol callingSymbol(Function func) {
         if (func.isPrivate()) {
             return privateSymbol(func.symbolString());
         }
@@ -157,42 +161,42 @@ public class CodeGenerator
     // In PIC, we do use indirect access for all global variables.
     // In PIE, we do use direct access for file-local reference.
     // #@@range/doesIndirectAccess{
-    protected boolean doesIndirectAccess(Entity ent) {
+    private boolean doesIndirectAccess(Entity ent) {
         return options.isPositionIndependent() && !optimizeGvarAccess(ent);
     }
     // #@@}
 
     // #@@range/optimizeGvarAccess{
-    protected boolean optimizeGvarAccess(Entity ent) {
+    private boolean optimizeGvarAccess(Entity ent) {
         return options.isPIERequired() && ent.isDefined();
     }
     // #@@}
 
     /** Generates initialized entries */
     // #@@range/dataEntry{
-    protected void dataEntry(DefinedVariable ent) {
+    private void dataEntry(AssemblyFile file, DefinedVariable ent) {
         Symbol sym = globalSymbol(ent.symbolString());
         if (!ent.isPrivate()) {
-            as._globl(sym);
+            file._globl(sym);
         }
-        as._align(ent.alignment());
-        as._type(sym, "@object");
-        as._size(sym, ent.allocSize());
-        as.label(sym);
-        compileImmediate(ent.type().allocSize(), ent.ir());
+        file._align(ent.alignment());
+        file._type(sym, "@object");
+        file._size(sym, ent.allocSize());
+        file.label(sym);
+        compileImmediate(file, ent.type().allocSize(), ent.ir());
     }
     // #@@}
 
     /** Generates immediate values for .data section */
     // #@@range/compileImmediates{
-    protected void compileImmediate(long size, Expr node) {
+    private void compileImmediate(AssemblyFile file, long size, Expr node) {
         if (node instanceof Int) {
             Int expr = (Int)node;
             switch ((int)size) {
-            case 1: as._byte(expr.value());    break;
-            case 2: as._value(expr.value());   break;
-            case 4: as._long(expr.value());    break;
-            case 8: as._quad(expr.value());    break;
+            case 1: file._byte(expr.value());    break;
+            case 2: file._value(expr.value());   break;
+            case 4: file._long(expr.value());    break;
+            case 8: file._quad(expr.value());    break;
             default:
                 throw new Error("entry size must be 1,2,4,8");
             }
@@ -200,8 +204,8 @@ public class CodeGenerator
         else if (node instanceof Str) {
             Str expr = (Str)node;
             switch ((int)size) {
-            case 4: as._long(expr.symbol());   break;
-            case 8: as._quad(expr.symbol());   break;
+            case 4: file._long(expr.symbol());   break;
+            case 8: file._quad(expr.symbol());   break;
             default:
                 throw new Error("pointer size must be 4,8");
             }
@@ -214,32 +218,20 @@ public class CodeGenerator
 
     /** Generates BSS entries */
     // #@@range/compileCommonSymbol{
-    protected void compileCommonSymbol(DefinedVariable var) {
+    private void compileCommonSymbol(AssemblyFile file, DefinedVariable var) {
         Symbol sym = globalSymbol(var.symbolString());
         if (var.isPrivate()) {
-            as._local(sym);
+            file._local(sym);
         }
-        as._comm(sym, var.allocSize(), var.alignment());
+        file._comm(sym, var.allocSize(), var.alignment());
     }
     // #@@}
 
     /** Generates .rodata entry (constant strings) */
     // #@@range/compileStringLiteral{
-    protected void compileStringLiteral(ConstantEntry ent) {
-        as.label(ent.symbol());
-        as._string(ent.value());
-    }
-    // #@@}
-
-    // #@@range/globalSymbol{
-    protected Symbol globalSymbol(String sym) {
-        return new NamedSymbol(sym);
-    }
-    // #@@}
-
-    // #@@range/privateSymbol{
-    protected Symbol privateSymbol(String sym) {
-        return new NamedSymbol(sym);
+    private void compileStringLiteral(AssemblyFile file, ConstantEntry ent) {
+        file.label(ent.symbol());
+        file._string(ent.value());
     }
     // #@@}
 
@@ -248,39 +240,39 @@ public class CodeGenerator
     //
 
     // #@@range/pic_methods{
-    static protected final Symbol GOT =
+    static private final Symbol GOT =
             new NamedSymbol("_GLOBAL_OFFSET_TABLE_");
 
-    protected void loadGOTBaseAddress(Register reg) {
-        as.call(PICThunkSymbol(reg));
-        as.add(imm(GOT), reg);
+    private void loadGOTBaseAddress(AssemblyFile file, Register reg) {
+        file.call(PICThunkSymbol(reg));
+        file.add(imm(GOT), reg);
     }
 
-    protected Register GOTBaseReg() {
+    private Register GOTBaseReg() {
         return reg("bx");
     }
     // #@@}
 
     // #@@range/pic_symbols{
-    protected Symbol globalGOTSymbol(Symbol base) {
+    private Symbol globalGOTSymbol(Symbol base) {
         return new SuffixedSymbol(base, "@GOT");
     }
 
-    protected Symbol localGOTSymbol(Symbol base) {
+    private Symbol localGOTSymbol(Symbol base) {
         return new SuffixedSymbol(base, "@GOTOFF");
     }
 
-    protected Symbol PLTSymbol(Symbol base) {
+    private Symbol PLTSymbol(Symbol base) {
         return new SuffixedSymbol(base, "@PLT");
     }
     // #@@}
 
     // #@@range/pic_thunk_helper{
-    protected Symbol PICThunkSymbol(Register reg) {
+    private Symbol PICThunkSymbol(Register reg) {
         return new NamedSymbol("__i686.get_pc_thunk." + reg.baseName());
     }
 
-    static protected final String
+    static private final String
     PICThunkSectionFlags = SectionFlag_allocatable
                          + SectionFlag_executable
                          + SectionFlag_sectiongroup;
@@ -299,19 +291,19 @@ public class CodeGenerator
      *     .section NAME, "...M", TYPE, section_group_name, linkage
      */
     // #@@range/PICThunk{
-    protected void PICThunk(Register reg) {
+    private void PICThunk(AssemblyFile file, Register reg) {
         Symbol sym = PICThunkSymbol(reg);
-        as._section(".text" + "." + sym.toSource(),
+        file._section(".text" + "." + sym.toSource(),
                  "\"" + PICThunkSectionFlags + "\"",
                  SectionType_bits,      // This section contains data
                  sym.toSource(),        // The name of section group
                 Linkage_linkonce);      // Only 1 copy should be generated
-        as._globl(sym);
-        as._hidden(sym);
-        as._type(sym, SymbolType_function);
-        as.label(sym);
-        as.mov(mem(sp()), reg);    // fetch saved EIP to the GOT base register
-        as.ret();
+        file._globl(sym);
+        file._hidden(sym);
+        file._type(sym, SymbolType_function);
+        file.label(sym);
+        file.mov(mem(sp()), reg);    // fetch saved EIP to the GOT base register
+        file.ret();
     }
     // #@@}
 
@@ -359,33 +351,34 @@ public class CodeGenerator
     static final private long STACK_WORD_SIZE = 4;
     // #@@}
 
-    public long alignStack(long size) {
+    private long alignStack(long size) {
         return AsmUtils.align(size, STACK_WORD_SIZE);
     }
 
-    public long stackSizeFromWordNum(long numWords) {
+    private long stackSizeFromWordNum(long numWords) {
         return numWords * STACK_WORD_SIZE;
     }
 
     /** Compiles a function. */
     // #@@range/compileFunction{
-    public void compileFunction(DefinedFunction func) {
+    private void compileFunction(AssemblyFile file, DefinedFunction func) {
         allocateParameters(func);
         allocateLocalVariablesTemp(func.body().scope());
 
         Symbol sym = globalSymbol(func.name());
         if (! func.isPrivate()) {
-            as._globl(sym);
+            file._globl(sym);
         }
-        as._type(sym, "@function");
-        as.label(sym);
-        compileFunctionBody(func);
-        as._size(sym, ".-" + sym.toSource());
+        file._type(sym, "@function");
+        file.label(sym);
+        compileFunctionBody(file, func);
+        file._size(sym, ".-" + sym.toSource());
     }
     // #@@}
 
     // #@@range/compileFunctionBody{
-    protected void compileFunctionBody(DefinedFunction func) {
+    private void compileFunctionBody(
+            AssemblyFile file, DefinedFunction func) {
         initVirtualStack();
         List<Assembly> bodyAsms = compileStmts(func);
         long maxTmpBytes = maxTmpBytes();
@@ -398,23 +391,24 @@ public class CodeGenerator
         fixTmpOffsets(bodyAsms, saveRegsBytes + lvarBytes);
 
         if (options.isVerboseAsm()) {
-            printStackFrameLayout(
+            printStackFrameLayout(file,
                     saveRegsBytes, lvarBytes, maxTmpBytes,
                     func.localVariables());
         }
 
         initVirtualStack();
-        prologue(func, saveRegs, saveRegsBytes + lvarBytes + maxTmpBytes);
+        prologue(file, func, saveRegs, saveRegsBytes + lvarBytes + maxTmpBytes);
         if (options.isPositionIndependent()
                 && stats.doesRegisterUsed(GOTBaseReg())) {
-            loadGOTBaseAddress(GOTBaseReg());
+            loadGOTBaseAddress(file, GOTBaseReg());
         }
-        as.addAll(bodyAsms);
-        epilogue(func, saveRegs, lvarBytes);
+        file.addAll(bodyAsms);
+        epilogue(file, func, saveRegs, lvarBytes);
     }
     // #@@}
 
-    protected void printStackFrameLayout(
+    private void printStackFrameLayout(
+            AssemblyFile file,
             long saveRegsBytes, long lvarBytes, long maxTmpBytes,
             List<DefinedVariable> lvars) {
         List<MemInfo> vars = new ArrayList<MemInfo>();
@@ -437,11 +431,11 @@ public class CodeGenerator
                 return x.mem.compareTo(y.mem);
             }
         });
-        as.comment("---- Stack Frame Layout -----------");
+        file.comment("---- Stack Frame Layout -----------");
         for (MemInfo info : vars) {
-            as.comment(info.mem.toString() + ": " + info.name);
+            file.comment(info.mem.toString() + ": " + info.name);
         }
-        as.comment("-----------------------------------");
+        file.comment("-----------------------------------");
     }
 
     class MemInfo {
@@ -455,19 +449,24 @@ public class CodeGenerator
     }
 
     // #@@range/compileStmts{
-    protected List<Assembly> compileStmts(DefinedFunction func) {
-        pushAssembler();
+    private AssemblyFile as;
+    private Label epilogue;
+
+    private List<Assembly> compileStmts(DefinedFunction func) {
+        as = newAssemblyFile();
         epilogue = new Label();
         for (Stmt s : func.ir()) {
             compileStmt(s);
         }
         as.label(epilogue);
-        return options.optimizer().optimize(popAssembler().assemblies());
+        List<Assembly> asms = options.optimizer().optimize(as.assemblies());
+        as = null;
+        return asms;
     }
     // #@@}
 
     // #@@range/reduceLabels{
-    protected List<Assembly> reduceLabels(List<Assembly> assemblies, AsmStatistics stats) {
+    private List<Assembly> reduceLabels(List<Assembly> assemblies, AsmStatistics stats) {
         List<Assembly> result = new ArrayList<Assembly>();
         for (Assembly asm : assemblies) {
             if (asm.isLabel() && ! stats.doesSymbolUsed((Label)asm)) {
@@ -481,7 +480,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    protected List<Register> usedCalleeSavedRegistersWithoutBP(AsmStatistics stats) {
+    private List<Register> usedCalleeSavedRegistersWithoutBP(AsmStatistics stats) {
         List<Register> result = new ArrayList<Register>();
         for (Register reg : calleeSavedRegisters()) {
             if (stats.doesRegisterUsed(reg) && !reg.equals(bp())) {
@@ -491,9 +490,9 @@ public class CodeGenerator
         return result;
     }
 
-    protected List<Register> calleeSavedRegistersCache = null;
+    private List<Register> calleeSavedRegistersCache = null;
 
-    protected List<Register> calleeSavedRegisters() {
+    private List<Register> calleeSavedRegisters() {
         if (calleeSavedRegistersCache == null) {
             List<Register> regs = new ArrayList<Register>();
             regs.add(reg("bx"));
@@ -506,40 +505,39 @@ public class CodeGenerator
     }
 
     // #@@range/prologue{
-    protected void prologue(DefinedFunction func,
-                            List<Register> saveRegs,
-                            long frameSize) {
-        as.push(bp());
-        as.mov(sp(), bp());
-        saveRegisters(saveRegs);
-        extendStack(frameSize);
+    private void prologue(AssemblyFile file, DefinedFunction func,
+            List<Register> saveRegs, long frameSize) {
+        file.push(bp());
+        file.mov(sp(), bp());
+        saveRegisters(file, saveRegs);
+        extendStack(file, frameSize);
     }
     // #@@}
 
     // #@@range/epilogue{
-    protected void epilogue(DefinedFunction func,
-                            List<Register> savedRegs,
-                            long lvarBytes) {
-        restoreRegisters(savedRegs);
-        as.mov(bp(), sp());
-        as.pop(bp());
-        as.ret();
+    private void epilogue(AssemblyFile file, DefinedFunction func,
+            List<Register> savedRegs, long lvarBytes) {
+        restoreRegisters(file, savedRegs);
+        file.mov(bp(), sp());
+        file.pop(bp());
+        file.ret();
     }
     // #@@}
 
     // #@@range/saveRegisters{
-    protected void saveRegisters(List<Register> saveRegs) {
+    private void saveRegisters(AssemblyFile file, List<Register> saveRegs) {
         for (Register reg : saveRegs) {
-            virtualPush(reg);
+            virtualPush(file, reg);
         }
     }
     // #@@}
 
     // #@@range/restoreRegisters{
-    protected void restoreRegisters(List<Register> savedRegs) {
+    private void restoreRegisters(
+            AssemblyFile file, List<Register> savedRegs) {
         ListIterator<Register> regs = savedRegs.listIterator(savedRegs.size());
         while (regs.hasPrevious()) {
-            virtualPop(regs.previous());
+            virtualPop(file, regs.previous());
         }
     }
     // #@@}
@@ -548,7 +546,7 @@ public class CodeGenerator
     static final private long paramStartWordNum = 2;
                                     // return addr and saved bp
 
-    protected void allocateParameters(DefinedFunction func) {
+    private void allocateParameters(DefinedFunction func) {
         long numWords = paramStartWordNum;
         for (Parameter var : func.parameters()) {
             var.setMemref(mem(stackSizeFromWordNum(numWords), bp()));
@@ -562,7 +560,7 @@ public class CodeGenerator
      * not determined, assign unfixed IndirectMemoryReference.
      */
     // #@@range/allocateVariablesTemp{
-    protected void allocateLocalVariablesTemp(LocalScope scope) {
+    private void allocateLocalVariablesTemp(LocalScope scope) {
         for (DefinedVariable var : scope.allLocalVariables()) {
             var.setMemref(new IndirectMemoryReference(bp()));
         }
@@ -575,14 +573,14 @@ public class CodeGenerator
      * Note that numSavedRegs includes bp.
      */
     // #@@range/allocateVariables{
-    protected long allocateLocalVariables(LocalScope scope, long initLen) {
+    private long allocateLocalVariables(LocalScope scope, long initLen) {
         long maxLen = allocateScope(scope, initLen);
         return maxLen - initLen;
     }
     // #@@}
 
     // #@@range/allocateScope{
-    protected long allocateScope(LocalScope scope, long parentStackLen) {
+    private long allocateScope(LocalScope scope, long parentStackLen) {
         long len = parentStackLen;
         for (DefinedVariable var : scope.localVariables()) {
             len = alignStack(len + var.allocSize());
@@ -600,84 +598,92 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/fixMemref{
-    protected void fixMemref(IndirectMemoryReference memref, long offset) {
+    private void fixMemref(IndirectMemoryReference memref, long offset) {
         memref.fixOffset(offset);
     }
     // #@@}
 
     // #@@range/extendStack{
-    protected void extendStack(long len) {
+    private void extendStack(AssemblyFile file, long len) {
         if (len > 0) {
-            as.sub(imm(len), sp());
+            file.sub(imm(len), sp());
         }
     }
     // #@@}
 
     // #@@range/rewindStack{
-    protected void rewindStack(long len) {
+    private void rewindStack(AssemblyFile file, long len) {
         if (len > 0) {
-            as.add(imm(len), sp());
+            file.add(imm(len), sp());
         }
     }
     // #@@}
 
     // #@@range/virtual_stack{
-    protected long stackPointer;
-    protected long stackPointerMax;
+    private long stackPointer;
+    private long stackPointerMax;
 
-    protected void initVirtualStack() {
+    private void initVirtualStack() {
         stackPointer = 0;
         stackPointerMax = stackPointer;
     }
     // #@@}
 
     // #@@range/maxTmpBytes{
-    protected long maxTmpBytes() {
+    private long maxTmpBytes() {
         return stackPointerMax;
     }
     // #@@}
 
     // #@@range/stackTop{
-    protected IndirectMemoryReference stackTop() {
+    private IndirectMemoryReference stackTop() {
         return mem(-stackPointer, bp());
     }
     // #@@}
 
     // #@@range/virtualPush{
-    protected void virtualPush(Register reg) {
-        extendVirtualStack(STACK_WORD_SIZE);
-        as.relocatableMov(reg, stackTop());
+    private void virtualPush(Register reg) {
+        virtualPush(as, reg);
+    }
+
+    private void virtualPush(AssemblyFile file, Register reg) {
         if (options.isVerboseAsm()) {
-            as.comment("push " + reg.name() + " -> " + stackTop());
+            file.comment("push " + reg.name() + " -> " + stackTop());
         }
+        extendVirtualStack(STACK_WORD_SIZE);
+        file.relocatableMov(reg, stackTop());
     }
     // #@@}
 
     // #@@range/virtualPop{
-    protected void virtualPop(Register reg) {
+    private void virtualPop(Register reg) {
+        virtualPop(as, reg);
+    }
+
+    private void virtualPop(AssemblyFile file, Register reg) {
         if (options.isVerboseAsm()) {
-            as.comment("pop  " + reg.name() + " <- " + stackTop());
+            file.comment("pop  " + reg.name() + " <- " + stackTop());
         }
-        as.relocatableMov(stackTop(), reg);
+        file.relocatableMov(stackTop(), reg);
         rewindVirtualStack(STACK_WORD_SIZE);
     }
     // #@@}
 
     // #@@range/extendVirtualStack{
-    protected void extendVirtualStack(long len) {
+    private void extendVirtualStack(long len) {
         stackPointer += len;
         stackPointerMax = Math.max(stackPointerMax, stackPointer);
     }
     // #@@}
 
     // #@@range/rewindVirtualStack{
-    protected void rewindVirtualStack(long len) {
+    private void rewindVirtualStack(long len) {
         stackPointer -= len;
     }
     // #@@}
 
     // #@@range/fixTmpOffsets{
-    protected void fixTmpOffsets(List<Assembly> asms, long offset) {
+    private void fixTmpOffsets(List<Assembly> asms, long offset) {
         for (Assembly asm : asms) {
             asm.fixStackOffset(-offset);
         }
@@ -709,7 +715,7 @@ public class CodeGenerator
         }
         // rewind stack
         // >4 bytes arguments are not supported.
-        rewindStack(stackSizeFromWordNum(node.numArgs()));
+        rewindStack(as, stackSizeFromWordNum(node.numArgs()));
         return null;
     }
     // #@@}
@@ -729,7 +735,7 @@ public class CodeGenerator
     //
 
     // #@@range/compileStmt{
-    protected void compileStmt(Stmt stmt) {
+    private void compileStmt(Stmt stmt) {
         if (options.isVerboseAsm()) {
             if (stmt.location() != null) {
                 as.comment(stmt.location().numberedLine());
@@ -793,7 +799,7 @@ public class CodeGenerator
     //
 
     // #@@range/compile{
-    protected void compile(Expr n) {
+    private void compile(Expr n) {
         if (options.isVerboseAsm()) {
             as.comment(n.getClass().getSimpleName() + " {");
             as.indentComment();
@@ -831,7 +837,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/doesSpillRegister{
-    protected boolean doesSpillRegister(Op op) {
+    private boolean doesSpillRegister(Op op) {
         switch (op) {
         case S_DIV:
         case U_DIV:
@@ -848,7 +854,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compileBinaryOp_begin{
-    protected void compileBinaryOp(Type t, Op op,
+    private void compileBinaryOp(Type t, Op op,
             Register left, AsmOperand right) {
         // #@@range/compileBinaryOp_arithops{
         switch (op) {
@@ -1050,7 +1056,7 @@ public class CodeGenerator
      * before calling this method.
      */
     // #@@range/loadConstant{
-    protected void loadConstant(Expr node, Register reg) {
+    private void loadConstant(Expr node, Register reg) {
         if (node.asmValue() != null) {
             as.mov(node.asmValue(), reg);
         }
@@ -1065,7 +1071,7 @@ public class CodeGenerator
 
     /** Loads variable value to the register. */
     // #@@range/loadVariable{
-    protected void loadVariable(Var var, Register dest) {
+    private void loadVariable(Var var, Register dest) {
         if (var.memref() == null) {
             as.mov(var.address(), dest);
             load(var.type(), mem(dest), dest);
@@ -1079,7 +1085,7 @@ public class CodeGenerator
 
     /** Loads the address of the variable to the register. */
     // #@@range/loadVariableAddress{
-    protected void loadVariableAddress(Var var, Register dest) {
+    private void loadVariableAddress(Var var, Register dest) {
         if (var.address() != null) {
             as.mov(var.address(), dest);
         }
@@ -1094,62 +1100,62 @@ public class CodeGenerator
     //
 
     // #@@range/dsl_regs{
-    protected Register bp() { return reg("bp"); }
-    protected Register sp() { return reg("sp"); }
-    protected Register al() { return new Register(1, "ax"); }
-    protected Register cl() { return new Register(1, "cx"); }
+    private Register bp() { return reg("bp"); }
+    private Register sp() { return reg("sp"); }
+    private Register al() { return new Register(1, "ax"); }
+    private Register cl() { return new Register(1, "cx"); }
     // #@@}
 
     // #@@range/reg{
-    protected Register reg(String name, Type type) {
+    private Register reg(String name, Type type) {
         return new Register(name).forType(type);
     }
 
-    protected Register reg(String name) {
+    private Register reg(String name) {
         return new Register(name);
     }
     // #@@}
 
     // #@@range/mem{
-    protected DirectMemoryReference mem(Symbol sym) {
+    private DirectMemoryReference mem(Symbol sym) {
         return new DirectMemoryReference(sym);
     }
 
-    protected IndirectMemoryReference mem(Register reg) {
+    private IndirectMemoryReference mem(Register reg) {
         return new IndirectMemoryReference(0, reg);
     }
 
-    protected IndirectMemoryReference mem(long offset, Register reg) {
+    private IndirectMemoryReference mem(long offset, Register reg) {
         return new IndirectMemoryReference(offset, reg);
     }
 
-    protected IndirectMemoryReference mem(Symbol offset, Register reg) {
+    private IndirectMemoryReference mem(Symbol offset, Register reg) {
         return new IndirectMemoryReference(offset, reg);
     }
     // #@@}
 
     // #@@range/imm{
-    protected ImmediateValue imm(long n) {
+    private ImmediateValue imm(long n) {
         return new ImmediateValue(n);
     }
 
-    protected ImmediateValue imm(Symbol sym) {
+    private ImmediateValue imm(Symbol sym) {
         return new ImmediateValue(sym);
     }
 
-    protected ImmediateValue imm(Literal lit) {
+    private ImmediateValue imm(Literal lit) {
         return new ImmediateValue(lit);
     }
     // #@@}
 
     // #@@range/load{
-    protected void load(Type type, MemoryReference mem, Register reg) {
+    private void load(Type type, MemoryReference mem, Register reg) {
         as.mov(type, mem, reg.forType(type));
     }
     // #@@}
 
     // #@@range/save{
-    protected void save(Type type, Register reg, MemoryReference mem) {
+    private void save(Type type, Register reg, MemoryReference mem) {
         as.mov(type, reg.forType(type), mem);
     }
     // #@@}

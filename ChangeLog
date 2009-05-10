@@ -1,3 +1,8 @@
+Sun May 10 22:46:47 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: protected ->
+	  private.
+
 Sun May 10 22:42:07 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86: new package.
