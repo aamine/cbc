@@ -10,8 +10,8 @@
 - refactoring: remove AssemblyFile stack.
 - refactoring: remove CodeGenerator#compileLHS (resolve in IR generation)
 - refactoring: CodeGeneratorOptions should not provide PeepholeOptimizer
-* refactoring: classify Linker
-* refactoring: classify Assembler
+- refactoring: classify Assembler
+- refactoring: classify Linker
 
 == Done
 
