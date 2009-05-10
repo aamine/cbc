@@ -11,6 +11,10 @@ public class Mem extends Expr {
 
     public Expr expr() { return expr; }
 
+    public Expr addressNode(Type type) {
+        return expr;
+    }
+
     public <S,E> E accept(IRVisitor<S,E> visitor) {
         return visitor.visit(this);
     }

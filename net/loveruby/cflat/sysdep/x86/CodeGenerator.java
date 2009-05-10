@@ -1,9 +1,9 @@
 package net.loveruby.cflat.sysdep.x86;
 import net.loveruby.cflat.codegenerator.*;
-import net.loveruby.cflat.ast.Location;
-import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.ir.*;
+import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.utils.AsmUtils;
 import net.loveruby.cflat.utils.ErrorHandler;
 import java.util.*;
@@ -758,7 +758,7 @@ class CodeGenerator
         }
         else if (node.right().isConstantAddress()) {
             compile(node.left());
-            loadVariable((Var)node.right(), reg("cx"));
+            loadVariable(((Var)node.right()), reg("cx"));
             right = reg("cx", node.type());
         }
         else {
@@ -930,21 +930,6 @@ class CodeGenerator
     // Assignable expressions
     //
 
-    private void compileLHS(Expr lhs) {
-        if (lhs instanceof Var) {
-            // for variables: apply loadVariableAddress
-            loadVariableAddress((Var)lhs, reg("ax"));
-        }
-        else if (lhs instanceof Mem) {
-            // for *expr: remove Mem
-            compile(((Mem)lhs).expr());
-        }
-        else {
-            // otherwise: fatal error
-            throw new Error("must not happen: " + lhs.getClass());
-        }
-    }
-
     // #@@range/compile_Assign{
     public Void visit(Assign node) {
         if (node.lhs().isConstantAddress() && node.lhs().memref() != null) {
@@ -952,7 +937,7 @@ class CodeGenerator
             save(node.lhs().type(), reg("ax"), node.lhs().memref());
         }
         else if (node.rhs().isConstant()) {
-            compileLHS(node.lhs());
+            compile(node.lhs());
             as.mov(reg("ax"), reg("cx"));
             loadConstant(node.rhs(), reg("ax"));
             save(node.lhs().type(), reg("ax"), mem(reg("cx")));
@@ -960,7 +945,7 @@ class CodeGenerator
         else {
             compile(node.rhs());
             as.virtualPush(reg("ax"));
-            compileLHS(node.lhs());
+            compile(node.lhs());
             as.mov(reg("ax"), reg("cx"));
             as.virtualPop(reg("ax"));
             save(node.lhs().type(), reg("ax"), mem(reg("cx")));
@@ -979,7 +964,7 @@ class CodeGenerator
 
     // #@@range/compile_Addr{
     public Void visit(Addr node) {
-        compileLHS(node.expr());
+        loadAddress(node.entity(), reg("ax"));
         return null;
     }
     // #@@}
@@ -1014,15 +999,14 @@ class CodeGenerator
             load(var.type(), mem(dest), dest);
         }
         else {
-            // regular variable
             load(var.type(), var.memref(), dest);
         }
     }
     // #@@}
 
     /** Loads the address of the variable to the register. */
-    // #@@range/loadVariableAddress{
-    private void loadVariableAddress(Var var, Register dest) {
+    // #@@range/loadAddress{
+    private void loadAddress(Entity var, Register dest) {
         if (var.address() != null) {
             as.mov(var.address(), dest);
         }
@@ -1031,10 +1015,6 @@ class CodeGenerator
         }
     }
     // #@@}
-
-    //
-    // x86 assembly DSL
-    //
 
     // #@@range/dsl_regs{
     private Register bp() { return reg("bp"); }

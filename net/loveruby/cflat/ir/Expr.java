@@ -1,5 +1,6 @@
 package net.loveruby.cflat.ir;
 import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.entity.Entity;
 
 abstract public class Expr implements Dumpable {
     protected Type type;
@@ -28,6 +29,14 @@ abstract public class Expr implements Dumpable {
 
     public MemoryReference memref() {
         throw new Error("Expr#memref called");
+    }
+
+    public Expr addressNode(Type type) {
+        throw new Error("unexpected node for LHS: " + getClass());
+    }
+
+    public Entity getEntityForce() {
+        return null;
     }
 
     abstract public <S,E> E accept(IRVisitor<S,E> visitor);

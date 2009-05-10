@@ -1,12 +1,13 @@
 package net.loveruby.cflat.ir;
 import net.loveruby.cflat.entity.Function;
+import net.loveruby.cflat.entity.Entity;
 import net.loveruby.cflat.asm.Type;
 import java.util.List;
 import java.util.ListIterator;
 
 public class Call extends Expr {
-    protected Expr expr;
-    protected List<Expr> args;
+    private Expr expr;
+    private List<Expr> args;
 
     public Call(Type type, Expr expr, List<Expr> args) {
         super(type);
@@ -27,9 +28,7 @@ public class Call extends Expr {
 
     /** Returns true if this funcall is NOT a function pointer call. */
     public boolean isStaticCall() {
-        Var var = getFunctionVariable();
-        if (var == null) return false;
-        return (var.entity() instanceof Function);
+        return (expr.getEntityForce() instanceof Function);
     }
 
     /**
@@ -37,23 +36,11 @@ public class Call extends Expr {
      * This method expects this is static function call (isStaticCall()).
      */
     public Function function() {
-        Var var = getFunctionVariable();
-        if (var == null) throw new Error("not a static funcall");
-        return (Function)var.entity();
-    }
-
-    private Var getFunctionVariable() {
-        if (expr instanceof Addr) {
-            Expr e = ((Addr)expr).expr();
-            if (! (e instanceof Var)) return null;
-            return (Var)e;
+        Entity ent = expr.getEntityForce();
+        if (ent == null) {
+            throw new Error("not a static funcall");
         }
-        else if (expr instanceof Var) {
-            return (Var)expr;
-        }
-        else {
-            return null;
-        }
+        return (Function)ent;
     }
 
     public <S,E> E accept(IRVisitor<S,E> visitor) {

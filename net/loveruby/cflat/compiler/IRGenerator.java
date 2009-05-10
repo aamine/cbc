@@ -75,16 +75,6 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         node.accept(this);
     }
 
-    private Expr transformLHS(ExprNode node) {
-        Expr result = transformExpr(node);
-        if (result instanceof Addr) {
-            return ((Addr)result).expr();
-        }
-        else {
-            return result;
-        }
-    }
-
     private boolean isStatement() {
         return (exprNestLevel == 0);
     }
@@ -334,7 +324,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     private void assign(Location loc, Expr lhs, Expr rhs) {
-        stmts.add(new Assign(loc, lhs, rhs));
+        stmts.add(new Assign(loc, addressOf(lhs), rhs));
     }
 
     private DefinedVariable tmpVar(Type t) {
@@ -448,14 +438,14 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         if (isStatement()) {
             // Evaluate RHS before LHS.
             Expr rhs = transformExpr(node.rhs());
-            assign(transformLHS(node.lhs()), rhs);
+            assign(transformExpr(node.lhs()), rhs);
             return null;
         }
         else {
             // lhs = rhs -> tmp = rhs, lhs = tmp, tmp
             DefinedVariable tmp = tmpVar(node.rhs().type());
             assign(ref(tmp), transformExpr(node.rhs()));
-            assign(transformLHS(node.lhs()), ref(tmp));
+            assign(transformExpr(node.lhs()), ref(tmp));
             return ref(tmp);
         }
     }
@@ -463,7 +453,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     public Expr visit(OpAssignNode node) {
         // Evaluate RHS before LHS.
         Expr rhs = transformExpr(node.rhs());
-        Expr lhs = transformLHS(node.lhs());
+        Expr lhs = transformExpr(node.lhs());
         return transformOpAssign(lhs,
                 Op.internBinary(node.operator(), node.rhs().type().isSigned()),
                 rhs,
@@ -501,14 +491,14 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     // transform node into: lhs += 1 or lhs -= 1
     public Expr visit(PrefixOpNode node) {
-        return transformOpAssign(transformLHS(node.expr()),
+        return transformOpAssign(transformExpr(node.expr()),
                 binOp(node.operator()),
                 intValue(1),
                 node.expr().type());
     }
 
     public Expr visit(SuffixOpNode node) {
-        Expr lhs = transformLHS(node.expr());
+        Expr lhs = transformExpr(node.expr());
         Op op = binOp(node.operator());
         if (isStatement()) {
             // expr++; -> expr += 1;
@@ -707,15 +697,9 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         return uniOp.equals("++") ? Op.ADD : Op.SUB;
     }
 
-    // add AddressNode on top of the expr.
     // #@@range/addressOf{
     private Expr addressOf(Expr expr) {
-        if (expr instanceof Mem) {
-            return ((Mem)expr).expr();
-        }
-        else {
-            return new Addr(pointer(), expr);
-        }
+        return expr.addressNode(pointer());
     }
     // #@@}
 

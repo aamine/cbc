@@ -1,21 +1,42 @@
 package net.loveruby.cflat.ir;
 import net.loveruby.cflat.asm.Type;
+import net.loveruby.cflat.asm.AsmOperand;
+import net.loveruby.cflat.asm.MemoryReference;
+import net.loveruby.cflat.entity.Entity;
 
 public class Addr extends Expr {
-    protected Expr expr;
+    Entity entity;
 
-    public Addr(Type type, Expr expr) {
+    public Addr(Type type, Entity entity) {
         super(type);
-        this.expr = expr;
+        this.entity = entity;
     }
 
-    public Expr expr() { return expr; }
+    public boolean isConstantAddress() { return true; }
+
+    public Entity entity() { return entity; }
+
+    public AsmOperand address() {
+        return entity.address();
+    }
+
+    public MemoryReference memref() {
+        return entity.memref();
+    }
+
+    public Addr addressNode(Type type) {
+        return this;
+    }
+
+    public Entity getEntityForce() {
+        return entity;
+    }
 
     public <S,E> E accept(IRVisitor<S,E> visitor) {
         return visitor.visit(this);
     }
 
     protected void _dump(Dumper d) {
-        d.printMember("expr", expr);
+        d.printMember("entity", entity.name());
     }
 }

@@ -1,6 +1,8 @@
 package net.loveruby.cflat.ir;
 import net.loveruby.cflat.entity.Entity;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.Type;
+import net.loveruby.cflat.asm.AsmOperand;
+import net.loveruby.cflat.asm.MemoryReference;
 
 public class Var extends Expr {
     protected Entity entity;
@@ -20,14 +22,20 @@ public class Var extends Expr {
     public String name() { return entity.name(); }
     public Entity entity() { return entity; }
 
-    public boolean isConstantAddress() { return true; }
-
     public AsmOperand address() {
         return entity.address();
     }
 
     public MemoryReference memref() {
         return entity.memref();
+    }
+
+    public Addr addressNode(Type type) {
+        return new Addr(type, entity);
+    }
+
+    public Entity getEntityForce() {
+        return entity;
     }
 
     public <S,E> E accept(IRVisitor<S,E> visitor) {

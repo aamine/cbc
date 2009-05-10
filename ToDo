@@ -7,8 +7,8 @@
 - make operators signed, instead of having signed value types.
 - refactoring: rename class: Assmebler -> AssermblyFile
 - refactoring: remove CodeGenerator.stackGrowsLower
-* refactoring: remove AssemblyFile stack.
-* refactoring: remove CodeGenerator#compileLHS (resolve in IR generation)
+- refactoring: remove AssemblyFile stack.
+- refactoring: remove CodeGenerator#compileLHS (resolve in IR generation)
 * refactoring: classify Linker
 * refactoring: classify Assembler
 

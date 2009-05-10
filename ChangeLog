@@ -1,3 +1,33 @@
+Mon May 11 01:05:58 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: generate address
+	  expression for LHS expr.
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: remove
+	  #compileLHS.  Just compile LHS expr.
+
+	* net/loveruby/cflat/ir/Addr.java: is a constant address now.
+
+	* net/loveruby/cflat/ir/Var.java: is not a constant address now.
+
+	* net/loveruby/cflat/ir/Expr.java: new base method #addressNode.
+
+	* net/loveruby/cflat/ir/Mem.java: override #addressNode.
+
+	* net/loveruby/cflat/ir/Var.java: ditto.
+
+	* net/loveruby/cflat/ir/Addr.java: ditto.
+
+	* net/loveruby/cflat/ir/Expr.java: new base method
+	  #getEntityForce.
+
+	* net/loveruby/cflat/ir/Var.java: override #getEntityForce.
+
+	* net/loveruby/cflat/ir/Addr.java: ditto.
+
+	* net/loveruby/cflat/ir/Call.java: get function entity by
+	  Expr#getEntityForce.
+
 Sun May 10 23:49:24 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: define SOURCE_ENCODING here
