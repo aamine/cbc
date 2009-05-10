@@ -2,16 +2,12 @@ package net.loveruby.cflat.asm;
 import net.loveruby.cflat.utils.*;
 import java.util.*;
 
-public class Assembler {
+public class AssemblyFile {
     protected List<Assembly> assemblies;
     protected Type naturalType;
     protected int commentIndentLevel;
 
-    static public long align(long n, long alignment) {
-        return (n + alignment - 1) / alignment * alignment;
-    }
-
-    public Assembler(Type naturalType) {
+    public AssemblyFile(Type naturalType) {
         this.assemblies = new ArrayList<Assembly>();
         this.naturalType = naturalType;
         this.commentIndentLevel = 0;

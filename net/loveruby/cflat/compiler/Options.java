@@ -1,4 +1,5 @@
 package net.loveruby.cflat.compiler;
+import net.loveruby.cflat.platform.*;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.exception.*;
@@ -7,55 +8,45 @@ import java.io.*;
 
 // package scope
 class Options {
-    protected CompilerMode mode;
-    protected TypeTable typeTable;
-    protected LibraryLoader loader;
-    protected String outputFileName;
-    protected boolean verbose;
-    protected boolean debugParser;
-    protected CodeGeneratorOptions genOptions;
-    protected List<String> asOptions;
-    protected boolean generatingSharedLibrary;
-    protected boolean generatingPIE;
-    protected List<LdArg> ldArgs;
-    protected boolean noStartFiles = false;
-    protected boolean noDefaultLibs = false;
+    CompilerMode mode;
+    LibraryLoader loader = new LibraryLoader();
+    Platform platform = new X86Linux();
+    String outputFileName;
+    boolean verbose = false;
+    boolean debugParser = false;
+    CodeGeneratorOptions genOptions = new CodeGeneratorOptions();
+    List<String> asOptions = new ArrayList<String>();
+    boolean generatingSharedLibrary = false;
+    boolean generatingPIE = false;
+    List<LdArg> ldArgs = new ArrayList<LdArg>();
+    boolean noStartFiles = false;
+    boolean noDefaultLibs = false;
 
-    public Options(TypeTable typeTable, LibraryLoader loader) {
-        this.typeTable = typeTable;
-        this.loader = loader;
-        this.genOptions = new CodeGeneratorOptions();
-        this.asOptions = new ArrayList<String>();
-        this.generatingSharedLibrary = false;
-        this.generatingPIE = false;
-        this.ldArgs = new ArrayList<LdArg>();
-    }
-
-    public CompilerMode mode() {
+    CompilerMode mode() {
         return mode;
     }
 
-    public boolean isAssembleRequired() {
+    boolean isAssembleRequired() {
         return mode.requires(CompilerMode.Assemble);
     }
 
-    public boolean isLinkRequired() {
+    boolean isLinkRequired() {
         return mode.requires(CompilerMode.Link);
     }
 
-    public String outputFileNameFor(CompilerMode mode) {
+    String outputFileNameFor(CompilerMode mode) {
         return this.mode == mode ? outputFileName : null;
     }
 
-    public String exeFileName() {
+    String exeFileName() {
         return getOutputFileName("");
     }
 
-    public String soFileName() {
+    String soFileName() {
         return getOutputFileName(".so");
     }
 
-    protected String getOutputFileName(String newExt) {
+    private String getOutputFileName(String newExt) {
         if (outputFileName != null) {
             return outputFileName;
         }
@@ -68,7 +59,7 @@ class Options {
         }
     }
 
-    protected List<SourceFile> sourceFiles() {
+    private List<SourceFile> sourceFiles() {
         List<SourceFile> result = new ArrayList<SourceFile>();
         for (LdArg arg : ldArgs) {
             if (arg.isSourceFile()) {
@@ -78,56 +69,60 @@ class Options {
         return result;
     }
 
-    public TypeTable typeTable() {
-        return this.typeTable;
+    Platform platform() {
+        return platform;
     }
 
-    public LibraryLoader loader() {
+    TypeTable typeTable() {
+        return platform.typeTable();
+    }
+
+    LibraryLoader loader() {
         return this.loader;
     }
 
-    public String outputFileName() {
+    String outputFileName() {
         return this.outputFileName;
     }
 
-    public boolean isVerboseMode() {
+    boolean isVerboseMode() {
         return this.verbose;
     }
 
-    public boolean doesDebugParser() {
+    boolean doesDebugParser() {
         return this.debugParser;
     }
 
-    public CodeGeneratorOptions genOptions() {
+    CodeGeneratorOptions genOptions() {
         return genOptions;
     }
 
-    public List<String> asOptions() {
+    List<String> asOptions() {
         return this.asOptions;
     }
 
-    public boolean isGeneratingSharedLibrary() {
+    boolean isGeneratingSharedLibrary() {
         return this.generatingSharedLibrary;
     }
 
-    public boolean isGeneratingPIE() {
+    boolean isGeneratingPIE() {
         return this.generatingPIE;
     }
 
-    public List<LdArg> ldArgs() {
+    List<LdArg> ldArgs() {
         return this.ldArgs;
     }
 
-    public boolean noStartFiles() {
+    boolean noStartFiles() {
         return this.noStartFiles;
     }
 
-    public boolean noDefaultLibs() {
+    boolean noDefaultLibs() {
         return this.noDefaultLibs;
     }
 
     /** Returns List<SourceFile>. */
-    public List<SourceFile> parse(List<String> argsList) {
+    List<SourceFile> parse(List<String> argsList) {
         List<SourceFile> srcs = new ArrayList<SourceFile>();
         ListIterator<String> args = argsList.listIterator();
         while (args.hasNext()) {
@@ -253,18 +248,18 @@ class Options {
         return srcs;
     }
 
-    protected void parseError(String msg) {
+    private void parseError(String msg) {
         throw new OptionParseError(msg);
     }
 
-    protected void addSourceFile(List<SourceFile> srcs, List<LdArg> ldArgs, String sourceName) {
+    private void addSourceFile(List<SourceFile> srcs, List<LdArg> ldArgs, String sourceName) {
         SourceFile src = new SourceFile(sourceName);
         srcs.add(src);
         // Original argument order does matter when linking.
         ldArgs.add(src);
     }
 
-    protected String getOptArg(String opt, ListIterator<String> args) {
+    private String getOptArg(String opt, ListIterator<String> args) {
         String path = opt.substring(2);
         if (path.length() != 0) {       // -Ipath
             return path;
@@ -274,7 +269,7 @@ class Options {
         }
     }
 
-    protected String nextArg(String opt, ListIterator<String> args) {
+    private String nextArg(String opt, ListIterator<String> args) {
         if (! args.hasNext()) {
             parseError("missing argument for " + opt);
         }
@@ -282,7 +277,7 @@ class Options {
     }
 
     /** "-Wl,-rpath,/usr/local/lib" -> ["-rpath", "/usr/local/lib"] */
-    protected List<String> parseCommaSeparatedOptions(String opt) {
+    private List<String> parseCommaSeparatedOptions(String opt) {
         List<String> opts = Arrays.asList(opt.split(","));
         opts.remove(0);  // remove "-Wl" etc.
         if (opts.isEmpty()) {
@@ -291,7 +286,7 @@ class Options {
         return opts;
     }
 
-    public void printUsage(PrintStream out) {
+    void printUsage(PrintStream out) {
         out.println("Usage: cbc [options] file...");
         out.println("Global Options:");
         out.println("  --check-syntax   Checks syntax and quit.");

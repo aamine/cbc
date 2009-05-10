@@ -25,12 +25,8 @@ public class Compiler {
     }
     // #@@}
 
-    private TypeTable defaultTypeTable() {
-        return TypeTable.ilp32();
-    }
-
     public void commandMain(String[] origArgs) {
-        Options opts = new Options(defaultTypeTable(), new LibraryLoader());
+        Options opts = new Options();
         List<SourceFile> srcs = null;
         try {
             srcs = opts.parse(Arrays.asList(origArgs));
@@ -118,7 +114,7 @@ public class Compiler {
                 findExpr(ast).dump();
                 return;
             }
-            ast.setTypeTable(opts.typeTable);
+            ast.setTypeTable(opts.typeTable());
             semanticAnalysis(ast, opts);
             switch (opts.mode()) {
             case DumpReference:
@@ -216,7 +212,8 @@ public class Compiler {
     }
 
     protected String generateAssembly(IR ir, Options opts) {
-        CodeGenerator gen = new CodeGenerator(opts.genOptions(), errorHandler);
+        CodeGenerator gen = new CodeGenerator(
+                opts.genOptions(), opts.platform(), errorHandler);
         return gen.generate(ir);
     }
 

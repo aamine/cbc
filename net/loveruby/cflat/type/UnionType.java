@@ -1,7 +1,7 @@
 package net.loveruby.cflat.type;
 import net.loveruby.cflat.ast.Slot;
 import net.loveruby.cflat.ast.Location;
-import net.loveruby.cflat.asm.Assembler;
+import net.loveruby.cflat.utils.AsmUtils;
 import java.util.*;
 
 public class UnionType extends CompositeType {
@@ -24,7 +24,7 @@ public class UnionType extends CompositeType {
             maxSize = Math.max(maxSize, s.allocSize());
             maxAlign = Math.max(maxAlign, s.alignment());
         }
-        cachedSize = Assembler.align(maxSize, maxAlign);
+        cachedSize = AsmUtils.align(maxSize, maxAlign);
         cachedAlign = maxAlign;
     }
 

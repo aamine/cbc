@@ -1,7 +1,7 @@
 package net.loveruby.cflat.type;
 import net.loveruby.cflat.ast.Slot;
 import net.loveruby.cflat.ast.Location;
-import net.loveruby.cflat.asm.Assembler;
+import net.loveruby.cflat.utils.AsmUtils;
 import java.util.*;
 
 public class StructType extends CompositeType {
@@ -20,12 +20,12 @@ public class StructType extends CompositeType {
         long offset = 0;
         long maxAlign = 1;
         for (Slot s : members()) {
-            offset = Assembler.align(offset, s.allocSize());
+            offset = AsmUtils.align(offset, s.allocSize());
             s.setOffset(offset);
             offset += s.allocSize();
             maxAlign = Math.max(maxAlign, s.alignment());
         }
-        cachedSize = Assembler.align(offset, maxAlign);
+        cachedSize = AsmUtils.align(offset, maxAlign);
         cachedAlign = maxAlign;
     }
 

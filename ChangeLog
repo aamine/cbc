@@ -1,3 +1,24 @@
+Sun May 10 20:24:13 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/Assembler.java -> AssemblyFile.java
+
+	* net/loveruby/cflat/utils/AsmUtils.java: split #align from
+	  AssemblyFile.
+
+	* net/loveruby/cflat/type/StructType.java: use it.
+
+	* net/loveruby/cflat/type/UnionType.java: use it.
+
+	* net/loveruby/cflat/platform: new package to extract platform
+	  dependent operations.
+
+	* net/loveruby/cflat/compiler/Compiler.java: use it.
+
+	* net/loveruby/cflat/compiler/CodeGenerator.java: use it.
+
+	* net/loveruby/cflat/compiler/Options.java: provide Platform
+	  object.
+
 Thu May  7 13:00:09 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: should not return
