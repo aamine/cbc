@@ -4,7 +4,11 @@
 
 - generate IR
 - simplify IR node name: IntValue -> Int, StringValue -> Str.
-* make operators signed, instead of having signed value types.
+- make operators signed, instead of having signed value types.
+- refactoring: rename class: Assmebler -> AssermblyFile
+- refactoring: remove CodeGenerator.stackGrowsLower
+* refactoring: remove AssemblyFile stack.
+* refactoring: remove CodeGenerator#compileLHS (resolve in IR generation)
 
 == Done
 
