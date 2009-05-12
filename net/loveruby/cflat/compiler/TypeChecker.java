@@ -26,8 +26,9 @@ class TypeChecker extends Visitor {
     }
 
     // #@@range/check_AST{
-    public void check(AST ast) throws SemanticException {
-        this.typeTable = ast.typeTable();
+    public void check(AST ast, TypeTable typeTable)
+                                        throws SemanticException {
+        this.typeTable = typeTable;
         for (DefinedVariable var : ast.definedVariables()) {
             checkVariable(var);
         }

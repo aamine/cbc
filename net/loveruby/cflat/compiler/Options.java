@@ -12,17 +12,23 @@ import java.util.Arrays;
 import java.io.PrintStream;
 
 class Options {
-    CompilerMode mode = CompilerMode.Link;
-    LibraryLoader loader = new LibraryLoader();
-    Platform platform = new X86Linux();
-    String outputFileName;
-    boolean verbose = false;
-    boolean debugParser = false;
-    CodeGeneratorOptions genOptions = new CodeGeneratorOptions();
-    AssemblerOptions asOptions = new AssemblerOptions();
-    LinkerOptions ldOptions = new LinkerOptions();
-    List<LdArg> ldArgs;
-    List<SourceFile> sourceFiles;
+    static Options parse(String[] args) {
+        Options opts = new Options();
+        opts.parseArgs(args);
+        return opts;
+    }
+
+    private CompilerMode mode = CompilerMode.Link;
+    private Platform platform = new X86Linux();
+    private String outputFileName;
+    private boolean verbose = false;
+    private LibraryLoader loader = new LibraryLoader();
+    private boolean debugParser = false;
+    private CodeGeneratorOptions genOptions = new CodeGeneratorOptions();
+    private AssemblerOptions asOptions = new AssemblerOptions();
+    private LinkerOptions ldOptions = new LinkerOptions();
+    private List<LdArg> ldArgs;
+    private List<SourceFile> sourceFiles;
 
     CompilerMode mode() {
         return mode;
@@ -36,29 +42,43 @@ class Options {
         return mode.requires(CompilerMode.Link);
     }
 
-    String outputFileNameFor(CompilerMode mode) {
-        return this.mode == mode ? outputFileName : null;
+    List<SourceFile> sourceFiles() {
+        return sourceFiles;
+    }
+
+    String asmFileNameOf(SourceFile src) {
+        if (outputFileName != null && mode == CompilerMode.Compile) {
+            return outputFileName;
+        }
+        return src.asmFileName();
+    }
+
+    String objFileNameOf(SourceFile src) {
+        if (outputFileName != null && mode == CompilerMode.Assemble) {
+            return outputFileName;
+        }
+        return src.objFileName();
     }
 
     String exeFileName() {
-        return getOutputFileName("");
+        return linkedFileName("");
     }
 
     String soFileName() {
-        return getOutputFileName(".so");
+        return linkedFileName(".so");
     }
 
-    static private final String DEFAULT_OUTPUT_FILE_NAME = "a.out";
+    static private final String DEFAULT_LINKER_OUTPUT = "a.out";
 
-    private String getOutputFileName(String newExt) {
+    private String linkedFileName(String newExt) {
         if (outputFileName != null) {
             return outputFileName;
         }
         if (sourceFiles.size() == 1) {
-            return sourceFiles.get(0).linkedFileName(this, newExt);
+            return sourceFiles.get(0).linkedFileName(newExt);
         }
         else {
-            return DEFAULT_OUTPUT_FILE_NAME;
+            return DEFAULT_LINKER_OUTPUT;
         }
     }
 
@@ -114,10 +134,10 @@ class Options {
         return ldOptions.generatingSharedLibrary;
     }
 
-    List<SourceFile> parse(List<String> argsList) {
+    void parseArgs(String[] origArgs) {
         sourceFiles = new ArrayList<SourceFile>();
         ldArgs = new ArrayList<LdArg>();
-        ListIterator<String> args = argsList.listIterator();
+        ListIterator<String> args = Arrays.asList(origArgs).listIterator();
         while (args.hasNext()) {
             String arg = args.next();
             if (arg.equals("--")) {
@@ -244,7 +264,6 @@ class Options {
                 && ! isLinkRequired()) {
             parseError("-o option requires only 1 input (except linking)");
         }
-        return sourceFiles;
     }
 
     private void parseError(String msg) {

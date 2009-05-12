@@ -3,6 +3,7 @@ import net.loveruby.cflat.parser.Parser;
 import net.loveruby.cflat.ast.AST;
 import net.loveruby.cflat.ast.StmtNode;
 import net.loveruby.cflat.ast.ExprNode;
+import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.ir.IR;
 import net.loveruby.cflat.sysdep.CodeGenerator;
 import net.loveruby.cflat.utils.ErrorHandler;
@@ -26,50 +27,51 @@ public class Compiler {
     }
     // #@@}
 
-    public void commandMain(String[] origArgs) {
-        Options opts = new Options();
-        List<SourceFile> srcs = null;
+    public void commandMain(String[] args) {
+        Options opts = parseOptions(args);
+        if (opts.mode() == CompilerMode.CheckSyntax) {
+            System.exit(checkSyntax(opts) ? 0 : 1);
+        }
         try {
-            srcs = opts.parse(Arrays.asList(origArgs));
+            List<SourceFile> srcs = opts.sourceFiles();
+            build(srcs, opts);
+            System.exit(0);
+        }
+        catch (CompileException ex) {
+            errorHandler.error(ex.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private Options parseOptions(String[] args) {
+        try {
+            return Options.parse(args);
         }
         catch (OptionParseError err) {
             errorHandler.error(err.getMessage());
             errorHandler.error("Try cbc --help for option usage");
             System.exit(1);
-        }
-        if (opts.mode() == CompilerMode.CheckSyntax) {
-            boolean failed = false;
-            for (SourceFile src : srcs) {
-                if (isValidSyntax(src, opts)) {
-                    System.out.println(src.name() + ": Syntax OK");
-                }
-                else {
-                    System.out.println(src.name() + ": Syntax Error");
-                    failed = true;
-                }
-            }
-            System.exit(failed ? 1 : 0);
-        }
-        else {
-            try {
-                buildTarget(srcs, opts);
-                System.exit(0);
-            }
-            catch (CompileException ex) {
-                errorHandler.error(ex.getMessage());
-                System.exit(1);
-            }
+            return null;   // never reach
         }
     }
 
-    private void errorExit(String msg) {
-        errorHandler.error(msg);
-        System.exit(1);
+    private boolean checkSyntax(Options opts) {
+        boolean failed = false;
+        for (SourceFile src : opts.sourceFiles()) {
+            if (isValidSyntax(src.path(), opts)) {
+                System.out.println(src.path() + ": Syntax OK");
+            }
+            else {
+                System.out.println(src.path() + ": Syntax Error");
+                failed = true;
+            }
+        }
+        return !failed;
     }
 
-    private boolean isValidSyntax(SourceFile src, Options opts) {
+    private boolean isValidSyntax(String path, Options opts) {
         try {
-            parseFile(src, opts);
+            parseFile(path, opts);
             return true;
         }
         catch (SyntaxException ex) {
@@ -81,107 +83,59 @@ public class Compiler {
         }
     }
 
-    // #@@range/buildTarget{
-    public void buildTarget(List<SourceFile> srcs, Options opts)
+    // #@@range/build{
+    public void build(List<SourceFile> srcs, Options opts)
                                         throws CompileException {
         for (SourceFile src : srcs) {
-            compileFile(src, opts);
+            if (src.isCflatSource()) {
+                String destPath = opts.asmFileNameOf(src);
+                compile(src.path(), destPath, opts);
+                src.setCurrentName(destPath);
+            }
+            if (! opts.isAssembleRequired()) continue;
+            if (src.isAssemblySource()) {
+                String destPath = opts.objFileNameOf(src);
+                assemble(src.path(), destPath, opts);
+                src.setCurrentName(destPath);
+            }
         }
-        if (! opts.isLinkRequired()) System.exit(0);
-        if (! opts.isGeneratingSharedLibrary()) {
-            generateExecutable(opts);
-        }
-        else {
-            generateSharedLibrary(opts);
-        }
+        if (! opts.isLinkRequired()) return;
+        link(opts);
     }
     // #@@}
 
-    public void compileFile(SourceFile src, Options opts)
-                                        throws CompileException {
-        if (src.isCflatSource()) {
-            AST ast = parseFile(src, opts);
-            switch (opts.mode()) {
-            case DumpTokens:
-                ast.dumpTokens(System.out);
-                return;
-            case DumpAST:
-                ast.dump();
-                return;
-            case DumpStmt:
-                findStmt(ast).dump();
-                return;
-            case DumpExpr:
-                findExpr(ast).dump();
-                return;
-            }
-            ast.setTypeTable(opts.typeTable());
-            semanticAnalysis(ast, opts);
-            switch (opts.mode()) {
-            case DumpReference:
-                return;
-            case DumpSemantic:
-                ast.dump();
-                return;
-            }
-            IR ir = new IRGenerator(errorHandler).generate(ast);
-            if (opts.mode() == CompilerMode.DumpIR) {
-                ir.dump();
-                return;
-            }
-            String asm = generateAssembly(ir, opts);
-            if (opts.mode() == CompilerMode.DumpAsm) {
-                System.out.println(asm);
-                return;
-            }
-            writeFile(src.asmFileName(opts), asm);
-            src.setCurrentName(src.asmFileName(opts));
-            if (opts.mode() == CompilerMode.Compile) {
-                return;
-            }
-        }
-        if (! opts.isAssembleRequired()) return;
-        if (src.isAssemblySource()) {
-            assemble(src.asmFileName(opts), src.objFileName(opts), opts);
-            src.setCurrentName(src.objFileName(opts));
-        }
+    public void compile(String srcPath, String destPath,
+                        Options opts) throws CompileException {
+        AST ast = parseFile(srcPath, opts);
+        if (dumpAST(ast, opts.mode())) return;
+        TypeTable types = opts.typeTable();
+        AST sem = semanticAnalyze(ast, types, opts);
+        if (dumpSemant(sem, opts.mode())) return;
+        IR ir = new IRGenerator(errorHandler).generate(sem, types);
+        if (dumpIR(ir, opts.mode())) return;
+        String asm = generateAssembly(ir, opts);
+        if (dumpAsm(asm, opts.mode())) return;
+        writeFile(destPath, asm);
     }
 
-    private StmtNode findStmt(AST ast) {
-        StmtNode stmt = ast.getSingleMainStmt();
-        if (stmt == null) {
-            errorExit("source file does not contains main()");
-        }
-        return stmt;
-    }
-
-    private ExprNode findExpr(AST ast) {
-        ExprNode expr = ast.getSingleMainExpr();
-        if (expr == null) {
-            errorExit("source file does not contains single expression");
-        }
-        return expr;
-    }
-
-    public AST parseFile(SourceFile src, Options opts)
+    public AST parseFile(String path, Options opts)
                             throws SyntaxException, FileException {
-        return Parser.parseFile(new File(src.currentName()),
-                                opts.loader(),
-                                errorHandler,
-                                opts.doesDebugParser());
+        return Parser.parseFile(new File(path),
+                opts.loader(), errorHandler, opts.doesDebugParser());
     }
 
-    public void semanticAnalysis(AST ast, Options opts)
-                                        throws SemanticException {
+    public AST semanticAnalyze(AST ast, TypeTable typeTable,
+                Options opts) throws SemanticException {
         new LocalResolver(errorHandler).resolve(ast);
-        new TypeResolver(errorHandler).resolve(ast);
-        ast.typeTable().semanticCheck(errorHandler);
+        new TypeResolver(errorHandler).resolve(ast, typeTable);
+        typeTable.semanticCheck(errorHandler);
         new DereferenceChecker(errorHandler).check(ast);
         if (opts.mode() == CompilerMode.DumpReference) {
             ast.dump();
-            return;
+            return ast;
         }
-        new TypeChecker(errorHandler).check(ast);
+        new TypeChecker(errorHandler).check(ast, typeTable);
+        return ast;
     }
 
     public String generateAssembly(IR ir, Options opts) {
@@ -189,21 +143,29 @@ public class Compiler {
         return gen.generate(ir);
     }
 
-    private void assemble(String srcPath,
-                            String destPath,
+    public void assemble(String srcPath, String destPath,
                             Options opts) throws IPCException {
         opts.assembler(errorHandler)
             .assemble(srcPath, destPath, opts.asOptions());
     }
 
-    private void generateExecutable(Options opts) throws IPCException {
-        opts.linker(errorHandler).generateExecutable(
-                opts.exeFileName(), opts.ldArgs(), opts.ldOptions());
+    public void link(Options opts) throws IPCException {
+        if (! opts.isGeneratingSharedLibrary()) {
+            generateExecutable(opts);
+        }
+        else {
+            generateSharedLibrary(opts);
+        }
     }
 
-    private void generateSharedLibrary(Options opts) throws IPCException {
+    public void generateExecutable(Options opts) throws IPCException {
+        opts.linker(errorHandler).generateExecutable(
+                opts.ldArgs(), opts.exeFileName(), opts.ldOptions());
+    }
+
+    public void generateSharedLibrary(Options opts) throws IPCException {
         opts.linker(errorHandler).generateSharedLibrary(
-                opts.soFileName(), opts.ldArgs(), opts.ldOptions());
+                opts.ldArgs(), opts.soFileName(), opts.ldOptions());
     }
 
     private void writeFile(String path, String str)
@@ -226,5 +188,77 @@ public class Compiler {
             errorHandler.error("IO error" + ex.getMessage());
             throw new FileException("file error");
         }
+    }
+
+    private boolean dumpAST(AST ast, CompilerMode mode) {
+        switch (mode) {
+        case DumpTokens:
+            ast.dumpTokens(System.out);
+            return true;
+        case DumpAST:
+            ast.dump();
+            return true;
+        case DumpStmt:
+            findStmt(ast).dump();
+            return true;
+        case DumpExpr:
+            findExpr(ast).dump();
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    private StmtNode findStmt(AST ast) {
+        StmtNode stmt = ast.getSingleMainStmt();
+        if (stmt == null) {
+            errorExit("source file does not contains main()");
+        }
+        return stmt;
+    }
+
+    private ExprNode findExpr(AST ast) {
+        ExprNode expr = ast.getSingleMainExpr();
+        if (expr == null) {
+            errorExit("source file does not contains single expression");
+        }
+        return expr;
+    }
+
+    private boolean dumpSemant(AST ast, CompilerMode mode) {
+        switch (mode) {
+        case DumpReference:
+            return true;
+        case DumpSemantic:
+            ast.dump();
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    private boolean dumpIR(IR ir, CompilerMode mode) {
+        if (mode == CompilerMode.DumpIR) {
+            ir.dump();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private boolean dumpAsm(String asm, CompilerMode mode) {
+        if (mode == CompilerMode.DumpAsm) {
+            System.out.println(asm);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private void errorExit(String msg) {
+        errorHandler.error(msg);
+        System.exit(1);
     }
 }

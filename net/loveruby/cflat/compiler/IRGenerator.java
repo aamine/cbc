@@ -20,8 +20,9 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     // #@@}
 
     // #@@range/generate{
-    public IR generate(AST ast) throws SemanticException {
-        typeTable = ast.typeTable();
+    public IR generate(AST ast, TypeTable typeTable)
+                            throws SemanticException {
+        this.typeTable = typeTable;
         for (DefinedVariable var : ast.definedVariables()) {
             if (var.hasInitializer()) {
                 var.setIR(transformExpr(var.initializer()));

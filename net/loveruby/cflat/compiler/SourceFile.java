@@ -18,16 +18,12 @@ class SourceFile implements LdArg {
         return currentName;
     }
 
-    String name() {
-        return originalName();
-    }
-
-    String originalName() {
-        return this.originalName;
+    String path() {
+        return currentName;
     }
 
     String currentName() {
-        return this.currentName;
+        return currentName;
     }
 
     void setCurrentName(String name) {
@@ -58,20 +54,16 @@ class SourceFile implements LdArg {
         return extName(currentName).equals("");
     }
 
-    String asmFileName(Options opts) {
-        return or(opts.outputFileNameFor(CompilerMode.Compile), replaceExt(".s"));
+    String asmFileName() {
+        return replaceExt(".s");
     }
 
-    String objFileName(Options opts) {
-        return or(opts.outputFileNameFor(CompilerMode.Assemble), replaceExt(".o"));
+    String objFileName() {
+        return replaceExt(".o");
     }
 
-    String linkedFileName(Options opts, String newExt) {
-        return or(opts.outputFileName, replaceExt(newExt));
-    }
-
-    private String or(String x, String y) {
-        return x != null ? x : y;
+    String linkedFileName(String newExt) {
+        return replaceExt(newExt);
     }
 
     private String replaceExt(String ext) {

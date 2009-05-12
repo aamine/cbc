@@ -1,3 +1,24 @@
+Wed May 13 03:22:46 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* compiler/Compiler.java: grand refactoring.
+
+	* compiler/Options.java: refactoring: avoid ping-pong call with
+	  SourceFile.
+
+	* compiler/SourceFile.java: ditto.
+
+	* ast/AST.java: does not contain a TypeTable.
+
+	* compiler/IRGenerator.java
+
+	* compiler/TypeResolver.java
+
+	* compiler/TypeChecker.java
+
+	* sysdep/Linker.java: change arg order.
+
+	* sysdep/GNULinker.java: ditto.
+
 Wed May 13 01:22:12 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/utils/CommandUtils.java: accept a list of

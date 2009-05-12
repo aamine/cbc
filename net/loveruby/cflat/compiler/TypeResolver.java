@@ -18,8 +18,8 @@ public class TypeResolver extends Visitor
     // #@@}
 
     // #@@range/resolveProgram{
-    public void resolve(AST ast) {
-        this.typeTable = ast.typeTable();
+    public void resolve(AST ast, TypeTable typeTable) {
+        this.typeTable = typeTable;
         defineTypes(ast.types());
         // #@@range/resolveProgram_core{
         for (TypeDefinition t : ast.types()) {

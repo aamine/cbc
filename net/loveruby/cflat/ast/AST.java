@@ -1,5 +1,4 @@
 package net.loveruby.cflat.ast;
-import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.ir.IR;
 import java.util.List;
@@ -11,7 +10,6 @@ public class AST extends Node {
     protected Declarations declarations;
     protected ToplevelScope scope;
     protected ConstantTable constantTable;
-    protected TypeTable typeTable;
 
     public AST(Location source, Declarations declarations) {
         super();
@@ -51,21 +49,6 @@ public class AST extends Node {
 
     public List<DefinedFunction> definedFunctions() {
         return declarations.defuns();
-    }
-
-    // called by Compiler
-    public void setTypeTable(TypeTable table) {
-        if (typeTable != null) {
-            throw new Error("must not happen: AST.typeTable set twice");
-        }
-        this.typeTable = table;
-    }
-
-    public TypeTable typeTable() {
-        if (typeTable == null) {
-            throw new Error("must not happen: AST.typeTable is null");
-        }
-        return this.typeTable;
     }
 
     // called by LocalResolver
