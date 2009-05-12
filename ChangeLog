@@ -1,3 +1,30 @@
+Wed May 13 01:22:12 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/utils/CommandUtils.java: accept a list of
+	  string instead of CommandArg.
+
+	* net/loveruby/cflat/sysdep/Linker.java: ditto.
+
+	* net/loveruby/cflat/sysdep/LinkerOptions.java: ditto.
+
+	* net/loveruby/cflat/sysdep/GNULinker.java: ditto.
+
+	* net/loveruby/cflat/sysdep/AssemblerOptions.java: ditto.
+
+	* net/loveruby/cflat/sysdep/GNUAssembler.java: ditto.
+
+	* net/loveruby/cflat/utils/CommandArgStr.java ->
+	  compiler/LdOption.java
+
+	* net/loveruby/cflat/utils/CommandArg.java -> compiler/LdArg.java
+
+	* net/loveruby/cflat/compiler/SourceFile.java: CommandArg ->
+	  LdArg.
+
+	* net/loveruby/cflat/compiler/Compiler.java: ditto.
+
+	* net/loveruby/cflat/compiler/Options.java: ditto.
+
 Mon May 11 03:17:32 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: objectify assembler.

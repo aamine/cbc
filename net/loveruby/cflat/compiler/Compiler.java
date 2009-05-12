@@ -197,13 +197,13 @@ public class Compiler {
     }
 
     private void generateExecutable(Options opts) throws IPCException {
-        opts.linker(errorHandler)
-            .generateExecutable(opts.exeFileName(), opts.ldOptions());
+        opts.linker(errorHandler).generateExecutable(
+                opts.exeFileName(), opts.ldArgs(), opts.ldOptions());
     }
 
     private void generateSharedLibrary(Options opts) throws IPCException {
-        opts.linker(errorHandler)
-            .generateSharedLibrary(opts.soFileName(), opts.ldOptions());
+        opts.linker(errorHandler).generateSharedLibrary(
+                opts.soFileName(), opts.ldArgs(), opts.ldOptions());
     }
 
     private void writeFile(String path, String str)

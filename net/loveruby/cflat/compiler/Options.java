@@ -3,15 +3,16 @@ import net.loveruby.cflat.parser.LibraryLoader;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.sysdep.*;
-import net.loveruby.cflat.sysdep.X86Linux;
-import net.loveruby.cflat.utils.CommandArg;
 import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
-import java.util.*;
-import java.io.*;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.io.PrintStream;
 
 class Options {
-    CompilerMode mode;
+    CompilerMode mode = CompilerMode.Link;
     LibraryLoader loader = new LibraryLoader();
     Platform platform = new X86Linux();
     String outputFileName;
@@ -20,6 +21,8 @@ class Options {
     CodeGeneratorOptions genOptions = new CodeGeneratorOptions();
     AssemblerOptions asOptions = new AssemblerOptions();
     LinkerOptions ldOptions = new LinkerOptions();
+    List<LdArg> ldArgs;
+    List<SourceFile> sourceFiles;
 
     CompilerMode mode() {
         return mode;
@@ -45,27 +48,18 @@ class Options {
         return getOutputFileName(".so");
     }
 
+    static private final String DEFAULT_OUTPUT_FILE_NAME = "a.out";
+
     private String getOutputFileName(String newExt) {
         if (outputFileName != null) {
             return outputFileName;
         }
-        List<SourceFile> srcs = sourceFiles();
-        if (srcs.size() == 1) {
-            return srcs.get(0).linkedFileName(this, newExt);
+        if (sourceFiles.size() == 1) {
+            return sourceFiles.get(0).linkedFileName(this, newExt);
         }
         else {
-            return "a.out";
+            return DEFAULT_OUTPUT_FILE_NAME;
         }
-    }
-
-    private List<SourceFile> sourceFiles() {
-        List<SourceFile> result = new ArrayList<SourceFile>();
-        for (CommandArg arg : ldOptions.args()) {
-            if (arg.isSourceFile()) {
-                result.add((SourceFile)arg);
-            }
-        }
-        return result;
     }
 
     String outputFileName() {
@@ -108,13 +102,21 @@ class Options {
         return ldOptions;
     }
 
+    List<String> ldArgs() {
+        List<String> result = new ArrayList<String>();
+        for (LdArg arg : ldArgs) {
+            result.add(arg.toString());
+        }
+        return result;
+    }
+
     boolean isGeneratingSharedLibrary() {
         return ldOptions.generatingSharedLibrary;
     }
 
-    /** Returns List<SourceFile>. */
     List<SourceFile> parse(List<String> argsList) {
-        List<SourceFile> srcs = new ArrayList<SourceFile>();
+        sourceFiles = new ArrayList<SourceFile>();
+        ldArgs = new ArrayList<LdArg>();
         ListIterator<String> args = argsList.listIterator();
         while (args.hasNext()) {
             String arg = args.next();
@@ -166,7 +168,7 @@ class Options {
                     asOptions.addArg(nextArg(arg, args));
                 }
                 else if (arg.equals("-static")) {
-                    ldOptions.addArg(arg);
+                    addLdArg(arg);
                 }
                 else if (arg.equals("-shared")) {
                     ldOptions.generatingSharedLibrary = true;
@@ -175,18 +177,18 @@ class Options {
                     ldOptions.generatingPIE = true;
                 }
                 else if (arg.equals("--readonly-plt")) {
-                    ldOptions.addArg("-z");
-                    ldOptions.addArg("combreloc");
-                    ldOptions.addArg("-z");
-                    ldOptions.addArg("now");
-                    ldOptions.addArg("-z");
-                    ldOptions.addArg("relro");
+                    addLdArg("-z");
+                    addLdArg("combreloc");
+                    addLdArg("-z");
+                    addLdArg("now");
+                    addLdArg("-z");
+                    addLdArg("relro");
                 }
                 else if (arg.startsWith("-L")) {
-                    ldOptions.addArg("-L" + getOptArg(arg, args));
+                    addLdArg("-L" + getOptArg(arg, args));
                 }
                 else if (arg.startsWith("-l")) {
-                    ldOptions.addArg("-l" + getOptArg(arg, args));
+                    addLdArg("-l" + getOptArg(arg, args));
                 }
                 else if (arg.equals("-nostartfiles")) {
                     ldOptions.noStartFiles = true;
@@ -200,11 +202,11 @@ class Options {
                 }
                 else if (arg.startsWith("-Wl,")) {
                     for (String opt : parseCommaSeparatedOptions(arg)) {
-                        ldOptions.addArg(opt);
+                        addLdArg(opt);
                     }
                 }
                 else if (arg.equals("-Xlinker")) {
-                    ldOptions.addArg(nextArg(arg, args));
+                    addLdArg(nextArg(arg, args));
                 }
                 else if (arg.equals("-v")) {
                     verbose = true;
@@ -225,33 +227,42 @@ class Options {
                 }
             }
             else {
-                // source file
-                addSourceFile(srcs, arg);
+                ldArgs.add(new SourceFile(arg));
             }
         }
         // args has more arguments when "--" is appeared.
         while (args.hasNext()) {
-            addSourceFile(srcs, args.next());
+            ldArgs.add(new SourceFile(args.next()));
         }
-        if (srcs.isEmpty()) parseError("no input file");
-        if (mode == null) {
-            mode = CompilerMode.Link;
+
+        sourceFiles = selectSourceFiles(ldArgs);
+        if (sourceFiles.isEmpty()) {
+            parseError("no input file");
         }
-        if (! isLinkRequired() && outputFileName != null && srcs.size() > 1) {
-            parseError("-o option requires only 1 input not on linking");
+        if (outputFileName != null
+                && sourceFiles.size() > 1
+                && ! isLinkRequired()) {
+            parseError("-o option requires only 1 input (except linking)");
         }
-        return srcs;
+        return sourceFiles;
     }
 
     private void parseError(String msg) {
         throw new OptionParseError(msg);
     }
 
-    private void addSourceFile(List<SourceFile> srcs, String sourceName) {
-        SourceFile src = new SourceFile(sourceName);
-        srcs.add(src);
-        // Original argument order does matter when linking.
-        ldOptions.addArg(src);
+    private void addLdArg(String arg) {
+        ldArgs.add(new LdOption(arg));
+    }
+
+    private List<SourceFile> selectSourceFiles(List<LdArg> args) {
+        List<SourceFile> result = new ArrayList<SourceFile>();
+        for (LdArg arg : args) {
+            if (arg.isSourceFile()) {
+                result.add((SourceFile)arg);
+            }
+        }
+        return result;
     }
 
     private String getOptArg(String opt, ListIterator<String> args) {

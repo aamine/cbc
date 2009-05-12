@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.io.*;
 
 abstract public class CommandUtils {
-    static public void invoke(List<CommandArg> cmdArgs,
+    static public void invoke(List<String> cmdArgs,
             ErrorHandler errorHandler, boolean debug) throws IPCException {
         if (debug) {
             dumpCommand(cmdArgs);
         }
         try {
-            String[] cmd = getStrings(cmdArgs);
+            String[] cmd = cmdArgs.toArray(new String[] {});
             Process proc = Runtime.getRuntime().exec(cmd);
             proc.waitFor();
             passThrough(proc.getInputStream());
@@ -32,20 +32,11 @@ abstract public class CommandUtils {
         }
     }
 
-    static private String[] getStrings(List<CommandArg> list) {
-        String[] result = new String[list.size()];
-        int idx = 0;
-        for (CommandArg arg : list) {
-            result[idx++] = arg.toString();
-        }
-        return result;
-    }
-
-    static private void dumpCommand(List<CommandArg> args) {
+    static private void dumpCommand(List<String> args) {
         String sep = "";
-        for (CommandArg arg : args) {
+        for (String arg : args) {
             System.out.print(sep); sep = " ";
-            System.out.print(arg.toString());
+            System.out.print(arg);
         }
         System.out.println("");
     }

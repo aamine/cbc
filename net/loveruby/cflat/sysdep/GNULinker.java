@@ -1,7 +1,5 @@
 package net.loveruby.cflat.sysdep;
 import net.loveruby.cflat.utils.CommandUtils;
-import net.loveruby.cflat.utils.CommandArg;
-import net.loveruby.cflat.utils.CommandArgStr;
 import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.IPCException;
 import java.util.List;
@@ -20,56 +18,52 @@ class GNULinker implements Linker {
         this.errorHandler = errorHandler;
     }
 
-    public void generateExecutable(
-            String destPath, LinkerOptions opts) throws IPCException {
-        List<CommandArg> cmd = new ArrayList<CommandArg>();
-        cmd.add(arg("ld"));
-        cmd.add(arg("-dynamic-linker"));
-        cmd.add(arg(DYNAMIC_LINKER));
+    public void generateExecutable(String destPath,
+            List<String> args, LinkerOptions opts) throws IPCException {
+        List<String> cmd = new ArrayList<String>();
+        cmd.add("ld");
+        cmd.add("-dynamic-linker");
+        cmd.add(DYNAMIC_LINKER);
         if (opts.generatingPIE) {
-            cmd.add(arg("-pie"));
+            cmd.add("-pie");
         }
         if (! opts.noStartFiles) {
-            cmd.add(arg(opts.generatingPIE
+            cmd.add(opts.generatingPIE
                         ? C_RUNTIME_START_PIE
-                        : C_RUNTIME_START));
-            cmd.add(arg(C_RUNTIME_INIT));
+                        : C_RUNTIME_START);
+            cmd.add(C_RUNTIME_INIT);
         }
-        cmd.addAll(opts.args);
+        cmd.addAll(args);
         if (! opts.noDefaultLibs) {
-            cmd.add(arg("-lc"));
-            cmd.add(arg("-lcbc"));
+            cmd.add("-lc");
+            cmd.add("-lcbc");
         }
         if (! opts.noStartFiles) {
-            cmd.add(arg(C_RUNTIME_FINI));
+            cmd.add(C_RUNTIME_FINI);
         }
-        cmd.add(arg("-o"));
-        cmd.add(arg(destPath));
+        cmd.add("-o");
+        cmd.add(destPath);
         CommandUtils.invoke(cmd, errorHandler, opts.verbose);
     }
 
-    public void generateSharedLibrary(
-            String destPath, LinkerOptions opts) throws IPCException {
-        List<CommandArg> cmd = new ArrayList<CommandArg>();
-        cmd.add(arg("ld"));
-        cmd.add(arg("-shared"));
+    public void generateSharedLibrary(String destPath,
+            List<String> args, LinkerOptions opts) throws IPCException {
+        List<String> cmd = new ArrayList<String>();
+        cmd.add("ld");
+        cmd.add("-shared");
         if (! opts.noStartFiles) {
-            cmd.add(arg(C_RUNTIME_INIT));
+            cmd.add(C_RUNTIME_INIT);
         }
-        cmd.addAll(opts.args);
+        cmd.addAll(args);
         if (! opts.noDefaultLibs) {
-            cmd.add(arg("-lc"));
-            cmd.add(arg("-lcbc"));
+            cmd.add("-lc");
+            cmd.add("-lcbc");
         }
         if (! opts.noStartFiles) {
-            cmd.add(arg(C_RUNTIME_FINI));
+            cmd.add(C_RUNTIME_FINI);
         }
-        cmd.add(arg("-o"));
-        cmd.add(arg(destPath));
+        cmd.add("-o");
+        cmd.add(destPath);
         CommandUtils.invoke(cmd, errorHandler, opts.verbose);
-    }
-
-    private CommandArg arg(String a) {
-        return new CommandArgStr(a);
     }
 }

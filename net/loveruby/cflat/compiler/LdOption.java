@@ -1,9 +1,9 @@
-package net.loveruby.cflat.utils;
+package net.loveruby.cflat.compiler;
 
-public class CommandArgStr implements CommandArg {
+class LdOption implements LdArg {
     private String arg;
 
-    public CommandArgStr(String arg) {
+    LdOption(String arg) {
         this.arg = arg;
     }
 
