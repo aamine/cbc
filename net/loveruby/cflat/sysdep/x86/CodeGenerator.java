@@ -1036,7 +1036,7 @@ public class CodeGenerator
     private Register cl() { return new Register(RegKind.CX, Type.INT8); }
 
     private Register ax(Type t) { return new Register(RegKind.AX, t); }
-    private Register cx(Type t) { return new Register(RegKind.AX, t); }
+    private Register cx(Type t) { return new Register(RegKind.CX, t); }
     // #@@}
 
     // #@@range/mem{

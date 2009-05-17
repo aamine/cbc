@@ -1,3 +1,7 @@
+Sat May 16 18:10:31 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: fix typo.
+
 Sat May 16 18:03:22 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: parameterize
