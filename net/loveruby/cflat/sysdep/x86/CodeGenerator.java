@@ -414,7 +414,7 @@ public class CodeGenerator
         if (options.optimizeLevel() < 1) {
             return asms;
         }
-        return new PeepholeOptimizer().optimize(asms);
+        return PeepholeOptimizer.defaultSet().optimize(asms);
     }
     // #@@}
 
