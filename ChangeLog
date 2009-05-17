@@ -1,3 +1,10 @@
+Sat May 16 18:03:22 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: parameterize
+	  naturalType.
+
+	* net/loveruby/cflat/sysdep/X86Linux.java: provide parameter.
+
 Sat May 16 17:48:49 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/AssemblyFile.java: use Type

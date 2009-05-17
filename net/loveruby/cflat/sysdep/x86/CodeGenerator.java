@@ -14,11 +14,14 @@ public class CodeGenerator
                 ELFConstants {
     // #@@range/ctor{
     private CodeGeneratorOptions options;
+    private Type naturalType;
     private ErrorHandler errorHandler;
 
     public CodeGenerator(CodeGeneratorOptions options,
+                         Type naturalType,
                          ErrorHandler errorHandler) {
         this.options = options;
+        this.naturalType = naturalType;
         this.errorHandler = errorHandler;
     }
     // #@@}
@@ -45,11 +48,9 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/newAssemblyFile{
-    static final private Type NATURAL_TYPE = Type.INT32;
-
     private AssemblyFile newAssemblyFile() {
         return new AssemblyFile(
-                NATURAL_TYPE, STACK_WORD_SIZE, options.isVerboseAsm());
+                naturalType, STACK_WORD_SIZE, options.isVerboseAsm());
     }
     // #@@}
 
@@ -1022,14 +1023,14 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/reg_dsls{
-    private Register ax() { return new Register(RegKind.AX, NATURAL_TYPE); }
-    private Register bx() { return new Register(RegKind.BX, NATURAL_TYPE); }
-    private Register cx() { return new Register(RegKind.CX, NATURAL_TYPE); }
-    private Register dx() { return new Register(RegKind.DX, NATURAL_TYPE); }
-    private Register si() { return new Register(RegKind.SI, NATURAL_TYPE); }
-    private Register di() { return new Register(RegKind.DI, NATURAL_TYPE); }
-    private Register bp() { return new Register(RegKind.BP, NATURAL_TYPE); }
-    private Register sp() { return new Register(RegKind.SP, NATURAL_TYPE); }
+    private Register ax() { return new Register(RegKind.AX, naturalType); }
+    private Register bx() { return new Register(RegKind.BX, naturalType); }
+    private Register cx() { return new Register(RegKind.CX, naturalType); }
+    private Register dx() { return new Register(RegKind.DX, naturalType); }
+    private Register si() { return new Register(RegKind.SI, naturalType); }
+    private Register di() { return new Register(RegKind.DI, naturalType); }
+    private Register bp() { return new Register(RegKind.BP, naturalType); }
+    private Register sp() { return new Register(RegKind.SP, naturalType); }
 
     private Register al() { return new Register(RegKind.AX, Type.INT8); }
     private Register cl() { return new Register(RegKind.CX, Type.INT8); }
