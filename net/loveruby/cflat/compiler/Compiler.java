@@ -133,7 +133,7 @@ public class Compiler {
             ast.dump();
             return ast;
         }
-        new DereferenceChecker(errorHandler).check(ast);
+        new DereferenceChecker(errorHandler).check(ast, typeTable);
         new TypeChecker(errorHandler).check(ast, typeTable);
         return ast;
     }

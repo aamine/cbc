@@ -8,7 +8,7 @@ import java.util.*;
 
 class DereferenceChecker extends Visitor {
     // #@@range/ctor{
-    protected ErrorHandler errorHandler;
+    private ErrorHandler errorHandler;
 
     public DereferenceChecker(ErrorHandler h) {
         this.errorHandler = h;
@@ -16,7 +16,11 @@ class DereferenceChecker extends Visitor {
     // #@@}
 
     // #@@range/check_AST{
-    public void check(AST ast) throws SemanticException {
+    private TypeTable typeTable;
+
+    public void check(AST ast, TypeTable typeTable)
+                                    throws SemanticException {
+        this.typeTable = typeTable;
         for (DefinedVariable var : ast.definedVariables()) {
             checkToplevelVariable(var);
         }
@@ -43,11 +47,11 @@ class DereferenceChecker extends Visitor {
     }
 
     // #@@range/check{
-    protected void check(StmtNode node) {
+    private void check(StmtNode node) {
         node.accept(this);
     }
 
-    protected void check(ExprNode node) {
+    private void check(ExprNode node) {
         node.accept(this);
     }
     // #@@}
@@ -102,7 +106,7 @@ class DereferenceChecker extends Visitor {
 
     private void checkAssignment(AbstractAssignNode node) {
         if (! node.lhs().isAssignable()) {
-            semanticError(node, "invalid lhs expression");
+            semanticError(node.location(), "invalid lhs expression");
         }
     }
 
@@ -113,7 +117,8 @@ class DereferenceChecker extends Visitor {
     public Void visit(PrefixOpNode node) {
         super.visit(node);
         if (! node.expr().isAssignable()) {
-            semanticError(node.expr(), "cannot increment/decrement");
+            semanticError(node.expr().location(),
+                    "cannot increment/decrement");
         }
         return null;
     }
@@ -121,7 +126,8 @@ class DereferenceChecker extends Visitor {
     public Void visit(SuffixOpNode node) {
         super.visit(node);
         if (! node.expr().isAssignable()) {
-            semanticError(node.expr(), "cannot increment/decrement");
+            semanticError(node.expr().location(),
+                    "cannot increment/decrement");
         }
         return null;
     }
@@ -129,7 +135,8 @@ class DereferenceChecker extends Visitor {
     public Void visit(FuncallNode node) {
         super.visit(node);
         if (! node.expr().isCallable()) {
-            semanticError(node, "calling object is not a function");
+            semanticError(node.location(),
+                    "calling object is not a function");
         }
         return null;
     }
@@ -137,34 +144,38 @@ class DereferenceChecker extends Visitor {
     public Void visit(ArefNode node) {
         super.visit(node);
         if (! node.expr().isPointer()) {
-            semanticError(node, "indexing non-array/pointer expression");
+            semanticError(node.location(),
+                    "indexing non-array/pointer expression");
         }
+        handleImplicitAddress(node);
         return null;
     }
 
     public Void visit(MemberNode node) {
         super.visit(node);
-        checkMemberRef(node, node.expr().type(), node.member());
+        checkMemberRef(node.location(), node.expr().type(), node.member());
+        handleImplicitAddress(node);
         return null;
     }
 
     public Void visit(PtrMemberNode node) {
         super.visit(node);
         if (! node.expr().isPointer()) {
-            undereferableError(node);
+            undereferableError(node.location());
         }
-        checkMemberRef(node, node.dereferedType(), node.member());
+        checkMemberRef(node.location(), node.dereferedType(), node.member());
+        handleImplicitAddress(node);
         return null;
     }
 
-    protected void checkMemberRef(Node node, Type t, String memb) {
+    private void checkMemberRef(Location loc, Type t, String memb) {
         if (! t.isCompositeType()) {
-            semanticError(node, "accessing member `" + memb
+            semanticError(loc, "accessing member `" + memb
                                 + "' for non-struct/union: " + t);
         }
         CompositeType type = t.getCompositeType();
         if (! type.hasMember(memb)) {
-            semanticError(node, type.toString()
+            semanticError(loc, type.toString()
                                 + " does not have member: " + memb);
         }
     }
@@ -173,8 +184,9 @@ class DereferenceChecker extends Visitor {
     public Void visit(DereferenceNode node) {
         super.visit(node);
         if (! node.expr().isPointer()) {
-            undereferableError(node);
+            undereferableError(node.location());
         }
+        handleImplicitAddress(node);
         return null;
     }
     // #@@}
@@ -183,7 +195,15 @@ class DereferenceChecker extends Visitor {
     public Void visit(AddressNode node) {
         super.visit(node);
         if (! node.expr().isLvalue()) {
-            semanticError(node, "invalid expression for &");
+            semanticError(node.location(), "invalid expression for &");
+        }
+        Type base = node.expr().type();
+        if (! node.expr().isLoadable()) {
+            // node.expr.type is already pointer.
+            node.setType(base);
+        }
+        else {
+            node.setType(typeTable.pointerTo(base));
         }
         return null;
     }
@@ -194,13 +214,14 @@ class DereferenceChecker extends Visitor {
         if (node.entity().isConstant()) {
             checkConstant(node.entity().value());
         }
+        handleImplicitAddress(node);
         return null;
     }
 
     public Void visit(CastNode node) {
         super.visit(node);
         if (node.type().isArray()) {
-            semanticError(node, "cast specifies array type");
+            semanticError(node.location(), "cast specifies array type");
         }
         return null;
     }
@@ -209,12 +230,29 @@ class DereferenceChecker extends Visitor {
     // Utilities
     //
 
-    protected void undereferableError(Node n) {
-        semanticError(n, "dereferencing non-pointer expression");
+    private void handleImplicitAddress(LHSNode node) {
+        if (! node.isLoadable()) {
+            Type t = node.type();
+            if (t.isArray()) {
+                // int[4] ary; ary; should generate int*
+                node.setType(typeTable.pointerTo(t.baseType()));
+            }
+            else {
+                node.setType(typeTable.pointerTo(t));
+            }
+        }
     }
 
-    protected void semanticError(Node n, String msg) {
-        errorHandler.error(n.location(), msg);
+    private void undereferableError(Location loc) {
+        semanticError(loc, "dereferencing non-pointer expression");
+    }
+
+    private void semanticError(Node n, String msg) {
+        semanticError(n.location(), msg);
+    }
+
+    private void semanticError(Location loc, String msg) {
+        errorHandler.error(loc, msg);
         throw new SemanticError("invalid expr");
     }
 }

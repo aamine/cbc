@@ -1,3 +1,13 @@
+Mon May 18 03:29:59 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: move x[] -> x*
+	  code to DereferenceChecker.
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/Compiler.java: pass TypeTable to
+	  DereferenceChecker.
+
 Mon May 18 03:01:22 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: change function pointer
