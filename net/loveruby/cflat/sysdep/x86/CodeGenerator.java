@@ -409,13 +409,14 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/compileFunctionBody{
+    // #@@range/optimize{
     private List<Assembly> optimize(List<Assembly> asms) {
         if (options.optimizeLevel() < 1) {
             return asms;
         }
         return new PeepholeOptimizer().optimize(asms);
     }
+    // #@@}
 
     private void printStackFrameLayout(
             AssemblyFile file,
