@@ -1,3 +1,8 @@
+Sun May 17 16:36:49 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/entity/ToplevelScope.java: do not warn unused
+	  constant.
+
 Sun May 17 16:33:24 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: support constant

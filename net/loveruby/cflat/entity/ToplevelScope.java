@@ -142,7 +142,10 @@ public class ToplevelScope extends Scope {
 
     public void checkReferences(ErrorHandler h) {
         for (Entity ent : entities.values()) {
-            if (ent.isDefined() && ent.isPrivate() && !ent.isRefered()) {
+            if (ent.isDefined()
+                    && ent.isPrivate()
+                    && !ent.isConstant()
+                    && !ent.isRefered()) {
                 h.warn(ent.location(), "unused variable: " + ent.name());
             }
         }
