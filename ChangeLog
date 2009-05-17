@@ -1,3 +1,14 @@
+Mon May 18 04:52:25 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: allow ptr-ptr.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: implement ptr-ptr.
+
+	* net/loveruby/cflat/type/VoidType.java: VoidType#size is 1.
+
+	* net/loveruby/cflat/ast/ExprNode.java: new helper method
+	  #baseType.
+
 Mon May 18 03:50:55 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java (optimize):

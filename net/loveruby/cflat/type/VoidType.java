@@ -7,7 +7,7 @@ public class VoidType extends Type {
     public boolean isVoid() { return true; }
 
     public long size() {
-        throw new Error("VoidType#size called");
+        return 1;
     }
 
     public boolean equals(Object other) {

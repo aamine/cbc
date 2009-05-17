@@ -288,25 +288,25 @@ class TypeChecker extends Visitor {
      *   * integer + pointer
      *   * integer - integer
      *   * pointer - integer
+     *   * pointer - pointer
      */
-    protected void expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
-        if (node.left().type().isPointer()) {
-            if (node.left().type().baseType().isVoid()) {
-                wrongTypeError(node.left(), node.operator());
+    private void expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
+        if (node.left().isPointer() && node.right().isPointer()) {
+            if (node.operator().equals("+")) {
+                error(node, "invalid operation: pointer + pointer");
                 return;
             }
+            node.setType(typeTable.ptrDiffType());
+        }
+        else if (node.left().isPointer()) {
             mustBeInteger(node.right(), node.operator());
             // promote integer for pointer calculation
             node.setRight(integralPromotedExpr(node.right()));
             node.setType(node.left().type());
         }
-        else if (node.right().type().isPointer()) {
+        else if (node.right().isPointer()) {
             if (node.operator().equals("-")) {
-                error(node, "invalid operation integer-pointer");
-                return;
-            }
-            if (node.right().type().baseType().isVoid()) {
-                wrongTypeError(node.right(), node.operator());
+                error(node, "invalid operation: integer - pointer");
                 return;
             }
             mustBeInteger(node.left(), node.operator());

@@ -565,13 +565,21 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr right = transformExpr(node.right());
         Expr left = transformExpr(node.left());
         if (node.operator().equals("+") || node.operator().equals("-")) {
-            if (node.left().type().isPointer()) {
-                right = new Bin(ptrDiffType(), Op.MUL,
-                        right, ptrDiff(node.left().type().baseType().size()));
+            if (node.left().isPointer() && node.right().isPointer()) {
+                Expr tmp = new Bin(asmType(node.type()),
+                        Op.internBinary(node.operator(),
+                                        node.type().isSigned()),
+                        left, right);
+                return new Bin(ptrDiffType(), Op.S_DIV,
+                        tmp, ptrDiff(node.left().baseSize()));
             }
-            else if (node.right().type().isPointer()) {
+            else if (node.left().isPointer()) {
+                right = new Bin(ptrDiffType(), Op.MUL,
+                        right, ptrDiff(node.left().baseSize()));
+            }
+            else if (node.right().isPointer()) {
                 left = new Bin(ptrDiffType(), Op.MUL,
-                        left, ptrDiff(node.right().type().baseType().size()));
+                        left, ptrDiff(node.right().baseSize()));
             }
         }
         return new Bin(asmType(node.type()),
