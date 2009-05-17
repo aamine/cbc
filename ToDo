@@ -12,6 +12,7 @@
 - refactoring: CodeGeneratorOptions should not provide PeepholeOptimizer
 - refactoring: classify Assembler
 - refactoring: classify Linker
+* use enum for register names
 
 == Done
 
