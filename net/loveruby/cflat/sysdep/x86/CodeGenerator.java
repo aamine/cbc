@@ -250,7 +250,7 @@ public class CodeGenerator
     }
 
     private Register GOTBaseReg() {
-        return reg("bx");
+        return bx();
     }
     // #@@}
 
@@ -502,10 +502,10 @@ public class CodeGenerator
     private List<Register> calleeSavedRegisters() {
         if (calleeSavedRegistersCache == null) {
             List<Register> regs = new ArrayList<Register>();
-            regs.add(reg("bx"));
-            regs.add(reg("si"));
-            regs.add(reg("di"));
-            regs.add(reg("bp"));
+            regs.add(bx());
+            regs.add(si());
+            regs.add(di());
+            regs.add(bp());
             calleeSavedRegistersCache = regs;
         }
         return calleeSavedRegistersCache;
@@ -645,7 +645,7 @@ public class CodeGenerator
         ListIterator<Expr> args = node.finalArg();
         while (args.hasPrevious()) {
             compile(args.previous());
-            as.push(reg("ax"));
+            as.push(ax());
         }
         // call
         if (node.isStaticCall()) {
@@ -655,7 +655,7 @@ public class CodeGenerator
         else {
             // call via pointer
             compile(node.expr());
-            as.callAbsolute(reg("ax"));
+            as.callAbsolute(ax());
         }
         // rewind stack
         // >4 bytes arguments are not supported.
@@ -703,7 +703,7 @@ public class CodeGenerator
     // #@@range/compile_BranchIf{
     public Void visit(BranchIf node) {
         compile(node.cond());
-        testCond(node.cond().type(), reg("ax"));
+        testCond(node.cond().type(), ax());
         as.jnz(node.thenLabel());
         as.jmp(node.elseLabel());
         return null;
@@ -715,8 +715,8 @@ public class CodeGenerator
         compile(node.cond());
         Type t = node.cond().type();
         for (Case c : node.cases()) {
-            as.mov(imm(c.value), reg("cx"));
-            as.cmp(t, reg("cx", t), reg("ax", t));
+            as.mov(imm(c.value), cx());
+            as.cmp(t, cx(t), ax(t));
             as.je(c.label);
         }
         as.jmp(node.defaultLabel());
@@ -765,17 +765,17 @@ public class CodeGenerator
         }
         else if (node.right().isConstantAddress()) {
             compile(node.left());
-            loadVariable(((Var)node.right()), reg("cx"));
-            right = reg("cx", node.type());
+            loadVariable(((Var)node.right()), cx());
+            right = cx(node.type());
         }
         else {
             compile(node.right());
-            as.virtualPush(reg("ax"));
+            as.virtualPush(ax());
             compile(node.left());
-            as.virtualPop(reg("cx"));
-            right = reg("cx", node.type());
+            as.virtualPop(cx());
+            right = cx(node.type());
         }
-        compileBinaryOp(node.type(), node.op(), reg("ax", node.type()), right);
+        compileBinaryOp(node.type(), node.op(), ax(node.type()), right);
         return null;
     }
     // #@@}
@@ -815,17 +815,17 @@ public class CodeGenerator
         case S_DIV:
         case S_MOD:
             as.cltd();
-            as.idiv(t, reg("cx", t));
+            as.idiv(t, cx(t));
             if (op == Op.S_MOD) {
-                as.mov(reg("dx"), left);
+                as.mov(dx(), left);
             }
             break;
         case U_DIV:
         case U_MOD:
-            as.mov(imm(0), reg("dx"));
-            as.div(t, reg("cx", t));
+            as.mov(imm(0), dx());
+            as.div(t, cx(t));
             if (op == Op.U_MOD) {
-                as.mov(reg("dx"), left);
+                as.mov(dx(), left);
             }
             break;
         // #@@}
@@ -852,7 +852,7 @@ public class CodeGenerator
         // #@@range/compileBinaryOp_cmpops{
         default:
             // Comparison operators
-            as.cmp(t, right, reg("ax", t));
+            as.cmp(t, right, ax(t));
             switch (op) {
             case EQ:        as.sete (al()); break;
             case NEQ:       as.setne(al()); break;
@@ -867,7 +867,7 @@ public class CodeGenerator
             default:
                 throw new Error("unknown binary operator: " + op);
             }
-            as.movzb(t, al(), reg("ax", t));
+            as.movzb(t, al(), ax(t));
         }
         // #@@}
     // #@@range/compileBinaryOp_end{
@@ -879,30 +879,28 @@ public class CodeGenerator
         compile(node.expr());
         switch (node.op()) {
         case UMINUS:
-            as.neg(node.expr().type(), reg("ax", node.expr().type()));
+            as.neg(node.expr().type(), ax(node.expr().type()));
             break;
         case BIT_NOT:
-            as.not(node.expr().type(), reg("ax", node.expr().type()));
+            as.not(node.expr().type(), ax(node.expr().type()));
             break;
         case NOT:
-            testCond(node.expr().type(), reg("ax"));
+            testCond(node.expr().type(), ax());
             as.sete(al());
-            as.movzbl(al(), reg("ax"));
+            as.movzbl(al(), ax());
             break;
         case S_CAST:
             {
                 Type src = node.expr().type();
                 Type dest = node.type();
-                as.movsx(src, dest,
-                      reg("ax").forType(src), reg("ax").forType(dest));
+                as.movsx(src, dest, ax(src), ax(dest));
             }
             break;
         case U_CAST:
             {
                 Type src = node.expr().type();
                 Type dest = node.type();
-                as.movzx(src, dest,
-                      reg("ax").forType(src), reg("ax").forType(dest));
+                as.movzx(src, dest, ax(src), ax(dest));
             }
             break;
         default:
@@ -914,21 +912,21 @@ public class CodeGenerator
 
     // #@@range/compile_Var{
     public Void visit(Var node) {
-        loadVariable(node, reg("ax"));
+        loadVariable(node, ax());
         return null;
     }
     // #@@}
 
     // #@@range/compile_Int{
     public Void visit(Int node) {
-        loadConstant(node, reg("ax"));
+        loadConstant(node, ax());
         return null;
     }
     // #@@}
 
     // #@@range/compile_Str{
     public Void visit(Str node) {
-        loadConstant(node, reg("ax"));
+        loadConstant(node, ax());
         return null;
     }
     // #@@}
@@ -941,21 +939,21 @@ public class CodeGenerator
     public Void visit(Assign node) {
         if (node.lhs().isConstantAddress() && node.lhs().memref() != null) {
             compile(node.rhs());
-            save(node.lhs().type(), reg("ax"), node.lhs().memref());
+            save(node.lhs().type(), ax(), node.lhs().memref());
         }
         else if (node.rhs().isConstant()) {
             compile(node.lhs());
-            as.mov(reg("ax"), reg("cx"));
-            loadConstant(node.rhs(), reg("ax"));
-            save(node.lhs().type(), reg("ax"), mem(reg("cx")));
+            as.mov(ax(), cx());
+            loadConstant(node.rhs(), ax());
+            save(node.lhs().type(), ax(), mem(cx()));
         }
         else {
             compile(node.rhs());
-            as.virtualPush(reg("ax"));
+            as.virtualPush(ax());
             compile(node.lhs());
-            as.mov(reg("ax"), reg("cx"));
-            as.virtualPop(reg("ax"));
-            save(node.lhs().type(), reg("ax"), mem(reg("cx")));
+            as.mov(ax(), cx());
+            as.virtualPop(ax());
+            save(node.lhs().type(), ax(), mem(cx()));
         }
         return null;
     }
@@ -964,14 +962,14 @@ public class CodeGenerator
     // #@@range/compile_Mem{
     public Void visit(Mem node) {
         compile(node.expr());
-        load(node.type(), mem(reg("ax")), reg("ax"));
+        load(node.type(), mem(ax()), ax());
         return null;
     }
     // #@@}
 
     // #@@range/compile_Addr{
     public Void visit(Addr node) {
-        loadAddress(node.entity(), reg("ax"));
+        loadAddress(node.entity(), ax());
         return null;
     }
     // #@@}
@@ -1023,21 +1021,21 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/dsl_regs{
-    private Register bp() { return reg("bp"); }
-    private Register sp() { return reg("sp"); }
-    private Register al() { return new Register(1, "ax"); }
-    private Register cl() { return new Register(1, "cx"); }
-    // #@@}
+    // #@@range/reg_dsls{
+    private Register ax() { return new Register(RegKind.AX, NATURAL_TYPE); }
+    private Register bx() { return new Register(RegKind.BX, NATURAL_TYPE); }
+    private Register cx() { return new Register(RegKind.CX, NATURAL_TYPE); }
+    private Register dx() { return new Register(RegKind.DX, NATURAL_TYPE); }
+    private Register si() { return new Register(RegKind.SI, NATURAL_TYPE); }
+    private Register di() { return new Register(RegKind.DI, NATURAL_TYPE); }
+    private Register bp() { return new Register(RegKind.BP, NATURAL_TYPE); }
+    private Register sp() { return new Register(RegKind.SP, NATURAL_TYPE); }
 
-    // #@@range/reg{
-    private Register reg(String name, Type type) {
-        return new Register(name).forType(type);
-    }
+    private Register al() { return new Register(RegKind.AX, Type.INT8); }
+    private Register cl() { return new Register(RegKind.CX, Type.INT8); }
 
-    private Register reg(String name) {
-        return new Register(name);
-    }
+    private Register ax(Type t) { return new Register(RegKind.AX, t); }
+    private Register cx(Type t) { return new Register(RegKind.AX, t); }
     // #@@}
 
     // #@@range/mem{

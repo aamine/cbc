@@ -213,14 +213,15 @@ public class AssemblyFile {
 
     // #@@range/stackTop{
     IndirectMemoryReference stackTop() {
-        return new IndirectMemoryReference(-stackPointer, new Register("bp"));
+        return new IndirectMemoryReference(
+                -stackPointer, new Register(RegKind.BP, naturalType));
     }
     // #@@}
 
     // #@@range/virtualPush{
     void virtualPush(Register reg) {
         if (verbose) {
-            comment("push " + reg.name() + " -> " + stackTop());
+            comment("push " + reg.baseName() + " -> " + stackTop());
         }
         extendVirtualStack(stackWordSize);
         relocatableMov(reg, stackTop());
@@ -230,7 +231,7 @@ public class AssemblyFile {
     // #@@range/virtualPop{
     void virtualPop(Register reg) {
         if (verbose) {
-            comment("pop  " + reg.name() + " <- " + stackTop());
+            comment("pop  " + reg.baseName() + " <- " + stackTop());
         }
         relocatableMov(stackTop(), reg);
         rewindVirtualStack(stackWordSize);

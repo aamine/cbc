@@ -1,54 +1,67 @@
 package net.loveruby.cflat.sysdep.x86;
 import net.loveruby.cflat.asm.*;
 
-public class Register extends net.loveruby.cflat.asm.Register {
-    static final private int naturalSize = 4;
+class Register extends net.loveruby.cflat.asm.Register {
+    RegKind kind;
+    Type type;
 
-    public Register(String name) {
-        super(naturalSize, name);
+    Register(RegKind kind, Type type) {
+        this.kind = kind;
+        this.type = type;
     }
 
-    public Register(int size, String name) {
-        super(size, name);
+    Register forType(Type t) {
+        return new Register(kind, t);
     }
 
-    public Register forType(Type t) {
-        switch (t.size()) {
-        case 1:
-        case 2:
-        case 4:
-            return new Register(t.size(), name);
-        default:
-            throw new Error("invalid register size: " + t.size());
-        }
+    public boolean isRegister() { return true; }
+
+    public boolean equals(Object other) {
+        return (other instanceof Register) && equals((Register)other);
     }
 
-    public String name() {
-        switch (size) {
-        case 1: return lowerByteRegister(name);
-        case 2: return name;
-        case 4: return "e" + name;
-        default:
-            throw new Error("invalid register size: " + size);
-        }
+    /** size difference does NOT matter. */
+    public boolean equals(Register reg) {
+        return kind.equals(reg.kind);
     }
 
-    private String lowerByteRegister(String baseName) {
-        if (! hasLowerByteRegister(baseName)) {
-            throw new Error("does not have lower-byte register: " + baseName);
-        }
-        return baseName.substring(0, 1) + "l";
+    public int hashCode() {
+        return kind.hashCode();
     }
 
-    private boolean hasLowerByteRegister(String baseName) {
-        if (baseName.equals("ax")) return true;
-        if (baseName.equals("bx")) return true;
-        if (baseName.equals("cx")) return true;
-        if (baseName.equals("dx")) return true;
-        return false;
+    RegKind kind() {
+        return kind;
+    }
+
+    String baseName() {
+        return kind.toString().toLowerCase();
     }
 
     public String toSource(SymbolTable table) {
-        return "%" + name();
+        // GNU assembler dependent
+        return "%" + typedName();
+    }
+
+    private String typedName() {
+        switch (type) {
+        case INT8: return lowerByteRegister();
+        case INT16: return baseName();
+        case INT32: return "e" + baseName();
+        case INT64: return "r" + baseName();
+        default:
+            throw new Error("unknown register Type: " + type);
+        }
+    }
+
+    private String lowerByteRegister() {
+        switch (kind) {
+        case AX:
+        case BX:
+        case CX:
+        case DX:
+            return baseName().substring(0, 1) + "l";
+        default:
+            throw new Error("does not have lower-byte register: " + kind);
+        }
     }
 }

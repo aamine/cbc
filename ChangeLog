@@ -1,3 +1,21 @@
+Sat May 16 17:20:36 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/Register.java: use enum for register
+	  name.
+
+	* net/loveruby/cflat/sysdep/x86/RegKind.java: new enum.
+
+	* net/loveruby/cflat/sysdep/x86/Register.java: move system
+	  dependent code to sysdep/x86/Register.
+
+	* net/loveruby/cflat/asm/IndirectMemoryReference.java: reduce
+	  dependency to Register method.
+
+	* net/loveruby/cflat/sysdep/x86/AssemblyFile.java: use RegKind.
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: reg(*) ->
+	  ax(), bx(), cx(), ...
+
 Wed May 13 03:22:46 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* compiler/Compiler.java: grand refactoring.

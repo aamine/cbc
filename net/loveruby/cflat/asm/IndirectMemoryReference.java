@@ -68,12 +68,6 @@ public class IndirectMemoryReference extends MemoryReference {
     }
 
     protected int cmp(IndirectMemoryReference mem) {
-        int c = base.baseName().compareTo(mem.base.baseName());
-        if (c != 0) {
-            return c;
-        }
-        else {
-            return offset.compareTo(mem.offset);
-        }
+        return offset.compareTo(mem.offset);
     }
 }
