@@ -637,9 +637,11 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         return node.isLoadable() ? deref(addr, node.type()) : addr;
     }
 
+    // #@@range/Dereference{
     public Expr visit(DereferenceNode node) {
         return new Mem(asmType(node.type()), transformExpr(node.expr()));
     }
+    // #@@}
 
     public Expr visit(AddressNode node) {
         Expr e = transformExpr(node.expr());
