@@ -2,8 +2,8 @@ package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
 public class TypeNode extends Node {
-    protected TypeRef typeRef;
-    protected Type type;
+    TypeRef typeRef;
+    Type type;
 
     public TypeNode(TypeRef ref) {
         super();
@@ -24,12 +24,16 @@ public class TypeNode extends Node {
     }
 
     public void setType(Type t) {
-        if (isResolved()) throw new Error("TypeNode#setType called twice");
+        if (type != null) {
+            throw new Error("TypeNode#setType called twice");
+        }
         type = t;
     }
 
     public Type type() {
-        if (type == null) throw new Error("TypeNode not resolved");
+        if (type == null) {
+            throw new Error("TypeNode not resolved: " + typeRef);
+        }
         return type;
     }
 

@@ -164,7 +164,7 @@ class TypeChecker extends Visitor {
         if (! checkLHS(node.lhs())) return null;
         if (! checkRHS(node.rhs())) return null;
         if (node.operator().equals("+") || node.operator().equals("-")) {
-            if (node.lhs().type().isDereferable()) {
+            if (node.lhs().type().isPointer()) {
                 mustBeInteger(node.rhs(), node.operator());
                 node.setRHS(integralPromotedExpr(node.rhs()));
                 return null;
@@ -290,7 +290,7 @@ class TypeChecker extends Visitor {
      *   * pointer - integer
      */
     protected void expectsSameIntegerOrPointerDiff(BinaryOpNode node) {
-        if (node.left().type().isDereferable()) {
+        if (node.left().type().isPointer()) {
             if (node.left().type().baseType().isVoid()) {
                 wrongTypeError(node.left(), node.operator());
                 return;
@@ -300,7 +300,7 @@ class TypeChecker extends Visitor {
             node.setRight(integralPromotedExpr(node.right()));
             node.setType(node.left().type());
         }
-        else if (node.right().type().isDereferable()) {
+        else if (node.right().type().isPointer()) {
             if (node.operator().equals("-")) {
                 error(node, "invalid operation integer-pointer");
                 return;
@@ -342,13 +342,13 @@ class TypeChecker extends Visitor {
     protected void expectsComparableScalars(BinaryOpNode node) {
         if (! mustBeScalar(node.left(), node.operator())) return;
         if (! mustBeScalar(node.right(), node.operator())) return;
-        if (node.left().type().isDereferable()) {
+        if (node.left().type().isPointer()) {
             ExprNode right = forcePointerType(node.left(), node.right());
             node.setRight(right);
             node.setType(node.left().type());
             return;
         }
-        if (node.right().type().isDereferable()) {
+        if (node.right().type().isPointer()) {
             ExprNode left = forcePointerType(node.right(), node.left());
             node.setLeft(left);
             node.setType(node.right().type());
@@ -433,7 +433,7 @@ class TypeChecker extends Visitor {
             }
             node.setAmount(1);
         }
-        else if (node.expr().type().isDereferable()) {
+        else if (node.expr().type().isPointer()) {
             if (node.expr().type().baseType().isVoid()) {
                 // We cannot increment/decrement void*
                 wrongTypeError(node.expr(), node.operator());

@@ -22,7 +22,7 @@ typedef struct s struct_s;
 typedef union u union_u;
 typedef int[8] ints8;
 typedef int* intptr;
-typedef int (*)(char*) msgfunc;
+typedef int (char*)* msgfunc;
 typedef sint sint2;
 
 int

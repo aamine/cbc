@@ -70,8 +70,6 @@ abstract public class Entity
         return (nRefered > 0);
     }
 
-    abstract public boolean cannotLoad();
-
     public void setMemref(MemoryReference mem) {
         this.memref = mem;
     }

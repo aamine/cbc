@@ -1,35 +1,22 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
-public class ArefNode extends ExprNode {
-    protected ExprNode expr, index;
+public class ArefNode extends LHSNode {
+    private ExprNode expr, index;
 
     public ArefNode(ExprNode expr, ExprNode index) {
         this.expr = expr;
         this.index = index;
     }
 
-    public Type type() {
-        return expr.type().baseType();
-    }
-
-    public ExprNode expr() {
-        return expr;
-    }
-
-    public ExprNode index() {
-        return index;
-    }
-
-    public boolean isAssignable() {
-        return true;
-    }
+    public ExprNode expr() { return expr; }
+    public ExprNode index() { return index; }
 
     // isMultiDimension a[x][y][z] = true.
     // isMultiDimension a[x][y] = true.
     // isMultiDimension a[x] = false.
     public boolean isMultiDimension() {
-        return (expr instanceof ArefNode) && !expr.type().isPointer();
+        return (expr instanceof ArefNode) && !expr.origType().isPointer();
     }
 
     // Returns base expression of (multi-dimension) array.
@@ -40,16 +27,18 @@ public class ArefNode extends ExprNode {
 
     // element size of this (multi-dimension) array
     public long elementSize() {
-        return type().allocSize();
+        return origType().allocSize();
     }
 
     public long length() {
-        return ((ArrayType)expr.type()).length();
+        return ((ArrayType)expr.origType()).length();
     }
 
-    public boolean isConstantAddress() {
-        return false;
+    protected Type origType() {
+        return expr.origType().baseType();
     }
+
+    public boolean isConstantAddress() { return false; }
 
     public Location location() {
         return expr.location();

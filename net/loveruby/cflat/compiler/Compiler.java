@@ -129,11 +129,11 @@ public class Compiler {
         new LocalResolver(errorHandler).resolve(ast);
         new TypeResolver(errorHandler).resolve(ast, typeTable);
         typeTable.semanticCheck(errorHandler);
-        new DereferenceChecker(errorHandler).check(ast);
         if (opts.mode() == CompilerMode.DumpReference) {
             ast.dump();
             return ast;
         }
+        new DereferenceChecker(errorHandler).check(ast);
         new TypeChecker(errorHandler).check(ast, typeTable);
         return ast;
     }

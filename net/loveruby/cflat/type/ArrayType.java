@@ -17,8 +17,7 @@ public class ArrayType extends Type {
     }
 
     public boolean isArray() { return true; }
-    public boolean isDereferable() { return true; }
-    public boolean isScalar() { return true; }
+    public boolean isScalar() { return false; }
     public boolean isSigned() { return false; }
 
     public boolean isAllocatedArray() {
@@ -66,12 +65,12 @@ public class ArrayType extends Type {
 
     public boolean isSameType(Type other) {
         // length is not important
-        if (! other.isDereferable()) return false;
+        if (!other.isPointer() && !other.isArray()) return false;
         return baseType.isSameType(other.baseType());
     }
 
     public boolean isCompatible(Type target) {
-        if (! target.isDereferable()) return false;
+        if (!target.isPointer() && !target.isArray()) return false;
         if (target.baseType().isVoid()) {
             return true;
         }
@@ -80,7 +79,7 @@ public class ArrayType extends Type {
     }
 
     public boolean isCastableTo(Type target) {
-        return target.isDereferable();
+        return target.isPointer() || target.isArray();
     }
 
     public String toString() {

@@ -14,25 +14,17 @@ abstract public class Function extends Entity {
         super(priv, t, name);
     }
 
-    public boolean isFunction() { return true; }
     public boolean isInitialized() { return true; }
+
     abstract public boolean isDefined();
     abstract public List<Parameter> parameters();
 
-    public FunctionType functionType() {
-        return type().getPointerType().baseType().getFunctionType();
-    }
-
     public Type returnType() {
-        return functionType().returnType();
+        return type().getFunctionType().returnType();
     }
 
     public boolean isVoid() {
         return returnType().isVoid();
-    }
-
-    public boolean cannotLoad() {
-        return true;
     }
 
     public void setCallingSymbol(Symbol sym) {

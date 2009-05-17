@@ -31,6 +31,18 @@ public class TypeResolver extends Visitor
         for (Entity e : ast.entities()) {
             e.accept(this);
         }
+
+        for (DefinedVariable var : ast.definedVariables()) {
+            if (var.hasInitializer()) {
+                visitExpr(var.initializer());
+            }
+        }
+        for (Constant c : ast.constants()) {
+            visitExpr(c.value());
+        }
+        for (DefinedFunction f : ast.definedFunctions()) {
+            visitStmt(f.body());
+        }
         // #@@}
     }
     // #@@}
@@ -100,9 +112,6 @@ public class TypeResolver extends Visitor
     // #@@range/DefinedVariable{
     public Void visit(DefinedVariable var) {
         bindType(var.typeNode());
-        if (var.hasInitializer()) {
-            visitExpr(var.initializer());
-        }
         return null;
     }
     // #@@}
@@ -114,14 +123,12 @@ public class TypeResolver extends Visitor
 
     public Void visit(Constant c) {
         bindType(c.typeNode());
-        visitExpr(c.value());
         return null;
     }
 
     // #@@range/DefinedFunction{
     public Void visit(DefinedFunction func) {
         resolveFunctionHeader(func);
-        visitStmt(func.body());
         return null;
     }
     // #@@}
@@ -135,11 +142,8 @@ public class TypeResolver extends Visitor
     protected void resolveFunctionHeader(Function func) {
         bindType(func.typeNode());
         for (Parameter param : func.parameters()) {
-            Type t = typeTable.get(param.typeNode().typeRef());
             // arrays must be converted to pointers in a function parameter.
-            if (t.isArray()) {
-                t = typeTable.pointerTo(t.getArrayType().baseType());
-            }
+            Type t = typeTable.getParamType(param.typeNode().typeRef());
             param.typeNode().setType(t);
         }
     }
@@ -151,7 +155,12 @@ public class TypeResolver extends Visitor
 
     public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
-            var.accept(this);
+            bindType(var.typeNode());
+        }
+        for (DefinedVariable var : node.variables()) {
+            if (var.hasInitializer()) {
+                visitExpr(var.initializer());
+            }
         }
         visitStmts(node.stmts());
         return null;
@@ -159,11 +168,10 @@ public class TypeResolver extends Visitor
 
     public Void visit(AddressNode node) {
         super.visit(node);
-        // to avoid SemanticError which occurs when getting type of
-        // expr which is not assignable.
         try {
             Type base = node.expr().type();
-            if (node.expr().shouldEvaluatedToAddress()) {
+            if (! node.expr().isLoadable()) {
+                // node.expr.type is already pointer.
                 node.setType(base);
             }
             else {
@@ -175,6 +183,54 @@ public class TypeResolver extends Visitor
             node.setType(t);
         }
         return null;
+    }
+
+    public Void visit(DereferenceNode node) {
+        super.visit(node);
+        handleImplicitAddress(node);
+        return null;
+    }
+
+    public Void visit(MemberNode node) {
+        super.visit(node);
+        handleImplicitAddress(node);
+        return null;
+    }
+
+    public Void visit(PtrMemberNode node) {
+        super.visit(node);
+        handleImplicitAddress(node);
+        return null;
+    }
+
+    public Void visit(ArefNode node) {
+        super.visit(node);
+        handleImplicitAddress(node);
+        return null;
+    }
+
+    public Void visit(VariableNode node) {
+        super.visit(node);
+        handleImplicitAddress(node);
+        return null;
+    }
+
+    private void handleImplicitAddress(LHSNode node) {
+        try {
+            if (! node.isLoadable()) {
+                Type t = node.type();
+                if (t.isArray()) {
+                    // int[4] ary; ary; should generate int*
+                    node.setType(typeTable.pointerTo(t.baseType()));
+                }
+                else {
+                    node.setType(typeTable.pointerTo(t));
+                }
+            }
+        }
+        catch (SemanticError err) {
+            // #isLoadable may cause SemanticError, ignore it
+        }
     }
 
     public Void visit(CastNode node) {

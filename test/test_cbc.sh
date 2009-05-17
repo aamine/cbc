@@ -98,7 +98,7 @@ test_10_assign() {
     assert_out "3;4;3;12;4;1;1;7;5;1;4;e;H;76;75;1;3;6;82;81" ./opassign
     assert_out "0;1;2;2;3;3;4;5;5" ./inc
     assert_out "4;3;2;2;1;1;0" ./dec
-    assert_compile_success textwrite.cb
+    assert_compile_error textwrite.cb
 }
 
 test_12_if() {
@@ -244,10 +244,7 @@ test_25_block() {
 }
 
 test_26_funcptr() {
-    assert_out "OK" ./funcptr
-    assert_out "OK" ./funcptr2
-    assert_out "OK" ./funcptr3
-    assert_out "OK" ./funcptr4
+    assert_out "OK;OK;OK;OK" ./funcptr
     assert_compile_error defun-semcheck.cb
     assert_compile_error defun-semcheck2.cb
     assert_compile_error defun-semcheck3.cb

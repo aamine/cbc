@@ -12,7 +12,7 @@ public class Constant extends Entity {
         this.value = value;
     }
 
-    public boolean cannotLoad() { return false; }
+    public boolean isAssignable() { return false; }
     public boolean isDefined() { return true; }
     public boolean isInitialized() { return true; }
     public boolean isConstant() { return true; }

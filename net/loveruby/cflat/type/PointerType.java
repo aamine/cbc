@@ -12,9 +12,6 @@ public class PointerType extends Type {
     public boolean isPointer() { return true; }
     public boolean isScalar() { return true; }
     public boolean isSigned() { return false; }
-    // #@@range/isDereferable{
-    public boolean isDereferable() { return true; }
-    // #@@}
     public boolean isCallable() { return baseType.isFunction(); }
 
     public long size() {
@@ -31,12 +28,12 @@ public class PointerType extends Type {
     }
 
     public boolean isSameType(Type other) {
-        if (! other.isDereferable()) return false;
+        if (!other.isPointer()) return false;
         return baseType.isSameType(other.baseType());
     }
 
     public boolean isCompatible(Type other) {
-        if (! other.isDereferable()) return false;
+        if (!other.isPointer()) return false;
         if (baseType.isVoid()) {
             return true;
         }
@@ -47,7 +44,7 @@ public class PointerType extends Type {
     }
 
     public boolean isCastableTo(Type other) {
-        return other.isDereferable() || other.isInteger();
+        return other.isPointer() || other.isInteger();
     }
 
     public String toString() {

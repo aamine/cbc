@@ -4,17 +4,13 @@ import net.loveruby.cflat.type.CompositeType;
 import net.loveruby.cflat.type.PointerType;
 import net.loveruby.cflat.exception.*;
 
-public class PtrMemberNode extends ExprNode {
+public class PtrMemberNode extends LHSNode {
     public ExprNode expr;
     public String member;
 
     public PtrMemberNode(ExprNode expr, String member) {
         this.expr = expr;
         this.member = member;
-    }
-
-    public Type type() {
-        return dereferedCompositeType().memberType(member);
     }
 
     public CompositeType dereferedCompositeType() {
@@ -45,17 +41,15 @@ public class PtrMemberNode extends ExprNode {
         return member;
     }
 
-    public boolean isAssignable() {
-        return true;
-    }
-
-    public boolean isConstantAddress() {
-        return false;
-    }
-
     public long offset() {
         return dereferedCompositeType().memberOffset(member);
     }
+
+    protected Type origType() {
+        return dereferedCompositeType().memberType(member);
+    }
+
+    public boolean isConstantAddress() { return false; }
 
     public Location location() {
         return expr.location();

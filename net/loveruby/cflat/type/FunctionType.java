@@ -12,6 +12,7 @@ public class FunctionType extends Type {
     }
 
     public boolean isFunction() { return true; }
+    public boolean isCallable() { return true; }
 
     public boolean isSameType(Type other) {
         if (! other.isFunction()) return false;
@@ -68,7 +69,7 @@ public class FunctionType extends Type {
         String sep = "";
         StringBuffer buf = new StringBuffer();
         buf.append(returnType.toString());
-        buf.append(" (*)(");
+        buf.append("(");
         for (Type t : paramTypes.types()) {
             buf.append(sep);
             buf.append(t.toString());

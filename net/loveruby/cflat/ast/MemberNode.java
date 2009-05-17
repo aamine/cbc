@@ -3,17 +3,13 @@ import net.loveruby.cflat.type.Type;
 import net.loveruby.cflat.type.CompositeType;
 import net.loveruby.cflat.exception.*;
 
-public class MemberNode extends ExprNode {
-    protected ExprNode expr;
-    protected String member;
+public class MemberNode extends LHSNode {
+    private ExprNode expr;
+    private String member;
 
     public MemberNode(ExprNode expr, String member) {
         this.expr = expr;
         this.member = member;
-    }
-
-    public Type type() {
-        return baseType().memberType(member);
     }
 
     public CompositeType baseType() {
@@ -37,15 +33,11 @@ public class MemberNode extends ExprNode {
         return baseType().memberOffset(member);
     }
 
-    // #@@range/isAssignable{
-    public boolean isAssignable() {
-        return true;
+    protected Type origType() {
+        return baseType().memberType(member);
     }
-    // #@@}
 
-    public boolean isConstantAddress() {
-        return false;
-    }
+    public boolean isConstantAddress() { return false; }
 
     public Location location() {
         return expr.location();

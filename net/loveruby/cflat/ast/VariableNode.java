@@ -3,13 +3,12 @@ import net.loveruby.cflat.type.Type;
 import net.loveruby.cflat.entity.Entity;
 import net.loveruby.cflat.entity.DefinedVariable;
 
-public class VariableNode extends ExprNode {
-    protected Location location;
-    protected String name;
-    protected Entity entity;
+public class VariableNode extends LHSNode {
+    private Location location;
+    private String name;
+    private Entity entity;
 
     public VariableNode(Location loc, String name) {
-        super();
         this.location = loc;
         this.name = name;
     }
@@ -38,35 +37,28 @@ public class VariableNode extends ExprNode {
         entity = ent;
     }
 
-    public Type type() {
-        return entity().type();
-    }
-
     public TypeNode typeNode() {
         return entity().typeNode();
-    }
-
-    public boolean isAssignable() {
-        return true;
     }
 
     public boolean isParameter() {
         return entity().isParameter();
     }
 
-    public boolean shouldEvaluatedToAddress() {
-        return entity().cannotLoad();
+    protected Type origType() {
+        return entity().type();
     }
 
-    public boolean isConstantAddress() {
-        return true;
-    }
+    public boolean isConstantAddress() { return true; }
 
     public Location location() {
         return location;
     }
 
     protected void _dump(Dumper d) {
+        if (type != null) {
+            d.printMember("type", type);
+        }
         d.printMember("name", name, isResolved());
     }
 

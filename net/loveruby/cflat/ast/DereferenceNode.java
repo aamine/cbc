@@ -1,17 +1,34 @@
 package net.loveruby.cflat.ast;
 import net.loveruby.cflat.type.*;
 
-public class DereferenceNode extends UnaryOpNode {
-    public DereferenceNode(ExprNode n) {
-        super("*", n);
+public class DereferenceNode extends LHSNode {
+    private ExprNode expr;
+
+    public DereferenceNode(ExprNode expr) {
+        this.expr = expr;
     }
 
-    public Type type() {
-        return expr().type().baseType();
+    protected Type origType() {
+        return expr.type().baseType();
     }
 
-    public boolean isAssignable() { return true; }
+    public ExprNode expr() {
+        return expr;
+    }
+
+    public void setExpr(ExprNode expr) {
+        this.expr = expr;
+    }
+
     public boolean isConstantAddress() { return false; }
+
+    public Location location() {
+        return expr.location();
+    }
+
+    protected void _dump(Dumper d) {
+        d.printMember("expr", expr);
+    }
 
     public <S,E> E accept(ASTVisitor<S,E> visitor) {
         return visitor.visit(this);

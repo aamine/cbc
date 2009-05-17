@@ -42,7 +42,7 @@ public class IntegerType extends Type {
     }
 
     public boolean isCastableTo(Type target) {
-        return (target.isInteger() || target.isDereferable());
+        return (target.isInteger() || target.isPointer());
     }
 
     public long size() {

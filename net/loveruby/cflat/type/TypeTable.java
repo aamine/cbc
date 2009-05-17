@@ -90,6 +90,12 @@ public class TypeTable {
         return type;
     }
 
+    // array is really a pointer on parameters.
+    public Type getParamType(TypeRef ref) {
+        Type t = get(ref);
+        return t.isArray() ? pointerTo(t.baseType()) : t;
+    }
+
     public int intSize() {
         return this.intSize;
     }

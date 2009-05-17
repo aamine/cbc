@@ -24,10 +24,6 @@ public class Addr extends Expr {
         return entity.memref();
     }
 
-    public Addr addressNode(Type type) {
-        return this;
-    }
-
     public Entity getEntityForce() {
         return entity;
     }

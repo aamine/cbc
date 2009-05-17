@@ -1,11 +1,28 @@
 import stdio;
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
-    int (*)(char*) f;
+    int (char*, ...)* f;
 
-    f = puts;
+    f = printf;
     f("OK");
+
+    f = &printf;
+    f(";OK");
+
+    f = myputs;
+    f(";OK");
+
+    f = &myputs;
+    f(";OK");
+
+    puts("");
     return 0;
+}
+
+static int
+myputs(char *s, ...)
+{
+    return printf("%s", s);
 }

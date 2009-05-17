@@ -26,9 +26,8 @@ public class CastNode extends ExprNode {
         return expr;
     }
 
-    public boolean shouldEvaluatedToAddress() {
-        return expr.shouldEvaluatedToAddress();
-    }
+    public boolean isLvalue() { return expr.isLvalue(); }
+    public boolean isAssignable() { return expr.isAssignable(); }
 
     public boolean isEffectiveCast() {
         return type().size() > expr.type().size();

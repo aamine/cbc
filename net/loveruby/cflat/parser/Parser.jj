@@ -536,18 +536,16 @@ Constant defconst():
 DefinedFunction defun():
 {
     boolean priv;
-    TypeRef ref;
+    TypeRef ret;
     String n;
     Params ps;
     BlockNode body;
 }
 {
-    priv=storage() ref=typeref() n=name() "(" ps=params() ")" body=block()
+    priv=storage() ret=typeref() n=name() "(" ps=params() ")" body=block()
         {
-            ParamTypeRefs paramref = ps.parametersTypeRef();
-            TypeNode t = new TypeNode(new PointerTypeRef(
-                            new FunctionTypeRef(ref, paramref)));
-            return new DefinedFunction(priv, t, n, ps, body);
+            TypeRef t = new FunctionTypeRef(ret, ps.parametersTypeRef());
+            return new DefinedFunction(priv, new TypeNode(t), n, ps, body);
         }
 }
 // #@@}
@@ -692,17 +690,15 @@ Slot slot():
 // #@@range/funcdecl{
 UndefinedFunction funcdecl():
 {
-    TypeRef ref;
+    TypeRef ret;
     String n;
     Params ps;
 }
 {
-    <EXTERN> ref=typeref() n=name() "(" ps=params() ")" ";"
+    <EXTERN> ret=typeref() n=name() "(" ps=params() ")" ";"
         {
-            ParamTypeRefs paramref = ps.parametersTypeRef();
-            TypeNode t = new TypeNode(new PointerTypeRef(
-                            new FunctionTypeRef(ref, paramref)));
-            return new UndefinedFunction(t, n, ps);
+            TypeRef t = new FunctionTypeRef(ret, ps.parametersTypeRef());
+            return new UndefinedFunction(new TypeNode(t), n, ps);
         }
 }
 // #@@}
@@ -749,9 +745,9 @@ TypeRef typeref():
         {
             ref = new PointerTypeRef(ref);
         }
-    | "(" "*" ")" "(" params=param_typerefs() ")"
+    | "(" params=param_typerefs() ")"
         {
-            ref = new PointerTypeRef(new FunctionTypeRef(ref, params));
+            ref = new FunctionTypeRef(ref, params);
         }
     )*
         {

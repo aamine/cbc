@@ -482,7 +482,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         switch (op) {
         case ADD:
         case SUB:
-            if (lhsType.isDereferable()) {
+            if (lhsType.isPointer()) {
                 return new Bin(rhs.type(), Op.MUL,
                     rhs, ptrDiff(lhsType.baseType().size()));
             }
@@ -565,11 +565,11 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr right = transformExpr(node.right());
         Expr left = transformExpr(node.left());
         if (node.operator().equals("+") || node.operator().equals("-")) {
-            if (node.left().type().isDereferable()) {
+            if (node.left().type().isPointer()) {
                 right = new Bin(ptrDiffType(), Op.MUL,
                         right, ptrDiff(node.left().type().baseType().size()));
             }
-            else if (node.right().type().isDereferable()) {
+            else if (node.right().type().isPointer()) {
                 left = new Bin(ptrDiffType(), Op.MUL,
                         left, ptrDiff(node.right().type().baseType().size()));
             }
@@ -626,9 +626,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr addr = new Bin(pointer(), Op.ADD,
             addressOf(transformExpr(node.expr())),
             intValue(node.offset()));
-        return node.shouldEvaluatedToAddress()
-                ? addr
-                : deref(addr, node.type());
+        return node.isLoadable() ? deref(addr, node.type()) : addr;
     }
     // #@@}
 
@@ -636,7 +634,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr addr = new Bin(pointer(), Op.ADD,
             transformExpr(node.expr()),
             intValue(node.offset()));
-        return node.shouldEvaluatedToAddress() ? addr : deref(addr, node.type());
+        return node.isLoadable() ? deref(addr, node.type()) : addr;
     }
 
     public Expr visit(DereferenceNode node) {
@@ -645,12 +643,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     public Expr visit(AddressNode node) {
         Expr e = transformExpr(node.expr());
-        if (node.expr().shouldEvaluatedToAddress()) {
-            return e;
-        }
-        else {
-            return addressOf(e);
-        }
+        return node.expr().isLoadable() ? addressOf(e) : e;
     }
 
     public Expr visit(CastNode node) {
@@ -669,7 +662,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     public Expr visit(SizeofExprNode node) {
-        return intValue(node.expr().type().allocSize());
+        return intValue(node.expr().allocSize());
     }
 
     public Expr visit(SizeofTypeNode node) {
@@ -681,7 +674,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             return transformExpr(node.entity().value());
         }
         Var var = new Var(varType(node.type()), node.entity());
-        return node.shouldEvaluatedToAddress() ? addressOf(var) : var;
+        return node.isLoadable() ? var : addressOf(var);
     }
 
     public Expr visit(IntegerLiteralNode node) {

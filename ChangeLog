@@ -1,3 +1,84 @@
+Mon May 18 03:01:22 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: change function pointer
+	  syntax: int(*)(int,int) -> int(int,int)*.  Function type is
+	  int(int,int).
+
+	* net/loveruby/cflat/parser/Parser.jj: function returns function
+	  type, not pointer to function.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: resolve all
+	  function headers first, then resolve bodies.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: generate a
+	  pointer for array-type expression.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: isDereferable ->
+	  isPointer.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: ditto.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: ditto.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java:
+	  shouldEvaluatedToAddress -> isLoadable (check arrays and
+	  functions, not only arrays).
+
+	* net/loveruby/cflat/type/Type.java: remove #isDereferable.
+
+	* net/loveruby/cflat/type/UserType.java: ditto.
+
+	* net/loveruby/cflat/type/ArrayType.java: is not a scalar.
+
+	* net/loveruby/cflat/type/ArrayType.java: is not dereferable
+	  itself.
+
+	* net/loveruby/cflat/type/PointerType.java: is incompatible with
+	  arrays.
+
+	* net/loveruby/cflat/type/IntegerType.java: ditto.
+
+	* net/loveruby/cflat/type/FunctionType.java: is callable.
+
+	* net/loveruby/cflat/type/ParamTypeRefs.java: x[] -> x* for param
+	  types.
+
+	* net/loveruby/cflat/type/TypeTable.java: new method
+	  #getParamType.
+
+	* net/loveruby/cflat/ast/ExprNode.java: new method #isLvalue.
+
+	* net/loveruby/cflat/ast/ExprNode.java: new method #isAssignable.
+
+	* net/loveruby/cflat/ast/ExprNode.java: new method #isLoadable.
+
+	* net/loveruby/cflat/ast/CastNode.java: delegate them.
+
+	* net/loveruby/cflat/ast/LHSNode.java: new super class of LHS
+	  nodes.
+
+	* net/loveruby/cflat/ast/VariableNode.java: ditto.
+
+	* net/loveruby/cflat/ast/DereferenceNode.java: ditto.
+
+	* net/loveruby/cflat/ast/ArefNode.java: ditto.
+
+	* net/loveruby/cflat/ast/MemberNode.java: ditto.
+
+	* net/loveruby/cflat/ast/PtrMemberNode.java: ditto.
+
+	* net/loveruby/cflat/entity/Entity.java: remove #cannotLoad.
+
+	* net/loveruby/cflat/entity/Function.java: ditto.
+
+	* net/loveruby/cflat/entity/Variable.java: ditto.
+
+	* net/loveruby/cflat/entity/Constant.java: ditto.
+
+	* net/loveruby/cflat/ir/Addr.java: is not LHS node now.
+
 Sun May 17 16:37:26 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* import/dlfcn.hb: new declaration file dlfcn.hb.

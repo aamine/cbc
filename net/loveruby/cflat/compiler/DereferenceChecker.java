@@ -100,7 +100,7 @@ class DereferenceChecker extends Visitor {
         return null;
     }
 
-    protected void checkAssignment(AbstractAssignNode node) {
+    private void checkAssignment(AbstractAssignNode node) {
         if (! node.lhs().isAssignable()) {
             semanticError(node, "invalid lhs expression");
         }
@@ -136,7 +136,7 @@ class DereferenceChecker extends Visitor {
 
     public Void visit(ArefNode node) {
         super.visit(node);
-        if (! node.expr().isDereferable()) {
+        if (! node.expr().isPointer()) {
             semanticError(node, "indexing non-array/pointer expression");
         }
         return null;
@@ -150,7 +150,7 @@ class DereferenceChecker extends Visitor {
 
     public Void visit(PtrMemberNode node) {
         super.visit(node);
-        if (! node.expr().isDereferable()) {
+        if (! node.expr().isPointer()) {
             undereferableError(node);
         }
         checkMemberRef(node, node.dereferedType(), node.member());
@@ -172,7 +172,7 @@ class DereferenceChecker extends Visitor {
     // #@@range/DereferenceNode{
     public Void visit(DereferenceNode node) {
         super.visit(node);
-        if (! node.expr().isDereferable()) {
+        if (! node.expr().isPointer()) {
             undereferableError(node);
         }
         return null;
@@ -182,8 +182,8 @@ class DereferenceChecker extends Visitor {
     // #@@range/AddressNode{
     public Void visit(AddressNode node) {
         super.visit(node);
-        if (! node.expr().isAssignable()) {
-            semanticError(node, "invalid LHS expression for &");
+        if (! node.expr().isLvalue()) {
+            semanticError(node, "invalid expression for &");
         }
         return null;
     }
@@ -193,6 +193,14 @@ class DereferenceChecker extends Visitor {
         super.visit(node);
         if (node.entity().isConstant()) {
             checkConstant(node.entity().value());
+        }
+        return null;
+    }
+
+    public Void visit(CastNode node) {
+        super.visit(node);
+        if (node.type().isArray()) {
+            semanticError(node, "cast specifies array type");
         }
         return null;
     }
