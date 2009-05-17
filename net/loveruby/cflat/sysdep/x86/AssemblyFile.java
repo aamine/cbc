@@ -90,12 +90,13 @@ public class AssemblyFile {
     }
 
     protected String typeSuffix(Type t) {
-        switch (t.size()) {
-        case 1: return "b";
-        case 2: return "w";
-        case 4: return "l";
+        switch (t) {
+        case INT8: return "b";
+        case INT16: return "w";
+        case INT32: return "l";
+        case INT64: return "q";
         default:
-            throw new Error("unknown type size: " + t.size());
+            throw new Error("unknown register type: " + t.size());
         }
     }
 

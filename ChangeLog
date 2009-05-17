@@ -1,3 +1,8 @@
+Sat May 16 17:48:49 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/AssemblyFile.java: use Type
+	  instead of size.
+
 Sat May 16 17:20:36 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm/Register.java: use enum for register
