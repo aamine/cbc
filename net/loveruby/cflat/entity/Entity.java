@@ -2,6 +2,7 @@ package net.loveruby.cflat.entity;
 import net.loveruby.cflat.type.*;
 import net.loveruby.cflat.ast.TypeNode;
 import net.loveruby.cflat.ast.Location;
+import net.loveruby.cflat.ast.ExprNode;
 import net.loveruby.cflat.asm.Symbol;
 import net.loveruby.cflat.asm.AsmOperand;
 import net.loveruby.cflat.asm.MemoryReference;
@@ -32,6 +33,12 @@ abstract public class Entity
 
     abstract public boolean isDefined();
     abstract public boolean isInitialized();
+
+    public boolean isConstant() { return false; }
+
+    public ExprNode value() {
+        throw new Error("Entity#value");
+    }
 
     public boolean isParameter() { return false; }
 

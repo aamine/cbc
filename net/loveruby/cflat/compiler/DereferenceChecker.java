@@ -18,7 +18,7 @@ class DereferenceChecker extends Visitor {
     // #@@range/check_AST{
     public void check(AST ast) throws SemanticException {
         for (DefinedVariable var : ast.definedVariables()) {
-            checkVariable(var);
+            checkToplevelVariable(var);
         }
         for (DefinedFunction f : ast.definedFunctions()) {
             check(f.body());
@@ -28,6 +28,19 @@ class DereferenceChecker extends Visitor {
         }
     }
     // #@@}
+
+    private void checkToplevelVariable(DefinedVariable var) {
+        checkVariable(var);
+        if (var.hasInitializer()) {
+            checkConstant(var.initializer());
+        }
+    }
+
+    private void checkConstant(ExprNode expr) {
+        if (! expr.isConstant()) {
+            errorHandler.error(expr.location(), "not a constant");
+        }
+    }
 
     // #@@range/check{
     protected void check(StmtNode node) {
@@ -60,7 +73,7 @@ class DereferenceChecker extends Visitor {
     }
     // #@@}
 
-    protected void checkVariable(DefinedVariable var) {
+    private void checkVariable(DefinedVariable var) {
         if (var.hasInitializer()) {
             try {
                 check(var.initializer());
@@ -175,6 +188,14 @@ class DereferenceChecker extends Visitor {
         return null;
     }
     // #@@}
+
+    public Void visit(VariableNode node) {
+        super.visit(node);
+        if (node.entity().isConstant()) {
+            checkConstant(node.entity().value());
+        }
+        return null;
+    }
 
     //
     // Utilities

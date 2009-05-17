@@ -677,6 +677,9 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     public Expr visit(VariableNode node) {
+        if (node.entity().isConstant()) {
+            return transformExpr(node.entity().value());
+        }
         Var var = new Var(varType(node.type()), node.entity());
         return node.shouldEvaluatedToAddress() ? addressOf(var) : var;
     }

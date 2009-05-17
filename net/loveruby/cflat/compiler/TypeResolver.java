@@ -112,6 +112,12 @@ public class TypeResolver extends Visitor
         return null;
     }
 
+    public Void visit(Constant c) {
+        bindType(c.typeNode());
+        visitExpr(c.value());
+        return null;
+    }
+
     // #@@range/DefinedFunction{
     public Void visit(DefinedFunction func) {
         resolveFunctionHeader(func);

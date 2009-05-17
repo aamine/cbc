@@ -42,6 +42,7 @@ public class LocalResolver extends Visitor {
         // #@@}
         // #@@range/resolveRefs{
         resolveGvarInitializers(ast.definedVariables());
+        resolveConstantValues(ast.constants());
         resolveFunctions(ast.definedFunctions());
         // #@@}
         toplevel.checkReferences(errorHandler);
@@ -63,6 +64,12 @@ public class LocalResolver extends Visitor {
         }
     }
     // #@@}
+
+    private void resolveConstantValues(List<Constant> consts) {
+        for (Constant c : consts) {
+            resolve(c.value());
+        }
+    }
 
     // #@@range/resolveFunctions{
     protected void resolveFunctions(List<DefinedFunction> funcs) {

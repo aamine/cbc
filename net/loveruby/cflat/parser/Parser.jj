@@ -306,6 +306,7 @@ TOKEN: {
     | <ENUM     : "enum">
     | <STATIC   : "static">
     | <EXTERN   : "extern">
+    | <CONST    : "const">
     | <SIGNED   : "signed">
     | <UNSIGNED : "unsigned">
     | <IF       : "if">
@@ -394,6 +395,7 @@ Declarations declaration_file():
     Declarations impdecls, decls = new Declarations();
     UndefinedFunction funcdecl;
     UndefinedVariable vardecl;
+    Constant defconst;
     StructNode defstruct;
     UnionNode defunion;
     TypedefNode typedef;
@@ -406,6 +408,7 @@ Declarations declaration_file():
     ( LOOKAHEAD(<EXTERN> typeref() <IDENTIFIER> "(")
       funcdecl=funcdecl()   { decls.addFuncdecl(funcdecl); }
     | vardecl=vardecl()     { decls.addVardecl(vardecl); }
+    | defconst=defconst()   { decls.addConstant(defconst); }
     | defstruct=defstruct() { decls.addDefstruct(defstruct); }
     | defunion=defunion()   { decls.addDefunion(defunion); }
     | typedef=typedef()     { decls.addTypedef(typedef); }
@@ -466,6 +469,7 @@ Declarations top_defs():
     Declarations decls = new Declarations();
     DefinedFunction defun;
     List<DefinedVariable> defvars;
+    Constant defconst;
     StructNode defstruct;
     UnionNode defunion;
     TypedefNode typedef;
@@ -475,6 +479,7 @@ Declarations top_defs():
       defun=defun()         { decls.addDefun(defun); }
     | LOOKAHEAD(3)
       defvars=defvars()     { decls.addDefvars(defvars); }
+    | defconst=defconst()   { decls.addConstant(defconst); }
     | defstruct=defstruct() { decls.addDefstruct(defstruct); }
     | defunion=defunion()   { decls.addDefunion(defunion); }
     | typedef=typedef()     { decls.addTypedef(typedef); }
@@ -508,6 +513,21 @@ List<DefinedVariable> defvars():
     )* ";"
         {
             return defs;
+        }
+}
+// #@@}
+
+// #@@range/defvars{
+Constant defconst():
+{
+    TypeNode type;
+    String name;
+    ExprNode value;
+}
+{
+    <CONST> type=type() name=name() "=" value=expr() ";"
+        {
+            return new Constant(type, name, value);
         }
 }
 // #@@}

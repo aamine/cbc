@@ -1,3 +1,37 @@
+Sun May 17 16:33:24 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/parser/Parser.jj: support constant
+	  definition.
+
+	* net/loveruby/cflat/ast/Declarations.java: hold constants.
+
+	* net/loveruby/cflat/ast/AST.java: ditto.
+
+	* net/loveruby/cflat/compiler/LocalResolver.java: resolve
+	  constants.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: resolve
+	  constants.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: transform
+	  constants reference into literal value.
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: check if
+	  toplevel variable initializer consists of a literal.
+
+	* net/loveruby/cflat/compiler/DereferenceChecker.java: check if
+	  constant value consists of a literal.
+
+	* net/loveruby/cflat/ast/ExprNode.java: new method #isConstant.
+
+	* net/loveruby/cflat/ast/LiteralNode.java: override.
+
+	* net/loveruby/cflat/entity/Entity.java: support Constant.
+
+	* net/loveruby/cflat/entity/Constant.java: new entity.
+
+	* net/loveruby/cflat/entity/EntityVisitor.java: add Constant.
+
 Sun May 17 16:18:08 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Options.java: cbc --dump-* did not

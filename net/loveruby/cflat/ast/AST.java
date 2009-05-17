@@ -31,16 +31,21 @@ public class AST extends Node {
 
     public List<Entity> declarations() {
         List<Entity> result = new ArrayList<Entity>();
-        result.addAll(declarations.funcdecls());
-        result.addAll(declarations.vardecls());
+        result.addAll(declarations.funcdecls);
+        result.addAll(declarations.vardecls);
         return result;
     }
 
     public List<Entity> entities() {
         List<Entity> result = new ArrayList<Entity>();
-        result.addAll(declarations.defvars());
-        result.addAll(declarations.defuns());
+        result.addAll(declarations.defvars);
+        result.addAll(declarations.defuns);
+        result.addAll(declarations.constants);
         return result;
+    }
+
+    public List<Constant> constants() {
+        return declarations.constants();
     }
 
     public List<DefinedVariable> definedVariables() {

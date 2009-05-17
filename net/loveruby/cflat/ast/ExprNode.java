@@ -9,6 +9,10 @@ abstract public class ExprNode extends Node {
 
     abstract public Type type();
 
+    public boolean isConstant() {
+        return false;
+    }
+
     public boolean isCallable() {
         try {
             return type().isCallable();

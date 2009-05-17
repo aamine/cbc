@@ -1,0 +1,14 @@
+import stdio;
+
+const int RTLD_LAZY = 0x10;
+const char* MSG = "msgstring";
+
+int main(int argc, char** argv)
+{
+        printf("%d", RTLD_LAZY);
+        printf(";%d", RTLD_LAZY);
+        printf(";%d", RTLD_LAZY);
+        printf(";%s", MSG);
+        puts("");
+        return 0;
+}

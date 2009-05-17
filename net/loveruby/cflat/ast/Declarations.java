@@ -3,30 +3,23 @@ import net.loveruby.cflat.entity.*;
 import java.util.*;
 
 public class Declarations {
-    protected Set<DefinedVariable> defvars;
-    protected Set<UndefinedVariable> vardecls;
-    protected Set<DefinedFunction> defuns;
-    protected Set<UndefinedFunction> funcdecls;
-    protected Set<StructNode> defstructs;
-    protected Set<UnionNode> defunions;
-    protected Set<TypedefNode> typedefs;
-
-    public Declarations() {
-        defvars = new LinkedHashSet<DefinedVariable>();
-        vardecls = new LinkedHashSet<UndefinedVariable>();
-        defuns = new LinkedHashSet<DefinedFunction>();
-        funcdecls = new LinkedHashSet<UndefinedFunction>();
-        defstructs = new LinkedHashSet<StructNode>();
-        defunions = new LinkedHashSet<UnionNode>();
-        typedefs = new LinkedHashSet<TypedefNode>();
-    }
+    Set<DefinedVariable> defvars = new LinkedHashSet<DefinedVariable>();
+    Set<UndefinedVariable> vardecls = new LinkedHashSet<UndefinedVariable>();
+    Set<DefinedFunction> defuns = new LinkedHashSet<DefinedFunction>();
+    Set<UndefinedFunction> funcdecls = new LinkedHashSet<UndefinedFunction>();
+    Set<Constant> constants = new LinkedHashSet<Constant>();
+    Set<StructNode> defstructs = new LinkedHashSet<StructNode>();
+    Set<UnionNode> defunions = new LinkedHashSet<UnionNode>();
+    Set<TypedefNode> typedefs = new LinkedHashSet<TypedefNode>();
 
     public void add(Declarations decls) {
-        vardecls.addAll(decls.vardecls());
-        funcdecls.addAll(decls.funcdecls());
-        defstructs.addAll(decls.defstructs());
-        defunions.addAll(decls.defunions());
-        typedefs.addAll(decls.typedefs());
+        defvars.addAll(decls.defvars);
+        vardecls.addAll(decls.vardecls);
+        funcdecls.addAll(decls.funcdecls);
+        constants.addAll(decls.constants);
+        defstructs.addAll(decls.defstructs);
+        defunions.addAll(decls.defunions);
+        typedefs.addAll(decls.typedefs);
     }
 
     public void addDefvar(DefinedVariable var) {
@@ -47,6 +40,14 @@ public class Declarations {
 
     public List<UndefinedVariable> vardecls() {
         return new ArrayList<UndefinedVariable>(vardecls);
+    }
+
+    public void addConstant(Constant c) {
+        constants.add(c);
+    }
+
+    public List<Constant> constants() {
+        return new ArrayList<Constant>(constants);
     }
 
     public void addDefun(DefinedFunction func) {
