@@ -18,7 +18,7 @@ class Options {
         return opts;
     }
 
-    private CompilerMode mode = CompilerMode.Link;
+    private CompilerMode mode;
     private Platform platform = new X86Linux();
     private String outputFileName;
     private boolean verbose = false;
@@ -255,6 +255,9 @@ class Options {
             ldArgs.add(new SourceFile(args.next()));
         }
 
+        if (mode == null) {
+            mode = CompilerMode.Link;
+        }
         sourceFiles = selectSourceFiles(ldArgs);
         if (sourceFiles.isEmpty()) {
             parseError("no input file");
