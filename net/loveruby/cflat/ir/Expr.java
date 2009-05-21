@@ -31,9 +31,11 @@ abstract public class Expr implements Dumpable {
         throw new Error("Expr#memref called");
     }
 
+    // #@@range/addressNode{
     public Expr addressNode(Type type) {
         throw new Error("unexpected node for LHS: " + getClass());
     }
+    // #@@}
 
     public Entity getEntityForce() {
         return null;

@@ -30,9 +30,11 @@ public class Var extends Expr {
         return entity.memref();
     }
 
+    // #@@range/addressNode{
     public Addr addressNode(Type type) {
         return new Addr(type, entity);
     }
+    // #@@}
 
     public Entity getEntityForce() {
         return entity;
