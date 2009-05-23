@@ -5,6 +5,7 @@ import net.loveruby.cflat.entity.*;
 import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.utils.AsmUtils;
+import net.loveruby.cflat.utils.ListUtils;
 import net.loveruby.cflat.utils.ErrorHandler;
 import java.util.*;
 
@@ -639,28 +640,22 @@ public class CodeGenerator
     /**
      * Implements cdecl function call:
      *    * All arguments are on stack.
-     *    * Rewind stack by caller.
+     *    * Caller rewinds stack pointer.
      */
     // #@@range/compile_Funcall{
     public Void visit(Call node) {
-        // compile function arguments from right to left.
-        ListIterator<Expr> args = node.finalArg();
-        while (args.hasPrevious()) {
-            compile(args.previous());
+        for (Expr arg : ListUtils.reverse(node.args())) {
+            compile(arg);
             as.push(ax());
         }
-        // call
         if (node.isStaticCall()) {
-            // call via function name
             as.call(node.function().callingSymbol());
         }
         else {
-            // call via pointer
             compile(node.expr());
             as.callAbsolute(ax());
         }
-        // rewind stack
-        // >4 bytes arguments are not supported.
+        // rewind stack; >4 bytes arguments are not supported.
         rewindStack(as, stackSizeFromWordNum(node.numArgs()));
         return null;
     }

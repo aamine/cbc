@@ -3,7 +3,6 @@ import net.loveruby.cflat.entity.Function;
 import net.loveruby.cflat.entity.Entity;
 import net.loveruby.cflat.asm.Type;
 import java.util.List;
-import java.util.ListIterator;
 
 public class Call extends Expr {
     private Expr expr;
@@ -16,14 +15,10 @@ public class Call extends Expr {
     }
 
     public Expr expr() { return expr; }
-    public List<Expr> arguments() { return args; }
+    public List<Expr> args() { return args; }
 
     public long numArgs() {
         return args.size();
-    }
-
-    public ListIterator<Expr> finalArg() {
-        return args.listIterator(args.size());
     }
 
     /** Returns true if this funcall is NOT a function pointer call. */

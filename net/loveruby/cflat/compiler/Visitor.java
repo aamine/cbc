@@ -172,7 +172,7 @@ abstract public class Visitor implements ASTVisitor<Void, Void> {
 
     public Void visit(FuncallNode node) {
         visitExpr(node.expr());
-        visitExprs(node.arguments());
+        visitExprs(node.args());
         return null;
     }
 

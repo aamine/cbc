@@ -1,3 +1,23 @@
+Sat May 23 23:31:17 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: refactoring: use
+	  reverse(node.args) instead of ListIterator.
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/utils/ListUtils.java: new utility class.
+
+	* net/loveruby/cflat/ast/FuncallNode.java: remove #finalArgs.
+
+	* net/loveruby/cflat/ir/Call.java: ditto.
+
+	* net/loveruby/cflat/ast/FuncallNode.java: refactoring: rename
+	  method: arguments -> args.
+
+	* net/loveruby/cflat/compiler/Visitor.java: follow it.
+
+	* net/loveruby/cflat/compiler/TypeChecker.java: ditto.
+
 Sat May 23 22:31:06 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/parser/Parser.jj: now NULL is not a reserved

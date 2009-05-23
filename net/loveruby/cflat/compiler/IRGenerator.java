@@ -6,6 +6,7 @@ import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.ir.*;
 import net.loveruby.cflat.asm.Label;
 import net.loveruby.cflat.utils.ErrorHandler;
+import net.loveruby.cflat.utils.ListUtils;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
 
@@ -554,30 +555,25 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
     // #@@}
 
+    // #@@range/Funcall{
     public Expr visit(FuncallNode node) {
-        List<Expr> newArgs = new ArrayList<Expr>();
-        ListIterator<ExprNode> args = node.finalArg();
-        while (args.hasPrevious()) {
-            newArgs.add(0, transformExpr(args.previous()));
+        List<Expr> args = new ArrayList<Expr>();
+        for (ExprNode arg : ListUtils.reverse(node.args())) {
+            args.add(0, transformExpr(arg));
         }
+        Expr call = new Call(asmType(node.type()),
+                transformExpr(node.expr()), args);
         if (isStatement()) {
-            stmts.add(
-                    new ExprStmt(node.location(),
-                            new Call(asmType(node.type()),
-                                        transformExpr(node.expr()),
-                                        newArgs)));
+            stmts.add(new ExprStmt(node.location(), call));
             return null;
         }
         else {
             DefinedVariable tmp = tmpVar(node.type());
-            assign(node.location(),
-                    ref(tmp),
-                    new Call(asmType(node.type()),
-                            transformExpr(node.expr()),
-                            newArgs));
+            assign(node.location(), ref(tmp), call);
             return ref(tmp);
         }
     }
+    // #@@}
 
     //
     // Expressions (no side effects)

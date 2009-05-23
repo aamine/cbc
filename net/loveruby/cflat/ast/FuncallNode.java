@@ -5,11 +5,11 @@ import java.util.*;
 
 public class FuncallNode extends ExprNode {
     protected ExprNode expr;
-    protected List<ExprNode> arguments;
+    protected List<ExprNode> args;
 
-    public FuncallNode(ExprNode expr, List<ExprNode> arguments) {
+    public FuncallNode(ExprNode expr, List<ExprNode> args) {
         this.expr = expr;
-        this.arguments = arguments;
+        this.args = args;
     }
 
     public ExprNode expr() {
@@ -38,20 +38,16 @@ public class FuncallNode extends ExprNode {
     }
 
     public long numArgs() {
-        return arguments.size();
+        return args.size();
     }
 
-    public List<ExprNode> arguments() {
-        return arguments;
+    public List<ExprNode> args() {
+        return args;
     }
 
     // called from TypeChecker
     public void replaceArgs(List<ExprNode> args) {
-        this.arguments = args;
-    }
-
-    public ListIterator<ExprNode> finalArg() {
-        return arguments.listIterator(arguments.size());
+        this.args = args;
     }
 
     public Location location() {
@@ -60,7 +56,7 @@ public class FuncallNode extends ExprNode {
 
     protected void _dump(Dumper d) {
         d.printMember("expr", expr);
-        d.printNodeList("arguments", arguments);
+        d.printNodeList("args", args);
     }
 
     public <S,E> E accept(ASTVisitor<S,E> visitor) {

@@ -460,7 +460,7 @@ class TypeChecker extends Visitor {
             error(node, "wrong number of argments: " + node.numArgs());
             return null;
         }
-        Iterator<ExprNode> args = node.arguments().iterator();
+        Iterator<ExprNode> args = node.args().iterator();
         List<ExprNode> newArgs = new ArrayList<ExprNode>();
         // mandatory args
         for (Type param : type.paramTypes()) {
