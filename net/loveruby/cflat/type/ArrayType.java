@@ -17,8 +17,6 @@ public class ArrayType extends Type {
     }
 
     public boolean isArray() { return true; }
-    public boolean isScalar() { return false; }
-    public boolean isSigned() { return false; }
 
     public boolean isAllocatedArray() {
         return length != undefined &&

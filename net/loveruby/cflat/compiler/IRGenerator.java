@@ -447,12 +447,13 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     // #@@range/Assign{
     public Expr visit(AssignNode node) {
+        Location lloc = node.lhs().location();
+        Location rloc = node.rhs().location();
         if (isStatement()) {
             // Evaluate RHS before LHS.
             // #@@range/Assign_stmt{
             Expr rhs = transformExpr(node.rhs());
-            assign(node.lhs().location(),
-                    transformExpr(node.lhs()), rhs);
+            assign(lloc, transformExpr(node.lhs()), rhs);
             return null;
             // #@@}
         }
@@ -460,10 +461,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             // lhs = rhs -> tmp = rhs, lhs = tmp, tmp
             // #@@range/Assign_expr{
             DefinedVariable tmp = tmpVar(node.rhs().type());
-            assign(node.rhs().location(),
-                    ref(tmp), transformExpr(node.rhs()));
-            assign(node.lhs().location(),
-                    transformExpr(node.lhs()), ref(tmp));
+            assign(rloc, ref(tmp), transformExpr(node.rhs()));
+            assign(lloc, transformExpr(node.lhs()), ref(tmp));
             return ref(tmp);
             // #@@}
         }
@@ -489,9 +488,9 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
                 transformExpr(node.expr()), imm(t, 1));
     }
 
-    // #@@range/suffixOp{
+    // #@@range/SuffixOp{
     public Expr visit(SuffixOpNode node) {
-        // #@@range/suffixOp_ini{
+        // #@@range/SuffixOp_init{
         Location loc = node.location();
         Type t = node.expr().type();
         Expr expr = transformExpr(node.expr());
@@ -511,14 +510,13 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             return ref(v);
         }
         else {
-            // #@@range/suffixOp_expr{
             // cont(expr++) -> a = &expr; v = *a; *a = *a + 1; cont(v)
-            Expr addr = addressOf(expr);
+            // #@@range/SuffixOp_expr{
             DefinedVariable a = tmpVar(pointerTo(t));
             DefinedVariable v = tmpVar(t);
-            assign(loc, ref(a), addr);
-            assign(loc, ref(v), deref(a));
-            assign(loc, deref(a), bin(op, t, deref(a), imm(t, 1)));
+            assign(loc, ref(a), addressOf(expr));
+            assign(loc, ref(v), mem(a));
+            assign(loc, mem(a), bin(op, t, mem(a), imm(t, 1)));
             return ref(v);
             // #@@}
         }
@@ -529,26 +527,26 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     private Expr transformOpAssign(Location loc,
             Op op, Type lhsType, Expr lhs, Expr rhs) {
         if (lhs.isConstantAddress()) {
-            // cont(lhs op= rhs) -> lhs = lhs op rhs; cont(lhs)
+            // cont(lhs += rhs) -> lhs = lhs + rhs; cont(lhs)
             assign(loc, lhs, bin(op, lhsType, lhs, rhs));
             return isStatement() ? null : lhs;
         }
         else {
-            // a = &lhs, *a = *a op rhs, *a
+            // cont(lhs += rhs) -> a = &lhs; *a = *a + rhs; cont(*a)
             DefinedVariable a = tmpVar(pointerTo(lhsType));
             assign(loc, ref(a), addressOf(lhs));
-            assign(loc, deref(a), bin(op, lhsType, deref(a), rhs));
-            return isStatement() ? null : deref(a);
+            assign(loc, mem(a), bin(op, lhsType, mem(a), rhs));
+            return isStatement() ? null : mem(a);
         }
     }
     // #@@}
 
     // #@@range/bin{
-    private Bin bin(Op op, Type l, Expr left, Expr right) {
-        if (isPointerArithmetic(op, l)) {
+    private Bin bin(Op op, Type leftType, Expr left, Expr right) {
+        if (isPointerArithmetic(op, leftType)) {
             return new Bin(left.type(), op, left,
                     new Bin(right.type(), Op.MUL,
-                            right, ptrBaseSize(l)));
+                            right, ptrBaseSize(leftType)));
         }
         else {
             return new Bin(left.type(), op, left, right);
@@ -638,7 +636,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr offset = new Bin(ptrdiff_t(), Op.MUL,
                 size(node.elementSize()), transformIndex(node));
         Bin addr = new Bin(ptr_t(), Op.ADD, expr, offset);
-        return deref(addr, node.type());
+        return mem(addr, node.type());
     }
     // #@@}
 
@@ -665,7 +663,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr expr = addressOf(transformExpr(node.expr()));
         Expr offset = ptrdiff(node.offset());
         Expr addr = new Bin(ptr_t(), Op.ADD, expr, offset);
-        return node.isLoadable() ? deref(addr, node.type()) : addr;
+        return node.isLoadable() ? mem(addr, node.type()) : addr;
     }
     // #@@}
 
@@ -674,7 +672,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr expr = transformExpr(node.expr());
         Expr offset = ptrdiff(node.offset());
         Expr addr = new Bin(ptr_t(), Op.ADD, expr, offset);
-        return node.isLoadable() ? deref(addr, node.type()) : addr;
+        return node.isLoadable() ? mem(addr, node.type()) : addr;
     }
     // #@@}
 
@@ -716,7 +714,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         if (node.entity().isConstant()) {
             return transformExpr(node.entity().value());
         }
-        Var var = new Var(varType(node.type()), node.entity());
+        Var var = ref(node.entity());
         return node.isLoadable() ? var : addressOf(var);
     }
 
@@ -761,19 +759,19 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
     // #@@}
 
-    // #@@range/addressOf{
-    private Var ref(DefinedVariable var) {
-        return new Var(varType(var.type()), var);
+    // #@@range/ref{
+    private Var ref(Entity ent) {
+        return new Var(varType(ent.type()), ent);
     }
     // #@@}
 
-    // deref(v) -> (Mem (Var v))
-    private Mem deref(DefinedVariable var) {
-        return deref(ref(var), var.type().baseType());
+    // mem(ent) -> (Mem (Var ent))
+    private Mem mem(Entity ent) {
+        return new Mem(asmType(ent.type().baseType()), ref(ent));
     }
 
-    // deref(expr) -> (Mem expr)
-    private Mem deref(Expr expr, Type t) {
+    // mem(expr) -> (Mem expr)
+    private Mem mem(Expr expr, Type t) {
         return new Mem(asmType(t), expr);
     }
 
@@ -810,7 +808,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     private net.loveruby.cflat.asm.Type varType(Type t) {
-        if (t.size() == 0 || t.size() > typeTable.maxIntSize()) {
+        if (! t.isScalar()) {
             return null;
         }
         return net.loveruby.cflat.asm.Type.get(t.size());

@@ -1,3 +1,11 @@
+Sat May 23 22:22:11 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: refactoring:
+	  rename method: deref -> mem
+
+	* net/loveruby/cflat/type/ArrayType.java: remove useless
+	  definition of #isScalar.
+
 Sat May 23 21:33:55 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: refactoring:
