@@ -11,7 +11,6 @@ abstract public class ExprNode extends Node {
     protected Type origType() { return type(); }
 
     public long allocSize() { return type().allocSize(); }
-    public long baseSize() { return type().baseType().size(); }
 
     public boolean isConstant() { return false; }
     public boolean isParameter() { return false; }
