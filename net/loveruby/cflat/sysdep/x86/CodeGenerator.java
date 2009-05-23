@@ -697,8 +697,8 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/compile_BranchIf{
-    public Void visit(BranchIf node) {
+    // #@@range/compile_CJump{
+    public Void visit(CJump node) {
         compile(node.cond());
         testCond(node.cond().type(), ax());
         as.jnz(node.thenLabel());

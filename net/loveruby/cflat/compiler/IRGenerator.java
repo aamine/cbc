@@ -166,7 +166,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Label elseLabel = new Label();
         Label endLabel = new Label();
 
-        branch(node.location(),
+        cjump(node.location(),
                 transformExpr(node.cond()),
                 thenLabel,
                 node.elseBody() == null ? endLabel : elseLabel);
@@ -222,7 +222,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Label endLabel = new Label();
 
         label(begLabel);
-        branch(node.location(),
+        cjump(node.location(),
                 transformExpr(node.cond()), bodyLabel, endLabel);
         label(bodyLabel);
         pushContinue(begLabel);
@@ -248,7 +248,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         popBreak();
         popContinue();
         label(contLabel);
-        branch(node.location(), transformExpr(node.cond()), begLabel, endLabel);
+        cjump(node.location(), transformExpr(node.cond()), begLabel, endLabel);
         label(endLabel);
         return null;
     }
@@ -261,7 +261,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
         transformStmt(node.init());
         label(begLabel);
-        branch(node.location(),
+        cjump(node.location(),
                 transformExpr(node.cond()), bodyLabel, endLabel);
         label(bodyLabel);
         pushContinue(contLabel);
@@ -321,8 +321,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         return null;
     }
 
-    private void branch(Location loc, Expr cond, Label thenLabel, Label elseLabel) {
-        stmts.add(new BranchIf(loc, cond, thenLabel, elseLabel));
+    private void cjump(Location loc, Expr cond, Label thenLabel, Label elseLabel) {
+        stmts.add(new CJump(loc, cond, thenLabel, elseLabel));
     }
 
     private void assign(Location loc, Expr lhs, Expr rhs) {
@@ -399,7 +399,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         DefinedVariable var = tmpVar(node.type());
 
         Expr cond = transformExpr(node.cond());
-        branch(node.location(), cond, thenLabel, elseLabel);
+        cjump(node.location(), cond, thenLabel, elseLabel);
         label(thenLabel);
         assign(node.thenExpr().location(),
                 ref(var), transformExpr(node.thenExpr()));
@@ -419,7 +419,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
         assign(node.left().location(),
                 ref(var), transformExpr(node.left()));
-        branch(node.location(), ref(var), rightLabel, endLabel);
+        cjump(node.location(), ref(var), rightLabel, endLabel);
         label(rightLabel);
         assign(node.right().location(),
                 ref(var), transformExpr(node.right()));
@@ -434,7 +434,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
         assign(node.left().location(),
                 ref(var), transformExpr(node.left()));
-        branch(node.location(), ref(var), endLabel, rightLabel);
+        cjump(node.location(), ref(var), endLabel, rightLabel);
         label(rightLabel);
         assign(node.right().location(),
                 ref(var), transformExpr(node.right()));

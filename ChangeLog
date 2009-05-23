@@ -1,3 +1,13 @@
+Sun May 24 00:42:28 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/ir: rename class: BranchIf -> CJump.
+
+	* net/loveruby/cflat/ir/IRVisitor.java: follow it.
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: ditto.
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: ditto.
+
 Sun May 24 00:01:07 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: refactoring:

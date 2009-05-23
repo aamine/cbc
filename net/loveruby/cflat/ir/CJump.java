@@ -2,13 +2,12 @@ package net.loveruby.cflat.ir;
 import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.asm.Label;
 
-public class BranchIf extends Stmt {
+public class CJump extends Stmt {
     protected Expr cond;
     protected Label thenLabel;
     protected Label elseLabel;
 
-    public BranchIf(Location loc, Expr cond,
-                    Label thenLabel, Label elseLabel) {
+    public CJump(Location loc, Expr cond, Label thenLabel, Label elseLabel) {
         super(loc);
         this.cond = cond;
         this.thenLabel = thenLabel;

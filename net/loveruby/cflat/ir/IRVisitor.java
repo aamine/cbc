@@ -3,10 +3,10 @@ package net.loveruby.cflat.ir;
 public interface IRVisitor<S,E> {
     public S visit(ExprStmt s);
     public S visit(Assign s);
-    public S visit(BranchIf s);
+    public S visit(CJump s);
+    public S visit(Jump s);
     public S visit(Switch s);
     public S visit(LabelStmt s);
-    public S visit(Jump s);
     public S visit(Return s);
 
     public E visit(Uni s);
