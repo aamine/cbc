@@ -492,10 +492,10 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     // #@@range/SuffixOp{
     public Expr visit(SuffixOpNode node) {
         // #@@range/SuffixOp_init{
-        Location loc = node.location();
-        Type t = node.expr().type();
         Expr expr = transformExpr(node.expr());
+        Type t = node.expr().type();
         Op op = binOp(node.operator());
+        Location loc = node.location();
         // #@@}
 
         if (isStatement()) {
