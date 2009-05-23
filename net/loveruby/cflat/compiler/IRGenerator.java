@@ -81,12 +81,28 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         return (exprNestLevel == 0);
     }
 
+    private void assign(Location loc, Expr lhs, Expr rhs) {
+        stmts.add(new Assign(loc, addressOf(lhs), rhs));
+    }
+
+    private DefinedVariable tmpVar(Type t) {
+        return scopeStack.getLast().allocateTmp(t);
+    }
+
     private void label(Label label) {
         stmts.add(new LabelStmt(null, label));
     }
 
+    private void jump(Location loc, Label target) {
+        stmts.add(new Jump(loc, target));
+    }
+
     private void jump(Label target) {
-        stmts.add(new Jump(null, target));
+        jump(null, target);
+    }
+
+    private void cjump(Location loc, Expr cond, Label thenLabel, Label elseLabel) {
+        stmts.add(new CJump(loc, cond, thenLabel, elseLabel));
     }
 
     private void pushBreak(Label label) {
@@ -278,7 +294,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     public Void visit(BreakNode node) {
         try {
-            jump(currentBreakTarget());
+            jump(node.location(), currentBreakTarget());
         }
         catch (JumpError err) {
             error(node, err.getMessage());
@@ -288,7 +304,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     public Void visit(ContinueNode node) {
         try {
-            jump(currentContinueTarget());
+            jump(node.location(), currentContinueTarget());
         }
         catch (JumpError err) {
             error(node, err.getMessage());
@@ -311,7 +327,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     public Void visit(GotoNode node) {
-        stmts.add(new Jump(node.location(), referLabel(node.target())));
+        jump(node.location(), referLabel(node.target()));
         return null;
     }
 
@@ -319,18 +335,6 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         stmts.add(new Return(node.location(),
                 node.expr() == null ? null : transformExpr(node.expr())));
         return null;
-    }
-
-    private void cjump(Location loc, Expr cond, Label thenLabel, Label elseLabel) {
-        stmts.add(new CJump(loc, cond, thenLabel, elseLabel));
-    }
-
-    private void assign(Location loc, Expr lhs, Expr rhs) {
-        stmts.add(new Assign(loc, addressOf(lhs), rhs));
-    }
-
-    private DefinedVariable tmpVar(Type t) {
-        return scopeStack.getLast().allocateTmp(t);
     }
 
     class JumpEntry {

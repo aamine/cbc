@@ -1,3 +1,7 @@
+Sun May 24 01:18:36 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: reorder methods.
+
 Sun May 24 00:42:28 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ir: rename class: BranchIf -> CJump.
