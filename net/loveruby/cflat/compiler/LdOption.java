@@ -1,7 +1,7 @@
 package net.loveruby.cflat.compiler;
 
 class LdOption implements LdArg {
-    private String arg;
+    private final String arg;
 
     LdOption(String arg) {
         this.arg = arg;

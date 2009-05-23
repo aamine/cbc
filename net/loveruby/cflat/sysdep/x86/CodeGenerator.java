@@ -14,9 +14,9 @@ public class CodeGenerator
                 IRVisitor<Void,Void>,
                 ELFConstants {
     // #@@range/ctor{
-    private CodeGeneratorOptions options;
-    private Type naturalType;
-    private ErrorHandler errorHandler;
+    final CodeGeneratorOptions options;
+    final Type naturalType;
+    final ErrorHandler errorHandler;
 
     public CodeGenerator(CodeGeneratorOptions options,
                          Type naturalType,

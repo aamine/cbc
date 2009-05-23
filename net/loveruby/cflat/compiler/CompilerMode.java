@@ -45,7 +45,7 @@ enum CompilerMode {
         return m;
     }
 
-    private String option;
+    private final String option;
 
     CompilerMode(String option) {
         this.option = option;

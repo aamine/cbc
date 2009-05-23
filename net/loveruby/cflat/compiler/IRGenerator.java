@@ -11,19 +11,18 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 class IRGenerator implements ASTVisitor<Void, Expr> {
-    private ErrorHandler errorHandler;
-    private TypeTable typeTable;
+    private final TypeTable typeTable;
+    private final ErrorHandler errorHandler;
 
     // #@@range/ctor{
-    public IRGenerator(ErrorHandler errorHandler) {
+    public IRGenerator(TypeTable typeTable, ErrorHandler errorHandler) {
+        this.typeTable = typeTable;
         this.errorHandler = errorHandler;
     }
     // #@@}
 
     // #@@range/generate{
-    public IR generate(AST ast, TypeTable typeTable)
-                            throws SemanticException {
-        this.typeTable = typeTable;
+    public IR generate(AST ast) throws SemanticException {
         for (DefinedVariable var : ast.definedVariables()) {
             if (var.hasInitializer()) {
                 var.setIR(transformExpr(var.initializer()));
@@ -33,7 +32,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             f.setIR(compileFunctionBody(f));
         }
         if (errorHandler.errorOccured()) {
-            throw new SemanticException("Simplify failed.");
+            throw new SemanticException("IR generation failed.");
         }
         return ast.ir();
     }
@@ -43,11 +42,11 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     // Definitions
     //
 
-    private List<Stmt> stmts;
-    private LinkedList<LocalScope> scopeStack;
-    private LinkedList<Label> breakStack;
-    private LinkedList<Label> continueStack;
-    private Map<String, JumpEntry> jumpMap;
+    List<Stmt> stmts;
+    LinkedList<LocalScope> scopeStack;
+    LinkedList<Label> breakStack;
+    LinkedList<Label> continueStack;
+    Map<String, JumpEntry> jumpMap;
 
     public List<Stmt> compileFunctionBody(DefinedFunction f) {
         stmts = new ArrayList<Stmt>();

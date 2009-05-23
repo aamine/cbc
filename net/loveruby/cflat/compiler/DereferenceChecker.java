@@ -8,19 +8,17 @@ import java.util.*;
 
 class DereferenceChecker extends Visitor {
     // #@@range/ctor{
-    private ErrorHandler errorHandler;
+    private final TypeTable typeTable;
+    private final ErrorHandler errorHandler;
 
-    public DereferenceChecker(ErrorHandler h) {
+    public DereferenceChecker(TypeTable typeTable, ErrorHandler h) {
+        this.typeTable = typeTable;
         this.errorHandler = h;
     }
     // #@@}
 
     // #@@range/check_AST{
-    private TypeTable typeTable;
-
-    public void check(AST ast, TypeTable typeTable)
-                                    throws SemanticException {
-        this.typeTable = typeTable;
+    public void check(AST ast) throws SemanticException {
         for (DefinedVariable var : ast.definedVariables()) {
             checkToplevelVariable(var);
         }

@@ -76,10 +76,10 @@ public class Parser {
     // #@@}
 
     // #@@range/instance_members{
-    protected String sourceName;
-    protected LibraryLoader loader;
-    protected ErrorHandler errorHandler;
-    protected Set<String> knownTypedefs;
+    private String sourceName;
+    private LibraryLoader loader;
+    private ErrorHandler errorHandler;
+    private Set<String> knownTypedefs;
     // #@@}
 
     // #@@range/ctor1{

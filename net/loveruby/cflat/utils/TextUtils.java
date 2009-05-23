@@ -3,7 +3,7 @@ import net.loveruby.cflat.parser.Parser;
 import java.io.*;
 
 abstract public class TextUtils {
-    static final protected byte vtab = 013;
+    static final private byte vtab = 013;
 
     static public String dumpString(String str) {
         try {
@@ -15,8 +15,7 @@ abstract public class TextUtils {
     }
 
     static public String dumpString(String string, String encoding)
-        throws UnsupportedEncodingException
-    {
+            throws UnsupportedEncodingException {
         byte[] src = string.getBytes(encoding);
         StringBuffer buf = new StringBuffer();
         buf.append("\"");
@@ -38,7 +37,7 @@ abstract public class TextUtils {
         return buf.toString();
     }
 
-    static protected int toUnsigned(byte b) {
+    static private int toUnsigned(byte b) {
         return b >= 0 ? b : 256 + b;
     }
 

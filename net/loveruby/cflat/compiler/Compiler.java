@@ -20,7 +20,7 @@ public class Compiler {
         new Compiler(ProgramName).commandMain(args);
     }
 
-    private ErrorHandler errorHandler;
+    private final ErrorHandler errorHandler;
 
     public Compiler(String programName) {
         this.errorHandler = new ErrorHandler(programName);
@@ -111,7 +111,7 @@ public class Compiler {
         TypeTable types = opts.typeTable();
         AST sem = semanticAnalyze(ast, types, opts);
         if (dumpSemant(sem, opts.mode())) return;
-        IR ir = new IRGenerator(errorHandler).generate(sem, types);
+        IR ir = new IRGenerator(types, errorHandler).generate(sem);
         if (dumpIR(ir, opts.mode())) return;
         String asm = generateAssembly(ir, opts);
         if (dumpAsm(asm, opts.mode())) return;
@@ -124,17 +124,17 @@ public class Compiler {
                 opts.loader(), errorHandler, opts.doesDebugParser());
     }
 
-    public AST semanticAnalyze(AST ast, TypeTable typeTable,
+    public AST semanticAnalyze(AST ast, TypeTable types,
                 Options opts) throws SemanticException {
         new LocalResolver(errorHandler).resolve(ast);
-        new TypeResolver(errorHandler).resolve(ast, typeTable);
-        typeTable.semanticCheck(errorHandler);
+        new TypeResolver(types, errorHandler).resolve(ast);
+        types.semanticCheck(errorHandler);
         if (opts.mode() == CompilerMode.DumpReference) {
             ast.dump();
             return ast;
         }
-        new DereferenceChecker(errorHandler).check(ast, typeTable);
-        new TypeChecker(errorHandler).check(ast, typeTable);
+        new DereferenceChecker(types, errorHandler).check(ast);
+        new TypeChecker(types, errorHandler).check(ast);
         return ast;
     }
 

@@ -7,28 +7,28 @@ import net.loveruby.cflat.exception.*;
 import java.util.*;
 
 class TypeChecker extends Visitor {
-    protected TypeTable typeTable;
-    protected ErrorHandler errorHandler;
-    private DefinedFunction currentFunction;
+    private final TypeTable typeTable;
+    private final ErrorHandler errorHandler;
 
     // #@@range/ctor{
-    public TypeChecker(ErrorHandler errorHandler) {
+    public TypeChecker(TypeTable typeTable, ErrorHandler errorHandler) {
+        this.typeTable = typeTable;
         this.errorHandler = errorHandler;
     }
     // #@@}
 
-    protected void check(StmtNode node) {
+    private void check(StmtNode node) {
         visitStmt(node);
     }
 
-    protected void check(ExprNode node) {
+    private void check(ExprNode node) {
         visitExpr(node);
     }
 
     // #@@range/check_AST{
-    public void check(AST ast, TypeTable typeTable)
-                                        throws SemanticException {
-        this.typeTable = typeTable;
+    DefinedFunction currentFunction;
+
+    public void check(AST ast) throws SemanticException {
         for (DefinedVariable var : ast.definedVariables()) {
             checkVariable(var);
         }
@@ -44,13 +44,13 @@ class TypeChecker extends Visitor {
     }
     // #@@}
 
-    protected void checkReturnType(DefinedFunction f) {
+    private void checkReturnType(DefinedFunction f) {
         if (isInvalidReturnType(f.returnType())) {
             error(f.location(), "returns invalid type: " + f.returnType());
         }
     }
 
-    protected void checkParamTypes(DefinedFunction f) {
+    private void checkParamTypes(DefinedFunction f) {
         for (Parameter param : f.parameters()) {
             if (isInvalidParameterType(param.type())) {
                 error(param.location(),
@@ -73,7 +73,7 @@ class TypeChecker extends Visitor {
         return null;
     }
 
-    protected void checkVariable(DefinedVariable var) {
+    private void checkVariable(DefinedVariable var) {
         if (isInvalidVariableType(var.type())) {
             error(var.location(), "invalid variable type");
             return;
@@ -115,7 +115,7 @@ class TypeChecker extends Visitor {
         return null;
     }
 
-    protected void checkCond(ExprNode cond) {
+    private void checkCond(ExprNode cond) {
         mustBeScalar(cond, "condition expression");
     }
 
@@ -193,7 +193,7 @@ class TypeChecker extends Visitor {
      *
      *  "0" has a type integer, but we can cast (int)0 to (char)0 safely.
      */
-    protected boolean isSafeIntegerCast(Node node, Type type) {
+    private boolean isSafeIntegerCast(Node node, Type type) {
         if (! type.isInteger()) return false;
         IntegerType t = (IntegerType)type;
         if (! (node instanceof IntegerLiteralNode)) return false;
@@ -201,7 +201,7 @@ class TypeChecker extends Visitor {
         return t.isInDomain(n.value());
     }
 
-    protected boolean checkLHS(ExprNode lhs) {
+    private boolean checkLHS(ExprNode lhs) {
         if (lhs.isParameter()) {
             // parameter is always assignable.
             return true;
@@ -319,7 +319,7 @@ class TypeChecker extends Visitor {
         }
     }
 
-    protected ExprNode integralPromotedExpr(ExprNode expr) {
+    private ExprNode integralPromotedExpr(ExprNode expr) {
         Type t = integralPromotion(expr.type());
         if (t.isSameType(expr.type())) {
             return expr;
@@ -331,7 +331,7 @@ class TypeChecker extends Visitor {
 
     // +, -, *, /, %, &, |, ^, <<, >>
     // #@@range/expectsSameInteger{
-    protected void expectsSameInteger(BinaryOpNode node) {
+    private void expectsSameInteger(BinaryOpNode node) {
         if (! mustBeInteger(node.left(), node.operator())) return;
         if (! mustBeInteger(node.right(), node.operator())) return;
         arithmeticImplicitCast(node);
@@ -339,7 +339,7 @@ class TypeChecker extends Visitor {
     // #@@}
 
     // ==, !=, >, >=, <, <=, &&, ||
-    protected void expectsComparableScalars(BinaryOpNode node) {
+    private void expectsComparableScalars(BinaryOpNode node) {
         if (! mustBeScalar(node.left(), node.operator())) return;
         if (! mustBeScalar(node.right(), node.operator())) return;
         if (node.left().type().isPointer()) {
@@ -358,7 +358,7 @@ class TypeChecker extends Visitor {
     }
 
     // cast slave node to master node.
-    protected ExprNode forcePointerType(ExprNode master, ExprNode slave) {
+    private ExprNode forcePointerType(ExprNode master, ExprNode slave) {
         if (master.type().isCompatible(slave.type())) {
             // needs no cast
             return slave;
@@ -372,7 +372,7 @@ class TypeChecker extends Visitor {
 
     // Processes usual arithmetic conversion for binary operations.
     // #@@range/arithmeticImplicitCast{
-    protected void arithmeticImplicitCast(BinaryOpNode node) {
+    private void arithmeticImplicitCast(BinaryOpNode node) {
         Type r = integralPromotion(node.right().type());
         Type l = integralPromotion(node.left().type());
         Type target = usualArithmeticConversion(l, r);
@@ -414,7 +414,7 @@ class TypeChecker extends Visitor {
         return null;
     }
 
-    protected void expectsScalarLHS(UnaryArithmeticOpNode node) {
+    private void expectsScalarLHS(UnaryArithmeticOpNode node) {
         if (node.expr().isParameter()) {
             // parameter is always a scalar.
         }
@@ -504,7 +504,7 @@ class TypeChecker extends Visitor {
     // Utilities
     //
 
-    protected boolean checkRHS(ExprNode rhs) {
+    private boolean checkRHS(ExprNode rhs) {
         if (isInvalidRHSType(rhs.type())) {
             error(rhs, "invalid RHS expression type: " + rhs.type());
             return false;
@@ -514,7 +514,7 @@ class TypeChecker extends Visitor {
 
     // Processes forced-implicit-cast.
     // Applied To: return expr, assignment RHS, funcall argument
-    protected ExprNode implicitCast(Type targetType, ExprNode expr) {
+    private ExprNode implicitCast(Type targetType, ExprNode expr) {
         if (expr.type().isSameType(targetType)) {
             return expr;
         }
@@ -534,7 +534,7 @@ class TypeChecker extends Visitor {
 
     // Process integral promotion (integers only).
     // #@@range/integralPromotion{
-    protected Type integralPromotion(Type t) {
+    private Type integralPromotion(Type t) {
         if (!t.isInteger()) {
             throw new Error("integralPromotion for " + t);
         }
@@ -551,7 +551,7 @@ class TypeChecker extends Visitor {
     // Usual arithmetic conversion for ILP32 platform (integers only).
     // Size of l, r >= sizeof(int).
     // #@@range/usualArithmeticConversion{
-    protected Type usualArithmeticConversion(Type l, Type r) {
+    private Type usualArithmeticConversion(Type l, Type r) {
         Type s_int = typeTable.signedInt();
         Type u_int = typeTable.unsignedInt();
         Type s_long = typeTable.signedLong();
@@ -575,33 +575,33 @@ class TypeChecker extends Visitor {
     }
     // #@@}
 
-    protected boolean isInvalidStatementType(Type t) {
+    private boolean isInvalidStatementType(Type t) {
         return t.isStruct() || t.isUnion();
     }
 
-    protected boolean isInvalidReturnType(Type t) {
+    private boolean isInvalidReturnType(Type t) {
         return t.isStruct() || t.isUnion() || t.isArray();
     }
 
-    protected boolean isInvalidParameterType(Type t) {
+    private boolean isInvalidParameterType(Type t) {
         return t.isStruct() || t.isUnion() || t.isVoid()
                 || t.isIncompleteArray();
     }
 
-    protected boolean isInvalidVariableType(Type t) {
+    private boolean isInvalidVariableType(Type t) {
         return t.isVoid() || (t.isArray() && ! t.isAllocatedArray());
     }
 
-    protected boolean isInvalidLHSType(Type t) {
+    private boolean isInvalidLHSType(Type t) {
         // Array is OK if it is declared as a type of parameter.
         return t.isStruct() || t.isUnion() || t.isVoid() || t.isArray();
     }
 
-    protected boolean isInvalidRHSType(Type t) {
+    private boolean isInvalidRHSType(Type t) {
         return t.isStruct() || t.isUnion() || t.isVoid();
     }
 
-    protected boolean mustBeInteger(ExprNode expr, String op) {
+    private boolean mustBeInteger(ExprNode expr, String op) {
         if (! expr.type().isInteger()) {
             wrongTypeError(expr, op);
             return false;
@@ -609,7 +609,7 @@ class TypeChecker extends Visitor {
         return true;
     }
 
-    protected boolean mustBeScalar(ExprNode expr, String op) {
+    private boolean mustBeScalar(ExprNode expr, String op) {
         if (! expr.type().isScalar()) {
             wrongTypeError(expr, op);
             return false;
@@ -617,23 +617,23 @@ class TypeChecker extends Visitor {
         return true;
     }
 
-    protected void invalidCastError(Node n, Type l, Type r) {
+    private void invalidCastError(Node n, Type l, Type r) {
         error(n, "invalid cast from " + l + " to " + r);
     }
 
-    protected void wrongTypeError(ExprNode expr, String op) {
+    private void wrongTypeError(ExprNode expr, String op) {
         error(expr, "wrong operand type for " + op + ": " + expr.type());
     }
 
-    protected void warn(Node n, String msg) {
+    private void warn(Node n, String msg) {
         errorHandler.warn(n.location(), msg);
     }
 
-    protected void error(Node n, String msg) {
+    private void error(Node n, String msg) {
         errorHandler.error(n.location(), msg);
     }
 
-    protected void error(Location loc, String msg) {
+    private void error(Location loc, String msg) {
         errorHandler.error(loc, msg);
     }
 }

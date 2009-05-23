@@ -7,30 +7,29 @@ import java.util.*;
 
 public class LocalResolver extends Visitor {
     // #@@range/ctor{
-    protected ErrorHandler errorHandler;
-    protected ToplevelScope toplevel;
-    protected LinkedList<Scope> scopeStack;
-    protected ConstantTable constantTable;
+    private final LinkedList<Scope> scopeStack;
+    private final ConstantTable constantTable;
+    private final ErrorHandler errorHandler;
 
     public LocalResolver(ErrorHandler h) {
         this.errorHandler = h;
+        this.scopeStack = new LinkedList<Scope>();
+        this.constantTable = new ConstantTable();
     }
     // #@@}
 
-    protected void resolve(StmtNode n) {
+    private void resolve(StmtNode n) {
         n.accept(this);
     }
 
-    protected void resolve(ExprNode n) {
+    private void resolve(ExprNode n) {
         n.accept(this);
     }
 
     // #@@range/resolve{
     public void resolve(AST ast) throws SemanticException {
-        toplevel = new ToplevelScope();
-        scopeStack = new LinkedList<Scope>();
+        ToplevelScope toplevel = new ToplevelScope();
         scopeStack.add(toplevel);
-        constantTable = new ConstantTable();
 
         // #@@range/declareToplevel{
         for (Entity decl : ast.declarations()) {
@@ -56,7 +55,7 @@ public class LocalResolver extends Visitor {
     // #@@}
 
     // #@@range/resolveGvarInitializers{
-    protected void resolveGvarInitializers(List<DefinedVariable> gvars) {
+    private void resolveGvarInitializers(List<DefinedVariable> gvars) {
         for (DefinedVariable gvar : gvars) {
             if (gvar.hasInitializer()) {
                 resolve(gvar.initializer());
@@ -72,7 +71,7 @@ public class LocalResolver extends Visitor {
     }
 
     // #@@range/resolveFunctions{
-    protected void resolveFunctions(List<DefinedFunction> funcs) {
+    private void resolveFunctions(List<DefinedFunction> funcs) {
         for (DefinedFunction func : funcs) {
             pushScope(func.parameters());
             resolve(func.body());
@@ -91,7 +90,7 @@ public class LocalResolver extends Visitor {
     // #@@}
 
     // #@@range/pushScope{
-    protected void pushScope(List<? extends DefinedVariable> vars) {
+    private void pushScope(List<? extends DefinedVariable> vars) {
         LocalScope scope = new LocalScope(currentScope());
         for (DefinedVariable var : vars) {
             if (scope.isDefinedLocally(var.name())) {
@@ -107,13 +106,13 @@ public class LocalResolver extends Visitor {
     // #@@}
 
     // #@@range/popScope{
-    protected LocalScope popScope() {
+    private LocalScope popScope() {
         return (LocalScope)scopeStack.removeLast();
     }
     // #@@}
 
     // #@@range/currentScope{
-    protected Scope currentScope() {
+    private Scope currentScope() {
         return scopeStack.getLast();
     }
     // #@@}
@@ -139,11 +138,11 @@ public class LocalResolver extends Visitor {
     }
     // #@@}
 
-    protected void error(Node node, String message) {
+    private void error(Node node, String message) {
         errorHandler.error(node.location(), message);
     }
 
-    protected void error(Location loc, String message) {
+    private void error(Location loc, String message) {
         errorHandler.error(loc, message);
     }
 }

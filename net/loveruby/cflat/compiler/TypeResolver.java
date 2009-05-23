@@ -9,17 +9,17 @@ import java.util.*;
 public class TypeResolver extends Visitor
         implements EntityVisitor<Void>, DeclarationVisitor<Void> {
     // #@@range/ctor{
-    protected TypeTable typeTable;
-    protected ErrorHandler errorHandler;
+    private final TypeTable typeTable;
+    private final ErrorHandler errorHandler;
 
-    public TypeResolver(ErrorHandler errorHandler) {
+    public TypeResolver(TypeTable typeTable, ErrorHandler errorHandler) {
+        this.typeTable = typeTable;
         this.errorHandler = errorHandler;
     }
     // #@@}
 
     // #@@range/resolveProgram{
-    public void resolve(AST ast, TypeTable typeTable) {
-        this.typeTable = typeTable;
+    public void resolve(AST ast) {
         defineTypes(ast.types());
         // #@@range/resolveProgram_core{
         for (TypeDefinition t : ast.types()) {
@@ -139,7 +139,7 @@ public class TypeResolver extends Visitor
     }
 
     // #@@range/resolveFunctionHeader{
-    protected void resolveFunctionHeader(Function func) {
+    private void resolveFunctionHeader(Function func) {
         bindType(func.typeNode());
         for (Parameter param : func.parameters()) {
             // arrays must be converted to pointers in a function parameter.
@@ -195,7 +195,7 @@ public class TypeResolver extends Visitor
         return null;
     }
 
-    protected void error(Node node, String msg) {
+    private void error(Node node, String msg) {
         errorHandler.error(node.location(), msg);
     }
 }
