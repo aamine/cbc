@@ -1,7 +1,7 @@
 // #@@range/head{
 // stdio.hb
 
-import stddef;  // for size_t
+import stddef;  // for NULL and size_t
 import stdarg;
 
 typedef unsigned long FILE;   // dummy
