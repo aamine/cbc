@@ -569,7 +569,7 @@ public class CodeGenerator
      * Allocates addresses of local variables, but offset is still
      * not determined, assign unfixed IndirectMemoryReference.
      */
-    // #@@range/allocateVariablesTemp{
+    // #@@range/allocateLocalVariablesTemp{
     private void allocateLocalVariablesTemp(LocalScope scope) {
         for (DefinedVariable var : scope.allLocalVariables()) {
             var.setMemref(new IndirectMemoryReference(bp()));
@@ -582,7 +582,7 @@ public class CodeGenerator
      * Returns byte-length of the local variable area.
      * Note that numSavedRegs includes bp.
      */
-    // #@@range/allocateVariables{
+    // #@@range/allocateLocalVariables{
     private long allocateLocalVariables(LocalScope scope, long initLen) {
         long maxLen = allocateScope(scope, initLen);
         return maxLen - initLen;
@@ -642,7 +642,7 @@ public class CodeGenerator
      *    * All arguments are on stack.
      *    * Caller rewinds stack pointer.
      */
-    // #@@range/Funcall{
+    // #@@range/Call{
     public Void visit(Call node) {
         for (Expr arg : ListUtils.reverse(node.args())) {
             compile(arg);
@@ -686,7 +686,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/Stmt{
+    // #@@range/ExprStmt{
     public Void visit(ExprStmt stmt) {
         compile(stmt.expr());
         return null;
