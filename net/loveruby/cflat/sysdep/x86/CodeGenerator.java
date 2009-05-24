@@ -760,7 +760,7 @@ public class CodeGenerator
             compile(node.left());
             right = node.right().asmValue();
         }
-        else if (node.right().isConstantAddress()) {
+        else if (node.right().isVar()) {
             compile(node.left());
             loadVariable(((Var)node.right()), cx());
             right = cx(node.type());
@@ -934,7 +934,7 @@ public class CodeGenerator
 
     // #@@range/compile_Assign{
     public Void visit(Assign node) {
-        if (node.lhs().isConstantAddress() && node.lhs().memref() != null) {
+        if (node.lhs().isAddr() && node.lhs().memref() != null) {
             compile(node.rhs());
             save(node.lhs().type(), ax(), node.lhs().memref());
         }

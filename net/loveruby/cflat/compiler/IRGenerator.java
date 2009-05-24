@@ -532,7 +532,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             transformOpAssign(loc, op, t, expr, imm(t, 1));
             return null;
         }
-        else if (expr.isConstantAddress()) {
+        else if (expr.isVar()) {
             // cont(expr++) -> v = expr; expr = v + 1; cont(v)
             DefinedVariable v = tmpVar(t);
             assign(loc, ref(v), expr);
@@ -556,7 +556,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     // #@@range/transformOpAssign{
     private Expr transformOpAssign(Location loc,
             Op op, Type lhsType, Expr lhs, Expr rhs) {
-        if (lhs.isConstantAddress()) {
+        if (lhs.isVar()) {
             // cont(lhs += rhs) -> lhs = lhs + rhs; cont(lhs)
             assign(loc, lhs, bin(op, lhsType, lhs, rhs));
             return isStatement() ? null : lhs;

@@ -3,24 +3,21 @@ import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.entity.Entity;
 
 abstract public class Expr implements Dumpable {
-    protected Type type;
+    final Type type;
 
-    protected Expr(Type type) {
+    Expr(Type type) {
         this.type = type;
     }
 
     public Type type() { return type; }
 
-    public boolean isConstant() {
-        return false;
-    }
+    public boolean isVar() { return false; }
+    public boolean isAddr() { return false; }
+
+    public boolean isConstant() { return false; }
 
     public ImmediateValue asmValue() {
         throw new Error("Expr#asmValue called");
-    }
-
-    public boolean isConstantAddress() {
-        return false;
     }
 
     public AsmOperand address() {

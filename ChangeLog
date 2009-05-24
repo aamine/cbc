@@ -1,3 +1,17 @@
+Sun May 24 21:57:04 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java: do not use
+	  Expr#isConstantAddress, it confuses semantics.
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: ditto.
+
+	* net/loveruby/cflat/ir/Expr.java: introduce new methods #isVar
+	  and #isAddr, instead of #isConstantAddress.
+
+	* net/loveruby/cflat/ir/Addr.java: override #isAddr.
+
+	* net/loveruby/cflat/ir/Var.java: override #isVar.
+
 Sun May 24 21:54:57 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/ast: remove useless methods:

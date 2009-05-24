@@ -12,6 +12,8 @@ public class Var extends Expr {
         this.entity = entity;
     }
 
+    public boolean isVar() { return true; }
+
     public Type type() {
         if (super.type() == null) {
             throw new Error("Var is too big to load by 1 insn");

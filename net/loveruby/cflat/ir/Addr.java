@@ -12,7 +12,7 @@ public class Addr extends Expr {
         this.entity = entity;
     }
 
-    public boolean isConstantAddress() { return true; }
+    public boolean isAddr() { return true; }
 
     public Entity entity() { return entity; }
 
