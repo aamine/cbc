@@ -90,9 +90,11 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
     // #@@}
 
+    // #@@range/assign{
     private void assign(Location loc, Expr lhs, Expr rhs) {
         stmts.add(new Assign(loc, addressOf(lhs), rhs));
     }
+    // #@@}
 
     private DefinedVariable tmpVar(Type t) {
         return scopeStack.getLast().allocateTmp(t);
@@ -692,7 +694,9 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Expr expr = addressOf(transformExpr(node.expr()));
         Expr offset = ptrdiff(node.offset());
         Expr addr = new Bin(ptr_t(), Op.ADD, expr, offset);
+        // #@@range/Member_ret{
         return node.isLoadable() ? mem(addr, node.type()) : addr;
+        // #@@}
     }
     // #@@}
 
@@ -801,9 +805,11 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     }
 
     // mem(expr) -> (Mem expr)
+    // #@@range/mem{
     private Mem mem(Expr expr, Type t) {
         return new Mem(asmType(t), expr);
     }
+    // #@@}
 
     // #@@range/ptrdiff{
     private Int ptrdiff(long n) {
