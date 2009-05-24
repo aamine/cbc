@@ -642,7 +642,7 @@ public class CodeGenerator
      *    * All arguments are on stack.
      *    * Caller rewinds stack pointer.
      */
-    // #@@range/compile_Funcall{
+    // #@@range/Funcall{
     public Void visit(Call node) {
         for (Expr arg : ListUtils.reverse(node.args())) {
             compile(arg);
@@ -661,7 +661,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/compile_Return{
+    // #@@range/Return{
     public Void visit(Return node) {
         if (node.expr() != null) {
             compile(node.expr());
@@ -686,28 +686,38 @@ public class CodeGenerator
     }
     // #@@}
 
+    // #@@range/Stmt{
     public Void visit(ExprStmt stmt) {
         compile(stmt.expr());
         return null;
     }
+    // #@@}
 
-    // #@@range/testCond{
-    private void testCond(Type t, Register reg) {
-        as.test(t, reg.forType(t), reg.forType(t));
+    // #@@range/LabelStmt{
+    public Void visit(LabelStmt node) {
+        as.label(node.label());
+        return null;
     }
     // #@@}
 
-    // #@@range/compile_CJump{
+    // #@@range/Jump{
+    public Void visit(Jump node) {
+        as.jmp(node.label());
+        return null;
+    }
+    // #@@}
+
+    // #@@range/CJump{
     public Void visit(CJump node) {
         compile(node.cond());
-        testCond(node.cond().type(), ax());
+        Type t = node.cond().type();
+        as.test(t, ax(t), ax(t));
         as.jnz(node.thenLabel());
         as.jmp(node.elseLabel());
         return null;
     }
     // #@@}
 
-    // #@@range/compile_Switch{
     public Void visit(Switch node) {
         compile(node.cond());
         Type t = node.cond().type();
@@ -719,21 +729,6 @@ public class CodeGenerator
         as.jmp(node.defaultLabel());
         return null;
     }
-    // #@@}
-
-    // #@@range/compile_LabelStmt{
-    public Void visit(LabelStmt node) {
-        as.label(node.label());
-        return null;
-    }
-    // #@@}
-
-    // #@@range/compile_Jump{
-    public Void visit(Jump node) {
-        as.jmp(node.label());
-        return null;
-    }
-    // #@@}
 
     //
     // Expressions
@@ -873,32 +868,27 @@ public class CodeGenerator
 
     // #@@range/compile_Uni{
     public Void visit(Uni node) {
+        Type src = node.expr().type();
+        Type dest = node.type();
+
         compile(node.expr());
         switch (node.op()) {
         case UMINUS:
-            as.neg(node.expr().type(), ax(node.expr().type()));
+            as.neg(src, ax(src));
             break;
         case BIT_NOT:
-            as.not(node.expr().type(), ax(node.expr().type()));
+            as.not(src, ax(src));
             break;
         case NOT:
-            testCond(node.expr().type(), ax());
+            as.test(src, ax(src), ax(dest));
             as.sete(al());
             as.movzbl(al(), ax());
             break;
         case S_CAST:
-            {
-                Type src = node.expr().type();
-                Type dest = node.type();
-                as.movsx(src, dest, ax(src), ax(dest));
-            }
+            as.movsx(src, dest, ax(src), ax(dest));
             break;
         case U_CAST:
-            {
-                Type src = node.expr().type();
-                Type dest = node.type();
-                as.movzx(src, dest, ax(src), ax(dest));
-            }
+            as.movzx(src, dest, ax(src), ax(dest));
             break;
         default:
             throw new Error("unknown unary operator: " + node.op());

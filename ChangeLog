@@ -1,3 +1,11 @@
+Sun May 24 22:44:07 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: refactoring:
+	  reorder methods.
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: refactoring:
+	  inlining #testCond.
+
 Sun May 24 21:57:04 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java: do not use
