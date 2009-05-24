@@ -42,6 +42,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
     // Definitions
     //
 
+    // #@@range/compileFunctionBody{
     List<Stmt> stmts;
     LinkedList<LocalScope> scopeStack;
     LinkedList<Label> breakStack;
@@ -58,12 +59,22 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         checkJumpLinks(jumpMap);
         return stmts;
     }
+    // #@@}
 
-    private int exprNestLevel = 0;
-
+    // #@@range/transformStmt_stmt{
     private void transformStmt(StmtNode node) {
         node.accept(this);
     }
+    // #@@}
+
+    // #@@range/transformStmt_expr{
+    private void transformStmt(ExprNode node) {
+        node.accept(this);
+    }
+    // #@@}
+
+    // #@@range/transformExpr{
+    private int exprNestLevel = 0;
 
     private Expr transformExpr(ExprNode node) {
         exprNestLevel++;
@@ -71,14 +82,13 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         exprNestLevel--;
         return e;
     }
+    // #@@}
 
-    private void transformStmt(ExprNode node) {
-        node.accept(this);
-    }
-
+    // #@@range/isStatement{
     private boolean isStatement() {
         return (exprNestLevel == 0);
     }
+    // #@@}
 
     private void assign(Location loc, Expr lhs, Expr rhs) {
         stmts.add(new Assign(loc, addressOf(lhs), rhs));
@@ -104,23 +114,29 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         stmts.add(new CJump(loc, cond, thenLabel, elseLabel));
     }
 
+    // #@@range/pushBreak{
     private void pushBreak(Label label) {
         breakStack.add(label);
     }
+    // #@@}
 
+    // #@@range/popBreak{
     private void popBreak() {
         if (breakStack.isEmpty()) {
             throw new Error("unmatched push/pop for break stack");
         }
         breakStack.removeLast();
     }
+    // #@@}
 
+    // #@@range/currentBreakTarget{
     private Label currentBreakTarget() {
         if (breakStack.isEmpty()) {
             throw new JumpError("break from out of loop");
         }
         return breakStack.getLast();
     }
+    // #@@}
 
     private void pushContinue(Label label) {
         continueStack.add(label);
@@ -182,12 +198,15 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Label endLabel = new Label();
         Expr cond = transformExpr(node.cond());
         if (node.elseBody() == null) {
+            // #@@range/If_noelse{
             cjump(node.location(), cond, thenLabel, endLabel);
             label(thenLabel);
             transformStmt(node.thenBody());
             label(endLabel);
+            // #@@}
         }
         else {
+            // #@@range/If_withelse{
             cjump(node.location(), cond, thenLabel, elseLabel);
             label(thenLabel);
             transformStmt(node.thenBody());
@@ -195,6 +214,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             label(elseLabel);
             transformStmt(node.elseBody());
             label(endLabel);
+            // #@@}
         }
         return null;
     }
@@ -293,6 +313,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         return null;
     }
 
+    // #@@range/Break{
     public Void visit(BreakNode node) {
         try {
             jump(node.location(), currentBreakTarget());
@@ -302,6 +323,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         }
         return null;
     }
+    // #@@}
 
     public Void visit(ContinueNode node) {
         try {
@@ -586,13 +608,16 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
 
     // #@@range/BinaryOp{
     public Expr visit(BinaryOpNode node) {
+        // #@@range/BinaryOp_init_1{
         Expr right = transformExpr(node.right());
         Expr left = transformExpr(node.left());
         Op op = Op.internBinary(node.operator(), node.type().isSigned());
         Type t = node.type();
+        // #@@}
         Type r = node.right().type();
         Type l = node.left().type();
 
+        // #@@range/BinaryOp_ptr{
         if (isPointerDiff(op, l, r)) {
             // ptr - ptr -> (ptr - ptr) / ptrBaseSize
             Expr tmp = new Bin(asmType(t), op, left, right);
@@ -610,9 +635,12 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
                     new Bin(asmType(l), Op.MUL, left, ptrBaseSize(r)),
                     right);
         }
+        // #@@}
         else {
             // int + int
+            // #@@range/BinaryOp_int{
             return new Bin(asmType(t), op, left, right);
+            // #@@}
         }
     }
     // #@@}
