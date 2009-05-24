@@ -27,6 +27,9 @@ public class DereferenceNode extends LHSNode {
     }
 
     protected void _dump(Dumper d) {
+        if (type != null) {
+            d.printMember("type", type);
+        }
         d.printMember("expr", expr);
     }
 

@@ -1,0 +1,26 @@
+import stdio;
+
+int
+main(int argc, char** argv)
+{
+    void *p = &printf;
+    
+    check(printf, p);
+    check(*printf, p);
+    check(**printf, p);
+    check(***printf, p);
+    check(****printf, p);
+    puts("");
+    return 0;
+}
+
+static void
+check(void* f, void* p)
+{
+    if (f == p) {
+        printf(";OK");
+    }
+    else {
+        printf(";NG");
+    }
+}

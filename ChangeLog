@@ -1,3 +1,14 @@
+Sun May 24 20:24:01 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/IRGenerator.java (Dereference): do
+	  not generate Mem for unloadable object (implicit address
+	  generation handling).
+
+	* net/loveruby/cflat/ast: dump #type for LHS nodes.
+
+	* net/loveruby/cflat/ast/AddressNode.java: do not inherit
+	  UnaryOpNode.
+
 Sun May 24 19:23:28 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/TypeResolver.java: now 3 pathes

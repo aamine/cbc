@@ -56,6 +56,9 @@ public class PtrMemberNode extends LHSNode {
     }
 
     protected void _dump(Dumper d) {
+        if (type != null) {
+            d.printMember("type", type);
+        }
         d.printMember("expr", expr);
         d.printMember("member", member);
     }
