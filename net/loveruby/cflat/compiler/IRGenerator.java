@@ -484,8 +484,8 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
             // #@@range/Assign_stmt{
             Expr rhs = transformExpr(node.rhs());
             assign(lloc, transformExpr(node.lhs()), rhs);
-            return null;
             // #@@}
+            return null;
         }
         else {
             // lhs = rhs -> tmp = rhs, lhs = tmp, tmp
