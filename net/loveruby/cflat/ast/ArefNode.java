@@ -38,8 +38,6 @@ public class ArefNode extends LHSNode {
         return expr.origType().baseType();
     }
 
-    public boolean isConstantAddress() { return false; }
-
     public Location location() {
         return expr.location();
     }

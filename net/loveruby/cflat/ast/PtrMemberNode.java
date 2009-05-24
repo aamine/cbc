@@ -49,8 +49,6 @@ public class PtrMemberNode extends LHSNode {
         return dereferedCompositeType().memberType(member);
     }
 
-    public boolean isConstantAddress() { return false; }
-
     public Location location() {
         return expr.location();
     }

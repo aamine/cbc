@@ -49,8 +49,6 @@ public class VariableNode extends LHSNode {
         return entity().type();
     }
 
-    public boolean isConstantAddress() { return true; }
-
     public Location location() {
         return location;
     }

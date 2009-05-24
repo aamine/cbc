@@ -23,6 +23,4 @@ abstract public class LHSNode extends ExprNode {
         Type t = origType();
         return !t.isArray() && !t.isFunction();
     }
-
-    abstract public boolean isConstantAddress();
 }

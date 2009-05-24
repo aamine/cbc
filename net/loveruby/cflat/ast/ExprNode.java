@@ -39,10 +39,5 @@ abstract public class ExprNode extends Node {
     }
     // #@@}
 
-    // used by IRGenerator
-    public boolean isConstantAddress() {
-        return false;
-    }
-
     abstract public <S,E> E accept(ASTVisitor<S,E> visitor);
 }

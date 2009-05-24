@@ -20,8 +20,6 @@ public class DereferenceNode extends LHSNode {
         this.expr = expr;
     }
 
-    public boolean isConstantAddress() { return false; }
-
     public Location location() {
         return expr.location();
     }

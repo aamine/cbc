@@ -33,10 +33,6 @@ public class CastNode extends ExprNode {
         return type().size() > expr.type().size();
     }
 
-    public boolean isConstantAddress() {
-        return expr.isConstantAddress() && !isEffectiveCast();
-    }
-
     public Location location() {
         return typeNode.location();
     }

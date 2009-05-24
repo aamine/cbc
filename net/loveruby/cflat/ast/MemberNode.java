@@ -37,8 +37,6 @@ public class MemberNode extends LHSNode {
         return baseType().memberType(member);
     }
 
-    public boolean isConstantAddress() { return false; }
-
     public Location location() {
         return expr.location();
     }
