@@ -1,3 +1,21 @@
+Sun May 24 19:23:28 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: now 3 pathes
+	  (define, resolve entities, resolve expr) are not required; just
+	  use old 2 pathes (define, resolve).  Old TypeResolver fixed a type
+	  of AddressNode, it requires 3 path.  But current implementation
+	  fixes a type of AddressNode in DereferenceChecker, we do not need
+	  3 path.
+
+	* net/loveruby/cflat/ast/AST.java: #entities -> #definitions.
+
+	* net/loveruby/cflat/ast/AST.java: new method #entities, it
+	  returns #definitions + #declarations.
+
+	* net/loveruby/cflat/compiler/TypeResolver.java: follow it.
+
+	* net/loveruby/cflat/compiler/LocalResolver.java: follow it.
+
 Sun May 24 11:58:15 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/IRGenerator.java (If): refactoring:

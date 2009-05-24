@@ -29,6 +29,16 @@ public class AST extends Node {
         return result;
     }
 
+    public List<Entity> entities() {
+        List<Entity> result = new ArrayList<Entity>();
+        result.addAll(declarations.funcdecls);
+        result.addAll(declarations.vardecls);
+        result.addAll(declarations.defvars);
+        result.addAll(declarations.defuns);
+        result.addAll(declarations.constants);
+        return result;
+    }
+
     public List<Entity> declarations() {
         List<Entity> result = new ArrayList<Entity>();
         result.addAll(declarations.funcdecls);
@@ -36,7 +46,7 @@ public class AST extends Node {
         return result;
     }
 
-    public List<Entity> entities() {
+    public List<Entity> definitions() {
         List<Entity> result = new ArrayList<Entity>();
         result.addAll(declarations.defvars);
         result.addAll(declarations.defuns);

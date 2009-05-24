@@ -35,7 +35,7 @@ public class LocalResolver extends Visitor {
         for (Entity decl : ast.declarations()) {
             toplevel.declareEntity(decl);
         }
-        for (Entity ent : ast.entities()) {
+        for (Entity ent : ast.definitions()) {
             toplevel.defineEntity(ent);
         }
         // #@@}

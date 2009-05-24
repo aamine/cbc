@@ -25,23 +25,8 @@ public class TypeResolver extends Visitor
         for (TypeDefinition t : ast.types()) {
             t.accept(this);
         }
-        for (Entity d : ast.declarations()) {
-            d.accept(this);
-        }
         for (Entity e : ast.entities()) {
             e.accept(this);
-        }
-
-        for (DefinedVariable var : ast.definedVariables()) {
-            if (var.hasInitializer()) {
-                visitExpr(var.initializer());
-            }
-        }
-        for (Constant c : ast.constants()) {
-            visitExpr(c.value());
-        }
-        for (DefinedFunction f : ast.definedFunctions()) {
-            visitStmt(f.body());
         }
         // #@@}
     }
@@ -112,6 +97,9 @@ public class TypeResolver extends Visitor
     // #@@range/DefinedVariable{
     public Void visit(DefinedVariable var) {
         bindType(var.typeNode());
+        if (var.hasInitializer()) {
+            visitExpr(var.initializer());
+        }
         return null;
     }
     // #@@}
@@ -123,12 +111,14 @@ public class TypeResolver extends Visitor
 
     public Void visit(Constant c) {
         bindType(c.typeNode());
+        visitExpr(c.value());
         return null;
     }
 
     // #@@range/DefinedFunction{
     public Void visit(DefinedFunction func) {
         resolveFunctionHeader(func);
+        visitStmt(func.body());
         return null;
     }
     // #@@}
@@ -155,12 +145,7 @@ public class TypeResolver extends Visitor
 
     public Void visit(BlockNode node) {
         for (DefinedVariable var : node.variables()) {
-            bindType(var.typeNode());
-        }
-        for (DefinedVariable var : node.variables()) {
-            if (var.hasInitializer()) {
-                visitExpr(var.initializer());
-            }
+            var.accept(this);
         }
         visitStmts(node.stmts());
         return null;
