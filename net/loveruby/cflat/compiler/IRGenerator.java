@@ -180,20 +180,22 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Label thenLabel = new Label();
         Label elseLabel = new Label();
         Label endLabel = new Label();
-
-        cjump(node.location(),
-                transformExpr(node.cond()),
-                thenLabel,
-                node.elseBody() == null ? endLabel : elseLabel);
-        label(thenLabel);
-        transformStmt(node.thenBody());
-        jump(endLabel);
-        if (node.elseBody() != null) {
+        Expr cond = transformExpr(node.cond());
+        if (node.elseBody() == null) {
+            cjump(node.location(), cond, thenLabel, endLabel);
+            label(thenLabel);
+            transformStmt(node.thenBody());
+            label(endLabel);
+        }
+        else {
+            cjump(node.location(), cond, thenLabel, elseLabel);
+            label(thenLabel);
+            transformStmt(node.thenBody());
+            jump(endLabel);
             label(elseLabel);
             transformStmt(node.elseBody());
-            jump(endLabel);
+            label(endLabel);
         }
-        label(endLabel);
         return null;
     }
     // #@@}
