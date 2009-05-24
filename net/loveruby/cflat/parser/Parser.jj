@@ -516,7 +516,7 @@ List<DefinedVariable> defvars():
 }
 // #@@}
 
-// #@@range/defvars{
+// #@@range/defconst{
 Constant defconst():
 {
     TypeNode type;
