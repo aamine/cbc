@@ -748,7 +748,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/compile_Bin{
+    // #@@range/Bin{
     public Void visit(Bin node) {
         AsmOperand right = null;
         if (!doesSpillRegister(node.op()) && node.right().isConstant()){
@@ -862,11 +862,9 @@ public class CodeGenerator
             as.movzb(t, al(), ax(t));
         }
         // #@@}
-    // #@@range/compileBinaryOp_end{
     }
-    // #@@}
 
-    // #@@range/compile_Uni{
+    // #@@range/Uni{
     public Void visit(Uni node) {
         Type src = node.expr().type();
         Type dest = node.type();
@@ -897,21 +895,21 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/compile_Var{
+    // #@@range/Var{
     public Void visit(Var node) {
         loadVariable(node, ax());
         return null;
     }
     // #@@}
 
-    // #@@range/compile_Int{
+    // #@@range/Int{
     public Void visit(Int node) {
         loadConstant(node, ax());
         return null;
     }
     // #@@}
 
-    // #@@range/compile_Str{
+    // #@@range/Str{
     public Void visit(Str node) {
         loadConstant(node, ax());
         return null;
@@ -922,7 +920,7 @@ public class CodeGenerator
     // Assignable expressions
     //
 
-    // #@@range/compile_Assign{
+    // #@@range/Assign{
     public Void visit(Assign node) {
         if (node.lhs().isAddr() && node.lhs().memref() != null) {
             compile(node.rhs());
@@ -946,7 +944,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/compile_Mem{
+    // #@@range/Mem{
     public Void visit(Mem node) {
         compile(node.expr());
         load(node.type(), mem(ax()), ax());
@@ -954,7 +952,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/compile_Addr{
+    // #@@range/Addr{
     public Void visit(Addr node) {
         loadAddress(node.entity(), ax());
         return null;
