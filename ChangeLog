@@ -1,3 +1,14 @@
+Wed May 27 01:59:03 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/AssemblyFile.java: remove unused
+	  methods.
+
+	* net/loveruby/cflat/sysdep/x86/AssemblyFile.java: reduce Type
+	  argument.
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: follow
+	  changes.
+
 Tue May 26 16:52:18 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm/NamedSymbol.java (dump): dump name as

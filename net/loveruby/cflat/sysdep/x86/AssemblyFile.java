@@ -277,10 +277,6 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
         insn("jmp", new DirectMemoryReference(label.symbol()));
     }
 
-    void jz(Label label) {
-        insn("jz", new DirectMemoryReference(label.symbol()));
-    }
-
     void jnz(Label label) {
         insn("jnz", new DirectMemoryReference(label.symbol()));
     }
@@ -289,12 +285,8 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
         insn("je", new DirectMemoryReference(label.symbol()));
     }
 
-    void jne(Label label) {
-        insn("jne", new DirectMemoryReference(label.symbol()));
-    }
-
-    void cmp(Type t, Operand a, Register b) {
-        insn(t, "cmp", a, b);
+    void cmp(Operand a, Register b) {
+        insn(b.type, "cmp", a, b);
     }
 
     void sete(Register reg) {
@@ -337,8 +329,8 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
         insn("setle", reg);
     }
 
-    void test(Type type, Register a, Register b) {
-        insn(type, "test", a, b);
+    void test(Register a, Register b) {
+        insn(b.type, "test", a, b);
     }
 
     void push(Register reg) {
@@ -363,8 +355,18 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
         insn("ret");
     }
 
-    void mov(Operand src, Operand dest) {
-        mov(naturalType, src, dest);
+    void mov(Register src, Register dest) {
+        insn(naturalType, "mov", src, dest);
+    }
+
+    // load
+    void mov(Operand src, Register dest) {
+        insn(dest.type, "mov", src, dest);
+    }
+
+    // save
+    void mov(Register src, Operand dest) {
+        insn(src.type, "mov", src, dest);
     }
 
     // for stack access
@@ -372,119 +374,75 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
         assemblies.add(new Instruction("mov", typeSuffix(naturalType), src, dest, true));
     }
 
-    void mov(Type type, Operand src, Operand dest) {
-        insn(type, "mov", src, dest);
+    void movsx(Register src, Register dest) {
+        insn("movs", typeSuffix(src.type, dest.type), src, dest);
     }
 
-    void movsx(Type t1, Type t2, Operand src, Operand dest) {
-        insn("movs", typeSuffix(t1, t2), src, dest);
+    void movzx(Register src, Register dest) {
+        insn("movz", typeSuffix(src.type, dest.type), src, dest);
     }
 
-    void movsbl(Operand src, Operand dest) {
-        insn("movs", "bl", src, dest);
+    void movzb(Register src, Register dest) {
+        insn("movz", "b" + typeSuffix(dest.type), src, dest);
     }
 
-    void movswl(Operand src, Operand dest) {
-        insn("movs", "wl", src, dest);
+    void lea(Operand src, Register dest) {
+        insn(naturalType, "lea", src, dest);
     }
 
-    void movzx(Type t1, Type t2, Operand src, Operand dest) {
-        insn("movz", typeSuffix(t1, t2), src, dest);
+    void neg(Register reg) {
+        insn(reg.type, "neg", reg);
     }
 
-    void movzb(Type t, Operand src, Operand dest) {
-        insn("movz", "b" + typeSuffix(t), src, dest);
+    void add(Operand diff, Register base) {
+        insn(base.type, "add", diff, base);
     }
 
-    void movzbl(Operand src, Operand dest) {
-        insn("movz", "bl", src, dest);
-    }
-
-    void movzwl(Operand src, Operand dest) {
-        insn("movz", "wl", src, dest);
-    }
-
-    void lea(Operand src, Operand dest) {
-        lea(naturalType, src, dest);
-    }
-
-    void lea(Type type, Operand src, Operand dest) {
-        insn(type, "lea", src, dest);
-    }
-
-    void neg(Type type, Register reg) {
-        insn(type, "neg", reg);
-    }
-
-    void inc(Type type, Operand reg) {
-        insn(type, "inc", reg);
-    }
-
-    void dec(Type type, Operand reg) {
-        insn(type, "dec", reg);
-    }
-
-    void add(Operand diff, Operand base) {
-        add(naturalType, diff, base);
-    }
-
-    void add(Type type, Operand diff, Operand base) {
-        insn(type, "add", diff, base);
-    }
-
-    void sub(Operand diff, Operand base) {
-        sub(naturalType, diff, base);
-    }
-
-    void sub(Type type, Operand diff, Operand base) {
-        insn(type, "sub", diff, base);
+    void sub(Operand diff, Register base) {
+        insn(base.type, "sub", diff, base);
     }
 
     void imul(Operand m, Register base) {
-        imul(naturalType, m, base);
-    }
-
-    void imul(Type type, Operand m, Register base) {
-        insn(type, "imul", m, base);
+        insn(base.type, "imul", m, base);
     }
 
     void cltd() {
         insn("cltd");
     }
 
-    void div(Type type, Register base) {
-        insn(type, "div", base);
+    void div(Register base) {
+        insn(base.type, "div", base);
     }
 
-    void idiv(Type type, Register base) {
-        insn(type, "idiv", base);
+    void idiv(Register base) {
+        insn(base.type, "idiv", base);
     }
 
-    void not(Type type, Register reg) {
-        insn(type, "not", reg);
+    void not(Register reg) {
+        insn(reg.type, "not", reg);
     }
 
-    void and(Type type, Operand bits, Register base) {
-        insn(type, "and", bits, base);
+    void and(Operand bits, Register base) {
+        insn(base.type, "and", bits, base);
     }
 
-    void or(Type type, Operand bits, Register base) {
-        insn(type, "or", bits, base);
+    void or(Operand bits, Register base) {
+        insn(base.type, "or", bits, base);
     }
 
-    void xor(Type type, Operand bits, Register base) {
-        insn(type, "xor", bits, base);
+    void xor(Operand bits, Register base) {
+        insn(base.type, "xor", bits, base);
     }
 
-    void sar(Type type, Register bits, Register base) {
-        insn(type, "sar", bits, base);
+    void sar(Register bits, Register base) {
+        insn(base.type, "sar", bits, base);
     }
 
-    void sal(Type type, Register bits, Register base) {
-        insn(type, "sal", bits, base);
+    void sal(Register bits, Register base) {
+        insn(base.type, "sal", bits, base);
     }
 
-    void shr(Type type, Register bits, Register base) {
-        insn(type, "shr", bits, base);
+    void shr(Register bits, Register base) {
+        insn(base.type, "shr", bits, base);
     }
 }

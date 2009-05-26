@@ -727,7 +727,7 @@ public class CodeGenerator
     public Void visit(CJump node) {
         compile(node.cond());
         Type t = node.cond().type();
-        as.test(t, ax(t), ax(t));
+        as.test(ax(t), ax(t));
         as.jnz(node.thenLabel());
         as.jmp(node.elseLabel());
         return null;
@@ -739,7 +739,7 @@ public class CodeGenerator
         Type t = node.cond().type();
         for (Case c : node.cases()) {
             as.mov(imm(c.value), cx());
-            as.cmp(t, cx(t), ax(t));
+            as.cmp(cx(t), ax(t));
             as.je(c.label);
         }
         as.jmp(node.defaultLabel());
@@ -783,7 +783,7 @@ public class CodeGenerator
             as.virtualPop(cx());
             right = cx(node.type());
         }
-        compileBinaryOp(node.type(), node.op(), ax(node.type()), right);
+        compileBinaryOp(node.op(), ax(node.type()), right);
         return null;
     }
     // #@@}
@@ -806,24 +806,23 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compileBinaryOp_begin{
-    private void compileBinaryOp(Type t, Op op,
-            Register left, Operand right) {
+    private void compileBinaryOp(Op op, Register left, Operand right) {
         // #@@range/compileBinaryOp_arithops{
         switch (op) {
         case ADD:
-            as.add(t, right, left);
+            as.add(right, left);
             break;
         case SUB:
-            as.sub(t, right, left);
+            as.sub(right, left);
             break;
     // #@@range/compileBinaryOp_begin}
         case MUL:
-            as.imul(t, right, left);
+            as.imul(right, left);
             break;
         case S_DIV:
         case S_MOD:
             as.cltd();
-            as.idiv(t, cx(t));
+            as.idiv(cx(left.type));
             if (op == Op.S_MOD) {
                 as.mov(dx(), left);
             }
@@ -831,7 +830,7 @@ public class CodeGenerator
         case U_DIV:
         case U_MOD:
             as.mov(imm(0), dx());
-            as.div(t, cx(t));
+            as.div(cx(left.type));
             if (op == Op.U_MOD) {
                 as.mov(dx(), left);
             }
@@ -839,28 +838,28 @@ public class CodeGenerator
         // #@@}
         // #@@range/compileBinaryOp_bitops{
         case BIT_AND:
-            as.and(t, right, left);
+            as.and(right, left);
             break;
         case BIT_OR:
-            as.or(t, right, left);
+            as.or(right, left);
             break;
         case BIT_XOR:
-            as.xor(t, right, left);
+            as.xor(right, left);
             break;
         case BIT_LSHIFT:
-            as.sal(t, cl(), left);
+            as.sal(cl(), left);
             break;
         case BIT_RSHIFT:
-            as.shr(t, cl(), left);
+            as.shr(cl(), left);
             break;
         case ARITH_RSHIFT:
-            as.sar(t, cl(), left);
+            as.sar(cl(), left);
             break;
         // #@@}
         // #@@range/compileBinaryOp_cmpops{
         default:
             // Comparison operators
-            as.cmp(t, right, ax(t));
+            as.cmp(right, ax(left.type));
             switch (op) {
             case EQ:        as.sete (al()); break;
             case NEQ:       as.setne(al()); break;
@@ -875,7 +874,7 @@ public class CodeGenerator
             default:
                 throw new Error("unknown binary operator: " + op);
             }
-            as.movzb(t, al(), ax(t));
+            as.movzb(al(), left);
         }
         // #@@}
     }
@@ -888,21 +887,21 @@ public class CodeGenerator
         compile(node.expr());
         switch (node.op()) {
         case UMINUS:
-            as.neg(src, ax(src));
+            as.neg(ax(src));
             break;
         case BIT_NOT:
-            as.not(src, ax(src));
+            as.not(ax(src));
             break;
         case NOT:
-            as.test(src, ax(src), ax(dest));
+            as.test(ax(src), ax(src));
             as.sete(al());
-            as.movzbl(al(), ax());
+            as.movzb(al(), ax(dest));
             break;
         case S_CAST:
-            as.movsx(src, dest, ax(src), ax(dest));
+            as.movsx(ax(src), ax(dest));
             break;
         case U_CAST:
-            as.movzx(src, dest, ax(src), ax(dest));
+            as.movzx(ax(src), ax(dest));
             break;
         default:
             throw new Error("unknown unary operator: " + node.op());
@@ -1099,13 +1098,13 @@ public class CodeGenerator
 
     // #@@range/load{
     private void load(Type type, MemoryReference mem, Register reg) {
-        as.mov(type, mem, reg.forType(type));
+        as.mov(mem, reg.forType(type));
     }
     // #@@}
 
     // #@@range/save{
     private void save(Type type, Register reg, MemoryReference mem) {
-        as.mov(type, reg.forType(type), mem);
+        as.mov(reg.forType(type), mem);
     }
     // #@@}
 }
