@@ -1,3 +1,8 @@
+Tue May 26 11:59:08 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Options.java: allow --verbose-asm
+	  too.
+
 Tue May 26 11:50:11 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Options.java: --verbose-asm ->
