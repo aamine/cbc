@@ -5,7 +5,7 @@ abstract public class BaseSymbol implements Symbol {
         return false;
     }
 
-    public void collectStatistics(AsmStatistics stats) {
+    public void collectStatistics(Statistics stats) {
         stats.symbolUsed(this);
     }
 

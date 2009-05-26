@@ -5,7 +5,7 @@ abstract public class Register extends Operand {
         return true;
     }
 
-    public void collectStatistics(AsmStatistics stats) {
+    public void collectStatistics(Statistics stats) {
         stats.registerUsed(this);
     }
 

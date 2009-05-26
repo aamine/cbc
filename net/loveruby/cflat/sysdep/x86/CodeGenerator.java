@@ -384,7 +384,7 @@ public class CodeGenerator
             AssemblyFile file, DefinedFunction func) {
         AssemblyFile body = compileStmts(func);
         List<Assembly> bodyAsms = optimize(body.assemblies());
-        AsmStatistics stats = AsmStatistics.collect(bodyAsms);
+        Statistics stats = Statistics.collect(bodyAsms);
         bodyAsms = reduceLabels(bodyAsms, stats);
         List<Register> saveRegs = usedCalleeSavedRegistersWithoutBP(stats);
         long saveRegsBytes = stackSizeFromWordNum(saveRegs.size());
@@ -476,7 +476,8 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/reduceLabels{
-    private List<Assembly> reduceLabels(List<Assembly> assemblies, AsmStatistics stats) {
+    private List<Assembly> reduceLabels(
+            List<Assembly> assemblies, Statistics stats) {
         List<Assembly> result = new ArrayList<Assembly>();
         for (Assembly asm : assemblies) {
             if (asm.isLabel() && ! stats.doesSymbolUsed((Label)asm)) {
@@ -490,7 +491,7 @@ public class CodeGenerator
     }
     // #@@}
 
-    private List<Register> usedCalleeSavedRegistersWithoutBP(AsmStatistics stats) {
+    private List<Register> usedCalleeSavedRegistersWithoutBP(Statistics stats) {
         List<Register> result = new ArrayList<Register>();
         for (Register reg : calleeSavedRegisters()) {
             if (stats.doesRegisterUsed(reg) && !reg.equals(bp())) {

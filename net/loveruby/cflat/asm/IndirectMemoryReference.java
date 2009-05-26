@@ -39,7 +39,7 @@ public class IndirectMemoryReference extends MemoryReference {
         return base;
     }
 
-    public void collectStatistics(AsmStatistics stats) {
+    public void collectStatistics(Statistics stats) {
         base.collectStatistics(stats);
     }
 

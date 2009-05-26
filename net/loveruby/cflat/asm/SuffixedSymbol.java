@@ -13,7 +13,7 @@ public class SuffixedSymbol implements Symbol {
         return false;
     }
 
-    public void collectStatistics(AsmStatistics stats) {
+    public void collectStatistics(Statistics stats) {
         base.collectStatistics(stats);
     }
 

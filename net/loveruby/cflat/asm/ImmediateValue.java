@@ -21,7 +21,7 @@ public class ImmediateValue extends Operand {
         return this.expr;
     }
 
-    public void collectStatistics(AsmStatistics stats) {
+    public void collectStatistics(Statistics stats) {
         // does nothing
     }
 

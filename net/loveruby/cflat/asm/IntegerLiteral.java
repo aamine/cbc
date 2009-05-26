@@ -40,7 +40,7 @@ public class IntegerLiteral implements Literal {
         return toSource();
     }
 
-    public void collectStatistics(AsmStatistics stats) {
+    public void collectStatistics(Statistics stats) {
         // does nothing
     }
 

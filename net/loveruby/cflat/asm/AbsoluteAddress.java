@@ -11,7 +11,7 @@ public class AbsoluteAddress extends Operand {
         return this.register;
     }
 
-    public void collectStatistics(AsmStatistics stats) {
+    public void collectStatistics(Statistics stats) {
         register.collectStatistics(stats);
     }
 

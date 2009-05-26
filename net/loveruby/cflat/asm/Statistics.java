@@ -1,20 +1,20 @@
 package net.loveruby.cflat.asm;
 import java.util.*;
 
-public class AsmStatistics {
+public class Statistics {
     protected Map<Register, Integer> registerUsage;
     protected Map<String, Integer> insnUsage;
     protected Map<Symbol, Integer> symbolUsage;
 
-    static public AsmStatistics collect(List<Assembly> assemblies) {
-        AsmStatistics stats = new AsmStatistics();
+    static public Statistics collect(List<Assembly> assemblies) {
+        Statistics stats = new Statistics();
         for (Assembly asm : assemblies) {
             asm.collectStatistics(stats);
         }
         return stats;
     }
 
-    public AsmStatistics() {
+    public Statistics() {
         registerUsage = new HashMap<Register, Integer>();
         insnUsage = new HashMap<String, Integer>();
         symbolUsage = new HashMap<Symbol, Integer>();

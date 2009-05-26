@@ -19,7 +19,7 @@ abstract public class Assembly {
         return false;
     }
 
-    public void collectStatistics(AsmStatistics stats) {
+    public void collectStatistics(Statistics stats) {
         // does nothing by default.
     }
 

@@ -80,7 +80,7 @@ public class Instruction extends Assembly {
         return (Symbol)ref.value();
     }
 
-    public void collectStatistics(AsmStatistics stats) {
+    public void collectStatistics(Statistics stats) {
         stats.instructionUsed(mnemonic);
         for (int i = 0; i < operands.length; i++) {
             operands[i].collectStatistics(stats);
