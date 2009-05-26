@@ -1,17 +1,18 @@
 package net.loveruby.cflat.sysdep.x86;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.Type;
+import net.loveruby.cflat.asm.SymbolTable;
 
 class Register extends net.loveruby.cflat.asm.Register {
-    RegKind kind;
+    RegisterClass _class;
     Type type;
 
-    Register(RegKind kind, Type type) {
-        this.kind = kind;
+    Register(RegisterClass _class, Type type) {
+        this._class = _class;
         this.type = type;
     }
 
     Register forType(Type t) {
-        return new Register(kind, t);
+        return new Register(_class, t);
     }
 
     public boolean isRegister() { return true; }
@@ -22,19 +23,19 @@ class Register extends net.loveruby.cflat.asm.Register {
 
     /** size difference does NOT matter. */
     public boolean equals(Register reg) {
-        return kind.equals(reg.kind);
+        return _class.equals(reg._class);
     }
 
     public int hashCode() {
-        return kind.hashCode();
+        return _class.hashCode();
     }
 
-    RegKind kind() {
-        return kind;
+    RegisterClass registerClass() {
+        return _class;
     }
 
     String baseName() {
-        return kind.toString().toLowerCase();
+        return _class.toString().toLowerCase();
     }
 
     public String toSource(SymbolTable table) {
@@ -54,14 +55,14 @@ class Register extends net.loveruby.cflat.asm.Register {
     }
 
     private String lowerByteRegister() {
-        switch (kind) {
+        switch (_class) {
         case AX:
         case BX:
         case CX:
         case DX:
             return baseName().substring(0, 1) + "l";
         default:
-            throw new Error("does not have lower-byte register: " + kind);
+            throw new Error("does not have lower-byte register: " + _class);
         }
     }
 }

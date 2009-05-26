@@ -1008,20 +1008,44 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/reg_dsls{
-    private Register ax() { return new Register(RegKind.AX, naturalType); }
-    private Register bx() { return new Register(RegKind.BX, naturalType); }
-    private Register cx() { return new Register(RegKind.CX, naturalType); }
-    private Register dx() { return new Register(RegKind.DX, naturalType); }
-    private Register si() { return new Register(RegKind.SI, naturalType); }
-    private Register di() { return new Register(RegKind.DI, naturalType); }
-    private Register bp() { return new Register(RegKind.BP, naturalType); }
-    private Register sp() { return new Register(RegKind.SP, naturalType); }
+    private Register ax() { return ax(naturalType); }
+    private Register al() { return ax(Type.INT8); }
+    private Register bx() { return bx(naturalType); }
+    private Register cx() { return cx(naturalType); }
+    private Register cl() { return cx(Type.INT8); }
+    private Register dx() { return dx(naturalType); }
 
-    private Register al() { return new Register(RegKind.AX, Type.INT8); }
-    private Register cl() { return new Register(RegKind.CX, Type.INT8); }
+    private Register ax(Type t) {
+        return new Register(RegisterClass.AX, t);
+    }
 
-    private Register ax(Type t) { return new Register(RegKind.AX, t); }
-    private Register cx(Type t) { return new Register(RegKind.CX, t); }
+    private Register bx(Type t) {
+        return new Register(RegisterClass.BX, t);
+    }
+
+    private Register cx(Type t) {
+        return new Register(RegisterClass.CX, t);
+    }
+
+    private Register dx(Type t) {
+        return new Register(RegisterClass.DX, t);
+    }
+
+    private Register si() {
+        return new Register(RegisterClass.SI, naturalType);
+    }
+
+    private Register di() {
+        return new Register(RegisterClass.DI, naturalType);
+    }
+
+    private Register bp() {
+        return new Register(RegisterClass.BP, naturalType);
+    }
+
+    private Register sp() {
+        return new Register(RegisterClass.SP, naturalType);
+    }
     // #@@}
 
     // #@@range/mem{

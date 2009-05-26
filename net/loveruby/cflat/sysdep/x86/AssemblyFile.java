@@ -214,10 +214,13 @@ public class AssemblyFile {
 
     // #@@range/stackTop{
     IndirectMemoryReference stackTop() {
-        return new IndirectMemoryReference(
-                -stackPointer, new Register(RegKind.BP, naturalType));
+        return new IndirectMemoryReference(-stackPointer, bp());
     }
     // #@@}
+
+    private Register bp() {
+        return new Register(RegisterClass.BP, naturalType);
+    }
 
     // #@@range/virtualPush{
     void virtualPush(Register reg) {

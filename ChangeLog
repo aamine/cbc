@@ -1,3 +1,10 @@
+Tue May 26 13:40:13 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86: rename class: RegKind ->
+	  RegisterClass.
+
+	* net/loveruby/cflat/sysdep/x86: follow it.
+
 Tue May 26 13:23:56 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm: refactoring: rename class: AsmStatistics
