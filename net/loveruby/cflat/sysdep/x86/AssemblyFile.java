@@ -38,7 +38,7 @@ public class AssemblyFile {
     }
 
     public void comment(String str) {
-        assemblies.add(new AsmComment(str, commentIndentLevel));
+        assemblies.add(new Comment(str, commentIndentLevel));
     }
 
     public void indentComment() {

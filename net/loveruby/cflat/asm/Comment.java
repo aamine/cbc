@@ -1,14 +1,14 @@
 package net.loveruby.cflat.asm;
 
-public class AsmComment extends Assembly {
+public class Comment extends Assembly {
     protected String string;
     protected int indentLevel;
 
-    public AsmComment(String string) {
+    public Comment(String string) {
         this(string, 0);
     }
 
-    public AsmComment(String string, int indentLevel) {
+    public Comment(String string, int indentLevel) {
         this.string = string;
         this.indentLevel = indentLevel;
     }

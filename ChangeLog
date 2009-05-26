@@ -1,3 +1,7 @@
+Tue May 26 13:11:08 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/AsmComment.java -> Comment.java
+
 Tue May 26 12:57:48 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java (writeFile): treat "-"
