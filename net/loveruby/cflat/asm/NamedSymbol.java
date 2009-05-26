@@ -1,4 +1,5 @@
 package net.loveruby.cflat.asm;
+import net.loveruby.cflat.utils.TextUtils;
 
 public class NamedSymbol extends BaseSymbol {
     protected String name;
@@ -44,6 +45,6 @@ public class NamedSymbol extends BaseSymbol {
     }
 
     public String dump() {
-        return "(NamedSymbol " + name + ")";
+        return "(NamedSymbol " + TextUtils.dumpString(name) + ")";
     }
 }

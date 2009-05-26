@@ -1,3 +1,8 @@
+Tue May 26 16:52:18 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm/NamedSymbol.java (dump): dump name as
+	  string.
+
 Tue May 26 16:07:33 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Compiler.java: --dump-asm now dumps
