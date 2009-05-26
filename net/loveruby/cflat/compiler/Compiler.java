@@ -168,8 +168,11 @@ public class Compiler {
                 opts.ldArgs(), opts.soFileName(), opts.ldOptions());
     }
 
-    private void writeFile(String path, String str)
-                                    throws FileException {
+    private void writeFile(String path, String str) throws FileException {
+        if (path.equals("-")) {
+            System.out.print(str);
+            return;
+        }
         try {
             BufferedWriter f = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(path)));
