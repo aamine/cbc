@@ -13,6 +13,7 @@ enum CompilerMode {
     DumpReference ("--dump-reference"),
     DumpIR ("--dump-ir"),
     DumpAsm ("--dump-asm"),
+    PrintAsm ("--print-asm"),
     Compile ("-S"),
     Assemble ("-c"),
     Link ("--link");
@@ -29,6 +30,7 @@ enum CompilerMode {
         modes.put("--dump-reference", DumpReference);
         modes.put("--dump-ir", DumpIR);
         modes.put("--dump-asm", DumpAsm);
+        modes.put("--print-asm", PrintAsm);
         modes.put("-S", Compile);
         modes.put("-c", Assemble);
     }

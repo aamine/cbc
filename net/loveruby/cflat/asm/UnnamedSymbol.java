@@ -40,4 +40,8 @@ public class UnnamedSymbol extends BaseSymbol {
     public int cmp(SuffixedSymbol sym) {
         return 1;
     }
+
+    public String dump() {
+        return "(UnnamedSymbol @" + Integer.toHexString(hashCode()) + ")";
+    }
 }

@@ -70,4 +70,9 @@ public class IndirectMemoryReference extends MemoryReference {
     protected int cmp(IndirectMemoryReference mem) {
         return offset.compareTo(mem.offset);
     }
+
+    public String dump() {
+        return "(IndirectMemoryReference "
+                + offset.dump() + " " + base.dump() + ")";
+    }
 }

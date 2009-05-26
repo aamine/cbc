@@ -328,10 +328,11 @@ class Options {
         // --dump-stmt is a hidden option.
         // --dump-expr is a hidden option.
         out.println("  --dump-ast       Dumps AST and quit.");
-        out.println("  --dump-semantic  Dumps AST after semantic check and quit.");
+        out.println("  --dump-semantic  Dumps AST after semantic checks and quit.");
         // --dump-reference is a hidden option.
         out.println("  --dump-ir        Dumps IR and quit.");
-        out.println("  --dump-asm       Prints an assembly source and quit.");
+        out.println("  --dump-asm       Dumps AssemblyFile and quit.");
+        out.println("  --print-asm      Prints assembly code and quit.");
         out.println("  -S               Generates an assembly file and quit.");
         out.println("  -c               Generates an object file and quit.");
         out.println("  -o PATH          Places output in file PATH.");

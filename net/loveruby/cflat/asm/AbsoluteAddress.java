@@ -18,4 +18,8 @@ public class AbsoluteAddress extends Operand {
     public String toSource(SymbolTable table) {
         return "*" + register.toSource(table);
     }
+
+    public String dump() {
+        return "(AbsoluteAddress " + register.dump() + ")";
+    }
 }

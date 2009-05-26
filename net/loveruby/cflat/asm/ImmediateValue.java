@@ -28,4 +28,8 @@ public class ImmediateValue extends Operand {
     public String toSource(SymbolTable table) {
         return "$" + expr.toSource(table);
     }
+
+    public String dump() {
+        return "(ImmediateValue " + expr.dump() + ")";
+    }
 }

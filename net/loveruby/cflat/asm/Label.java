@@ -22,4 +22,8 @@ public class Label extends Assembly {
     public String toSource(SymbolTable table) {
         return symbol.toSource(table) + ":";
     }
+
+    public String dump() {
+        return "(Label " + symbol.dump() + ")";
+    }
 }

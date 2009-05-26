@@ -45,7 +45,7 @@ public class IntegerLiteral implements Literal {
     }
 
     public String toString() {
-        return "$" + value;
+        return new Long(value).toString();
     }
 
     public int compareTo(Literal lit) {
@@ -66,5 +66,9 @@ public class IntegerLiteral implements Literal {
 
     public int cmp(SuffixedSymbol sym) {
         return -1;
+    }
+
+    public String dump() {
+        return "(IntegerLiteral " + new Long(value).toString() + ")";
     }
 }

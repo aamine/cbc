@@ -1,4 +1,5 @@
 package net.loveruby.cflat.asm;
+import net.loveruby.cflat.utils.TextUtils;
 
 public class Comment extends Assembly {
     protected String string;
@@ -27,5 +28,9 @@ public class Comment extends Assembly {
             buf.append("  ");
         }
         return buf.toString();
+    }
+
+    public String dump() {
+        return "(Comment " + TextUtils.dumpString(string) + ")";
     }
 }

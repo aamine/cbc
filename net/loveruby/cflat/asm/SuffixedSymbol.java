@@ -1,4 +1,5 @@
 package net.loveruby.cflat.asm;
+import net.loveruby.cflat.utils.TextUtils;
 
 public class SuffixedSymbol implements Symbol {
     protected Symbol base;
@@ -55,5 +56,10 @@ public class SuffixedSymbol implements Symbol {
 
     public int cmp(SuffixedSymbol sym) {
         return toString().compareTo(sym.toString());
+    }
+
+    public String dump() {
+        return "(SuffixedSymbol " + base.dump() +
+                " " + TextUtils.dumpString(suffix) + ")";
     }
 }

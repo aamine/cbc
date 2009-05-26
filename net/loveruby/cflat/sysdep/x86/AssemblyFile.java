@@ -46,7 +46,9 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
     }
 
     public void dump(PrintStream s) {
-        // FIXME
+        for (Assembly asm : assemblies) {
+            s.println(asm.dump());
+        }
     }
 
     void comment(String str) {

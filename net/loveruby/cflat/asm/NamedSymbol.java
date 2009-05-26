@@ -42,4 +42,8 @@ public class NamedSymbol extends BaseSymbol {
     public int cmp(SuffixedSymbol sym) {
         return toString().compareTo(sym.toString());
     }
+
+    public String dump() {
+        return "(NamedSymbol " + name + ")";
+    }
 }

@@ -65,4 +65,8 @@ class Register extends net.loveruby.cflat.asm.Register {
             throw new Error("does not have lower-byte register: " + _class);
         }
     }
+
+    public String dump() {
+        return "(Register " + _class.toString() + " " + type.toString() + ")";
+    }
 }

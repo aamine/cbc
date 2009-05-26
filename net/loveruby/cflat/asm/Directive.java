@@ -1,4 +1,5 @@
 package net.loveruby.cflat.asm;
+import net.loveruby.cflat.utils.TextUtils;
 
 public class Directive extends Assembly {
     protected String content;
@@ -13,5 +14,9 @@ public class Directive extends Assembly {
 
     public String toSource(SymbolTable table) {
         return this.content;
+    }
+
+    public String dump() {
+        return "(Directive " + TextUtils.dumpString(content.trim()) + ")";
     }
 }

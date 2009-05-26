@@ -34,4 +34,8 @@ public class DirectMemoryReference extends MemoryReference {
     protected int cmp(DirectMemoryReference mem) {
         return value.compareTo(mem.value);
     }
+
+    public String dump() {
+        return "(DirectMemoryReference " + value.dump() + ")";
+    }
 }

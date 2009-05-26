@@ -2,6 +2,7 @@ package net.loveruby.cflat.asm;
 
 abstract public class Operand implements OperandPattern {
     abstract public String toSource(SymbolTable table);
+    abstract public String dump();
 
     public boolean isRegister() {
         return false;

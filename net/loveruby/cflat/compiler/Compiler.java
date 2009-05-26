@@ -116,6 +116,7 @@ public class Compiler {
         if (dumpIR(ir, opts.mode())) return;
         AssemblyFile asm = generateAssembly(ir, opts);
         if (dumpAsm(asm, opts.mode())) return;
+        if (printAsm(asm, opts.mode())) return;
         writeFile(destPath, asm.toSource());
     }
 
@@ -252,6 +253,16 @@ public class Compiler {
 
     private boolean dumpAsm(AssemblyFile asm, CompilerMode mode) {
         if (mode == CompilerMode.DumpAsm) {
+            asm.dump(System.out);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private boolean printAsm(AssemblyFile asm, CompilerMode mode) {
+        if (mode == CompilerMode.PrintAsm) {
             System.out.print(asm.toSource());
             return true;
         }

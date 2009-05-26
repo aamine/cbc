@@ -1,3 +1,24 @@
+Tue May 26 16:07:33 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java: --dump-asm now dumps
+	  AssemblyFile.
+
+	* net/loveruby/cflat/compiler/Compiler.java: new option
+	  --print-asm, prints assembly source text.
+
+	* net/loveruby/cflat/compiler/CompilerMode.java: new enum
+	  PrintAsm.
+
+	* net/loveruby/cflat/compiler/Options.java: new option
+	  --print-asm.
+
+	* net/loveruby/cflat/sysdep/x86/AssemblyFile.java: new method
+	  #dump.
+
+	* net/loveruby/cflat/sysdep/x86/Register.java: new method #dump.
+
+	* net/loveruby/cflat/asm: new method #dump.
+
 Tue May 26 15:16:04 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/AssemblyFile.java: refactoring:

@@ -1,4 +1,5 @@
 package net.loveruby.cflat.asm;
+import net.loveruby.cflat.utils.TextUtils;
 
 public class Instruction extends Assembly {
     protected String mnemonic;
@@ -108,5 +109,18 @@ public class Instruction extends Assembly {
 
     public String toString() {
         return "#<Insn " + mnemonic + ">";
+    }
+
+    public String dump() {
+        StringBuilder buf = new StringBuilder();
+        buf.append("(Instruction ");
+        buf.append(TextUtils.dumpString(mnemonic));
+        buf.append(" ");
+        buf.append(TextUtils.dumpString(suffix));
+        for (Operand oper : operands) {
+            buf.append(" ").append(oper.dump());
+        }
+        buf.append(")");
+        return buf.toString();
     }
 }
