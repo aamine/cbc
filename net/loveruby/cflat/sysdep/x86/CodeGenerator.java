@@ -1022,14 +1022,16 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/reg_dsls{
+    // #@@range/reg_dsls2{
     private Register ax() { return ax(naturalType); }
     private Register al() { return ax(Type.INT8); }
     private Register bx() { return bx(naturalType); }
+    // #@@}
     private Register cx() { return cx(naturalType); }
     private Register cl() { return cx(Type.INT8); }
     private Register dx() { return dx(naturalType); }
 
+    // #@@range/reg_dsls1{
     private Register ax(Type t) {
         return new Register(RegisterClass.AX, t);
     }
@@ -1037,6 +1039,7 @@ public class CodeGenerator
     private Register bx(Type t) {
         return new Register(RegisterClass.BX, t);
     }
+    // #@@}
 
     private Register cx(Type t) {
         return new Register(RegisterClass.CX, t);
@@ -1061,7 +1064,6 @@ public class CodeGenerator
     private Register sp() {
         return new Register(RegisterClass.SP, naturalType);
     }
-    // #@@}
 
     // #@@range/mem{
     private DirectMemoryReference mem(Symbol sym) {
