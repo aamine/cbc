@@ -176,8 +176,8 @@ class Options {
                     }
                     genOptions.setOptimizationLevel(type.equals("0") ? 0 : 1);
                 }
-                else if (arg.equals("--verbose-asm")
-                        || arg.equals("-fverbose-asm")) {
+                else if (arg.equals("-fverbose-asm")
+                        || arg.equals("--verbose-asm")) {
                     genOptions.generateVerboseAsm();
                 }
                 else if (arg.startsWith("-Wa,")) {
@@ -263,6 +263,11 @@ class Options {
         if (sourceFiles.isEmpty()) {
             parseError("no input file");
         }
+        for (SourceFile src : sourceFiles) {
+            if (! src.isKnownFileType()) {
+                parseError("unknown file type: " + src.path());
+            }
+        }
         if (outputFileName != null
                 && sourceFiles.size() > 1
                 && ! isLinkRequired()) {
@@ -334,6 +339,12 @@ class Options {
         out.println("  --version        Shows compiler version and quit.");
         out.println("  --help           Prints this message and quit.");
         out.println("");
+        out.println("Optimization Options:");
+        out.println("  -O               Enables optimization.");
+        out.println("  -O1, -O2, -O3    Equivalent to -O.");
+        out.println("  -Os              Equivalent to -O.");
+        out.println("  -O0              Disables optimization (default).");
+        out.println("");
         out.println("Parser Options:");
         out.println("  -I PATH          Adds PATH as import file directory.");
         out.println("  --debug-parser   Dumps parsing process.");
@@ -347,7 +358,7 @@ class Options {
         out.println("  -fpic            Equivalent to -fPIC.");
         out.println("  -fPIE            Generates PIE assembly.");
         out.println("  -fpie            Equivalent to -fPIE.");
-        out.println("  --verbose-asm    Generate assembly with verbose comments.");
+        out.println("  -fverbose-asm    Generate assembly with verbose comments.");
         out.println("");
         out.println("Assembler Options:");
         out.println("  -Wa,OPT          Passes OPT to the assembler (as).");

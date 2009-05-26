@@ -1,3 +1,11 @@
+Tue May 26 12:21:18 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Options.java: check unknown file
+	  types.
+
+	* net/loveruby/cflat/compiler/SourceFile.java: new method
+	  #isKnownFileType.
+
 Tue May 26 11:59:08 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Options.java: allow --verbose-asm

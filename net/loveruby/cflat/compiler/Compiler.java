@@ -49,7 +49,7 @@ public class Compiler {
         }
         catch (OptionParseError err) {
             errorHandler.error(err.getMessage());
-            errorHandler.error("Try cbc --help for option usage");
+            errorHandler.error("Try \"cbc --help\" for usage");
             System.exit(1);
             return null;   // never reach
         }
