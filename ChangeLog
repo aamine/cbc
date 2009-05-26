@@ -1,3 +1,8 @@
+Tue May 26 11:50:11 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Options.java: --verbose-asm ->
+	  -fverbose-asm
+
 Sun May 24 22:44:07 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: refactoring:

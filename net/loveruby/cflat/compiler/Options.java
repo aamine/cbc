@@ -176,7 +176,7 @@ class Options {
                     }
                     genOptions.setOptimizationLevel(type.equals("0") ? 0 : 1);
                 }
-                else if (arg.equals("--verbose-asm")) {
+                else if (arg.equals("-fverbose-asm")) {
                     genOptions.generateVerboseAsm();
                 }
                 else if (arg.startsWith("-Wa,")) {
