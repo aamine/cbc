@@ -6,6 +6,7 @@ import net.loveruby.cflat.ast.ExprNode;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.ir.IR;
 import net.loveruby.cflat.sysdep.CodeGenerator;
+import net.loveruby.cflat.sysdep.AssemblyFile;
 import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
@@ -113,9 +114,9 @@ public class Compiler {
         if (dumpSemant(sem, opts.mode())) return;
         IR ir = new IRGenerator(types, errorHandler).generate(sem);
         if (dumpIR(ir, opts.mode())) return;
-        String asm = generateAssembly(ir, opts);
+        AssemblyFile asm = generateAssembly(ir, opts);
         if (dumpAsm(asm, opts.mode())) return;
-        writeFile(destPath, asm);
+        writeFile(destPath, asm.toSource());
     }
 
     public AST parseFile(String path, Options opts)
@@ -138,9 +139,8 @@ public class Compiler {
         return ast;
     }
 
-    public String generateAssembly(IR ir, Options opts) {
-        CodeGenerator gen = opts.codeGenerator(errorHandler);
-        return gen.generate(ir);
+    public AssemblyFile generateAssembly(IR ir, Options opts) {
+        return opts.codeGenerator(errorHandler).generate(ir);
     }
 
     public void assemble(String srcPath, String destPath,
@@ -250,9 +250,9 @@ public class Compiler {
         }
     }
 
-    private boolean dumpAsm(String asm, CompilerMode mode) {
+    private boolean dumpAsm(AssemblyFile asm, CompilerMode mode) {
         if (mode == CompilerMode.DumpAsm) {
-            System.out.print(asm);
+            System.out.print(asm.toSource());
             return true;
         }
         else {

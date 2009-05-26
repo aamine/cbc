@@ -1,19 +1,23 @@
 package net.loveruby.cflat.sysdep.x86;
 import net.loveruby.cflat.asm.*;
 import net.loveruby.cflat.utils.TextUtils;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.PrintStream;
 
-public class AssemblyFile {
-    private List<Assembly> assemblies;
-    private Type naturalType;
-    private long stackWordSize;
-    private boolean verbose;
+public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
+    private final List<Assembly> assemblies;
+    private final Type naturalType;
+    private final long stackWordSize;
+    private final SymbolTable labelSymbols;
+    private final boolean verbose;
     private int commentIndentLevel;
 
-    public AssemblyFile(
-            Type naturalType, long stackWordSize, boolean verbose) {
+    public AssemblyFile(Type naturalType, long stackWordSize,
+            SymbolTable labelSymbols, boolean verbose) {
         this.naturalType = naturalType;
         this.stackWordSize = stackWordSize;
+        this.labelSymbols = labelSymbols;
         this.verbose = verbose;
         this.assemblies = new ArrayList<Assembly>();
         this.commentIndentLevel = 0;
@@ -28,13 +32,21 @@ public class AssemblyFile {
         this.assemblies.addAll(assemblies);
     }
 
-    public String toSource(SymbolTable symbolTable) {
+    public String toSource() {
         StringBuffer buf = new StringBuffer();
         for (Assembly asm : assemblies) {
-            buf.append(asm.toSource(symbolTable));
+            buf.append(asm.toSource(labelSymbols));
             buf.append("\n");
         }
         return buf.toString();
+    }
+
+    public void dump() {
+        dump(System.out);
+    }
+
+    public void dump(PrintStream s) {
+        // FIXME
     }
 
     public void comment(String str) {

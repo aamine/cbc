@@ -29,10 +29,21 @@ public class CodeGenerator
 
     /** Compiles IR and generates assembly code. */
     // #@@range/generate{
-    static final private String CONST_SYMBOL_BASE = ".LC";
-    static final private String LABEL_SYMBOL_BASE = ".L";
+    public AssemblyFile generate(IR ir) {
+        locateSymbols(ir);
+        return compileIR(ir);
+    }
+    // #@@}
 
-    public String generate(IR ir) {
+    static final String LABEL_SYMBOL_BASE = ".L";
+    static final String CONST_SYMBOL_BASE = ".LC";
+
+    //
+    // locateSymbols
+    //
+
+    // #@@range/locateSymbols{
+    private void locateSymbols(IR ir) {
         SymbolTable constSymbols = new SymbolTable(CONST_SYMBOL_BASE);
         for (ConstantEntry ent : ir.constantTable().entries()) {
             locateConstant(ent, constSymbols);
@@ -43,52 +54,6 @@ public class CodeGenerator
         for (Function func : ir.allFunctions()) {
             locateFunction(func);
         }
-        AssemblyFile file = compileIR(ir);
-        return file.toSource(new SymbolTable(LABEL_SYMBOL_BASE));
-    }
-    // #@@}
-
-    // #@@range/newAssemblyFile{
-    private AssemblyFile newAssemblyFile() {
-        return new AssemblyFile(
-                naturalType, STACK_WORD_SIZE, options.isVerboseAsm());
-    }
-    // #@@}
-
-    // #@@range/compileIR{
-    private AssemblyFile compileIR(IR ir) {
-        AssemblyFile file = newAssemblyFile();
-        file._file(ir.fileName());
-        // .data
-        List<DefinedVariable> gvars = ir.definedGlobalVariables();
-        if (!gvars.isEmpty()) {
-            file._data();
-            for (DefinedVariable gvar : gvars) {
-                dataEntry(file, gvar);
-            }
-        }
-        if (!ir.constantTable().isEmpty()) {
-            file._section(".rodata");
-            for (ConstantEntry ent : ir.constantTable()) {
-                compileStringLiteral(file, ent);
-            }
-        }
-        // .text
-        if (ir.functionDefined()) {
-            file._text();
-            for (DefinedFunction func : ir.definedFunctions()) {
-                compileFunction(file, func);
-            }
-        }
-        // .bss
-        for (DefinedVariable var : ir.definedCommonSymbols()) {
-            compileCommonSymbol(file, var);
-        }
-        // others
-        if (options.isPositionIndependent()) {
-            PICThunk(file, GOTBaseReg());
-        }
-        return file;
     }
     // #@@}
 
@@ -172,6 +137,56 @@ public class CodeGenerator
     // #@@range/optimizeGvarAccess{
     private boolean optimizeGvarAccess(Entity ent) {
         return options.isPIERequired() && ent.isDefined();
+    }
+    // #@@}
+
+    //
+    // compileIR
+    //
+
+    // #@@range/compileIR{
+    private AssemblyFile compileIR(IR ir) {
+        AssemblyFile file = newAssemblyFile();
+        file._file(ir.fileName());
+        // .data
+        List<DefinedVariable> gvars = ir.definedGlobalVariables();
+        if (!gvars.isEmpty()) {
+            file._data();
+            for (DefinedVariable gvar : gvars) {
+                dataEntry(file, gvar);
+            }
+        }
+        if (!ir.constantTable().isEmpty()) {
+            file._section(".rodata");
+            for (ConstantEntry ent : ir.constantTable()) {
+                compileStringLiteral(file, ent);
+            }
+        }
+        // .text
+        if (ir.functionDefined()) {
+            file._text();
+            for (DefinedFunction func : ir.definedFunctions()) {
+                compileFunction(file, func);
+            }
+        }
+        // .bss
+        for (DefinedVariable var : ir.definedCommonSymbols()) {
+            compileCommonSymbol(file, var);
+        }
+        // others
+        if (options.isPositionIndependent()) {
+            PICThunk(file, GOTBaseReg());
+        }
+        return file;
+    }
+    // #@@}
+
+    // #@@range/newAssemblyFile{
+    private AssemblyFile newAssemblyFile() {
+        return new AssemblyFile(
+                naturalType, STACK_WORD_SIZE,
+                new SymbolTable(LABEL_SYMBOL_BASE),
+                options.isVerboseAsm());
     }
     // #@@}
 
