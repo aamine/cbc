@@ -1,6 +1,6 @@
 package net.loveruby.cflat.asm;
 
-abstract public class AsmOperand implements OperandPattern {
+abstract public class Operand implements OperandPattern {
     abstract public String toSource(SymbolTable table);
 
     public boolean isRegister() {
@@ -18,7 +18,7 @@ abstract public class AsmOperand implements OperandPattern {
     abstract public void collectStatistics(AsmStatistics stats);
 
     // default implementation
-    public boolean match(AsmOperand operand) {
+    public boolean match(Operand operand) {
         return equals(operand);
     }
 

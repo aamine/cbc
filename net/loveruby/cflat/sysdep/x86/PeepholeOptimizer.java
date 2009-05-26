@@ -234,7 +234,7 @@ public class PeepholeOptimizer {
     }
 
     class AnyRegisterPattern implements OperandPattern {
-        public boolean match(AsmOperand operand) {
+        public boolean match(Operand operand) {
             return operand.isRegister();
         }
     }

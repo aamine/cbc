@@ -1,6 +1,6 @@
 package net.loveruby.cflat.asm;
 
-public class ImmediateValue extends AsmOperand {
+public class ImmediateValue extends Operand {
     protected Literal expr;
 
     public ImmediateValue(long n) {

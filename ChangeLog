@@ -1,3 +1,16 @@
+Tue May 26 13:18:52 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/asm: refactoring: rename class: AsmOperand ->
+	  Operand.
+
+	* net/loveruby/cflat/asm: follow it.
+
+	* net/loveruby/cflat/sysdep/x86: follow it.
+
+	* net/loveruby/cflat/ir: follow it.
+
+	* net/loveruby/cflat/entity: follow it.
+
 Tue May 26 13:11:08 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/asm/AsmComment.java -> Comment.java

@@ -1,5 +1,8 @@
 package net.loveruby.cflat.ir;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.Type;
+import net.loveruby.cflat.asm.Operand;
+import net.loveruby.cflat.asm.ImmediateValue;
+import net.loveruby.cflat.asm.MemoryReference;
 import net.loveruby.cflat.entity.Entity;
 
 abstract public class Expr implements Dumpable {
@@ -20,7 +23,7 @@ abstract public class Expr implements Dumpable {
         throw new Error("Expr#asmValue called");
     }
 
-    public AsmOperand address() {
+    public Operand address() {
         throw new Error("Expr#address called");
     }
 

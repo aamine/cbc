@@ -750,7 +750,7 @@ public class CodeGenerator
 
     // #@@range/Bin{
     public Void visit(Bin node) {
-        AsmOperand right = null;
+        Operand right = null;
         if (!doesSpillRegister(node.op()) && node.right().isConstant()){
             compile(node.left());
             right = node.right().asmValue();
@@ -791,7 +791,7 @@ public class CodeGenerator
 
     // #@@range/compileBinaryOp_begin{
     private void compileBinaryOp(Type t, Op op,
-            Register left, AsmOperand right) {
+            Register left, Operand right) {
         // #@@range/compileBinaryOp_arithops{
         switch (op) {
         case ADD:

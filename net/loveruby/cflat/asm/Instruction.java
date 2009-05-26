@@ -3,42 +3,42 @@ package net.loveruby.cflat.asm;
 public class Instruction extends Assembly {
     protected String mnemonic;
     protected String suffix;
-    protected AsmOperand[] operands;
+    protected Operand[] operands;
     protected boolean needRelocation;
 
     public Instruction(String mnemonic) {
-        this(mnemonic, "", new AsmOperand[0], false);
+        this(mnemonic, "", new Operand[0], false);
     }
 
-    public Instruction(String mnemonic, String suffix, AsmOperand a1) {
-        this(mnemonic, suffix, new AsmOperand[] { a1 }, false);
-    }
-
-    public Instruction(String mnemonic, String suffix,
-                       AsmOperand a1, AsmOperand a2) {
-        this(mnemonic, suffix, new AsmOperand[] { a1, a2 }, false);
+    public Instruction(String mnemonic, String suffix, Operand a1) {
+        this(mnemonic, suffix, new Operand[] { a1 }, false);
     }
 
     public Instruction(String mnemonic, String suffix,
-                       AsmOperand a1, AsmOperand a2, boolean reloc) {
-        this(mnemonic, suffix, new AsmOperand[] { a1, a2 }, reloc);
+                       Operand a1, Operand a2) {
+        this(mnemonic, suffix, new Operand[] { a1, a2 }, false);
     }
 
-    public Instruction(String mnemonic, String suffix, AsmOperand[] operands, boolean reloc) {
+    public Instruction(String mnemonic, String suffix,
+                       Operand a1, Operand a2, boolean reloc) {
+        this(mnemonic, suffix, new Operand[] { a1, a2 }, reloc);
+    }
+
+    public Instruction(String mnemonic, String suffix, Operand[] operands, boolean reloc) {
         this.mnemonic = mnemonic;
         this.suffix = suffix;
         this.operands = operands;
         this.needRelocation = reloc;
     }
 
-    public Instruction build(String mnemonic, AsmOperand o1) {
+    public Instruction build(String mnemonic, Operand o1) {
         return new Instruction(mnemonic, this.suffix,
-                new AsmOperand[] { o1 }, needRelocation);
+                new Operand[] { o1 }, needRelocation);
     }
 
-    public Instruction build(String mnemonic, AsmOperand o1, AsmOperand o2) {
+    public Instruction build(String mnemonic, Operand o1, Operand o2) {
         return new Instruction(mnemonic, this.suffix,
-                new AsmOperand[] { o1, o2 }, needRelocation);
+                new Operand[] { o1, o2 }, needRelocation);
     }
 
     public boolean isInstruction() {
@@ -64,11 +64,11 @@ public class Instruction extends Assembly {
         return this.operands.length;
     }
 
-    public AsmOperand operand1() {
+    public Operand operand1() {
         return this.operands[0];
     }
 
-    public AsmOperand operand2() {
+    public Operand operand2() {
         return this.operands[1];
     }
 

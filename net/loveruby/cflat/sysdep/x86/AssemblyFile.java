@@ -65,23 +65,23 @@ public class AssemblyFile {
         assemblies.add(new Instruction(op));
     }
 
-    protected void insn(String op, AsmOperand a) {
+    protected void insn(String op, Operand a) {
         assemblies.add(new Instruction(op, "", a));
     }
 
-    protected void insn(String op, String suffix, AsmOperand a) {
+    protected void insn(String op, String suffix, Operand a) {
         assemblies.add(new Instruction(op, suffix, a));
     }
 
-    protected void insn(Type t, String op, AsmOperand a) {
+    protected void insn(Type t, String op, Operand a) {
         assemblies.add(new Instruction(op, typeSuffix(t), a));
     }
 
-    protected void insn(String op, String suffix, AsmOperand a, AsmOperand b) {
+    protected void insn(String op, String suffix, Operand a, Operand b) {
         assemblies.add(new Instruction(op, suffix, a, b));
     }
 
-    protected void insn(Type t, String op, AsmOperand a, AsmOperand b) {
+    protected void insn(Type t, String op, Operand a, Operand b) {
         assemblies.add(new Instruction(op, typeSuffix(t), a, b));
     }
 
@@ -276,7 +276,7 @@ public class AssemblyFile {
         insn("jne", new DirectMemoryReference(label.symbol()));
     }
 
-    public void cmp(Type t, AsmOperand a, Register b) {
+    public void cmp(Type t, Operand a, Register b) {
         insn(t, "cmp", a, b);
     }
 
@@ -346,52 +346,52 @@ public class AssemblyFile {
         insn("ret");
     }
 
-    public void mov(AsmOperand src, AsmOperand dest) {
+    public void mov(Operand src, Operand dest) {
         mov(naturalType, src, dest);
     }
 
     // for stack access
-    public void relocatableMov(AsmOperand src, AsmOperand dest) {
+    public void relocatableMov(Operand src, Operand dest) {
         assemblies.add(new Instruction("mov", typeSuffix(naturalType), src, dest, true));
     }
 
-    public void mov(Type type, AsmOperand src, AsmOperand dest) {
+    public void mov(Type type, Operand src, Operand dest) {
         insn(type, "mov", src, dest);
     }
 
-    public void movsx(Type t1, Type t2, AsmOperand src, AsmOperand dest) {
+    public void movsx(Type t1, Type t2, Operand src, Operand dest) {
         insn("movs", typeSuffix(t1, t2), src, dest);
     }
 
-    public void movsbl(AsmOperand src, AsmOperand dest) {
+    public void movsbl(Operand src, Operand dest) {
         insn("movs", "bl", src, dest);
     }
 
-    public void movswl(AsmOperand src, AsmOperand dest) {
+    public void movswl(Operand src, Operand dest) {
         insn("movs", "wl", src, dest);
     }
 
-    public void movzx(Type t1, Type t2, AsmOperand src, AsmOperand dest) {
+    public void movzx(Type t1, Type t2, Operand src, Operand dest) {
         insn("movz", typeSuffix(t1, t2), src, dest);
     }
 
-    public void movzb(Type t, AsmOperand src, AsmOperand dest) {
+    public void movzb(Type t, Operand src, Operand dest) {
         insn("movz", "b" + typeSuffix(t), src, dest);
     }
 
-    public void movzbl(AsmOperand src, AsmOperand dest) {
+    public void movzbl(Operand src, Operand dest) {
         insn("movz", "bl", src, dest);
     }
 
-    public void movzwl(AsmOperand src, AsmOperand dest) {
+    public void movzwl(Operand src, Operand dest) {
         insn("movz", "wl", src, dest);
     }
 
-    public void lea(AsmOperand src, AsmOperand dest) {
+    public void lea(Operand src, Operand dest) {
         lea(naturalType, src, dest);
     }
 
-    public void lea(Type type, AsmOperand src, AsmOperand dest) {
+    public void lea(Type type, Operand src, Operand dest) {
         insn(type, "lea", src, dest);
     }
 
@@ -399,35 +399,35 @@ public class AssemblyFile {
         insn(type, "neg", reg);
     }
 
-    public void inc(Type type, AsmOperand reg) {
+    public void inc(Type type, Operand reg) {
         insn(type, "inc", reg);
     }
 
-    public void dec(Type type, AsmOperand reg) {
+    public void dec(Type type, Operand reg) {
         insn(type, "dec", reg);
     }
 
-    public void add(AsmOperand diff, AsmOperand base) {
+    public void add(Operand diff, Operand base) {
         add(naturalType, diff, base);
     }
 
-    public void add(Type type, AsmOperand diff, AsmOperand base) {
+    public void add(Type type, Operand diff, Operand base) {
         insn(type, "add", diff, base);
     }
 
-    public void sub(AsmOperand diff, AsmOperand base) {
+    public void sub(Operand diff, Operand base) {
         sub(naturalType, diff, base);
     }
 
-    public void sub(Type type, AsmOperand diff, AsmOperand base) {
+    public void sub(Type type, Operand diff, Operand base) {
         insn(type, "sub", diff, base);
     }
 
-    public void imul(AsmOperand m, Register base) {
+    public void imul(Operand m, Register base) {
         imul(naturalType, m, base);
     }
 
-    public void imul(Type type, AsmOperand m, Register base) {
+    public void imul(Type type, Operand m, Register base) {
         insn(type, "imul", m, base);
     }
 
@@ -447,15 +447,15 @@ public class AssemblyFile {
         insn(type, "not", reg);
     }
 
-    public void and(Type type, AsmOperand bits, Register base) {
+    public void and(Type type, Operand bits, Register base) {
         insn(type, "and", bits, base);
     }
 
-    public void or(Type type, AsmOperand bits, Register base) {
+    public void or(Type type, Operand bits, Register base) {
         insn(type, "or", bits, base);
     }
 
-    public void xor(Type type, AsmOperand bits, Register base) {
+    public void xor(Type type, Operand bits, Register base) {
         insn(type, "xor", bits, base);
     }
 

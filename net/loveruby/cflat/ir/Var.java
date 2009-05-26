@@ -1,7 +1,7 @@
 package net.loveruby.cflat.ir;
 import net.loveruby.cflat.entity.Entity;
 import net.loveruby.cflat.asm.Type;
-import net.loveruby.cflat.asm.AsmOperand;
+import net.loveruby.cflat.asm.Operand;
 import net.loveruby.cflat.asm.MemoryReference;
 
 public class Var extends Expr {
@@ -24,7 +24,7 @@ public class Var extends Expr {
     public String name() { return entity.name(); }
     public Entity entity() { return entity; }
 
-    public AsmOperand address() {
+    public Operand address() {
         return entity.address();
     }
 

@@ -1,6 +1,6 @@
 package net.loveruby.cflat.asm;
 
-abstract public class Register extends AsmOperand {
+abstract public class Register extends Operand {
     public boolean isRegister() {
         return true;
     }

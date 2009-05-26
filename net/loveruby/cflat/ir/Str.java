@@ -1,6 +1,10 @@
 package net.loveruby.cflat.ir;
 import net.loveruby.cflat.entity.ConstantEntry;
-import net.loveruby.cflat.asm.*;
+import net.loveruby.cflat.asm.Type;
+import net.loveruby.cflat.asm.Operand;
+import net.loveruby.cflat.asm.ImmediateValue;
+import net.loveruby.cflat.asm.MemoryReference;
+import net.loveruby.cflat.asm.Symbol;
 
 public class Str extends Expr {
     protected ConstantEntry entry;
@@ -22,7 +26,7 @@ public class Str extends Expr {
         return entry.memref();
     }
 
-    public AsmOperand address() {
+    public Operand address() {
         return entry.address();
     }
 

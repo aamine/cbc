@@ -4,7 +4,7 @@ import net.loveruby.cflat.ast.TypeNode;
 import net.loveruby.cflat.ast.Location;
 import net.loveruby.cflat.ast.ExprNode;
 import net.loveruby.cflat.asm.Symbol;
-import net.loveruby.cflat.asm.AsmOperand;
+import net.loveruby.cflat.asm.Operand;
 import net.loveruby.cflat.asm.MemoryReference;
 
 abstract public class Entity
@@ -83,7 +83,7 @@ abstract public class Entity
         this.address = mem;
     }
 
-    public AsmOperand address() {
+    public Operand address() {
         checkAddress();
         return address;
     }
