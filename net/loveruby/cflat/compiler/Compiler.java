@@ -249,7 +249,7 @@ public class Compiler {
 
     private boolean dumpAsm(String asm, CompilerMode mode) {
         if (mode == CompilerMode.DumpAsm) {
-            System.out.println(asm);
+            System.out.print(asm);
             return true;
         }
         else {

@@ -1,3 +1,8 @@
+Tue May 26 12:48:40 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Compiler.java (dumpAsm): do not
+	  print extra '\n'.
+
 Tue May 26 12:21:18 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Options.java: check unknown file
