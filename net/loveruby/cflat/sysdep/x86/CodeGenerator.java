@@ -767,30 +767,49 @@ public class CodeGenerator
 
     // #@@range/Bin{
     public Void visit(Bin node) {
-        Operand right = null;
-        if (!doesSpillRegister(node.op()) && node.right().isConstant()){
+        Op op = node.op();
+        Type t = node.type();
+        if (node.right().isConstant()
+                && !doesRequireRegisterOperand(op)) {
             compile(node.left());
-            right = node.right().asmValue();
+            compileBinaryOp(op, ax(t), node.right().asmValue());
+        }
+        else if (node.right().isConstant()) {
+            compile(node.left());
+            loadConstant(node.right(), cx());
+            compileBinaryOp(op, ax(t), cx(t));
         }
         else if (node.right().isVar()) {
             compile(node.left());
-            loadVariable(((Var)node.right()), cx());
-            right = cx(node.type());
+            loadVariable((Var)node.right(), cx(t));
+            compileBinaryOp(op, ax(t), cx(t));
+        }
+        else if (node.right().isAddr()) {
+            compile(node.left());
+            loadAddress(node.right().getEntityForce(), cx(t));
+            compileBinaryOp(op, ax(t), cx(t));
+        }
+        else if (node.left().isConstant()
+                || node.left().isVar()
+                || node.left().isAddr()) {
+            compile(node.right());
+            as.mov(ax(), cx());
+            compile(node.left());
+            compileBinaryOp(op, ax(t), cx(t));
         }
         else {
             compile(node.right());
             as.virtualPush(ax());
             compile(node.left());
             as.virtualPop(cx());
-            right = cx(node.type());
+            compileBinaryOp(op, ax(t), cx(t));
         }
-        compileBinaryOp(node.op(), ax(node.type()), right);
         return null;
     }
     // #@@}
 
-    // #@@range/doesSpillRegister{
-    private boolean doesSpillRegister(Op op) {
+    // #@@range/doesRequireRegisterOperand{
+    private boolean doesRequireRegisterOperand(Op op) {
         switch (op) {
         case S_DIV:
         case U_DIV:
@@ -875,7 +894,7 @@ public class CodeGenerator
             default:
                 throw new Error("unknown binary operator: " + op);
             }
-            as.movzb(al(), left);
+            as.movzx(al(), left);
         }
         // #@@}
     }
@@ -896,7 +915,7 @@ public class CodeGenerator
         case NOT:
             as.test(ax(src), ax(src));
             as.sete(al());
-            as.movzb(al(), ax(dest));
+            as.movzx(al(), ax(dest));
             break;
         case S_CAST:
             as.movsx(ax(src), ax(dest));
