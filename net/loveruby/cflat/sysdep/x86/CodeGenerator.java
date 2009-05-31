@@ -46,7 +46,7 @@ public class CodeGenerator
     private void locateSymbols(IR ir) {
         SymbolTable constSymbols = new SymbolTable(CONST_SYMBOL_BASE);
         for (ConstantEntry ent : ir.constantTable().entries()) {
-            locateConstant(ent, constSymbols);
+            locateStringLiteral(ent, constSymbols);
         }
         for (Variable var : ir.allGlobalVariables()) {
             locateGlobalVariable(var);
@@ -57,8 +57,8 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/locateConstant{
-    private void locateConstant(ConstantEntry ent, SymbolTable syms) {
+    // #@@range/locateStringLiteral{
+    private void locateStringLiteral(ConstantEntry ent, SymbolTable syms) {
         ent.setSymbol(syms.newSymbol());
         if (options.isPositionIndependent()) {
             Symbol offset = localGOTSymbol(ent.symbol());
@@ -153,7 +153,7 @@ public class CodeGenerator
         if (!gvars.isEmpty()) {
             file._data();
             for (DefinedVariable gvar : gvars) {
-                dataEntry(file, gvar);
+                compileGlobalVariable(file, gvar);
             }
         }
         if (!ir.constantTable().isEmpty()) {
@@ -191,8 +191,9 @@ public class CodeGenerator
     // #@@}
 
     /** Generates initialized entries */
-    // #@@range/dataEntry{
-    private void dataEntry(AssemblyFile file, DefinedVariable ent) {
+    // #@@range/compileGlobalVariable{
+    private void compileGlobalVariable(
+            AssemblyFile file, DefinedVariable ent) {
         Symbol sym = globalSymbol(ent.symbolString());
         if (!ent.isPrivate()) {
             file._globl(sym);
@@ -919,7 +920,7 @@ public class CodeGenerator
 
     // #@@range/Int{
     public Void visit(Int node) {
-        loadConstant(node, ax());
+        as.mov(imm(node.value()), ax());
         return null;
     }
     // #@@}

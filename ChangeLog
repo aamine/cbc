@@ -1,3 +1,11 @@
+Sun May 31 22:32:29 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: refactoring:
+	  rename method.
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java (Int): simplify
+	  code.
+
 Wed May 27 01:59:03 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/AssemblyFile.java: remove unused
