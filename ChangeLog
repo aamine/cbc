@@ -1,3 +1,8 @@
+Mon Jun  1 05:43:13 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java (load, save):
+	  reduce # of arguments.
+
 Mon Jun  1 03:55:41 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java (Bin): optimize

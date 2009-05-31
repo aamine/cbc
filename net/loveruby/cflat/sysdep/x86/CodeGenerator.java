@@ -767,12 +767,16 @@ public class CodeGenerator
 
     // #@@range/Bin{
     public Void visit(Bin node) {
+        // #@@range/Bin_init{
         Op op = node.op();
         Type t = node.type();
+        // #@@}
         if (node.right().isConstant()
                 && !doesRequireRegisterOperand(op)) {
+            // #@@range/Bin_const{
             compile(node.left());
             compileBinaryOp(op, ax(t), node.right().asmValue());
+            // #@@}
         }
         else if (node.right().isConstant()) {
             compile(node.left());
@@ -798,11 +802,13 @@ public class CodeGenerator
             compileBinaryOp(op, ax(t), cx(t));
         }
         else {
+            // #@@range/Bin_generic{
             compile(node.right());
             as.virtualPush(ax());
             compile(node.left());
             as.virtualPop(cx());
             compileBinaryOp(op, ax(t), cx(t));
+            // #@@}
         }
         return null;
     }
@@ -959,13 +965,13 @@ public class CodeGenerator
     public Void visit(Assign node) {
         if (node.lhs().isAddr() && node.lhs().memref() != null) {
             compile(node.rhs());
-            save(node.lhs().type(), ax(), node.lhs().memref());
+            save(ax(node.lhs().type()), node.lhs().memref());
         }
         else if (node.rhs().isConstant()) {
             compile(node.lhs());
             as.mov(ax(), cx());
             loadConstant(node.rhs(), ax());
-            save(node.lhs().type(), ax(), mem(cx()));
+            save(ax(node.lhs().type()), mem(cx()));
         }
         else {
             compile(node.rhs());
@@ -973,7 +979,7 @@ public class CodeGenerator
             compile(node.lhs());
             as.mov(ax(), cx());
             as.virtualPop(ax());
-            save(node.lhs().type(), ax(), mem(cx()));
+            save(ax(node.lhs().type()), mem(cx()));
         }
         return null;
     }
@@ -982,7 +988,7 @@ public class CodeGenerator
     // #@@range/Mem{
     public Void visit(Mem node) {
         compile(node.expr());
-        load(node.type(), mem(ax()), ax());
+        load(mem(ax()), ax(node.type()));
         return null;
     }
     // #@@}
@@ -1016,15 +1022,16 @@ public class CodeGenerator
     }
     // #@@}
 
-    /** Loads variable value to the register. */
+    /** Loads variable content to the register. */
     // #@@range/loadVariable{
     private void loadVariable(Var var, Register dest) {
         if (var.memref() == null) {
-            as.mov(var.address(), dest);
-            load(var.type(), mem(dest), dest);
+            Register a = dest.forType(naturalType);
+            as.mov(var.address(), a);
+            load(mem(a), dest.forType(var.type()));
         }
         else {
-            load(var.type(), var.memref(), dest);
+            load(var.memref(), dest.forType(var.type()));
         }
     }
     // #@@}
@@ -1117,14 +1124,14 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/load{
-    private void load(Type type, MemoryReference mem, Register reg) {
-        as.mov(mem, reg.forType(type));
+    private void load(MemoryReference mem, Register reg) {
+        as.mov(mem, reg);
     }
     // #@@}
 
     // #@@range/save{
-    private void save(Type type, Register reg, MemoryReference mem) {
-        as.mov(reg.forType(type), mem);
+    private void save(Register reg, MemoryReference mem) {
+        as.mov(reg, mem);
     }
     // #@@}
 }
