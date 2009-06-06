@@ -965,13 +965,13 @@ public class CodeGenerator
     public Void visit(Assign node) {
         if (node.lhs().isAddr() && node.lhs().memref() != null) {
             compile(node.rhs());
-            save(ax(node.lhs().type()), node.lhs().memref());
+            store(ax(node.lhs().type()), node.lhs().memref());
         }
         else if (node.rhs().isConstant()) {
             compile(node.lhs());
             as.mov(ax(), cx());
             loadConstant(node.rhs(), ax());
-            save(ax(node.lhs().type()), mem(cx()));
+            store(ax(node.lhs().type()), mem(cx()));
         }
         else {
             compile(node.rhs());
@@ -979,7 +979,7 @@ public class CodeGenerator
             compile(node.lhs());
             as.mov(ax(), cx());
             as.virtualPop(ax());
-            save(ax(node.lhs().type()), mem(cx()));
+            store(ax(node.lhs().type()), mem(cx()));
         }
         return null;
     }
@@ -1129,8 +1129,8 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/save{
-    private void save(Register reg, MemoryReference mem) {
+    // #@@range/store{
+    private void store(Register reg, MemoryReference mem) {
         as.mov(reg, mem);
     }
     // #@@}
