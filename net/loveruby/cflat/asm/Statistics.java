@@ -1,5 +1,8 @@
 package net.loveruby.cflat.asm;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Statistics {
     protected Map<Register, Integer> registerUsage;

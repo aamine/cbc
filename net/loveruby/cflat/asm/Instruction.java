@@ -88,13 +88,6 @@ public class Instruction extends Assembly {
         }
     }
 
-    public void fixStackOffset(long diff) {
-        if (!needRelocation) return;
-        for (int i = 0; i < operands.length; i++) {
-            operands[i].fixStackOffset(diff);
-        }
-    }
-
     public String toSource(SymbolTable table) {
         StringBuffer buf = new StringBuffer();
         buf.append("\t");

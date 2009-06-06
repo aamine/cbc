@@ -1,37 +1,39 @@
 package net.loveruby.cflat.asm;
 
 public class IndirectMemoryReference extends MemoryReference {
-    protected Literal offset;
-    protected Register base;
-    protected boolean fixed;
-
-    public IndirectMemoryReference(Register base) {
-        this.offset = new IntegerLiteral(0);
-        this.base = base;
-        this.fixed = false;
-    }
+    Literal offset;
+    Register base;
+    boolean fixed;
 
     public IndirectMemoryReference(long offset, Register base) {
-        this.offset = new IntegerLiteral(offset);
-        this.base = base;
-        this.fixed = true;
+        this(new IntegerLiteral(offset), base, true);
     }
 
     public IndirectMemoryReference(Symbol offset, Register base) {
+        this(offset, base, true);
+    }
+
+    static public IndirectMemoryReference relocatable(long offset, Register base) {
+        return new IndirectMemoryReference(new IntegerLiteral(offset), base, false);
+    }
+
+    private IndirectMemoryReference(
+            Literal offset, Register base, boolean fixed) {
         this.offset = offset;
         this.base = base;
-        this.fixed = true;
+        this.fixed = fixed;
     }
 
     public Literal offset() {
         return offset;
     }
 
-    public void fixOffset(long realOffset) {
+    public void fixOffset(long diff) {
         if (fixed) {
             throw new Error("must not happen: fixed = true");
         }
-        this.offset = new IntegerLiteral(realOffset);
+        long curr = ((IntegerLiteral)offset).value;
+        this.offset = new IntegerLiteral(curr + diff);
         this.fixed = true;
     }
 
@@ -41,10 +43,6 @@ public class IndirectMemoryReference extends MemoryReference {
 
     public void collectStatistics(Statistics stats) {
         base.collectStatistics(stats);
-    }
-
-    public void fixStackOffset(long diff) {
-        offset = offset.plus(diff);
     }
 
     public String toString() {
@@ -73,6 +71,7 @@ public class IndirectMemoryReference extends MemoryReference {
 
     public String dump() {
         return "(IndirectMemoryReference "
+                + (fixed ? "" : "*")
                 + offset.dump() + " " + base.dump() + ")";
     }
 }

@@ -23,8 +23,4 @@ abstract public class Assembly {
     public void collectStatistics(Statistics stats) {
         // does nothing by default.
     }
-
-    public void fixStackOffset(long diff) {
-        // does nothing by default.
-    }
 }

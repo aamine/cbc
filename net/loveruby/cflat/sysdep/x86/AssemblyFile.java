@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.io.PrintStream;
 
 public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
-    private final List<Assembly> assemblies;
     final Type naturalType;
     final long stackWordSize;
     final SymbolTable labelSymbols;
     final boolean verbose;
-    private int commentIndentLevel;
+    final VirtualStack virtualStack = new VirtualStack();
+    private List<Assembly> assemblies = new ArrayList<Assembly>();
+    private int commentIndentLevel = 0;
+    private Statistics statistics;
 
     AssemblyFile(Type naturalType, long stackWordSize,
             SymbolTable labelSymbols, boolean verbose) {
@@ -19,9 +21,6 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
         this.stackWordSize = stackWordSize;
         this.labelSymbols = labelSymbols;
         this.verbose = verbose;
-        this.assemblies = new ArrayList<Assembly>();
-        this.commentIndentLevel = 0;
-        initVirtualStack();
     }
 
     List<Assembly> assemblies() {
@@ -51,6 +50,21 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
         }
     }
 
+    void apply(PeepholeOptimizer opt) {
+        assemblies = opt.optimize(assemblies);
+    }
+
+    private Statistics statistics() {
+        if (statistics == null) {
+            statistics = Statistics.collect(assemblies);
+        }
+        return statistics;
+    }
+
+    boolean doesUses(Register reg) {
+        return statistics().doesRegisterUsed(reg);
+    }
+
     void comment(String str) {
         assemblies.add(new Comment(str, commentIndentLevel));
     }
@@ -69,6 +83,20 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
 
     void label(Label label) {
         assemblies.add(label);
+    }
+
+    void reduceLabels() {
+        Statistics stats = statistics();
+        List<Assembly> result = new ArrayList<Assembly>();
+        for (Assembly asm : assemblies) {
+            if (asm.isLabel() && ! stats.doesSymbolUsed((Label)asm)) {
+                ;
+            }
+            else {
+                result.add(asm);
+            }
+        }
+        assemblies = result;
     }
 
     protected void directive(String direc) {
@@ -210,62 +238,85 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
     // Virtual Stack
     //
 
-    // #@@range/virtual_stack{
-    private long stackPointer;
-    private long stackPointerMax;
+    // #@@range/VirtualStack_ctor{
+    class VirtualStack {
+        private long offset;
+        private long max;
+        private List<IndirectMemoryReference> memrefs =
+                new ArrayList<IndirectMemoryReference>();
 
-    void initVirtualStack() {
-        stackPointer = 0;
-        stackPointerMax = stackPointer;
-    }
+        VirtualStack() {
+            reset();
+        }
+
+        void reset() {
+            offset = 0;
+            max = 0;
+            memrefs.clear();
+        }
     // #@@}
 
-    // #@@range/maxTmpBytes{
-    long maxTmpBytes() {
-        return stackPointerMax;
-    }
-    // #@@}
+        // #@@range/maxSize{
+        long maxSize() {
+            return max;
+        }
+        // #@@}
 
-    // #@@range/stackTop{
-    IndirectMemoryReference stackTop() {
-        return new IndirectMemoryReference(-stackPointer, bp());
-    }
-    // #@@}
+        // #@@range/extend{
+        void extend(long len) {
+            offset += len;
+            max = Math.max(offset, max);
+        }
+        // #@@}
 
-    private Register bp() {
-        return new Register(RegisterClass.BP, naturalType);
+        // #@@range/rewindVirtualStack{
+        void rewind(long len) {
+            offset -= len;
+        }
+        // #@@}
+
+        // #@@range/top{
+        IndirectMemoryReference top() {
+            IndirectMemoryReference mem = relocatableMem(-offset, bp());
+            memrefs.add(mem);
+            return mem;
+        }
+        // #@@}
+
+        private IndirectMemoryReference relocatableMem(long offset, Register base) {
+            return IndirectMemoryReference.relocatable(offset, base);
+        }
+
+        private Register bp() {
+            return new Register(RegisterClass.BP, naturalType);
+        }
+
+        // #@@range/fixOffset{
+        void fixOffset(long diff) {
+            for (IndirectMemoryReference mem : memrefs) {
+                mem.fixOffset(diff);
+            }
+        }
+        // #@@}
     }
 
     // #@@range/virtualPush{
     void virtualPush(Register reg) {
         if (verbose) {
-            comment("push " + reg.baseName() + " -> " + stackTop());
+            comment("push " + reg.baseName() + " -> " + virtualStack.top());
         }
-        extendVirtualStack(stackWordSize);
-        relocatableMov(reg, stackTop());
+        virtualStack.extend(stackWordSize);
+        mov(reg, virtualStack.top());
     }
     // #@@}
 
     // #@@range/virtualPop{
     void virtualPop(Register reg) {
         if (verbose) {
-            comment("pop  " + reg.baseName() + " <- " + stackTop());
+            comment("pop  " + reg.baseName() + " <- " + virtualStack.top());
         }
-        relocatableMov(stackTop(), reg);
-        rewindVirtualStack(stackWordSize);
-    }
-    // #@@}
-
-    // #@@range/extendVirtualStack{
-    void extendVirtualStack(long len) {
-        stackPointer += len;
-        stackPointerMax = Math.max(stackPointerMax, stackPointer);
-    }
-    // #@@}
-
-    // #@@range/rewindVirtualStack{
-    void rewindVirtualStack(long len) {
-        stackPointer -= len;
+        mov(virtualStack.top(), reg);
+        virtualStack.rewind(stackWordSize);
     }
     // #@@}
 

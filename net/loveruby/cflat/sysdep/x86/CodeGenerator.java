@@ -396,41 +396,40 @@ public class CodeGenerator
     private void compileFunctionBody(
             AssemblyFile file, DefinedFunction func) {
         locateParameters(func.parameters());
-        locateLocalVariables(func.body().scope());
+        long lvarsSize = locateLocalVariables(func.body().scope(), 0);
 
-        AssemblyFile body = compileStmts(func);
-        List<Assembly> bodyAsms = optimize(body.assemblies());
-        Statistics stats = Statistics.collect(bodyAsms);
-        bodyAsms = reduceLabels(bodyAsms, stats);
-        List<Register> saveRegs = usedCalleeSavedRegistersWithoutBP(stats);
-        long saveRegsBytes = stackSizeFromWordNum(saveRegs.size());
-        long lvarBytes = fixLocalVariableOffsets(
-                func.body().scope(), saveRegsBytes);
-        fixTmpOffsets(bodyAsms, saveRegsBytes + lvarBytes);
+        AssemblyFile body = optimize(compileStmts(func));
+        List<Register> saveRegs = usedCalleeSavedRegisters(body);
+        long saveRegsSize = stackSizeFromWordNum(saveRegs.size());
+        fixLocalVariableOffsets(func.body().scope(), saveRegsSize);
+        body.virtualStack.fixOffset(saveRegsSize + lvarsSize);
 
         if (options.isVerboseAsm()) {
-            printStackFrameLayout(file, saveRegsBytes, lvarBytes,
-                    body.maxTmpBytes(), func.localVariables());
+            printStackFrameLayout(file, saveRegsSize, lvarsSize,
+                    body.virtualStack.maxSize(), func.localVariables());
         }
 
-        file.initVirtualStack();
+        file.virtualStack.reset();
         prologue(file, func, saveRegs,
-                saveRegsBytes + lvarBytes + body.maxTmpBytes());
+                saveRegsSize + lvarsSize + body.virtualStack.maxSize());
         if (options.isPositionIndependent()
-                && stats.doesRegisterUsed(GOTBaseReg())) {
+                && body.doesUses(GOTBaseReg())) {
             loadGOTBaseAddress(file, GOTBaseReg());
         }
-        file.addAll(bodyAsms);
-        epilogue(file, func, saveRegs, lvarBytes);
+        file.addAll(body.assemblies());
+        epilogue(file, func, saveRegs, lvarsSize);
+        file.virtualStack.fixOffset(0);
     }
     // #@@}
 
     // #@@range/optimize{
-    private List<Assembly> optimize(List<Assembly> asms) {
+    private AssemblyFile optimize(AssemblyFile body) {
         if (options.optimizeLevel() < 1) {
-            return asms;
+            return body;
         }
-        return PeepholeOptimizer.defaultSet().optimize(asms);
+        body.apply(PeepholeOptimizer.defaultSet());
+        body.reduceLabels();
+        return body;
     }
     // #@@}
 
@@ -490,41 +489,31 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/reduceLabels{
-    private List<Assembly> reduceLabels(
-            List<Assembly> assemblies, Statistics stats) {
-        List<Assembly> result = new ArrayList<Assembly>();
-        for (Assembly asm : assemblies) {
-            if (asm.isLabel() && ! stats.doesSymbolUsed((Label)asm)) {
-                ;
-            }
-            else {
-                result.add(asm);
-            }
-        }
-        return result;
-    }
-    // #@@}
-
-    private List<Register> usedCalleeSavedRegistersWithoutBP(Statistics stats) {
+    // does NOT include BP
+    private List<Register> usedCalleeSavedRegisters(AssemblyFile asm) {
         List<Register> result = new ArrayList<Register>();
         for (Register reg : calleeSavedRegisters()) {
-            if (stats.doesRegisterUsed(reg) && !reg.equals(bp())) {
+            if (asm.doesUses(reg)) {
                 result.add(reg);
             }
         }
+        result.remove(bp());
         return result;
     }
+
+    static final RegisterClass[] CALLEE_SAVED_REGISTERS = {
+        RegisterClass.BX, RegisterClass.BP,
+        RegisterClass.SI, RegisterClass.DI
+    };
 
     private List<Register> calleeSavedRegistersCache = null;
 
     private List<Register> calleeSavedRegisters() {
         if (calleeSavedRegistersCache == null) {
             List<Register> regs = new ArrayList<Register>();
-            regs.add(bx());
-            regs.add(si());
-            regs.add(di());
-            regs.add(bp());
+            for (RegisterClass c : CALLEE_SAVED_REGISTERS) {
+                regs.add(new Register(c, naturalType));
+            }
             calleeSavedRegistersCache = regs;
         }
         return calleeSavedRegistersCache;
@@ -586,45 +575,31 @@ public class CodeGenerator
      * not determined, assign unfixed IndirectMemoryReference.
      */
     // #@@range/locateLocalVariables{
-    private void locateLocalVariables(LocalScope scope) {
-        for (DefinedVariable var : scope.allLocalVariables()) {
-            var.setMemref(new IndirectMemoryReference(bp()));
-        }
-    }
-    // #@@}
-
-    /**
-     * Fixes addresses of local variables.
-     * Returns byte-length of the local variable area.
-     */
-    // #@@range/fixLocalVariableOffsets{
-    private long fixLocalVariableOffsets(LocalScope scope, long initLen) {
-        long maxLen = allocateScope(scope, initLen);
-        return maxLen - initLen;
-    }
-    // #@@}
-
-    // #@@range/allocateScope{
-    private long allocateScope(LocalScope scope, long parentStackLen) {
+    private long locateLocalVariables(
+            LocalScope scope, long parentStackLen) {
         long len = parentStackLen;
         for (DefinedVariable var : scope.localVariables()) {
             len = alignStack(len + var.allocSize());
-            fixMemref((IndirectMemoryReference)var.memref(), -len);
+            var.setMemref(relocatableMem(-len, bp()));
         }
-        // Allocate local variables in child scopes.
-        // We allocate child scopes in the same area (overrapped).
         long maxLen = len;
         for (LocalScope s : scope.children()) {
-            long childLen = allocateScope(s, len);
+            long childLen = locateLocalVariables(s, len);
             maxLen = Math.max(maxLen, childLen);
         }
         return maxLen;
     }
     // #@@}
 
-    // #@@range/fixMemref{
-    private void fixMemref(IndirectMemoryReference memref, long offset) {
-        memref.fixOffset(offset);
+    private IndirectMemoryReference relocatableMem(long offset, Register base) {
+        return IndirectMemoryReference.relocatable(offset, base);
+    }
+
+    // #@@range/fixLocalVariableOffsets{
+    private void fixLocalVariableOffsets(LocalScope scope, long len) {
+        for (DefinedVariable var : scope.allLocalVariables()) {
+            var.memref().fixOffset(-len);
+        }
     }
     // #@@}
 
@@ -640,14 +615,6 @@ public class CodeGenerator
     private void rewindStack(AssemblyFile file, long len) {
         if (len > 0) {
             file.add(imm(len), sp());
-        }
-    }
-    // #@@}
-
-    // #@@range/fixTmpOffsets{
-    private void fixTmpOffsets(List<Assembly> asms, long offset) {
-        for (Assembly asm : asms) {
-            asm.fixStackOffset(-offset);
         }
     }
     // #@@}

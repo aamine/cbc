@@ -1,3 +1,24 @@
+Sun Jun  7 03:02:35 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: refactoring
+	  compileFunctionBody.
+
+	* net/loveruby/cflat/sysdep/x86/AssemblyFile.java: objectify
+	  VirtualStack.
+
+	* net/loveruby/cflat/asm/IndirectMemoryReference.java: new method
+	  .relocatable to generate relocatable IndirectMemoryReference.
+
+	* net/loveruby/cflat/asm/MemoryReference.java: new method
+	  #fixOffset.
+
+	* net/loveruby/cflat/asm/DirectMemoryReference.java: new method
+	  #fixOffset.
+
+	* net/loveruby/cflat/asm/Assembly.java: remove fixStackOffset.
+
+	* net/loveruby/cflat/asm/Operand.java: ditto.
+
 Sat Jun  6 21:36:09 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* lib/alloca.s: shorten assembly.
