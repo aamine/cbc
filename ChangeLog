@@ -1,3 +1,7 @@
+Sat Jun  6 21:36:09 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* lib/alloca.s: shorten assembly.
+
 Sat Jun  6 21:28:20 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* sysdep/x86/CodeGenerator.java: refactoring: rename method:

@@ -2,13 +2,11 @@
 .globl alloca
         .type   alloca,@function
 alloca:
-        addl    $4, %esp
-        movl    -4(%esp), %ecx
+        popl    %ecx
         movl    (%esp), %eax
         addl    $3, %eax
         andl    $-4, %eax
         subl    %eax, %esp
-        movl    %esp, %eax
-        addl    $4, %eax
+        leal    4(%esp), %eax
         jmp     *%ecx
         .size   alloca, .-alloca
