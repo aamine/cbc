@@ -392,33 +392,42 @@ public class CodeGenerator
     }
     // #@@}
 
+    // #@@range/StackFrameInfo{
+    class StackFrameInfo {
+        final long stackWordSize;
+        List<Register> saveRegs;
+        long lvarSize;
+        long tempSize;
+
+        StackFrameInfo(long stackWordSize) {
+            this.stackWordSize = stackWordSize;
+        }
+
+        long saveRegsSize() { return saveRegs.size() * stackWordSize; }
+        long lvarOffset() { return saveRegsSize(); }
+        long tempOffset() { return saveRegsSize() + lvarSize; }
+        long frameSize() { return saveRegsSize() + lvarSize + tempSize; }
+    }
+    // #@@}
+
     // #@@range/compileFunctionBody{
     private void compileFunctionBody(
             AssemblyFile file, DefinedFunction func) {
+        StackFrameInfo frame = new StackFrameInfo(STACK_WORD_SIZE);
         locateParameters(func.parameters());
-        long lvarsSize = locateLocalVariables(func.body().scope(), 0);
+        frame.lvarSize = locateLocalVariables(func.lvarScope());
 
         AssemblyFile body = optimize(compileStmts(func));
-        List<Register> saveRegs = usedCalleeSavedRegisters(body);
-        long saveRegsSize = stackSizeFromWordNum(saveRegs.size());
-        fixLocalVariableOffsets(func.body().scope(), saveRegsSize);
-        fixTempVariableOffsets(body, saveRegsSize + lvarsSize);
+        frame.saveRegs = usedCalleeSavedRegisters(body);
+        frame.tempSize = body.virtualStack.maxSize();
+
+        fixLocalVariableOffsets(func.lvarScope(), frame.lvarOffset());
+        fixTempVariableOffsets(body, frame.tempOffset());
 
         if (options.isVerboseAsm()) {
-            printStackFrameLayout(file, saveRegsSize, lvarsSize,
-                    body.virtualStack.maxSize(), func.localVariables());
+            printStackFrameLayout(file, frame, func.localVariables());
         }
-
-        file.virtualStack.reset();
-        prologue(file, func, saveRegs,
-                saveRegsSize + lvarsSize + body.virtualStack.maxSize());
-        if (options.isPositionIndependent()
-                && body.doesUses(GOTBaseReg())) {
-            loadGOTBaseAddress(file, GOTBaseReg());
-        }
-        file.addAll(body.assemblies());
-        epilogue(file, func, saveRegs, lvarsSize);
-        file.virtualStack.fixOffset(0);
+        generateFunctionBody(file, body, frame);
     }
     // #@@}
 
@@ -433,24 +442,21 @@ public class CodeGenerator
     }
     // #@@}
 
-    private void printStackFrameLayout(
-            AssemblyFile file,
-            long saveRegsBytes, long lvarBytes, long maxTmpBytes,
-            List<DefinedVariable> lvars) {
+    private void printStackFrameLayout(AssemblyFile file,
+            StackFrameInfo frame, List<DefinedVariable> lvars) {
         List<MemInfo> vars = new ArrayList<MemInfo>();
         for (DefinedVariable var : lvars) {
             vars.add(new MemInfo(var.memref(), var.name()));
         }
         vars.add(new MemInfo(mem(0, bp()), "return address"));
         vars.add(new MemInfo(mem(4, bp()), "saved %ebp"));
-        if (saveRegsBytes > 0) {
-            vars.add(new MemInfo(mem(-saveRegsBytes, bp()),
-                "saved callee-saved registers (" + saveRegsBytes + " bytes)"));
+        if (frame.saveRegsSize() > 0) {
+            vars.add(new MemInfo(mem(-frame.saveRegsSize(), bp()),
+                "saved callee-saved registers (" + frame.saveRegsSize() + " bytes)"));
         }
-        if (maxTmpBytes > 0) {
-            long offset = -(saveRegsBytes + lvarBytes + maxTmpBytes);
-            vars.add(new MemInfo(mem(offset, bp()),
-                "tmp variables (" + maxTmpBytes + " bytes)"));
+        if (frame.tempSize > 0) {
+            vars.add(new MemInfo(mem(-frame.frameSize(), bp()),
+                "tmp variables (" + frame.tempSize + " bytes)"));
         }
         Collections.sort(vars, new Comparator<MemInfo>() {
             public int compare(MemInfo x, MemInfo y) {
@@ -519,41 +525,41 @@ public class CodeGenerator
         return calleeSavedRegistersCache;
     }
 
+    // #@@range/generateFunctionBody{
+    private void generateFunctionBody(AssemblyFile file,
+            AssemblyFile body, StackFrameInfo frame) {
+        file.virtualStack.reset();
+        prologue(file, frame.saveRegs, frame.frameSize());
+        if (options.isPositionIndependent()
+                && body.doesUses(GOTBaseReg())) {
+            loadGOTBaseAddress(file, GOTBaseReg());
+        }
+        file.addAll(body.assemblies());
+        epilogue(file, frame.saveRegs);
+        file.virtualStack.fixOffset(0);
+    }
+    // #@@}
+
     // #@@range/prologue{
-    private void prologue(AssemblyFile file, DefinedFunction func,
+    private void prologue(AssemblyFile file,
             List<Register> saveRegs, long frameSize) {
         file.push(bp());
         file.mov(sp(), bp());
-        saveRegisters(file, saveRegs);
+        for (Register reg : saveRegs) {
+            file.virtualPush(reg);
+        }
         extendStack(file, frameSize);
     }
     // #@@}
 
     // #@@range/epilogue{
-    private void epilogue(AssemblyFile file, DefinedFunction func,
-            List<Register> savedRegs, long lvarBytes) {
-        restoreRegisters(file, savedRegs);
+    private void epilogue(AssemblyFile file, List<Register> savedRegs) {
+        for (Register reg : ListUtils.reverse(savedRegs)) {
+            file.virtualPop(reg);
+        }
         file.mov(bp(), sp());
         file.pop(bp());
         file.ret();
-    }
-    // #@@}
-
-    // #@@range/saveRegisters{
-    private void saveRegisters(AssemblyFile file, List<Register> saveRegs) {
-        for (Register reg : saveRegs) {
-            file.virtualPush(reg);
-        }
-    }
-    // #@@}
-
-    // #@@range/restoreRegisters{
-    private void restoreRegisters(
-            AssemblyFile file, List<Register> savedRegs) {
-        ListIterator<Register> regs = savedRegs.listIterator(savedRegs.size());
-        while (regs.hasPrevious()) {
-            file.virtualPop(regs.previous());
-        }
     }
     // #@@}
 
@@ -575,6 +581,10 @@ public class CodeGenerator
      * not determined, assign unfixed IndirectMemoryReference.
      */
     // #@@range/locateLocalVariables{
+    private long locateLocalVariables(LocalScope scope) {
+        return locateLocalVariables(scope, 0);
+    }
+
     private long locateLocalVariables(
             LocalScope scope, long parentStackLen) {
         long len = parentStackLen;

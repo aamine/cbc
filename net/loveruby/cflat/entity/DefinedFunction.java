@@ -44,6 +44,10 @@ public class DefinedFunction extends Function {
         this.scope = scope;
     }
 
+    public LocalScope lvarScope() {
+        return body().scope();
+    }
+
     /**
      * Returns function local variables.
      * Does NOT include paramters.
