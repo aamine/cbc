@@ -381,9 +381,6 @@ public class CodeGenerator
     /** Compiles a function. */
     // #@@range/compileFunction{
     private void compileFunction(AssemblyFile file, DefinedFunction func) {
-        allocateParameters(func);
-        allocateLocalVariablesTemp(func.body().scope());
-
         Symbol sym = globalSymbol(func.name());
         if (! func.isPrivate()) {
             file._globl(sym);
@@ -398,20 +395,22 @@ public class CodeGenerator
     // #@@range/compileFunctionBody{
     private void compileFunctionBody(
             AssemblyFile file, DefinedFunction func) {
+        locateParameters(func.parameters());
+        locateLocalVariables(func.body().scope());
+
         AssemblyFile body = compileStmts(func);
         List<Assembly> bodyAsms = optimize(body.assemblies());
         Statistics stats = Statistics.collect(bodyAsms);
         bodyAsms = reduceLabels(bodyAsms, stats);
         List<Register> saveRegs = usedCalleeSavedRegistersWithoutBP(stats);
         long saveRegsBytes = stackSizeFromWordNum(saveRegs.size());
-        long lvarBytes = allocateLocalVariables(
+        long lvarBytes = fixLocalVariableOffsets(
                 func.body().scope(), saveRegsBytes);
         fixTmpOffsets(bodyAsms, saveRegsBytes + lvarBytes);
 
         if (options.isVerboseAsm()) {
-            printStackFrameLayout(file,
-                    saveRegsBytes, lvarBytes, body.maxTmpBytes(),
-                    func.localVariables());
+            printStackFrameLayout(file, saveRegsBytes, lvarBytes,
+                    body.maxTmpBytes(), func.localVariables());
         }
 
         file.initVirtualStack();
@@ -569,13 +568,13 @@ public class CodeGenerator
     }
     // #@@}
 
-    // #@@range/allocateParameters{
-    static final private long paramStartWordNum = 2;
+    // #@@range/locateParameters{
+    static final private long PARAM_START_WORD = 2;
                                     // return addr and saved bp
 
-    private void allocateParameters(DefinedFunction func) {
-        long numWords = paramStartWordNum;
-        for (Parameter var : func.parameters()) {
+    private void locateParameters(List<Parameter> params) {
+        long numWords = PARAM_START_WORD;
+        for (Parameter var : params) {
             var.setMemref(mem(stackSizeFromWordNum(numWords), bp()));
             numWords++;
         }
@@ -586,8 +585,8 @@ public class CodeGenerator
      * Allocates addresses of local variables, but offset is still
      * not determined, assign unfixed IndirectMemoryReference.
      */
-    // #@@range/allocateLocalVariablesTemp{
-    private void allocateLocalVariablesTemp(LocalScope scope) {
+    // #@@range/locateLocalVariables{
+    private void locateLocalVariables(LocalScope scope) {
         for (DefinedVariable var : scope.allLocalVariables()) {
             var.setMemref(new IndirectMemoryReference(bp()));
         }
@@ -597,10 +596,9 @@ public class CodeGenerator
     /**
      * Fixes addresses of local variables.
      * Returns byte-length of the local variable area.
-     * Note that numSavedRegs includes bp.
      */
-    // #@@range/allocateLocalVariables{
-    private long allocateLocalVariables(LocalScope scope, long initLen) {
+    // #@@range/fixLocalVariableOffsets{
+    private long fixLocalVariableOffsets(LocalScope scope, long initLen) {
         long maxLen = allocateScope(scope, initLen);
         return maxLen - initLen;
     }

@@ -1,3 +1,14 @@
+Sat Jun  6 21:28:20 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* sysdep/x86/CodeGenerator.java: refactoring: rename method:
+	  allocateParameters -> locateParameters.
+
+	* sysdep/x86/CodeGenerator.java: refactoring: rename method:
+	  allocateLocalVariablesTemp -> locateLocalVariables.
+
+	* sysdep/x86/CodeGenerator.java: refactoring: rename method:
+	  allocateLocalVariables -> fixLocalVariableOffsets.
+
 Mon Jun  1 06:39:57 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: refactoring:
