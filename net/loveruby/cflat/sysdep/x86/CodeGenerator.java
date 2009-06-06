@@ -402,7 +402,7 @@ public class CodeGenerator
         List<Register> saveRegs = usedCalleeSavedRegisters(body);
         long saveRegsSize = stackSizeFromWordNum(saveRegs.size());
         fixLocalVariableOffsets(func.body().scope(), saveRegsSize);
-        body.virtualStack.fixOffset(saveRegsSize + lvarsSize);
+        fixTempVariableOffsets(body, saveRegsSize + lvarsSize);
 
         if (options.isVerboseAsm()) {
             printStackFrameLayout(file, saveRegsSize, lvarsSize,
@@ -600,6 +600,12 @@ public class CodeGenerator
         for (DefinedVariable var : scope.allLocalVariables()) {
             var.memref().fixOffset(-len);
         }
+    }
+    // #@@}
+
+    // #@@range/fixTempVariableOffsets{
+    private void fixTempVariableOffsets(AssemblyFile asm, long len) {
+        asm.virtualStack.fixOffset(-len);
     }
     // #@@}
 

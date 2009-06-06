@@ -1,3 +1,8 @@
+Sun Jun  7 03:17:06 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* sysdep/x86/CodeGenerator.java (compileFunctionBody): fix offset
+	  bug.
+
 Sun Jun  7 03:02:35 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: refactoring
