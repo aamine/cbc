@@ -497,16 +497,18 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     // does NOT include BP
-    private List<Register> usedCalleeSavedRegisters(AssemblyFile asm) {
+    // #@@range/usedCalleeSavedRegisters{
+    private List<Register> usedCalleeSavedRegisters(AssemblyFile body) {
         List<Register> result = new ArrayList<Register>();
         for (Register reg : calleeSavedRegisters()) {
-            if (asm.doesUses(reg)) {
+            if (body.doesUses(reg)) {
                 result.add(reg);
             }
         }
         result.remove(bp());
         return result;
     }
+    // #@@}
 
     static final RegisterClass[] CALLEE_SAVED_REGISTERS = {
         RegisterClass.BX, RegisterClass.BP,
