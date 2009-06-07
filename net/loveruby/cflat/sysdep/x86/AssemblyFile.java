@@ -269,7 +269,7 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
         }
         // #@@}
 
-        // #@@range/rewindVirtualStack{
+        // #@@range/rewind{
         void rewind(long len) {
             offset -= len;
         }

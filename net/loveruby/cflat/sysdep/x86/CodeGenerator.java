@@ -367,13 +367,17 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     static final private long STACK_WORD_SIZE = 4;
     // #@@}
 
+    // #@@range/alignStack{
     private long alignStack(long size) {
         return AsmUtils.align(size, STACK_WORD_SIZE);
     }
+    // #@@}
 
+    // #@@range/stackSizeFromWordNum{
     private long stackSizeFromWordNum(long numWords) {
         return numWords * STACK_WORD_SIZE;
     }
+    // #@@}
 
     /** Compiles a function. */
     // #@@range/compileFunction{
@@ -405,20 +409,26 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@range/compileFunctionBody{
     private void compileFunctionBody(AssemblyFile file, DefinedFunction func) {
         StackFrameInfo frame = new StackFrameInfo();
+        // #@@range/cfb_locate{
         locateParameters(func.parameters());
         frame.lvarSize = locateLocalVariables(func.lvarScope());
+        // #@@}
 
+        // #@@range/cfb_offset{
         AssemblyFile body = optimize(compileStmts(func));
         frame.saveRegs = usedCalleeSavedRegisters(body);
         frame.tempSize = body.virtualStack.maxSize();
 
         fixLocalVariableOffsets(func.lvarScope(), frame.lvarOffset());
         fixTempVariableOffsets(body, frame.tempOffset());
+        // #@@}
 
         if (options.isVerboseAsm()) {
             printStackFrameLayout(file, frame, func.localVariables());
         }
+        // #@@range/cfb_gen{
         generateFunctionBody(file, body, frame);
+        // #@@}
     }
     // #@@}
 
@@ -591,9 +601,11 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     }
     // #@@}
 
+    // #@@range/relocatableMem{
     private IndirectMemoryReference relocatableMem(long offset, Register base) {
         return IndirectMemoryReference.relocatable(offset, base);
     }
+    // #@@}
 
     // #@@range/fixLocalVariableOffsets{
     private void fixLocalVariableOffsets(LocalScope scope, long len) {
