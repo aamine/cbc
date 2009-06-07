@@ -391,16 +391,11 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
 
     // #@@range/StackFrameInfo{
     class StackFrameInfo {
-        final long stackWordSize;
         List<Register> saveRegs;
         long lvarSize;
         long tempSize;
 
-        StackFrameInfo(long stackWordSize) {
-            this.stackWordSize = stackWordSize;
-        }
-
-        long saveRegsSize() { return saveRegs.size() * stackWordSize; }
+        long saveRegsSize() { return saveRegs.size() * STACK_WORD_SIZE; }
         long lvarOffset() { return saveRegsSize(); }
         long tempOffset() { return saveRegsSize() + lvarSize; }
         long frameSize() { return saveRegsSize() + lvarSize + tempSize; }
@@ -409,7 +404,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
 
     // #@@range/compileFunctionBody{
     private void compileFunctionBody(AssemblyFile file, DefinedFunction func) {
-        StackFrameInfo frame = new StackFrameInfo(STACK_WORD_SIZE);
+        StackFrameInfo frame = new StackFrameInfo();
         locateParameters(func.parameters());
         frame.lvarSize = locateLocalVariables(func.lvarScope());
 
