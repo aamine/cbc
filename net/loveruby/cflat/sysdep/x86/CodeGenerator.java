@@ -531,8 +531,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
             AssemblyFile body, StackFrameInfo frame) {
         file.virtualStack.reset();
         prologue(file, frame.saveRegs, frame.frameSize());
-        if (options.isPositionIndependent()
-                && body.doesUses(GOTBaseReg())) {
+        if (options.isPositionIndependent() && body.doesUses(GOTBaseReg())) {
             loadGOTBaseAddress(file, GOTBaseReg());
         }
         file.addAll(body.assemblies());
