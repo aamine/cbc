@@ -586,17 +586,22 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     }
 
     private long locateLocalVariables(LocalScope scope, long parentStackLen) {
+        // #@@range/locateLocalVariables_loc{
         long len = parentStackLen;
         for (DefinedVariable var : scope.localVariables()) {
             len = alignStack(len + var.allocSize());
             var.setMemref(relocatableMem(-len, bp()));
         }
+        // #@@}
+
+        // #@@range/locateLocalVariables_child{
         long maxLen = len;
         for (LocalScope s : scope.children()) {
             long childLen = locateLocalVariables(s, len);
             maxLen = Math.max(maxLen, childLen);
         }
         return maxLen;
+        // #@@}
     }
     // #@@}
 
