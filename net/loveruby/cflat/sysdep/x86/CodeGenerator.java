@@ -9,18 +9,15 @@ import net.loveruby.cflat.utils.ListUtils;
 import net.loveruby.cflat.utils.ErrorHandler;
 import java.util.*;
 
-public class CodeGenerator
-        implements net.loveruby.cflat.sysdep.CodeGenerator,
-                IRVisitor<Void,Void>,
-                ELFConstants {
+public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
+        IRVisitor<Void,Void>, ELFConstants {
     // #@@range/ctor{
     final CodeGeneratorOptions options;
     final Type naturalType;
     final ErrorHandler errorHandler;
 
     public CodeGenerator(CodeGeneratorOptions options,
-                         Type naturalType,
-                         ErrorHandler errorHandler) {
+            Type naturalType, ErrorHandler errorHandler) {
         this.options = options;
         this.naturalType = naturalType;
         this.errorHandler = errorHandler;
@@ -411,8 +408,7 @@ public class CodeGenerator
     // #@@}
 
     // #@@range/compileFunctionBody{
-    private void compileFunctionBody(
-            AssemblyFile file, DefinedFunction func) {
+    private void compileFunctionBody(AssemblyFile file, DefinedFunction func) {
         StackFrameInfo frame = new StackFrameInfo(STACK_WORD_SIZE);
         locateParameters(func.parameters());
         frame.lvarSize = locateLocalVariables(func.lvarScope());
@@ -585,8 +581,7 @@ public class CodeGenerator
         return locateLocalVariables(scope, 0);
     }
 
-    private long locateLocalVariables(
-            LocalScope scope, long parentStackLen) {
+    private long locateLocalVariables(LocalScope scope, long parentStackLen) {
         long len = parentStackLen;
         for (DefinedVariable var : scope.localVariables()) {
             len = alignStack(len + var.allocSize());
@@ -653,7 +648,7 @@ public class CodeGenerator
             compile(node.expr());
             as.callAbsolute(ax());
         }
-        // rewind stack; >4 bytes arguments are not supported.
+        // >4 bytes arguments are not supported.
         rewindStack(as, stackSizeFromWordNum(node.numArgs()));
         return null;
     }
@@ -752,8 +747,7 @@ public class CodeGenerator
         Op op = node.op();
         Type t = node.type();
         // #@@}
-        if (node.right().isConstant()
-                && !doesRequireRegisterOperand(op)) {
+        if (node.right().isConstant() && !doesRequireRegisterOperand(op)) {
             // #@@range/Bin_const{
             compile(node.left());
             compileBinaryOp(op, ax(t), node.right().asmValue());
