@@ -6,8 +6,8 @@ import java.io.*;
 
 abstract public class CommandUtils {
     static public void invoke(List<String> cmdArgs,
-            ErrorHandler errorHandler, boolean debug) throws IPCException {
-        if (debug) {
+            ErrorHandler errorHandler, boolean verbose) throws IPCException {
+        if (verbose) {
             dumpCommand(cmdArgs);
         }
         try {
@@ -18,16 +18,18 @@ abstract public class CommandUtils {
             passThrough(proc.getErrorStream());
             if (proc.exitValue() != 0) {
                 errorHandler.error(cmd[0] + " failed."
-                                   + " (status " + proc.exitValue() + ")");
+                        + " (status " + proc.exitValue() + ")");
                 throw new IPCException("compile error");
             }
         }
         catch (InterruptedException ex) {
-            errorHandler.error("gcc interrupted: " + ex.getMessage());
+            errorHandler.error("external command interrupted: "
+                    + cmdArgs.get(0) + ": " + ex.getMessage());
             throw new IPCException("compile error");
         }
         catch (IOException ex) {
-            errorHandler.error(ex.getMessage());
+            errorHandler.error(
+                    "IO error in external command: " + ex.getMessage());
             throw new IPCException("compile error");
         }
     }

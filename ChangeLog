@@ -1,3 +1,8 @@
+Sat Jun 13 17:41:13 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/utils/CommandUtils.java: better error
+	  message.
+
 Sun Jun  7 13:42:15 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java
