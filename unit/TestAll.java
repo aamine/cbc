@@ -7,6 +7,7 @@ import org.junit.runners.Suite.*;
 @SuiteClasses({
     TestCursor.class,
     TestTextUtils.class,
+    TestAsmUtils.class,
     TestListUtils.class
 })
 public class TestAll {
