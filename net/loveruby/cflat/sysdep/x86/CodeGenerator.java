@@ -28,7 +28,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@range/generate{
     public AssemblyFile generate(IR ir) {
         locateSymbols(ir);
-        return compileIR(ir);
+        return generateAssemblyCode(ir);
     }
     // #@@}
 
@@ -138,39 +138,25 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     //
-    // compileIR
+    // generateAssemblyCode
     //
 
-    // #@@range/compileIR{
-    private AssemblyFile compileIR(IR ir) {
+    // #@@range/generateAssemblyCode{
+    private AssemblyFile generateAssemblyCode(IR ir) {
         AssemblyFile file = newAssemblyFile();
         file._file(ir.fileName());
-        // .data
-        List<DefinedVariable> gvars = ir.definedGlobalVariables();
-        if (!gvars.isEmpty()) {
-            file._data();
-            for (DefinedVariable gvar : gvars) {
-                compileGlobalVariable(file, gvar);
-            }
+        if (ir.isGlobalVariableDefined()) {
+            generateDataSection(file, ir.definedGlobalVariables());
         }
-        if (!ir.constantTable().isEmpty()) {
-            file._section(".rodata");
-            for (ConstantEntry ent : ir.constantTable()) {
-                compileStringLiteral(file, ent);
-            }
+        if (ir.isStringLiteralDefined()) {
+            generateReadOnlyDataSection(file, ir.constantTable());
         }
-        // .text
-        if (ir.functionDefined()) {
-            file._text();
-            for (DefinedFunction func : ir.definedFunctions()) {
-                compileFunction(file, func);
-            }
+        if (ir.isFunctionDefined()) {
+            generateTextSection(file, ir.definedFunctions());
         }
-        // .bss
-        for (DefinedVariable var : ir.definedCommonSymbols()) {
-            compileCommonSymbol(file, var);
+        if (ir.isCommonSymbolDefined()) {
+            generateCommonSymbols(file, ir.definedCommonSymbols());
         }
-        // others
         if (options.isPositionIndependent()) {
             PICThunk(file, GOTBaseReg());
         }
@@ -188,24 +174,27 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     /** Generates initialized entries */
-    // #@@range/compileGlobalVariable{
-    private void compileGlobalVariable(
-            AssemblyFile file, DefinedVariable ent) {
-        Symbol sym = globalSymbol(ent.symbolString());
-        if (!ent.isPrivate()) {
-            file._globl(sym);
+    // #@@range/generateDataSection{
+    private void generateDataSection(AssemblyFile file,
+                                    List<DefinedVariable> gvars) {
+        file._data();
+        for (DefinedVariable var : gvars) {
+            Symbol sym = globalSymbol(var.symbolString());
+            if (!var.isPrivate()) {
+                file._globl(sym);
+            }
+            file._align(var.alignment());
+            file._type(sym, "@object");
+            file._size(sym, var.allocSize());
+            file.label(sym);
+            generateImmediate(file, var.type().allocSize(), var.ir());
         }
-        file._align(ent.alignment());
-        file._type(sym, "@object");
-        file._size(sym, ent.allocSize());
-        file.label(sym);
-        compileImmediate(file, ent.type().allocSize(), ent.ir());
     }
     // #@@}
 
     /** Generates immediate values for .data section */
-    // #@@range/compileImmediates{
-    private void compileImmediate(AssemblyFile file, long size, Expr node) {
+    // #@@range/generateImmediate{
+    private void generateImmediate(AssemblyFile file, long size, Expr node) {
         if (node instanceof Int) {
             Int expr = (Int)node;
             switch ((int)size) {
@@ -232,22 +221,46 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     }
     // #@@}
 
-    /** Generates BSS entries */
-    // #@@range/compileCommonSymbol{
-    private void compileCommonSymbol(AssemblyFile file, DefinedVariable var) {
-        Symbol sym = globalSymbol(var.symbolString());
-        if (var.isPrivate()) {
-            file._local(sym);
+    /** Generates .rodata entries (constant strings) */
+    // #@@range/generateReadOnlyDataSection{
+    private void generateReadOnlyDataSection(AssemblyFile file,
+                                    ConstantTable constants) {
+        file._section(".rodata");
+        for (ConstantEntry ent : constants) {
+            file.label(ent.symbol());
+            file._string(ent.value());
         }
-        file._comm(sym, var.allocSize(), var.alignment());
     }
     // #@@}
 
-    /** Generates .rodata entry (constant strings) */
-    // #@@range/compileStringLiteral{
-    private void compileStringLiteral(AssemblyFile file, ConstantEntry ent) {
-        file.label(ent.symbol());
-        file._string(ent.value());
+    // #@@range/generateTextSection{
+    private void generateTextSection(AssemblyFile file,
+                                    List<DefinedFunction> functions) {
+        file._text();
+        for (DefinedFunction func : functions) {
+            Symbol sym = globalSymbol(func.name());
+            if (! func.isPrivate()) {
+                file._globl(sym);
+            }
+            file._type(sym, "@function");
+            file.label(sym);
+            compileFunctionBody(file, func);
+            file._size(sym, ".-" + sym.toSource());
+        }
+    }
+    // #@@}
+
+    /** Generates BSS entries */
+    // #@@range/generateCommonSymbols{
+    private void generateCommonSymbols(AssemblyFile file,
+                                    List<DefinedVariable> variables) {
+        for (DefinedVariable var : variables) {
+            Symbol sym = globalSymbol(var.symbolString());
+            if (var.isPrivate()) {
+                file._local(sym);
+            }
+            file._comm(sym, var.allocSize(), var.alignment());
+        }
     }
     // #@@}
 
@@ -376,20 +389,6 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@range/stackSizeFromWordNum{
     private long stackSizeFromWordNum(long numWords) {
         return numWords * STACK_WORD_SIZE;
-    }
-    // #@@}
-
-    /** Compiles a function. */
-    // #@@range/compileFunction{
-    private void compileFunction(AssemblyFile file, DefinedFunction func) {
-        Symbol sym = globalSymbol(func.name());
-        if (! func.isPrivate()) {
-            file._globl(sym);
-        }
-        file._type(sym, "@function");
-        file.label(sym);
-        compileFunctionBody(file, func);
-        file._size(sym, ".-" + sym.toSource());
     }
     // #@@}
 

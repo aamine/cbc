@@ -6,12 +6,14 @@ import java.io.PrintStream;
 import java.util.*;
 
 public class IR {
-    protected Location source;
-    protected List<DefinedVariable> defvars;
-    protected List<DefinedFunction> defuns;
-    protected List<UndefinedFunction> funcdecls;
-    protected ToplevelScope scope;
-    protected ConstantTable constantTable;
+    Location source;
+    List<DefinedVariable> defvars;
+    List<DefinedFunction> defuns;
+    List<UndefinedFunction> funcdecls;
+    ToplevelScope scope;
+    ConstantTable constantTable;
+    List<DefinedVariable> gvars;   // cache
+    List<DefinedVariable> comms;   // cache
 
     public IR(Location source,
             List<DefinedVariable> defvars,
@@ -40,7 +42,7 @@ public class IR {
         return defvars;
     }
 
-    public boolean functionDefined() {
+    public boolean isFunctionDefined() {
         return !defuns.isEmpty();
     }
 
@@ -64,14 +66,44 @@ public class IR {
         return scope.allGlobalVariables();
     }
 
-    /** a list of defined initialized global variables */
-    public List<DefinedVariable> definedGlobalVariables() {
-        return scope.definedGlobalVariables();
+    public boolean isGlobalVariableDefined() {
+        return ! definedGlobalVariables().isEmpty();
     }
 
-    /** a list of defined uninitialized global variables */
+    /** Returns the list of global variables.
+     *  A global variable is a variable which has
+     *  global scope and is initialized.  */
+    public List<DefinedVariable> definedGlobalVariables() {
+        if (gvars == null) {
+            initVariables();
+        }
+        return gvars;
+    }
+
+    public boolean isCommonSymbolDefined() {
+        return ! definedCommonSymbols().isEmpty();
+    }
+
+    /** Returns the list of common symbols.
+     *  A common symbol is a variable which has
+     *  global scope and is not initialized.  */
     public List<DefinedVariable> definedCommonSymbols() {
-        return scope.definedCommonSymbols();
+        if (comms == null) {
+            initVariables();
+        }
+        return comms;
+    }
+
+    private void initVariables() {
+        gvars = new ArrayList<DefinedVariable>();
+        comms = new ArrayList<DefinedVariable>();
+        for (DefinedVariable var : scope.definedGlobalScopeVariables()) {
+            (var.hasInitializer() ? gvars : comms).add(var);
+        }
+    }
+
+    public boolean isStringLiteralDefined() {
+        return ! constantTable.isEmpty();
     }
 
     public ConstantTable constantTable() {

@@ -81,33 +81,7 @@ public class ToplevelScope extends Scope {
         return result;
     }
 
-    /** Returns the list of global variables.
-     *  A global variable is a variable which has
-     *  global scope and is initialized.  */
-    public List<DefinedVariable> definedGlobalVariables() {
-        List<DefinedVariable> result = new ArrayList<DefinedVariable>();
-        for (DefinedVariable var : definedGlobalScopeVariables()) {
-            if (var.hasInitializer()) {
-                result.add(var);
-            }
-        }
-        return result;
-    }
-
-    /** Returns the list of common symbols.
-     *  A common symbol is a variable which has
-     *  global scope and is not initialized.  */
-    public List<DefinedVariable> definedCommonSymbols() {
-        List<DefinedVariable> result = new ArrayList<DefinedVariable>();
-        for (DefinedVariable var : definedGlobalScopeVariables()) {
-            if (!var.hasInitializer()) {
-                result.add(var);
-            }
-        }
-        return result;
-    }
-
-    protected List<DefinedVariable> definedGlobalScopeVariables() {
+    public List<DefinedVariable> definedGlobalScopeVariables() {
         List<DefinedVariable> result = new ArrayList<DefinedVariable>();
         for (Entity ent : entities.values()) {
             if (ent instanceof DefinedVariable) {
@@ -118,7 +92,7 @@ public class ToplevelScope extends Scope {
         return result;
     }
 
-    protected List<DefinedVariable> staticLocalVariables() {
+    public List<DefinedVariable> staticLocalVariables() {
         if (staticLocalVariables == null) {
             staticLocalVariables = new ArrayList<DefinedVariable>();
             for (LocalScope s : children) {
