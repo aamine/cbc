@@ -88,6 +88,7 @@ public class PeepholeOptimizer {
             new InsnPattern("add", imm(0), reg()),
             null
         ));
+        // #@@range/pattern{
         set.add(new SingleInsnFilter(
             new InsnPattern("add", imm(1), reg()),
             new InsnTransform() {
@@ -96,6 +97,7 @@ public class PeepholeOptimizer {
                 }
             }
         ));
+        // #@@}
 
         // sub
         set.add(new SingleInsnFilter(
