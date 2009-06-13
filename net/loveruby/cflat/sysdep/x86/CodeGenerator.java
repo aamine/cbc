@@ -26,7 +26,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
 
     /** Compiles IR and generates assembly code. */
     // #@@range/generate{
-    public AssemblyFile generate(IR ir) {
+    public AssemblyCode generate(IR ir) {
         locateSymbols(ir);
         return generateAssemblyCode(ir);
     }
@@ -142,8 +142,8 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     //
 
     // #@@range/generateAssemblyCode{
-    private AssemblyFile generateAssemblyCode(IR ir) {
-        AssemblyFile file = newAssemblyFile();
+    private AssemblyCode generateAssemblyCode(IR ir) {
+        AssemblyCode file = newAssemblyCode();
         file._file(ir.fileName());
         if (ir.isGlobalVariableDefined()) {
             generateDataSection(file, ir.definedGlobalVariables());
@@ -164,9 +164,9 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     }
     // #@@}
 
-    // #@@range/newAssemblyFile{
-    private AssemblyFile newAssemblyFile() {
-        return new AssemblyFile(
+    // #@@range/newAssemblyCode{
+    private AssemblyCode newAssemblyCode() {
+        return new AssemblyCode(
                 naturalType, STACK_WORD_SIZE,
                 new SymbolTable(LABEL_SYMBOL_BASE),
                 options.isVerboseAsm());
@@ -175,7 +175,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
 
     /** Generates initialized entries */
     // #@@range/generateDataSection{
-    private void generateDataSection(AssemblyFile file,
+    private void generateDataSection(AssemblyCode file,
                                     List<DefinedVariable> gvars) {
         file._data();
         for (DefinedVariable var : gvars) {
@@ -194,7 +194,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
 
     /** Generates immediate values for .data section */
     // #@@range/generateImmediate{
-    private void generateImmediate(AssemblyFile file, long size, Expr node) {
+    private void generateImmediate(AssemblyCode file, long size, Expr node) {
         if (node instanceof Int) {
             Int expr = (Int)node;
             switch ((int)size) {
@@ -223,7 +223,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
 
     /** Generates .rodata entries (constant strings) */
     // #@@range/generateReadOnlyDataSection{
-    private void generateReadOnlyDataSection(AssemblyFile file,
+    private void generateReadOnlyDataSection(AssemblyCode file,
                                     ConstantTable constants) {
         file._section(".rodata");
         for (ConstantEntry ent : constants) {
@@ -234,7 +234,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     // #@@range/generateTextSection{
-    private void generateTextSection(AssemblyFile file,
+    private void generateTextSection(AssemblyCode file,
                                     List<DefinedFunction> functions) {
         file._text();
         for (DefinedFunction func : functions) {
@@ -252,7 +252,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
 
     /** Generates BSS entries */
     // #@@range/generateCommonSymbols{
-    private void generateCommonSymbols(AssemblyFile file,
+    private void generateCommonSymbols(AssemblyCode file,
                                     List<DefinedVariable> variables) {
         for (DefinedVariable var : variables) {
             Symbol sym = globalSymbol(var.symbolString());
@@ -272,7 +272,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     static private final Symbol GOT =
             new NamedSymbol("_GLOBAL_OFFSET_TABLE_");
 
-    private void loadGOTBaseAddress(AssemblyFile file, Register reg) {
+    private void loadGOTBaseAddress(AssemblyCode file, Register reg) {
         file.call(PICThunkSymbol(reg));
         file.add(imm(GOT), reg);
     }
@@ -320,7 +320,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
      *     .section NAME, "...M", TYPE, section_group_name, linkage
      */
     // #@@range/PICThunk{
-    private void PICThunk(AssemblyFile file, Register reg) {
+    private void PICThunk(AssemblyCode file, Register reg) {
         Symbol sym = PICThunkSymbol(reg);
         file._section(".text" + "." + sym.toSource(),
                  "\"" + PICThunkSectionFlags + "\"",
@@ -406,7 +406,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     // #@@range/compileFunctionBody{
-    private void compileFunctionBody(AssemblyFile file, DefinedFunction func) {
+    private void compileFunctionBody(AssemblyCode file, DefinedFunction func) {
         StackFrameInfo frame = new StackFrameInfo();
         // #@@range/cfb_locate{
         locateParameters(func.parameters());
@@ -414,7 +414,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
         // #@@}
 
         // #@@range/cfb_offset{
-        AssemblyFile body = optimize(compileStmts(func));
+        AssemblyCode body = optimize(compileStmts(func));
         frame.saveRegs = usedCalleeSavedRegisters(body);
         frame.tempSize = body.virtualStack.maxSize();
 
@@ -432,7 +432,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     // #@@range/optimize{
-    private AssemblyFile optimize(AssemblyFile body) {
+    private AssemblyCode optimize(AssemblyCode body) {
         if (options.optimizeLevel() < 1) {
             return body;
         }
@@ -442,7 +442,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     }
     // #@@}
 
-    private void printStackFrameLayout(AssemblyFile file,
+    private void printStackFrameLayout(AssemblyCode file,
             StackFrameInfo frame, List<DefinedVariable> lvars) {
         List<MemInfo> vars = new ArrayList<MemInfo>();
         for (DefinedVariable var : lvars) {
@@ -481,11 +481,11 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     }
 
     // #@@range/compileStmts{
-    private AssemblyFile as;
+    private AssemblyCode as;
     private Label epilogue;
 
-    private AssemblyFile compileStmts(DefinedFunction func) {
-        as = newAssemblyFile();
+    private AssemblyCode compileStmts(DefinedFunction func) {
+        as = newAssemblyCode();
         epilogue = new Label();
         for (Stmt s : func.ir()) {
             compileStmt(s);
@@ -497,7 +497,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
 
     // does NOT include BP
     // #@@range/usedCalleeSavedRegisters{
-    private List<Register> usedCalleeSavedRegisters(AssemblyFile body) {
+    private List<Register> usedCalleeSavedRegisters(AssemblyCode body) {
         List<Register> result = new ArrayList<Register>();
         for (Register reg : calleeSavedRegisters()) {
             if (body.doesUses(reg)) {
@@ -528,8 +528,8 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     }
 
     // #@@range/generateFunctionBody{
-    private void generateFunctionBody(AssemblyFile file,
-            AssemblyFile body, StackFrameInfo frame) {
+    private void generateFunctionBody(AssemblyCode file,
+            AssemblyCode body, StackFrameInfo frame) {
         file.virtualStack.reset();
         prologue(file, frame.saveRegs, frame.frameSize());
         if (options.isPositionIndependent() && body.doesUses(GOTBaseReg())) {
@@ -542,7 +542,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     // #@@range/prologue{
-    private void prologue(AssemblyFile file,
+    private void prologue(AssemblyCode file,
             List<Register> saveRegs, long frameSize) {
         file.push(bp());
         file.mov(sp(), bp());
@@ -554,7 +554,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     // #@@range/epilogue{
-    private void epilogue(AssemblyFile file, List<Register> savedRegs) {
+    private void epilogue(AssemblyCode file, List<Register> savedRegs) {
         for (Register reg : ListUtils.reverse(savedRegs)) {
             file.virtualPop(reg);
         }
@@ -621,13 +621,13 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     // #@@range/fixTempVariableOffsets{
-    private void fixTempVariableOffsets(AssemblyFile asm, long len) {
+    private void fixTempVariableOffsets(AssemblyCode asm, long len) {
         asm.virtualStack.fixOffset(-len);
     }
     // #@@}
 
     // #@@range/extendStack{
-    private void extendStack(AssemblyFile file, long len) {
+    private void extendStack(AssemblyCode file, long len) {
         if (len > 0) {
             file.sub(imm(len), sp());
         }
@@ -635,7 +635,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     // #@@range/rewindStack{
-    private void rewindStack(AssemblyFile file, long len) {
+    private void rewindStack(AssemblyCode file, long len) {
         if (len > 0) {
             file.add(imm(len), sp());
         }

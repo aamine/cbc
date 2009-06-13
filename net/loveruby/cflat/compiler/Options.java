@@ -331,7 +331,7 @@ class Options {
         out.println("  --dump-semantic  Dumps AST after semantic checks and quit.");
         // --dump-reference is a hidden option.
         out.println("  --dump-ir        Dumps IR and quit.");
-        out.println("  --dump-asm       Dumps AssemblyFile and quit.");
+        out.println("  --dump-asm       Dumps AssemblyCode and quit.");
         out.println("  --print-asm      Prints assembly code and quit.");
         out.println("  -S               Generates an assembly file and quit.");
         out.println("  -c               Generates an object file and quit.");

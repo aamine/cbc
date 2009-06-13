@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.PrintStream;
 
-public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
+public class AssemblyCode implements net.loveruby.cflat.sysdep.AssemblyCode {
     final Type naturalType;
     final long stackWordSize;
     final SymbolTable labelSymbols;
@@ -15,7 +15,7 @@ public class AssemblyFile implements net.loveruby.cflat.sysdep.AssemblyFile {
     private int commentIndentLevel = 0;
     private Statistics statistics;
 
-    AssemblyFile(Type naturalType, long stackWordSize,
+    AssemblyCode(Type naturalType, long stackWordSize,
             SymbolTable labelSymbols, boolean verbose) {
         this.naturalType = naturalType;
         this.stackWordSize = stackWordSize;

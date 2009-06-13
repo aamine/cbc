@@ -6,7 +6,7 @@ import net.loveruby.cflat.ast.ExprNode;
 import net.loveruby.cflat.type.TypeTable;
 import net.loveruby.cflat.ir.IR;
 import net.loveruby.cflat.sysdep.CodeGenerator;
-import net.loveruby.cflat.sysdep.AssemblyFile;
+import net.loveruby.cflat.sysdep.AssemblyCode;
 import net.loveruby.cflat.utils.ErrorHandler;
 import net.loveruby.cflat.exception.*;
 import java.util.*;
@@ -114,7 +114,7 @@ public class Compiler {
         if (dumpSemant(sem, opts.mode())) return;
         IR ir = new IRGenerator(types, errorHandler).generate(sem);
         if (dumpIR(ir, opts.mode())) return;
-        AssemblyFile asm = generateAssembly(ir, opts);
+        AssemblyCode asm = generateAssembly(ir, opts);
         if (dumpAsm(asm, opts.mode())) return;
         if (printAsm(asm, opts.mode())) return;
         writeFile(destPath, asm.toSource());
@@ -140,7 +140,7 @@ public class Compiler {
         return ast;
     }
 
-    public AssemblyFile generateAssembly(IR ir, Options opts) {
+    public AssemblyCode generateAssembly(IR ir, Options opts) {
         return opts.codeGenerator(errorHandler).generate(ir);
     }
 
@@ -251,7 +251,7 @@ public class Compiler {
         }
     }
 
-    private boolean dumpAsm(AssemblyFile asm, CompilerMode mode) {
+    private boolean dumpAsm(AssemblyCode asm, CompilerMode mode) {
         if (mode == CompilerMode.DumpAsm) {
             asm.dump(System.out);
             return true;
@@ -261,7 +261,7 @@ public class Compiler {
         }
     }
 
-    private boolean printAsm(AssemblyFile asm, CompilerMode mode) {
+    private boolean printAsm(AssemblyCode asm, CompilerMode mode) {
         if (mode == CompilerMode.PrintAsm) {
             System.out.print(asm.toSource());
             return true;
