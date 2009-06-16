@@ -1,3 +1,9 @@
+Sun Jun 14 23:44:47 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Options.java
+	  (parseCommaSeparatedOptions): AbstractList does not support
+	  #remove.
+
 Sat Jun 13 22:42:24 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* rename class: AssemblyFile -> AssemblyCode.

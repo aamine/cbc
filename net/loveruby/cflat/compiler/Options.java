@@ -312,12 +312,16 @@ class Options {
 
     /** "-Wl,-rpath,/usr/local/lib" -> ["-rpath", "/usr/local/lib"] */
     private List<String> parseCommaSeparatedOptions(String opt) {
-        List<String> opts = Arrays.asList(opt.split(","));
-        opts.remove(0);  // remove "-Wl" etc.
-        if (opts.isEmpty()) {
+        String[] opts = opt.split(",");
+        if (opts.length <= 1) {
             parseError("missing argument for " + opt);
         }
-        return opts;
+        List<String> result = new ArrayList<String>();
+        // move items into result, except first item ("-Wl", etc).
+        for (int i = 1; i < opts.length; i++) {
+            result.add(opts[i]);
+        }
+        return result;
     }
 
     void printUsage(PrintStream out) {
