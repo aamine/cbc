@@ -5,6 +5,7 @@ OBJS = stdarg.o alloca.o
 
 CC = gcc
 CFLAGS = -Wall
+AR_CREATE = ar crs
 
 .SUFFIXES:
 .SUFFIXES: .cb .s .o
@@ -15,7 +16,7 @@ CFLAGS = -Wall
 	$(CBC) -c $<
 
 $(TARGET): $(OBJS)
-	ar cr $(TARGET) $(OBJS)
+	$(AR_CREATE) $(TARGET) $(OBJS)
 
 stdarg.o: stdarg.cb
 
