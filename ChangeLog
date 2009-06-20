@@ -1,3 +1,8 @@
+Sun Jun 21 03:48:12 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/GNULinker.java: parameterize linker
+	  path.
+
 Sun Jun 21 03:47:05 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* import/stdlib.hb: add system() prototype.

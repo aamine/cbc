@@ -7,11 +7,14 @@ import java.util.ArrayList;
 
 class GNULinker implements Linker {
     // 32bit Linux dependent
+    // #@@range/vars{
+    static final private String LINKER = "/usr/bin/ld";
     static final private String DYNAMIC_LINKER      = "/lib/ld-linux.so.2";
     static final private String C_RUNTIME_INIT      = "/usr/lib/crti.o";
     static final private String C_RUNTIME_START     = "/usr/lib/crt1.o";
     static final private String C_RUNTIME_START_PIE = "/usr/lib/Scrt1.o";
     static final private String C_RUNTIME_FINI      = "/usr/lib/crtn.o";
+    // #@@}
 
     ErrorHandler errorHandler;
 
@@ -19,10 +22,11 @@ class GNULinker implements Linker {
         this.errorHandler = errorHandler;
     }
 
+    // #@@range/generateExecutable{
     public void generateExecutable(List<String> args,
             String destPath, LinkerOptions opts) throws IPCException {
         List<String> cmd = new ArrayList<String>();
-        cmd.add("ld");
+        cmd.add(LINKER);
         cmd.add("-dynamic-linker");
         cmd.add(DYNAMIC_LINKER);
         if (opts.generatingPIE) {
@@ -46,11 +50,13 @@ class GNULinker implements Linker {
         cmd.add(destPath);
         CommandUtils.invoke(cmd, errorHandler, opts.verbose);
     }
+    // #@@}
 
+    // #@@range/generateSharedLibrary{
     public void generateSharedLibrary(List<String> args,
             String destPath, LinkerOptions opts) throws IPCException {
         List<String> cmd = new ArrayList<String>();
-        cmd.add("ld");
+        cmd.add(LINKER);
         cmd.add("-shared");
         if (! opts.noStartFiles) {
             cmd.add(C_RUNTIME_INIT);
@@ -67,4 +73,5 @@ class GNULinker implements Linker {
         cmd.add(destPath);
         CommandUtils.invoke(cmd, errorHandler, opts.verbose);
     }
+    // #@@}
 }
