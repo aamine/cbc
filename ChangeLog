@@ -1,3 +1,7 @@
+Sun Jun 21 03:47:05 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* import/stdlib.hb: add system() prototype.
+
 Thu Jun 18 00:45:50 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* lib/Makefile: use 's' option to create index.
