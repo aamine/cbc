@@ -1,3 +1,8 @@
+Sun Jun 21 19:15:19 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: refactoring:
+	  rename method: doesIndirectAccess -> shouldUsePLT.
+
 Sun Jun 21 17:14:56 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: assign address

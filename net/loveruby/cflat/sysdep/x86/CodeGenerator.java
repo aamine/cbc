@@ -118,16 +118,13 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
         }
         else {
             Symbol sym = globalSymbol(func.symbolString());
-            return doesIndirectAccess(func) ? PLTSymbol(sym) : sym;
+            return shouldUsePLT(func) ? PLTSymbol(sym) : sym;
         }
     }
     // #@@}
 
-    // condition to use indirect access (using PLT to call, GOT to refer).
-    // In PIC, we do use indirect access for all global variables.
-    // In PIE, we do use direct access for file-local reference.
-    // #@@range/doesIndirectAccess{
-    private boolean doesIndirectAccess(Entity ent) {
+    // #@@range/shouldUsePLT{
+    private boolean shouldUsePLT(Entity ent) {
         return options.isPositionIndependent() && !optimizeGvarAccess(ent);
     }
     // #@@}
