@@ -1,3 +1,10 @@
+Sun Jun 21 17:14:56 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: assign address
+	  for gvar.
+
+	* net/loveruby/cflat/entity/Entity.java: accept imm address.
+
 Sun Jun 21 17:14:19 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Options.java: rename option:

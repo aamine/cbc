@@ -6,6 +6,7 @@ import net.loveruby.cflat.ast.ExprNode;
 import net.loveruby.cflat.asm.Symbol;
 import net.loveruby.cflat.asm.Operand;
 import net.loveruby.cflat.asm.MemoryReference;
+import net.loveruby.cflat.asm.ImmediateValue;
 
 abstract public class Entity
         implements net.loveruby.cflat.ast.Dumpable {
@@ -14,7 +15,7 @@ abstract public class Entity
     protected TypeNode typeNode;
     protected long nRefered;
     protected MemoryReference memref;
-    protected MemoryReference address;
+    protected Operand address;
 
     public Entity(boolean priv, TypeNode type, String name) {
         this.name = name;
@@ -81,6 +82,10 @@ abstract public class Entity
 
     public void setAddress(MemoryReference mem) {
         this.address = mem;
+    }
+
+    public void setAddress(ImmediateValue imm) {
+        this.address = imm;
     }
 
     public Operand address() {

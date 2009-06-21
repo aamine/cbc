@@ -81,6 +81,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
         }
         else {
             ent.setMemref(mem(sym));
+            ent.setAddress(imm(sym));
         }
     }
     // #@@}
