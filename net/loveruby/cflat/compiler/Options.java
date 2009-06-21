@@ -197,7 +197,7 @@ class Options {
                 else if (arg.equals("-pie")) {
                     ldOptions.generatingPIE = true;
                 }
-                else if (arg.equals("--readonly-plt")) {
+                else if (arg.equals("--readonly-got")) {
                     addLdArg("-z");
                     addLdArg("combreloc");
                     addLdArg("-z");
@@ -375,7 +375,7 @@ class Options {
         out.println("  -shared          Generates shared library rather than executable.");
         out.println("  -static          Linkes only with static libraries.");
         out.println("  -pie             Generates PIE.");
-        out.println("  --readonly-plt   Generates read-only PLT.");
+        out.println("  --readonly-got   Generates read-only GOT (ld -z combreloc -z now -z relro).");
         out.println("  -nostartfiles    Do not link startup files.");
         out.println("  -nodefaultlibs   Do not link default libraries.");
         out.println("  -nostdlib        Enables -nostartfiles and -nodefaultlibs.");

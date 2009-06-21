@@ -1,3 +1,8 @@
+Sun Jun 21 17:14:19 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Options.java: rename option:
+	  --readonly-plt -> --readonly-got.
+
 Sun Jun 21 03:48:12 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/GNULinker.java: parameterize linker
