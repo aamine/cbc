@@ -12,6 +12,7 @@ class GNUAssembler implements Assembler {
         this.errorHandler = h;
     }
 
+    // #@@range/assemble{
     public void assemble(String srcPath, String destPath,
                             AssemblerOptions opts) throws IPCException {
         List<String> cmd = new ArrayList<String>();
@@ -22,4 +23,5 @@ class GNUAssembler implements Assembler {
         cmd.add(srcPath);
         CommandUtils.invoke(cmd, errorHandler, opts.verbose);
     }
+    // #@@}
 }

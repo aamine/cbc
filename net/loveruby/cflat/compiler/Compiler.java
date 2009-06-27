@@ -144,12 +144,15 @@ public class Compiler {
         return opts.codeGenerator(errorHandler).generate(ir);
     }
 
+    // #@@range/assemble{
     public void assemble(String srcPath, String destPath,
                             Options opts) throws IPCException {
         opts.assembler(errorHandler)
             .assemble(srcPath, destPath, opts.asOptions());
     }
+    // #@@}
 
+    // #@@range/link{
     public void link(Options opts) throws IPCException {
         if (! opts.isGeneratingSharedLibrary()) {
             generateExecutable(opts);
@@ -158,16 +161,21 @@ public class Compiler {
             generateSharedLibrary(opts);
         }
     }
+    // #@@}
 
+    // #@@range/generateExecutable{
     public void generateExecutable(Options opts) throws IPCException {
         opts.linker(errorHandler).generateExecutable(
                 opts.ldArgs(), opts.exeFileName(), opts.ldOptions());
     }
+    // #@@}
 
+    // #@@range/generateSharedLibrary{
     public void generateSharedLibrary(Options opts) throws IPCException {
         opts.linker(errorHandler).generateSharedLibrary(
                 opts.ldArgs(), opts.soFileName(), opts.ldOptions());
     }
+    // #@@}
 
     private void writeFile(String path, String str) throws FileException {
         if (path.equals("-")) {

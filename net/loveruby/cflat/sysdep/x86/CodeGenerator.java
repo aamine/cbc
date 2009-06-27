@@ -152,6 +152,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
         if (ir.isFunctionDefined()) {
             generateTextSection(file, ir.definedFunctions());
         }
+        // #@@range/generateAssemblyCode_last{
         if (ir.isCommonSymbolDefined()) {
             generateCommonSymbols(file, ir.definedCommonSymbols());
         }
@@ -159,6 +160,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
             PICThunk(file, GOTBaseReg());
         }
         return file;
+        // #@@}
     }
     // #@@}
 
@@ -266,19 +268,18 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // PIC/PIE related constants and codes
     //
 
-    // #@@range/pic_methods{
-    static private final Symbol GOT =
-            new NamedSymbol("_GLOBAL_OFFSET_TABLE_");
+    // #@@range/loadGOT{
+    static private final Symbol GOT = new NamedSymbol("_GLOBAL_OFFSET_TABLE_");
 
     private void loadGOTBaseAddress(AssemblyCode file, Register reg) {
         file.call(PICThunkSymbol(reg));
         file.add(imm(GOT), reg);
     }
+    // #@@}
 
     private Register GOTBaseReg() {
         return bx();
     }
-    // #@@}
 
     // #@@range/pic_symbols{
     private Symbol globalGOTSymbol(Symbol base) {
@@ -294,16 +295,16 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     }
     // #@@}
 
-    // #@@range/pic_thunk_helper{
+    // #@@range/PICThunkSymbol{
     private Symbol PICThunkSymbol(Register reg) {
         return new NamedSymbol("__i686.get_pc_thunk." + reg.baseName());
     }
+    // #@@}
 
     static private final String
     PICThunkSectionFlags = SectionFlag_allocatable
                          + SectionFlag_executable
                          + SectionFlag_sectiongroup;
-    // #@@}
 
     /**
      * Output PIC thunk.
