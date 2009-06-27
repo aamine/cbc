@@ -413,7 +413,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
 
         // #@@range/cfb_offset{
         AssemblyCode body = optimize(compileStmts(func));
-        frame.saveRegs = usedCalleeSavedRegisters(body);
+        frame.saveRegs = usedCalleeSaveRegisters(body);
         frame.tempSize = body.virtualStack.maxSize();
 
         fixLocalVariableOffsets(func.lvarScope(), frame.lvarOffset());
@@ -494,10 +494,10 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     // #@@}
 
     // does NOT include BP
-    // #@@range/usedCalleeSavedRegisters{
-    private List<Register> usedCalleeSavedRegisters(AssemblyCode body) {
+    // #@@range/usedCalleeSaveRegisters{
+    private List<Register> usedCalleeSaveRegisters(AssemblyCode body) {
         List<Register> result = new ArrayList<Register>();
-        for (Register reg : calleeSavedRegisters()) {
+        for (Register reg : calleeSaveRegisters()) {
             if (body.doesUses(reg)) {
                 result.add(reg);
             }
@@ -507,22 +507,22 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     }
     // #@@}
 
-    static final RegisterClass[] CALLEE_SAVED_REGISTERS = {
+    static final RegisterClass[] CALLEE_SAVE_REGISTERS = {
         RegisterClass.BX, RegisterClass.BP,
         RegisterClass.SI, RegisterClass.DI
     };
 
-    private List<Register> calleeSavedRegistersCache = null;
+    private List<Register> calleeSaveRegistersCache = null;
 
-    private List<Register> calleeSavedRegisters() {
-        if (calleeSavedRegistersCache == null) {
+    private List<Register> calleeSaveRegisters() {
+        if (calleeSaveRegistersCache == null) {
             List<Register> regs = new ArrayList<Register>();
-            for (RegisterClass c : CALLEE_SAVED_REGISTERS) {
+            for (RegisterClass c : CALLEE_SAVE_REGISTERS) {
                 regs.add(new Register(c, naturalType));
             }
-            calleeSavedRegistersCache = regs;
+            calleeSaveRegistersCache = regs;
         }
-        return calleeSavedRegistersCache;
+        return calleeSaveRegistersCache;
     }
 
     // #@@range/generateFunctionBody{
@@ -830,6 +830,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
         case MUL:
             as.imul(right, left);
             break;
+            // #@@range/compileBinaryOp_sdiv{
         case S_DIV:
         case S_MOD:
             as.cltd();
@@ -837,6 +838,7 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
             if (op == Op.S_MOD) {
                 as.mov(dx(), left);
             }
+            // #@@}
             break;
         case U_DIV:
         case U_MOD:
@@ -904,9 +906,11 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
             as.not(ax(src));
             break;
         case NOT:
+            // #@@range/Uni_not{
             as.test(ax(src), ax(src));
             as.sete(al());
             as.movzx(al(), ax(dest));
+            // #@@}
             break;
         case S_CAST:
             as.movsx(ax(src), ax(dest));
