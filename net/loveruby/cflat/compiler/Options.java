@@ -235,7 +235,7 @@ class Options {
                     ldOptions.verbose = true;
                 }
                 else if (arg.equals("--version")) {
-                    System.out.printf("%s version %s",
+                    System.out.printf("%s version %s\n",
                         Compiler.ProgramName, Compiler.Version);
                     System.exit(0);
                 }
