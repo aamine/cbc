@@ -1,3 +1,8 @@
+Mon Jul  6 05:20:56 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* net/loveruby/cflat/compiler/Options.java: --version did not
+	  print "\n".
+
 Sun Jun 21 19:15:19 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/sysdep/x86/CodeGenerator.java: refactoring:
