@@ -6,7 +6,7 @@ LIBS="lib/cbc.jar lib/libcbc.a"
 
 main()
 {
-    if ! [ -f lib/cbc.jar && -f lib/libcbc.a ]
+    if ! [[ -f lib/cbc.jar && -f lib/libcbc.a ]]
     then
         echo "lib/cbc.jar and lib/libcbc.a do not exist.  Build it first" 1>&2
         exit 1
@@ -16,6 +16,8 @@ main()
     invoke cp $BINS "$prefix/bin"
     invoke mkdir -p "$prefix/lib"
     invoke cp $LIBS "$prefix/lib"
+    invoke rm -rf "$prefix/import"
+    invoke cp -r import "$prefix/import"
     echo "cbc successfully installed as $prefix/bin/cbc"
 }
 

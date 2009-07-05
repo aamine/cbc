@@ -1,3 +1,7 @@
+Mon Jul  6 05:21:24 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* install.sh: tested.
+
 Mon Jul  6 05:20:56 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* net/loveruby/cflat/compiler/Options.java: --version did not
