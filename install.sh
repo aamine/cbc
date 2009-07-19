@@ -13,7 +13,7 @@ main()
     fi
     echo "prefix=$prefix"
     invoke mkdir -p "$prefix/bin"
-    invoke cp $BINS "$prefix/bin"
+    invoke install -m755 $BINS "$prefix/bin"
     invoke mkdir -p "$prefix/lib"
     invoke cp $LIBS "$prefix/lib"
     invoke rm -rf "$prefix/import"
