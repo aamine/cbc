@@ -22,4 +22,4 @@ recompile:
 comptest: recompile test
 
 clean:
-	rm -f *.s *.o `svn pget svn:ignore .`
+	rm -f a.out *.s *.o tc.* `cat TARGETS`
