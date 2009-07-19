@@ -1,3 +1,7 @@
+Sun Jul 19 14:21:42 2009  Minero Aoki  <aamine@loveruby.net>
+
+	* test/test_cbc.sh: do not override CBC environment.
+
 Mon Jul  6 05:21:24 2009  Minero Aoki  <aamine@loveruby.net>
 
 	* install.sh: tested.

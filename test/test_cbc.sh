@@ -2,6 +2,8 @@
 # test_cbc.sh
 #
 
+CBC=${CBC:-../bin/cbc}
+
 test_01_exec() {
     assert_stat 0 ./zero
     assert_stat 1 ./one
@@ -378,8 +380,6 @@ assert_public() {
 assert_private() {
     assert_eq "private" `symbol_visibility $1 $2`
 }
-
-CBC=../bin/cbc
 
 assert_compile_success() {
     assert_status 0 $CBC "$@"
