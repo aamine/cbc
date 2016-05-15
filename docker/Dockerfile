@@ -14,7 +14,13 @@ RUN git clone https://github.com/leungwensen/cbc-ubuntu-64bit.git
 
 RUN cd cbc-ubuntu-64bit
 
-RUN ./install.sh
+RUN bash install.sh
+
+RUN echo 'PATH=/usr/local/cbc/bin:$PATH' >> $HOME/.bashrc
+
+RUN echo alias cbc=cbc -Wa,--32 -Wl,-melf_i386 >> $HOME/.bashrc
+
+RUN source $HOME/.bashrc
 
 # commands when creating a new container
 
