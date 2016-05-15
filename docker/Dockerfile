@@ -18,7 +18,5 @@ RUN echo 'PATH=/usr/local/cbc/bin:$PATH' >> $HOME/.bashrc
 
 RUN echo alias cbc=cbc -Wa,--32 -Wl,-melf_i386 >> $HOME/.bashrc
 
-RUN source $HOME/.bashrc
-
 # commands when creating a new container
 
