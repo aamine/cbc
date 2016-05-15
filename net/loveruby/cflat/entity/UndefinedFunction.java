@@ -10,7 +10,7 @@ public class UndefinedFunction extends Function {
         this.params = params;
     }
 
-    public List<Parameter> parameters() {
+    public List<CBCParameter> parameters() {
         return params.parameters();
     }
 

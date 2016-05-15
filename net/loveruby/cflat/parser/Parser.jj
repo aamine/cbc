@@ -567,7 +567,7 @@ Params params():
       LOOKAHEAD(<VOID> ")")
       t=<VOID>
         {
-            return new Params(location(t), new ArrayList<Parameter>());
+            return new Params(location(t), new ArrayList<CBCParameter>());
         }
     | params=fixedparams()
             ["," "..." { params.acceptVarargs(); }]
@@ -580,8 +580,8 @@ Params params():
 // #@@range/fixedparams{
 Params fixedparams():
 {
-    List<Parameter> params = new ArrayList<Parameter>();
-    Parameter param, param1;
+    List<CBCParameter> params = new ArrayList<CBCParameter>();
+    CBCParameter param, param1;
 }
 {
     param1=param() { params.add(param1); }
@@ -593,13 +593,13 @@ Params fixedparams():
 // #@@}
 
 // #@@range/param{
-Parameter param():
+CBCParameter param():
 {
     TypeNode t;
     String n;
 }
 {
-    t=type() n=name() { return new Parameter(t, n); }
+    t=type() n=name() { return new CBCParameter(t, n); }
 }
 // #@@}
 

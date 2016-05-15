@@ -131,7 +131,7 @@ public class TypeResolver extends Visitor
     // #@@range/resolveFunctionHeader{
     private void resolveFunctionHeader(Function func) {
         bindType(func.typeNode());
-        for (Parameter param : func.parameters()) {
+        for (CBCParameter param : func.parameters()) {
             // arrays must be converted to pointers in a function parameter.
             Type t = typeTable.getParamType(param.typeNode().typeRef());
             param.typeNode().setType(t);
