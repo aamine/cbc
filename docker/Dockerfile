@@ -12,9 +12,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN git clone https://github.com/leungwensen/cbc-ubuntu-64bit.git
 
-RUN cd cbc-ubuntu-64bit
-
-RUN bash install.sh
+RUN cd cbc-ubuntu-64bit && bash install.sh
 
 RUN echo 'PATH=/usr/local/cbc/bin:$PATH' >> $HOME/.bashrc
 
