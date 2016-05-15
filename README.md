@@ -45,7 +45,7 @@ cbc -Wa,"--32" -Wl,"-melf_i386" test/hello.cb
 eval $(docker-machine env default)
 ```
 
-### 下载镜像
+### 下载镜像[leungwensen/cbc-ubuntu-64bit](https://hub.docker.com/r/leungwensen/cbc-ubuntu-64bit)
 
 ```shell
 docker pull leungwensen/cbc-ubuntu-64bit
