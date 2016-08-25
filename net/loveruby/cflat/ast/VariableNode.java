@@ -37,6 +37,24 @@ public class VariableNode extends LHSNode {
         entity = ent;
     }
 
+    /*==============================================
+    =            fix constant entity bug            =
+    ==============================================*/
+    public boolean isLvalue() { 
+        if (entity.isConstant()) {
+            return false;
+        }
+        return true; 
+    }
+
+    public boolean isAssignable() { 
+        if (entity.isConstant()) {
+            return false;
+        }
+        return isLoadable(); 
+    }
+    /*=====  End of fix constant entity bug  ======*/
+    
     public TypeNode typeNode() {
         return entity().typeNode();
     }
