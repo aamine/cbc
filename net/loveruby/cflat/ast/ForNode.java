@@ -1,4 +1,5 @@
 package net.loveruby.cflat.ast;
+import net.loveruby.cflat.type.*;
 
 public class ForNode extends StmtNode {
     protected StmtNode init;
@@ -9,9 +10,21 @@ public class ForNode extends StmtNode {
     public ForNode(Location loc, 
                    ExprNode init, ExprNode cond, ExprNode incr, StmtNode body) {
         super(loc);
-        this.init = new ExprStmtNode(init.location(), init);
-        this.cond = cond;
-        this.incr = new ExprStmtNode(incr.location(), incr);
+        if (init != null) {
+            this.init = new ExprStmtNode(init.location(), init);
+        } else {
+            this.init = null;
+        }
+        if (cond != null) {
+            this.cond = cond;
+        } else {
+            this.cond = new IntegerLiteralNode(null, IntegerTypeRef.intRef(), 1);
+        }
+        if (incr != null) {
+            this.incr = new ExprStmtNode(incr.location(), incr);
+        } else {
+            this.incr = null;
+        }
         this.body = body;
     }
 
