@@ -31,7 +31,7 @@ public class SizeofTypeNode extends ExprNode {
     }
 
     protected void _dump(Dumper d) {
-        d.printMember("operand", type);
+        d.printMember("operand", operand);
     }
 
     public <S,E> E accept(ASTVisitor<S,E> visitor) {

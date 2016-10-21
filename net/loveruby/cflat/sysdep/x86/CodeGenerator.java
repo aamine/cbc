@@ -567,9 +567,9 @@ public class CodeGenerator implements net.loveruby.cflat.sysdep.CodeGenerator,
     static final private long PARAM_START_WORD = 2;
                                     // return addr and saved bp
 
-    private void locateParameters(List<Parameter> params) {
+    private void locateParameters(List<CBCParameter> params) {
         long numWords = PARAM_START_WORD;
-        for (Parameter var : params) {
+        for (CBCParameter var : params) {
             var.setMemref(mem(stackSizeFromWordNum(numWords), bp()));
             numWords++;
         }

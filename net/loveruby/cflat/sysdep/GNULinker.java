@@ -10,10 +10,10 @@ class GNULinker implements Linker {
     // #@@range/vars{
     static final private String LINKER = "/usr/bin/ld";
     static final private String DYNAMIC_LINKER      = "/lib/ld-linux.so.2";
-    static final private String C_RUNTIME_INIT      = "/usr/lib/crti.o";
-    static final private String C_RUNTIME_START     = "/usr/lib/crt1.o";
-    static final private String C_RUNTIME_START_PIE = "/usr/lib/Scrt1.o";
-    static final private String C_RUNTIME_FINI      = "/usr/lib/crtn.o";
+    static final private String C_RUNTIME_INIT      = "/usr/lib32/crti.o";
+    static final private String C_RUNTIME_START     = "/usr/lib32/crt1.o";
+    static final private String C_RUNTIME_START_PIE = "/usr/lib32/Scrt1.o";
+    static final private String C_RUNTIME_FINI      = "/usr/lib32/crtn.o";
     // #@@}
 
     ErrorHandler errorHandler;

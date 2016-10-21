@@ -297,8 +297,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         Label bodyLabel = new Label();
         Label contLabel = new Label();
         Label endLabel = new Label();
-
-        transformStmt(node.init());
+        if (node.init() != null) transformStmt(node.init());
         label(begLabel);
         cjump(node.location(),
                 transformExpr(node.cond()), bodyLabel, endLabel);
@@ -309,7 +308,7 @@ class IRGenerator implements ASTVisitor<Void, Expr> {
         popBreak();
         popContinue();
         label(contLabel);
-        transformStmt(node.incr());
+        if (node.incr() != null) transformStmt(node.incr());
         jump(begLabel);
         label(endLabel);
         return null;

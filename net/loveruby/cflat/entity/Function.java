@@ -17,7 +17,7 @@ abstract public class Function extends Entity {
     public boolean isInitialized() { return true; }
 
     abstract public boolean isDefined();
-    abstract public List<Parameter> parameters();
+    abstract public List<CBCParameter> parameters();
 
     public Type returnType() {
         return type().getFunctionType().returnType();

@@ -11,9 +11,9 @@ AR_CREATE = ar crs
 .SUFFIXES: .cb .s .o
 
 .cb.o:
-	$(CBC) $(CBFLAGS) -c $< -o $@
+	$(CBC) $(CBFLAGS) -Wa,"--32" -c $< -o $@
 .s.o:
-	$(CBC) -c $<
+	$(CBC) -Wa,"--32" -c $<
 
 $(TARGET): $(OBJS)
 	$(AR_CREATE) $(TARGET) $(OBJS)
